@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ecuafact Pro</title>
+  <link rel="icon" type="image/x-icon" href="./public/fact.ico">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
+    rel="stylesheet" />
+
+  <script>
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            primary: "#2563EB",
+            secondary: "#1E40AF",
+            "background-light": "#F3F4F6",
+            "background-dark": "#0f172a",
+            "surface-dark": "#1e293b",
+            "surface-dark-2": "#334155",
+            "ecua-blue": "#3B82F6",
+          },
+          fontFamily: {
+            display: ["Inter", "sans-serif"],
+          },
+        },
+      },
+    };
+  </script>
+
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+    rel="stylesheet" />
+  <style>
+    .animate-blob {
+      animation: blob 7s infinite;
+    }
+
+    .animation-delay-2000 {
+      animation-delay: 2s;
+    }
+
+    @keyframes blob {
+      0% {
+        transform: translate(0px, 0px) scale(1);
+      }
+
+      33% {
+        transform: translate(30px, -50px) scale(1.1);
+      }
+
+      66% {
+        transform: translate(-20px, 20px) scale(0.9);
+      }
+
+      100% {
+        transform: translate(0px, 0px) scale(1);
+      }
+    }
+  </style>
+
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+    }
+
+    /* Scrollbar personalizado para modo oscuro */
+    .dark ::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+    .dark ::-webkit-scrollbar-track {
+      background: #1e293b;
+    }
+    .dark ::-webkit-scrollbar-thumb {
+      background: #475569;
+      border-radius: 4px;
+    }
+    .dark ::-webkit-scrollbar-thumb:hover {
+      background: #64748b;
+    }
+
+    /* Placeholder en modo oscuro */
+    .dark input::placeholder,
+    .dark textarea::placeholder,
+    .dark select::placeholder {
+      color: #64748b;
+    }
+
+    /* Select options en modo oscuro */
+    .dark select option {
+      background-color: #1e293b;
+      color: #e2e8f0;
+    }
+
+    /* ============================================= */
+    /* MODO OSCURO GLOBAL - Componentes automáticos  */
+    /* ============================================= */
+
+    /* Tarjetas y contenedores principales */
+    .dark .bg-white {
+      background-color: #1e293b !important;
+    }
+
+    /* Fondos sutiles */
+    .dark .bg-slate-50 {
+      background-color: rgba(30, 41, 59, 0.5) !important;
+    }
+
+    /* Bordes */
+    .dark .border-slate-100 {
+      border-color: rgba(71, 85, 105, 0.4) !important;
+    }
+    .dark .border-slate-50 {
+      border-color: rgba(71, 85, 105, 0.3) !important;
+    }
+    .dark .border-slate-200 {
+      border-color: rgba(71, 85, 105, 0.5) !important;
+    }
+
+    /* Textos principales */
+    .dark .text-slate-800 {
+      color: #f1f5f9 !important;
+    }
+    .dark .text-slate-900 {
+      color: #f8fafc !important;
+    }
+    .dark .text-slate-700 {
+      color: #cbd5e1 !important;
+    }
+    .dark .text-gray-800 {
+      color: #f1f5f9 !important;
+    }
+    .dark .text-gray-900 {
+      color: #f8fafc !important;
+    }
+
+    /* Textos secundarios */
+    .dark .text-slate-600 {
+      color: #94a3b8 !important;
+    }
+    .dark .text-slate-500 {
+      color: #64748b !important;
+    }
+    .dark .text-gray-700 {
+      color: #cbd5e1 !important;
+    }
+    .dark .text-gray-500 {
+      color: #64748b !important;
+    }
+
+    /* Inputs y formularios */
+    .dark input,
+    .dark textarea,
+    .dark select {
+      color: #e2e8f0;
+    }
+    .dark .bg-slate-50 input,
+    .dark .bg-slate-50 textarea,
+    .dark .bg-slate-50 select,
+    .dark input.bg-slate-50,
+    .dark textarea.bg-slate-50,
+    .dark select.bg-slate-50 {
+      background-color: rgba(30, 41, 59, 0.6) !important;
+    }
+
+    /* Sombras en modo oscuro */
+    .dark .shadow-sm {
+      box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.3), 0 1px 2px -1px rgba(0, 0, 0, 0.3) !important;
+    }
+    .dark .shadow-md {
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.4), 0 2px 4px -2px rgba(0, 0, 0, 0.4) !important;
+    }
+    .dark .shadow-2xl {
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5) !important;
+    }
+
+    /* Hover states */
+    .dark .hover\:bg-slate-50:hover {
+      background-color: rgba(51, 65, 85, 0.5) !important;
+    }
+    .dark .hover\:bg-slate-100:hover {
+      background-color: rgba(51, 65, 85, 0.6) !important;
+    }
+
+    /* Divide colors */
+    .dark .divide-slate-50 > :not([hidden]) ~ :not([hidden]) {
+      border-color: rgba(71, 85, 105, 0.3) !important;
+    }
+    .dark .divide-slate-100 > :not([hidden]) ~ :not([hidden]) {
+      border-color: rgba(71, 85, 105, 0.4) !important;
+    }
+
+    /* Fondos de colores sutiles */
+    .dark .bg-blue-50 {
+      background-color: rgba(59, 130, 246, 0.08) !important;
+    }
+    .dark .bg-emerald-50 {
+      background-color: rgba(16, 185, 129, 0.08) !important;
+    }
+    .dark .bg-rose-50 {
+      background-color: rgba(244, 63, 94, 0.08) !important;
+    }
+    .dark .bg-indigo-50 {
+      background-color: rgba(99, 102, 241, 0.08) !important;
+    }
+    .dark .bg-purple-50 {
+      background-color: rgba(168, 85, 247, 0.08) !important;
+    }
+    .dark .bg-amber-50 {
+      background-color: rgba(245, 158, 11, 0.08) !important;
+    }
+    .dark .bg-purple-100 {
+      background-color: rgba(168, 85, 247, 0.12) !important;
+    }
+    .dark .bg-blue-100 {
+      background-color: rgba(59, 130, 246, 0.12) !important;
+    }
+    .dark .bg-emerald-100 {
+      background-color: rgba(16, 185, 129, 0.12) !important;
+    }
+
+    /* Bordes de colores */
+    .dark .border-blue-100 {
+      border-color: rgba(59, 130, 246, 0.2) !important;
+    }
+    .dark .border-indigo-100 {
+      border-color: rgba(99, 102, 241, 0.2) !important;
+    }
+    .dark .border-emerald-100 {
+      border-color: rgba(16, 185, 129, 0.2) !important;
+    }
+    .dark .border-rose-100 {
+      border-color: rgba(244, 63, 94, 0.2) !important;
+    }
+
+    /* Modales y overlays */
+    .dark .bg-slate-900\/80 {
+      background-color: rgba(2, 6, 23, 0.85) !important;
+    }
+    .dark .bg-slate-900\/70 {
+      background-color: rgba(2, 6, 23, 0.8) !important;
+    }
+
+    /* Border dashed */
+    .dark .border-dashed {
+      border-color: rgba(71, 85, 105, 0.5) !important;
+    }
+
+    /* ============================================= */
+    /* OPTIMIZACIONES MÓVILES                        */
+    /* ============================================= */
+
+    /* Touch targets mínimos para botones */
+    button, 
+    .btn,
+    [role="button"] {
+      min-height: 44px;
+      min-width: 44px;
+    }
+
+    /* Inputs más grandes para móvil */
+    input, 
+    textarea, 
+    select {
+      font-size: 16px !important; /* Previene zoom en iOS */
+      min-height: 44px;
+    }
+
+    /* Tablas responsivas */
+    .table-responsive {
+      display: block;
+      width: 100%;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    /* Prevenir overflow horizontal */
+    .prevent-overflow {
+      overflow-x: hidden;
+      max-width: 100vw;
+    }
+
+    /* Cards más adaptables */
+    .card-mobile {
+      margin-left: -0.5rem;
+      margin-right: -0.5rem;
+      border-radius: 0.5rem;
+    }
+
+    @media (max-width: 640px) {
+      /* Ajustes específicos para pantallas pequeñas */
+      .hide-on-mobile {
+        display: none !important;
+      }
+
+      .text-mobile-sm {
+        font-size: 0.75rem;
+        line-height: 1rem;
+      }
+
+      .p-mobile {
+        padding: 0.5rem !important;
+      }
+
+      .gap-mobile {
+        gap: 0.5rem !important;
+      }
+    }
+
+    /* Soporte para gestos de swipe en móvil */
+    .touch-pan-y {
+      touch-action: pan-y pinch-zoom;
+    }
+
+    /* Mejorar scroll en móvil */
+    .smooth-scroll {
+      -webkit-overflow-scrolling: touch;
+      scroll-behavior: smooth;
+    }
+
+    /* Indicador de scroll para tablas */
+    .scroll-indicator {
+      position: relative;
+    }
+
+    .scroll-indicator::after {
+      content: '';
+      position: absolute;
+      right: 0;
+      top: 0;
+      bottom: 0;
+      width: 20px;
+      background: linear-gradient(to right, transparent, rgba(0,0,0,0.1));
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+
+    .scroll-indicator.can-scroll::after {
+      opacity: 1;
+    }
+
+    /* Animaciones optimizadas para móvil */
+    @media (prefers-reduced-motion: reduce) {
+      *,
+      *::before,
+      *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+      }
+    }
+
+    /* Focus visible para accesibilidad */
+    :focus-visible {
+      outline: 2px solid #2563EB;
+      outline-offset: 2px;
+    }
+
+    /* Prevenir selección de texto no deseada */
+    .no-select {
+      -webkit-user-select: none;
+      user-select: none;
+    }
+  </style>
+  <script type="importmap">
+{
+  "imports": {
+    "recharts": "https://esm.sh/recharts@^3.6.0",
+    "react-dom/": "https://esm.sh/react-dom@^19.2.3/",
+    "react/": "https://esm.sh/react@^19.2.3/",
+    "react": "https://esm.sh/react@^19.2.3",
+    "@google/genai": "https://esm.sh/@google/genai@^1.34.0"
+  }
+}
+</script>
+</head>
+
+<body class="bg-slate-50 text-slate-900 dark:bg-[#0f172a] dark:text-slate-100 transition-colors duration-300">
+  <div id="root"></div>
+  <script type="module" src="/index.tsx"></script>
+</body>
+
+</html>

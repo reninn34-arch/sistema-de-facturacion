@@ -1,0 +1,366 @@
+// backend/prisma/schema.prisma
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ---------------------------------------------------------
+// 1. MODELO EMPRESA (El corazón del SaaS)
+// ---------------------------------------------------------
+model Business {
+  id                   String   @id @default(uuid())
+  
+  // Datos de Identificación
+  ruc                  String   @unique // El RUC de la empresa sigue siendo único globalmente
+  name                 String
+  tradename            String?
+  address              String?
+  branchAddress        String?
+  phone                String?
+  email                String
+  website              String?
+  logo                 String?
+  
+  // Configuración Tributaria
+  category             String?  // Obligado/No obligado
+  regime               String?  // RIMPE, GENERAL
+  isAccountingObliged  Boolean  @default(false)
+  specialTaxpayerCode  String?
+  withholdingAgentCode String?
+  isProduction         Boolean  @default(false)
+  
+  // Configuración Técnica
+  themeColor           String   @default("#2563eb")
+  establishmentCode    String   @default("001")
+  emissionPointCode    String   @default("001")
+  taxpayerType         String   @default("EMPRESA")
+  notificationSettings Json?
+
+  // --- CAMPOS SAAS (NUEVOS) ---
+  plan                 String   @default("FREE") // FREE, PRO, ENTERPRISE
+  isActive             Boolean  @default(true)   // Para bloquear impagos
+  isDemo               Boolean  @default(false)  // Empresa de pruebas/demo
+
+  // --- CONFIGURACIÓN SRI ---
+  sriEnabled           Boolean  @default(false)  // Habilitar facturación SRI
+  electronicSignature  String?  // Firma electrónica (certificado)
+  sriPassword          String?  // Clave de la firma electrónica
+
+  features             Json?    // Permisos/Módulos habilitados (Inventario, Contabilidad, etc.)
+  subscriptionStart    DateTime? @default(now())
+  subscriptionEnd      DateTime?
+  subscriptionStatus   String   @default("ACTIVE") // ACTIVE, EXPIRED, SUSPENDED
+  
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
+
+  // RELACIONES (Todo lo que pertenece a esta empresa)
+  users     User[]
+  clients   Client[]
+  products  Product[]
+  documents Document[]
+  sequences Sequence[]
+  subscriptions Subscription[]
+  activationRequests ActivationRequest[]
+}
+
+// ---------------------------------------------------------
+// 2. MODELO USUARIO (Jerarquía y Acceso)
+// ---------------------------------------------------------
+model User {
+  id         String    @id @default(uuid())
+  email      String    @unique
+  password   String
+  role       String    @default("VENDEDOR") // SUPERADMIN, ADMIN, VENDEDOR, CONTADOR
+  name       String?
+  isActive   Boolean   @default(true)
+  
+  // SAAS: El usuario pertenece a una empresa
+  // (Es opcional '?' porque el SUPERADMIN podría no tener empresa)
+  businessId String?   
+  business   Business? @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  
+  documents  Document[]
+
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+
+}
+
+// ---------------------------------------------------------
+// 3. MODELOS DE DATOS (Aislados por BusinessId)
+// ---------------------------------------------------------
+
+model Client {
+  id        String   @id @default(uuid())
+  password  String?  // Contraseña para el portal (opcional, si es null usa ruc)
+  ruc       String   
+  name      String
+  email     String?
+  address   String?
+  phone     String?
+  type      String   // CLIENTE, PROVEEDOR, AMBOS
+  createdAt DateTime @default(now())
+
+  // SAAS: Pertenece a una empresa
+  businessId String
+  business   Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+
+  // IMPORTANTE: El RUC ya no es @unique global.
+  // Es único SOLO dentro de la misma empresa.
+
+  @@unique([ruc, businessId]) 
+
+}
+
+model Product {
+  id               String   @id @default(uuid())
+  code             String
+  description      String
+  price            Float
+  wholesalePrice   Float    @default(0)
+  distributorPrice Float    @default(0)
+  taxRate          Int      @default(15)
+  stock            Int      @default(0)
+  minStock         Int      @default(0)
+  imageUrl         String?
+  category         String?
+  type             String   // BIEN, SERVICIO
+  
+  // Campos para SUSCRIPCIONES
+  isSubscription   Boolean  @default(false)  // Indica si es una suscripción
+  subscriptionPeriod String? // PERIODO: mensual, bimestral, trimestral, semestral, anual
+  subscriptionDuration Int?  // DURACIÓN en días
+  
+  // SAAS: Pertenece a una empresa
+  businessId       String
+  business         Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+
+  items              InvoiceItem[]
+  inventoryMovements InventoryMovement[]
+
+  // El código de producto es único SOLO para esa empresa
+  @@unique([code, businessId])
+}
+
+model Document {
+  id                       String    @id @default(uuid())
+  type                     String    // 01: Factura, 04: Nota Crédito, etc.
+  number                   String    // Secuencial (001-001-000000001)
+  accessKey                String?   // Clave de Acceso SRI (49 dígitos)
+  issueDate                DateTime
+  establishmentCode        String?   @default("001")
+  emissionPointCode       String?   @default("001")
+  
+  // Datos del Cliente snapshot (para no romper si el cliente cambia)
+  entityName               String
+  entityRuc                String?
+  entityEmail              String?
+  entityPhone              String?
+  entityAddress            String?
+  
+  total                    Float
+  status                   String    // BORRADOR, GENERADO, FIRMADO, AUTORIZADO
+  paymentStatus            String    // PENDIENTE, PAGADO
+  createdAt                DateTime  @default(now())
+  
+  additionalInfo           String?
+  authorizedXml            String?
+  creditNoteReason         String?
+  paymentMethod            String?   // 01: Sin utilización sist. financiero, 19: Tarjeta, etc.
+  
+  // Documentos relacionados (Notas de crédito)
+  relatedDocumentAccessKey String?
+  relatedDocumentDate      DateTime?
+  relatedDocumentNumber    String?
+  
+  dueDate                  DateTime?
+  source                   String?   @default("LOCAL") // WEB, API, IMPORTADO
+  retentionTaxes           Json?
+  
+  // Sustento tributario (Retenciones)
+  sustainingDocDate        DateTime?
+  sustainingDocNumber      String?
+  sustainingDocTotal       Float?
+  sustainingDocType        String?
+  taxPeriod                String?
+
+  // Tipo de factura para el portal SaaS
+  invoiceType              String?   @default("CLIENT") // "CLIENT" = factura a cliente, "SaaS" = factura de suscripción
+
+  // Relaciones
+  items              InvoiceItem[]
+  inventoryMovements InventoryMovement[]
+  
+  userId             String?
+  user               User?     @relation(fields: [userId], references: [id])
+
+  // SAAS: Pertenece a una empresa
+  businessId         String
+  business           Business  @relation(fields: [businessId], references: [id], onDelete: Cascade)
+
+  @@unique([accessKey]) // La clave de acceso SRI sí es única globalmente (por naturaleza)
+  @@index([issueDate])
+  @@index([entityRuc])
+  @@index([status])
+  @@index([businessId]) // Índice para filtrar rápido por empresa
+}
+
+model InvoiceItem {
+  id          String   @id @default(uuid())
+  documentId  String
+  productId   String?  // Opcional: permite items sin producto (servicios, descripciones genéricas)
+  description String
+  quantity    Float
+  unitPrice   Float
+  discount    Float    @default(0)
+  taxRate     Int
+  total       Float
+  
+  document    Document @relation(fields: [documentId], references: [id], onDelete: Cascade)
+  product     Product?  @relation(fields: [productId], references: [id], onDelete: Cascade)
+}
+
+model Sequence {
+  id                String   @id @default(uuid())
+  type              String   // 'INVOICE', 'CREDIT_NOTE', etc.
+  establishmentCode String
+  emissionPointCode String
+  currentValue      Int
+  updatedAt         DateTime @updatedAt
+
+  // SAAS: Cada empresa tiene sus propios contadores de facturas
+  businessId        String
+  business          Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+
+  @@unique([type, establishmentCode, emissionPointCode, businessId])
+}
+
+model InventoryMovement {
+  id            String   @id @default(uuid())
+  
+  productId     String
+  product       Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  
+  documentId    String?
+  document      Document? @relation(fields: [documentId], references: [id], onDelete: Cascade)
+  
+  type          String   // 'VENTA', 'COMPRA', 'DEVOLUCION', 'AJUSTE'
+  quantity      Int      
+  previousStock Int
+  newStock      Int
+  createdAt     DateTime @default(now())
+  
+  // No necesitamos businessId aquí explícitamente porque ya está en Product y Document,
+  // pero podríamos agregarlo si quisieras reportes muy rápidos sin joins.
+}
+
+// ---------------------------------------------------------
+// 5. MODELO DE SUSCRIPCIONES (SAAS)
+// ---------------------------------------------------------
+model Subscription {
+  id              String   @id @default(uuid())
+  
+  // Empresa Suscrita
+  businessId      String
+  business        Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  
+  // Plan
+  plan            String   // FREE, PRO, ENTERPRISE
+  
+  // Estado
+  status          String   // ACTIVE, EXPIRED, SUSPENDED, CANCELLED
+  
+  // Fechas
+  startDate       DateTime @default(now())
+  endDate         DateTime
+  
+  // Información de pago
+  paymentMethod   String?  // PAYPAL, TRANSFER, CARD
+  paymentId       String?  // ID del pago en el proveedor
+  amount          Float?   // Monto pagado
+  currency        String?  // USD, EUR, etc.
+  
+  // Factura generada
+  invoiceNumber   String?  // Número de factura del SaaS
+  invoiceId       String?  // ID del documento de factura generado
+  
+  // Metadatos
+  notes           String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  
+  @@index([businessId])
+  @@index([status])
+  @@index([startDate])
+}
+
+// ---------------------------------------------------------
+// 6. MODELO DE SOLICITUDES DE ACTIVACIÓN (Transferencias)
+// ---------------------------------------------------------
+model ActivationRequest {
+  id              String   @id @default(uuid())
+  
+  // Empresa que solicita la activación
+  businessId      String
+  business        Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  
+  // Plan solicitado
+  plan            String   // FREE, BASIC, PRO, ENTERPRISE, UNLIMITED
+  
+  // Estado de la solicitud
+  status          String   @default("PENDING") // PENDING, APPROVED, REJECTED
+  
+  // Información del pago por transferencia
+  paymentMethod   String   @default("TRANSFER") // TRANSFER, DEPOSIT
+  amount          Float    // Monto pagado
+  currency        String   @default("USD")
+  
+  // Comprobante de pago (URL del archivo)
+  paymentProofUrl String?
+  paymentProofName String?
+  referenceNumber String?  // Número de referencia de la transferencia
+  
+  // Notas del administrador
+  adminNotes      String?
+  
+  // Usuario que aprobó/rechazó (si aplica)
+  processedBy     String?
+  processedAt     DateTime?
+  
+  // Fechas
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  
+  @@index([businessId])
+  @@index([status])
+  @@index([createdAt])
+}
+
+// ---------------------------------------------------------
+// 7. MODELO DE PLANES DE SUSCRIPCIÓN (SaaS)
+// ---------------------------------------------------------
+model SubscriptionPlan {
+  id                  String   @id @default(uuid())
+  code                String   @unique // FREE, BASIC, PRO, ENTERPRISE, UNLIMITED
+  name                String
+  description         String?
+  price               Float    // Precio sin IVA
+  priceWithTax        Float?   // Precio con IVA (15%)
+  period              String   @default("mensual") // mensual, trimestral, semestral, anual
+  durationDays        Int      @default(30)
+  features            String[] // Array de características
+  maxBusinesses       Int      @default(1)
+  maxInvoicesPerMonth Int      @default(10)
+  hasAIAssistant      Boolean  @default(false)
+  hasPrioritySupport  Boolean  @default(false)
+  isActive            Boolean  @default(true)
+  displayOrder        Int      @default(0)
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
+}
