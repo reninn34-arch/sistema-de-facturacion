@@ -1,4 +1,26 @@
 import React, { useState, useEffect } from 'react';
+import {
+  UserIcon,
+  UsersIcon,
+  MagnifyingGlassIcon,
+  EnvelopeIcon,
+  CalendarDaysIcon,
+  CheckCircleIcon,
+  XCircleIcon,
+  BoltIcon,
+  PauseCircleIcon,
+  PlayCircleIcon,
+  KeyIcon,
+  PencilIcon,
+  TrashIcon,
+  ChartBarIcon,
+  PlusIcon,
+  HandRaisedIcon,
+  EyeIcon,
+  EyeSlashIcon,
+  ExclamationTriangleIcon,
+  BriefcaseIcon,
+} from '@heroicons/react/24/outline';
 
 const API_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:3001';
 
@@ -238,7 +260,7 @@ const CompanyUsers: React.FC<CompanyUsersProps> = ({ onNotify, businessId }) => 
   const getRoleColor = (role: string) => {
     switch (role) {
       case 'ADMIN': return 'bg-purple-100 text-purple-700 border-purple-200';
-      case 'VENDEDOR': return 'bg-blue-100 text-blue-700 border-blue-200';
+      case 'VENDEDOR': return 'bg-indigo-100 text-indigo-700 border-indigo-200';
       case 'CONTADOR': return 'bg-emerald-100 text-emerald-700 border-emerald-200';
       default: return 'bg-slate-100 text-slate-700 border-slate-200';
     }
@@ -247,10 +269,10 @@ const CompanyUsers: React.FC<CompanyUsersProps> = ({ onNotify, businessId }) => 
   // Función para obtener el icono del rol
   const getRoleIcon = (role: string) => {
     switch (role) {
-      case 'ADMIN': return '👑';
-      case 'VENDEDOR': return '💼';
-      case 'CONTADOR': return '📊';
-      default: return '👤';
+      case 'ADMIN': return <UserIcon className="w-4 h-4" />;
+      case 'VENDEDOR': return <BriefcaseIcon className="w-4 h-4" />;
+      case 'CONTADOR': return <ChartBarIcon className="w-4 h-4" />;
+      default: return <UserIcon className="w-4 h-4" />;
     }
   };
 
@@ -261,18 +283,18 @@ const CompanyUsers: React.FC<CompanyUsersProps> = ({ onNotify, businessId }) => 
         <div className="p-6 border-b border-slate-100 bg-slate-50/50">
           <div className="flex justify-between items-center mb-4">
             <h2 className="text-xl font-black text-slate-800 flex items-center gap-2">
-              <span>👥</span> Equipo de Trabajo
+              <UsersIcon className="w-6 h-6" /> Equipo de Trabajo
             </h2>
             <button 
               onClick={() => setShowModal(true)}
-              className="bg-blue-600 text-white w-8 h-8 rounded-full flex items-center justify-center hover:scale-110 transition-transform shadow-lg"
+              className="bg-indigo-600 text-white w-8 h-8 rounded-full flex items-center justify-center hover:scale-110 transition-transform shadow-lg"
               title="Nuevo Usuario"
             >
-              +
+              <PlusIcon className="w-4 h-4" />
             </button>
           </div>
           <div className="relative">
-            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">🔍</span>
+            <MagnifyingGlassIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
             <input 
               type="text" 
               placeholder="Buscar usuario..." 
@@ -295,7 +317,7 @@ const CompanyUsers: React.FC<CompanyUsersProps> = ({ onNotify, businessId }) => 
                 onClick={() => setSelectedUser(user)}
                 className={`p-4 rounded-2xl cursor-pointer border-2 transition-all hover:shadow-md ${
                   selectedUser?.id === user.id 
-                    ? 'border-blue-500 bg-blue-50/50' 
+                    ? 'border-indigo-500 bg-indigo-50/50' 
                     : 'border-transparent bg-slate-50 hover:bg-white hover:border-slate-200'
                 }`}
               >
@@ -331,14 +353,14 @@ const CompanyUsers: React.FC<CompanyUsersProps> = ({ onNotify, businessId }) => 
                   <h1 className="text-3xl font-black text-slate-800 mb-2">{selectedUser.name || 'Sin nombre'}</h1>
                   <div className="flex flex-col gap-3 mt-2">
                     <div className="flex gap-2">
-                      <span className="px-3 py-1 bg-slate-100 rounded-lg text-xs font-bold text-slate-500">📧 {selectedUser.email}</span>
+                      <span className="px-3 py-1 bg-slate-100 rounded-lg text-xs font-bold text-slate-500">                      <EnvelopeIcon className="w-4 h-4 inline" /> {selectedUser.email}</span>
                       <span className={`px-3 py-1 rounded-lg text-xs font-bold border ${getRoleColor(selectedUser.role)}`}>
                         {getRoleIcon(selectedUser.role)} {selectedUser.role}
                       </span>
                     </div>
                     {selectedUser.createdAt && (
                       <div className="flex items-center gap-2 text-xs text-slate-500 font-medium pl-1">
-                        <span>📅 Creado:</span>
+                        <CalendarDaysIcon className="w-4 h-4 inline" /> Creado:
                         <span className="text-slate-800 font-bold">
                           {new Date(selectedUser.createdAt).toLocaleDateString()}
                         </span>
@@ -351,7 +373,7 @@ const CompanyUsers: React.FC<CompanyUsersProps> = ({ onNotify, businessId }) => 
                     ? 'bg-emerald-100 text-emerald-600 border border-emerald-200' 
                     : 'bg-red-100 text-red-600 border border-red-200'
                 }`}>
-                  {selectedUser.isActive ? '✅ ACTIVO' : '❌ INACTIVO'}
+                  {selectedUser.isActive ? <><CheckCircleIcon className="w-5 h-5 inline" /> ACTIVO</> : <><XCircleIcon className="w-5 h-5 inline" /> INACTIVO</>}
                 </div>
               </div>
             </div>
@@ -359,7 +381,7 @@ const CompanyUsers: React.FC<CompanyUsersProps> = ({ onNotify, businessId }) => 
             {/* Acciones Rápidas */}
             <div className="bg-white rounded-[2.5rem] p-8 shadow-xl border border-slate-100">
               <h2 className="text-xl font-black text-slate-800 mb-6 flex items-center gap-2">
-                <span>⚡</span> Acciones Rápidas
+                <BoltIcon className="w-5 h-5" /> Acciones Rápidas
               </h2>
               
               <div className="grid grid-cols-2 gap-4">
@@ -372,7 +394,7 @@ const CompanyUsers: React.FC<CompanyUsersProps> = ({ onNotify, businessId }) => 
                       : 'border-emerald-200 bg-emerald-50 hover:bg-emerald-100'
                   }`}
                 >
-                  <div className="text-3xl mb-2">{selectedUser.isActive ? '⏸️' : '▶️'}</div>
+                  <div className="text-3xl mb-2">{selectedUser.isActive ? <PauseCircleIcon className="w-8 h-8 mx-auto" /> : <PlayCircleIcon className="w-8 h-8 mx-auto" />}</div>
                   <div className="font-black text-sm">
                     {selectedUser.isActive ? 'Desactivar Usuario' : 'Activar Usuario'}
                   </div>
@@ -384,9 +406,9 @@ const CompanyUsers: React.FC<CompanyUsersProps> = ({ onNotify, businessId }) => 
                 {/* Reset Password */}
                 <button
                   onClick={handleResetPassword}
-                  className="p-6 rounded-2xl border-2 border-blue-200 bg-blue-50 hover:bg-blue-100 transition-all hover:shadow-lg"
+                  className="p-6 rounded-2xl border-2 border-indigo-200 bg-indigo-50 hover:bg-indigo-100 transition-all hover:shadow-lg"
                 >
-                  <div className="text-3xl mb-2">🔑</div>
+                  <div className="text-3xl mb-2"><KeyIcon className="w-8 h-8 mx-auto" /></div>
                   <div className="font-black text-sm">Resetear Contraseña</div>
                   <div className="text-xs text-slate-500 mt-1">Establecer contraseña temporal</div>
                 </button>
@@ -396,7 +418,7 @@ const CompanyUsers: React.FC<CompanyUsersProps> = ({ onNotify, businessId }) => 
                   onClick={handleEditUser}
                   className="p-6 rounded-2xl border-2 border-purple-200 bg-purple-50 hover:bg-purple-100 transition-all hover:shadow-lg"
                 >
-                  <div className="text-3xl mb-2">✏️</div>
+                  <div className="text-3xl mb-2"><PencilIcon className="w-8 h-8 mx-auto" /></div>
                   <div className="font-black text-sm">Editar Usuario</div>
                   <div className="text-xs text-slate-500 mt-1">Modificar nombre o rol</div>
                 </button>
@@ -408,7 +430,7 @@ const CompanyUsers: React.FC<CompanyUsersProps> = ({ onNotify, businessId }) => 
                   onClick={() => handleDeleteUser(selectedUser)}
                   className="w-full p-4 rounded-2xl border-2 border-red-200 bg-red-50 hover:bg-red-100 transition-all hover:shadow-lg flex items-center justify-center gap-3"
                 >
-                  <span className="text-xl">🗑️</span>
+                  <TrashIcon className="w-5 h-5 inline" />
                   <div className="font-black text-sm text-red-600">Eliminar Usuario</div>
                 </button>
               </div>
@@ -417,7 +439,7 @@ const CompanyUsers: React.FC<CompanyUsersProps> = ({ onNotify, businessId }) => 
             {/* Información Adicional */}
             <div className="bg-gradient-to-br from-slate-900 to-slate-800 rounded-[2.5rem] p-8 text-white shadow-xl">
               <h2 className="text-xl font-black mb-6 flex items-center gap-2">
-                <span>📊</span> Información de la Cuenta
+                <ChartBarIcon className="w-5 h-5" /> Información de la Cuenta
               </h2>
               
               <div className="grid grid-cols-2 gap-6">
@@ -427,14 +449,14 @@ const CompanyUsers: React.FC<CompanyUsersProps> = ({ onNotify, businessId }) => 
                 </div>
                 <div className="p-4 bg-white/10 rounded-2xl">
                   <div className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">Estado Actual</div>
-                  <div className="font-bold">{selectedUser.isActive ? '✅ Operativo' : '❌ Suspendido'}</div>
+                  <div className="font-bold">{selectedUser.isActive ? <><CheckCircleIcon className="w-4 h-4 inline" /> Operativo</> : <><XCircleIcon className="w-4 h-4 inline" /> Suspendido</>}</div>
                 </div>
               </div>
             </div>
           </div>
         ) : (
           <div className="h-full bg-slate-50 rounded-[3rem] border-2 border-dashed border-slate-200 flex flex-col items-center justify-center text-slate-400 p-10 text-center">
-            <span className="text-6xl mb-6 opacity-50">👈</span>
+            <HandRaisedIcon className="w-16 h-16 mb-6 opacity-50 mx-auto" />
             <h3 className="text-xl font-bold text-slate-600 mb-2">Selecciona un usuario</h3>
             <p className="text-sm max-w-md">Haz clic en un usuario de la lista para ver sus detalles y gestionar su cuenta</p>
           </div>
@@ -445,11 +467,11 @@ const CompanyUsers: React.FC<CompanyUsersProps> = ({ onNotify, businessId }) => 
       {showModal && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50">
           <div className="bg-white rounded-[2rem] p-8 w-full max-w-md shadow-2xl relative overflow-hidden">
-            <div className="absolute top-0 right-0 w-32 h-32 bg-blue-500/10 rounded-full blur-2xl -mr-16 -mt-16 pointer-events-none"></div>
+            <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-500/10 rounded-full blur-2xl -mr-16 -mt-16 pointer-events-none"></div>
             
             <div className="relative z-10">
               <h3 className="text-2xl font-black text-slate-800 mb-6 flex items-center gap-2">
-                <span>➕</span> Nuevo Usuario
+                <PlusIcon className="w-5 h-5" /> Nuevo Usuario
               </h3>
               <form onSubmit={handleAddUser}>
                 <div className="mb-4">
@@ -486,7 +508,7 @@ const CompanyUsers: React.FC<CompanyUsersProps> = ({ onNotify, businessId }) => 
                       onClick={() => setShowPassword(!showPassword)}
                       className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
                     >
-                      {showPassword ? '🙈' : '👁️'}
+                      {showPassword ? <EyeSlashIcon className="w-4 h-4" /> : <EyeIcon className="w-4 h-4" />}
                     </button>
                   </div>
                 </div>
@@ -497,9 +519,9 @@ const CompanyUsers: React.FC<CompanyUsersProps> = ({ onNotify, businessId }) => 
                     onChange={(e) => setFormData({ ...formData, role: e.target.value })}
                     className="w-full p-3 border border-slate-200 rounded-xl font-bold focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
                   >
-                    <option value="ADMIN">👑 Administrador</option>
-                    <option value="VENDEDOR">💼 Vendedor</option>
-                    <option value="CONTADOR">📊 Contador</option>
+                    <option value="ADMIN">Administrador</option>
+                    <option value="VENDEDOR">Vendedor</option>
+                    <option value="CONTADOR">Contador</option>
                   </select>
                 </div>
                 <div className="flex justify-end gap-3">
@@ -512,7 +534,7 @@ const CompanyUsers: React.FC<CompanyUsersProps> = ({ onNotify, businessId }) => 
                   </button>
                   <button
                     type="submit"
-                    className="px-6 py-3 bg-blue-600 text-white rounded-xl font-bold hover:bg-blue-700 transition-colors shadow-lg shadow-blue-600/30"
+                    className="px-6 py-3 bg-indigo-600 text-white rounded-xl font-bold hover:bg-indigo-700 transition-colors shadow-lg shadow-indigo-600/30"
                   >
                     Crear Usuario
                   </button>
@@ -531,7 +553,7 @@ const CompanyUsers: React.FC<CompanyUsersProps> = ({ onNotify, businessId }) => 
             
             <div className="relative z-10 text-center">
               <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <span className="text-3xl">⚠️</span>
+                <ExclamationTriangleIcon className="w-8 h-8 text-amber-500" />
               </div>
               <h3 className="text-2xl font-black text-slate-800 mb-2">Confirmar Eliminación</h3>
               <p className="text-slate-500 mb-6">¿Estás seguro de eliminar al usuario <strong className="text-slate-800">{userToDelete.email}</strong>? Esta acción no se puede deshacer.</p>
@@ -558,11 +580,11 @@ const CompanyUsers: React.FC<CompanyUsersProps> = ({ onNotify, businessId }) => 
       {showResetModal && selectedUser && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50">
           <div className="bg-white rounded-[2rem] p-8 w-full max-w-md shadow-2xl relative overflow-hidden">
-            <div className="absolute top-0 right-0 w-32 h-32 bg-blue-500/10 rounded-full blur-2xl -mr-16 -mt-16 pointer-events-none"></div>
+            <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-500/10 rounded-full blur-2xl -mr-16 -mt-16 pointer-events-none"></div>
             
             <div className="relative z-10">
               <h3 className="text-2xl font-black text-slate-800 mb-2 flex items-center gap-2">
-                <span>🔑</span> Restablecer Contraseña
+                <KeyIcon className="w-5 h-5" /> Restablecer Contraseña
               </h3>
               <p className="text-slate-500 mb-6">Usuario: <strong className="text-slate-800">{selectedUser.email}</strong></p>
               <form onSubmit={confirmResetPassword}>
@@ -581,7 +603,7 @@ const CompanyUsers: React.FC<CompanyUsersProps> = ({ onNotify, businessId }) => 
                       onClick={() => setShowPassword(!showPassword)}
                       className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
                     >
-                      {showPassword ? '🙈' : '👁️'}
+                      {showPassword ? <EyeSlashIcon className="w-4 h-4" /> : <EyeIcon className="w-4 h-4" />}
                     </button>
                   </div>
                 </div>
@@ -595,7 +617,7 @@ const CompanyUsers: React.FC<CompanyUsersProps> = ({ onNotify, businessId }) => 
                   </button>
                   <button
                     type="submit"
-                    className="px-6 py-3 bg-blue-600 text-white rounded-xl font-bold hover:bg-blue-700 transition-colors shadow-lg shadow-blue-600/30"
+                    className="px-6 py-3 bg-indigo-600 text-white rounded-xl font-bold hover:bg-indigo-700 transition-colors shadow-lg shadow-indigo-600/30"
                   >
                     Restablecer
                   </button>
@@ -614,7 +636,7 @@ const CompanyUsers: React.FC<CompanyUsersProps> = ({ onNotify, businessId }) => 
             
             <div className="relative z-10">
               <h3 className="text-2xl font-black text-slate-800 mb-6 flex items-center gap-2">
-                <span>✏️</span> Editar Usuario
+                <PencilIcon className="w-5 h-5" /> Editar Usuario
               </h3>
               <form onSubmit={confirmEditUser}>
                 <div className="mb-4">
@@ -653,9 +675,9 @@ const CompanyUsers: React.FC<CompanyUsersProps> = ({ onNotify, businessId }) => 
                     onChange={(e) => setFormData({ ...formData, role: e.target.value })}
                     className="w-full p-3 border border-slate-200 rounded-xl font-bold focus:outline-none focus:ring-2 focus:ring-purple-500 bg-white"
                   >
-                    <option value="ADMIN">👑 Administrador</option>
-                    <option value="VENDEDOR">💼 Vendedor</option>
-                    <option value="CONTADOR">📊 Contador</option>
+                    <option value="ADMIN">Administrador</option>
+                    <option value="VENDEDOR">Vendedor</option>
+                    <option value="CONTADOR">Contador</option>
                   </select>
                 </div>
                 <div className="flex justify-end gap-3">

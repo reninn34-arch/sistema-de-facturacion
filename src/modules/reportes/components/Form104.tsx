@@ -1,4 +1,5 @@
 import React, { useState, useMemo } from 'react';
+import { BanknotesIcon, ArrowDownTrayIcon, ExclamationTriangleIcon } from '@heroicons/react/24/outline';
 import { Document, BusinessInfo, Form104Data } from '../../../types/types';
 
 interface Form104Props {
@@ -24,7 +25,7 @@ export default function Form104({ documents, business, onNotify }: Form104Props)
       };
     }
 
-    const filteredDocs = documents.filter(doc => {
+    const filteredDocs = (Array.isArray(documents) ? documents : []).filter(doc => {
       const docDate = new Date(doc.issueDate);
       const docMonth = (docDate.getMonth() + 1).toString().padStart(2, '0');
       const docYear = docDate.getFullYear().toString();
@@ -89,7 +90,7 @@ IVA a Pagar / Crédito Tributario: $${form104Data.ivaToPayOrCredit.toFixed(2)}
     <div className="max-w-4xl mx-auto space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
       <div className="bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-sm">
         <div className="flex items-center gap-3 mb-8">
-          <span className="text-4xl">💰</span>
+          <BanknotesIcon className="w-10 h-10" />
           <div>
             <h2 className="text-2xl font-black text-slate-800 tracking-tight">Formulario 104 - IVA</h2>
             <p className="text-sm text-slate-500 font-bold">Declaración mensual del Impuesto al Valor Agregado</p>
@@ -133,20 +134,20 @@ IVA a Pagar / Crédito Tributario: $${form104Data.ivaToPayOrCredit.toFixed(2)}
         </div>
 
         <div className="space-y-4">
-          <div className="bg-gradient-to-br from-blue-50 to-blue-100 p-6 rounded-2xl border border-blue-200">
-            <h3 className="font-black text-blue-900 mb-4 text-lg">VENTAS</h3>
+          <div className="bg-gradient-to-br from-indigo-50 to-indigo-100 p-6 rounded-2xl border border-indigo-200">
+            <h3 className="font-black text-indigo-900 mb-4 text-lg">VENTAS</h3>
             <div className="space-y-3">
               <div className="flex justify-between items-center">
-                <span className="text-sm font-bold text-blue-700">Base Imponible Tarifa 0%</span>
-                <span className="text-xl font-black text-blue-900">${form104Data.taxableBase0.toFixed(2)}</span>
+                <span className="text-sm font-bold text-indigo-700">Base Imponible Tarifa 0%</span>
+                <span className="text-xl font-black text-indigo-900">${form104Data.taxableBase0.toFixed(2)}</span>
               </div>
               <div className="flex justify-between items-center">
-                <span className="text-sm font-bold text-blue-700">Base Imponible Tarifa 12%</span>
-                <span className="text-xl font-black text-blue-900">${form104Data.taxableBase12.toFixed(2)}</span>
+                <span className="text-sm font-bold text-indigo-700">Base Imponible Tarifa 12%</span>
+                <span className="text-xl font-black text-indigo-900">${form104Data.taxableBase12.toFixed(2)}</span>
               </div>
               <div className="flex justify-between items-center pt-3 border-t-2 border-blue-300">
-                <span className="text-sm font-bold text-blue-700">IVA Generado (15%)</span>
-                <span className="text-2xl font-black text-blue-600">${form104Data.generatedIva.toFixed(2)}</span>
+                <span className="text-sm font-bold text-indigo-700">IVA Generado (15%)</span>
+                <span className="text-2xl font-black text-indigo-600">${form104Data.generatedIva.toFixed(2)}</span>
               </div>
             </div>
           </div>
@@ -176,14 +177,14 @@ IVA a Pagar / Crédito Tributario: $${form104Data.ivaToPayOrCredit.toFixed(2)}
         <button
           onClick={exportReport}
           disabled={!month || !year}
-          className="w-full mt-6 py-4 bg-blue-600 hover:bg-blue-700 text-white rounded-2xl font-black uppercase text-sm tracking-wide shadow-lg shadow-blue-500/20 disabled:opacity-50 disabled:cursor-not-allowed"
+          className="w-full mt-6 py-4 bg-indigo-600 hover:bg-indigo-700 text-white rounded-2xl font-black uppercase text-sm tracking-wide shadow-lg shadow-indigo-500/20 disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          📥 Exportar Declaración
+          <ArrowDownTrayIcon className="w-4 h-4 inline" /> Exportar Declaración
         </button>
 
         <div className="mt-6 bg-amber-50 p-4 rounded-xl border border-amber-200">
           <p className="text-xs text-amber-800 font-bold">
-            ⚠️ Este es un resumen calculado automáticamente. Verifica los valores antes de presentar la declaración oficial en el SRI.
+            <ExclamationTriangleIcon className="w-4 h-4 inline text-amber-600" /> Este es un resumen calculado automáticamente. Verifica los valores antes de presentar la declaración oficial en el SRI.
           </p>
         </div>
       </div>

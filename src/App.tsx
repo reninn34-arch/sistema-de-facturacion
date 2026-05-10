@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
+import { SunIcon, MoonIcon, EyeIcon, EyeSlashIcon, CameraIcon, DocumentTextIcon, ShieldCheckIcon, UserIcon, KeyIcon, TrashIcon } from '@heroicons/react/24/outline';
 import Layout from './layouts/Layout';
 import Dashboard from './modules/saas/components/Dashboard';
 import InvoiceForm from './modules/facturacion/components/InvoiceForm';
@@ -164,7 +165,7 @@ const App: React.FC = () => {
   // Efecto para aplicar el modo oscuro basado en la configuración de la empresa
   useEffect(() => {
     const features = (businessInfo as any).features;
-    const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    const systemPrefersDark = false; // Desactivado por defecto a petición del usuario
     const isDark = features?.isDarkMode !== undefined ? features.isDarkMode : systemPrefersDark;
     if (isDark) {
       document.documentElement.classList.add('dark');
@@ -243,7 +244,7 @@ const App: React.FC = () => {
     const loadData = async () => {
       // CASO A: MODO DEMO (Usamos tus Mocks originales)
       // Si el modo demo está activado localmente o desde el backend
-      const backendIsDemo = (await client.get<{ isDemo: boolean }>('/api/business/demo').catch(() => ({ isDemo: false }))).isDemo;
+      const backendIsDemo = (await client.get<{ isDemo: boolean }>('/api/business/demo').catch(() => ({ data: { isDemo: false } })) as any).data?.isDemo || false;
       const useDemoMode = isDemoMode || backendIsDemo;
 
       if (useDemoMode) {
@@ -473,7 +474,7 @@ const App: React.FC = () => {
 
   const toggleDarkMode = async () => {
     const currentFeatures = (businessInfo as any).features || {};
-    const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    const systemPrefersDark = false; // Desactivado por defecto a petición del usuario
     const currentIsDark = currentFeatures.isDarkMode !== undefined ? currentFeatures.isDarkMode : systemPrefersDark;
     const newIsDark = !currentIsDark;
 
@@ -777,8 +778,8 @@ const App: React.FC = () => {
           products={products}
           invoices={documents}
           businessInfo={businessInfo}
-          signatureOptions={signatureFile && signaturePassword ? {
-            p12File: signatureFile,
+          signatureOptions={signatureBuffer && signaturePassword ? {
+            p12File: signatureBuffer,
             password: signaturePassword,
             claveAcceso: '' // Se genera dentro del componente
           } : null}
@@ -890,14 +891,14 @@ const App: React.FC = () => {
         return (
           <div className="max-w-6xl mx-auto space-y-10 animate-in fade-in slide-in-from-bottom-6 duration-700 pb-20">
             {/* Header del Perfil */}
-            <div className="bg-white dark:bg-[#1e293b] p-10 rounded-[3.5rem] shadow-sm dark:shadow-lg dark:shadow-black/10 border border-slate-100 dark:border-slate-700/50 flex flex-col md:flex-row justify-between items-center gap-8 transition-colors duration-300">
+            <div className="bg-white dark:bg-slate-800 p-10 rounded-[3.5rem] shadow-sm dark:shadow-lg dark:shadow-black/10 border border-slate-100 dark:border-slate-700/50 flex flex-col md:flex-row justify-between items-center gap-8 transition-colors duration-300">
               <div className="flex items-center gap-6">
                 <div
                   className="w-24 h-24 bg-slate-50 dark:bg-slate-800 border-2 border-dashed border-slate-200 dark:border-slate-600 rounded-[2.5rem] flex items-center justify-center cursor-pointer overflow-hidden group relative"
                   onClick={() => isUserAdmin && logoInputRef.current?.click()}
                 >
-                  {businessInfo.logo ? <img src={businessInfo.logo} className="w-full h-full object-cover" /> : <span className="text-3xl opacity-20">📸</span>}
-                  {isUserAdmin && <div className="absolute inset-0 bg-blue-600/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-[10px] font-black text-white uppercase">Editar</div>}
+                  {businessInfo.logo ? <img src={businessInfo.logo} className="w-full h-full object-cover" /> : <CameraIcon className="w-8 h-8 text-slate-300 dark:text-slate-600" />}
+                  {isUserAdmin && <div className="absolute inset-0 bg-indigo-600/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-[10px] font-black text-white uppercase">Editar</div>}
                   <input type="file" ref={logoInputRef} className="hidden" accept="image/*" onChange={(e) => {
                     const file = e.target.files?.[0];
                     if (file && file instanceof File) {
@@ -917,9 +918,13 @@ const App: React.FC = () => {
                 <div className="flex gap-4 flex-wrap">
                   <button
                     onClick={toggleDarkMode}
-                    className={`px-8 py-5 rounded-2xl font-black text-[10px] uppercase tracking-widest transition-all shadow-xl ${(businessInfo as any).features?.isDarkMode ? 'bg-indigo-600 text-white shadow-indigo-600/20' : 'bg-amber-500 text-white shadow-amber-500/20'}`}
+                    className={`px-8 py-5 rounded-2xl font-black text-[10px] uppercase tracking-widest transition-all shadow-xl inline-flex items-center gap-2 ${(businessInfo as any).features?.isDarkMode ? 'bg-slate-800 text-white shadow-slate-800/20' : 'bg-amber-500 text-white shadow-amber-500/20'}`}
                   >
-                    {(businessInfo as any).features?.isDarkMode ? '🌙 Modo Oscuro' : '☀️ Modo Claro'}
+                    {(businessInfo as any).features?.isDarkMode ? (
+                      <><MoonIcon className="w-4 h-4" /> Modo Oscuro</>
+                    ) : (
+                      <><SunIcon className="w-4 h-4" /> Modo Claro</>
+                    )}
                   </button>
                 </div>
               ) : (
@@ -930,16 +935,20 @@ const App: React.FC = () => {
                       setBusinessInfo(prev => ({ ...prev, taxpayerType: newType }));
                       showNotify(`Cambiado a ${newType === 'EMPRESA' ? 'Empresa' : 'Persona Natural'}`);
                     }}
-                    className={`px-8 py-5 rounded-2xl font-black text-[10px] uppercase tracking-widest transition-all shadow-xl ${businessInfo.taxpayerType === 'EMPRESA' ? 'bg-blue-600 text-white shadow-blue-600/20' : 'bg-purple-600 text-white shadow-purple-600/20'
+                    className={`px-8 py-5 rounded-2xl font-black text-[10px] uppercase tracking-widest transition-all shadow-xl ${businessInfo.taxpayerType === 'EMPRESA' ? 'bg-indigo-600 text-white shadow-indigo-600/20' : 'bg-purple-600 text-white shadow-purple-600/20'
                       }`}
                   >
-                    {businessInfo.taxpayerType === 'EMPRESA' ? '🏢 Empresa' : '👤 Persona Natural'}
+                    {businessInfo.taxpayerType === 'EMPRESA' ? 'Empresa' : 'Persona Natural'}
                   </button>
                   <button
                     onClick={toggleDarkMode}
-                    className={`px-8 py-5 rounded-2xl font-black text-[10px] uppercase tracking-widest transition-all shadow-xl ${(businessInfo as any).features?.isDarkMode ? 'bg-indigo-600 text-white shadow-indigo-600/20' : 'bg-amber-500 text-white shadow-amber-500/20'}`}
+                    className={`px-8 py-5 rounded-2xl font-black text-[10px] uppercase tracking-widest transition-all shadow-xl inline-flex items-center gap-2 ${(businessInfo as any).features?.isDarkMode ? 'bg-slate-800 text-white shadow-slate-800/20' : 'bg-amber-500 text-white shadow-amber-500/20'}`}
                   >
-                    {(businessInfo as any).features?.isDarkMode ? '🌙 Modo Oscuro' : '☀️ Modo Claro'}
+                    {(businessInfo as any).features?.isDarkMode ? (
+                      <><MoonIcon className="w-4 h-4" /> Modo Oscuro</>
+                    ) : (
+                      <><SunIcon className="w-4 h-4" /> Modo Claro</>
+                    )}
                   </button>
                 </div>
               )}
@@ -955,9 +964,9 @@ const App: React.FC = () => {
               <div className="lg:col-span-2 space-y-8">
                 {/* Datos Tributarios */}
                 {isUserAdmin && (
-                  <section className="bg-white dark:bg-[#1e293b] p-10 rounded-[3rem] border border-slate-100 dark:border-slate-700/50 shadow-sm dark:shadow-lg dark:shadow-black/10 space-y-8 transition-colors duration-300">
+                  <section className="bg-white dark:bg-slate-800 p-10 rounded-[3rem] border border-slate-100 dark:border-slate-700/50 shadow-sm dark:shadow-lg dark:shadow-black/10 space-y-8 transition-colors duration-300">
                     <h3 className="font-black text-slate-800 dark:text-white text-xl uppercase tracking-tighter border-b border-slate-50 dark:border-slate-700/50 pb-4 flex items-center gap-3">
-                      <span className="text-blue-500">📄</span> Información Legal (SRI)
+                      <DocumentTextIcon className="w-6 h-6 text-indigo-500" /> Información Legal (SRI)
                     </h3>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       <div className="space-y-2">
@@ -967,7 +976,7 @@ const App: React.FC = () => {
                           value={businessInfo.ruc || ''}
                           placeholder="1234567890001"
                           maxLength={13}
-                          className="w-full p-4 bg-slate-50 dark:bg-slate-800/50 dark:text-white rounded-2xl font-black text-sm outline-none border-2 border-transparent focus:border-blue-500 transition-colors"
+                          className="w-full p-4 bg-slate-50 dark:bg-slate-800/50 dark:text-white rounded-2xl font-black text-sm outline-none border-2 border-transparent focus:border-indigo-500 transition-colors"
                           onChange={e => setBusinessInfo({ ...businessInfo, ruc: e.target.value })}
                         />
                       </div>
@@ -979,7 +988,7 @@ const App: React.FC = () => {
                           type="text"
                           value={businessInfo.name || ''}
                           placeholder={businessInfo.taxpayerType === 'PERSONA_NATURAL' ? 'Ej: Juan Pérez Gómez' : 'Ej: CORPORACION EJEMPLO S.A.'}
-                          className="w-full p-4 bg-slate-50 dark:bg-slate-800/50 dark:text-white rounded-2xl font-bold text-sm outline-none border-2 border-transparent focus:border-blue-500 transition-colors"
+                          className="w-full p-4 bg-slate-50 dark:bg-slate-800/50 dark:text-white rounded-2xl font-bold text-sm outline-none border-2 border-transparent focus:border-indigo-500 transition-colors"
                           onChange={e => setBusinessInfo({ ...businessInfo, name: e.target.value })}
                         />
                       </div>
@@ -989,17 +998,17 @@ const App: React.FC = () => {
                           type="text"
                           value={businessInfo.tradename || ''}
                           placeholder={businessInfo.taxpayerType === 'PERSONA_NATURAL' ? 'Ej: Tienda Juan' : 'Ej: ECUAFACT ENTERPRISE'}
-                          className="w-full p-4 bg-slate-50 dark:bg-slate-800/50 dark:text-white rounded-2xl font-bold text-sm outline-none border-2 border-transparent focus:border-blue-500 transition-colors"
+                          className="w-full p-4 bg-slate-50 dark:bg-slate-800/50 dark:text-white rounded-2xl font-bold text-sm outline-none border-2 border-transparent focus:border-indigo-500 transition-colors"
                           onChange={e => setBusinessInfo({ ...businessInfo, tradename: e.target.value })}
                         />
                       </div>
                       <div className="space-y-2">
                         <label className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest ml-1">Dirección Matriz</label>
-                        <input type="text" value={businessInfo.address || ''} className="w-full p-4 bg-slate-50 dark:bg-slate-800/50 dark:text-white rounded-2xl font-bold text-sm outline-none border-2 border-transparent focus:border-blue-500 transition-colors" onChange={e => setBusinessInfo({ ...businessInfo, address: e.target.value })} />
+                        <input type="text" value={businessInfo.address || ''} className="w-full p-4 bg-slate-50 dark:bg-slate-800/50 dark:text-white rounded-2xl font-bold text-sm outline-none border-2 border-transparent focus:border-indigo-500 transition-colors" onChange={e => setBusinessInfo({ ...businessInfo, address: e.target.value })} />
                       </div>
                       <div className="space-y-2">
                         <label className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest ml-1">Dirección Sucursal</label>
-                        <input type="text" value={businessInfo.branchAddress || ''} className="w-full p-4 bg-slate-50 dark:bg-slate-800/50 dark:text-white rounded-2xl font-bold text-sm outline-none border-2 border-transparent focus:border-blue-500 transition-colors" onChange={e => setBusinessInfo({ ...businessInfo, branchAddress: e.target.value })} />
+                        <input type="text" value={businessInfo.branchAddress || ''} className="w-full p-4 bg-slate-50 dark:bg-slate-800/50 dark:text-white rounded-2xl font-bold text-sm outline-none border-2 border-transparent focus:border-indigo-500 transition-colors" onChange={e => setBusinessInfo({ ...businessInfo, branchAddress: e.target.value })} />
                       </div>
                     </div>
 
@@ -1015,8 +1024,8 @@ const App: React.FC = () => {
                       <div className="md:col-span-2 space-y-2">
                         <label className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest">Obligado Contabilidad</label>
                         <div className="flex bg-slate-50 dark:bg-slate-800/50 p-1 rounded-2xl h-[52px]">
-                          <button onClick={() => setBusinessInfo({ ...businessInfo, isAccountingObliged: true })} className={`flex-1 rounded-xl text-[10px] font-black uppercase transition-all ${businessInfo.isAccountingObliged ? 'bg-white dark:bg-slate-700 shadow-sm text-blue-600 dark:text-blue-400' : 'text-slate-400'}`}>SÍ</button>
-                          <button onClick={() => setBusinessInfo({ ...businessInfo, isAccountingObliged: false })} className={`flex-1 rounded-xl text-[10px] font-black uppercase transition-all ${!businessInfo.isAccountingObliged ? 'bg-white dark:bg-slate-700 shadow-sm text-blue-600 dark:text-blue-400' : 'text-slate-400'}`}>NO</button>
+                          <button onClick={() => setBusinessInfo({ ...businessInfo, isAccountingObliged: true })} className={`flex-1 rounded-xl text-[10px] font-black uppercase transition-all ${businessInfo.isAccountingObliged ? 'bg-white dark:bg-slate-700 shadow-sm text-indigo-600 dark:text-indigo-400' : 'text-slate-400'}`}>SÍ</button>
+                          <button onClick={() => setBusinessInfo({ ...businessInfo, isAccountingObliged: false })} className={`flex-1 rounded-xl text-[10px] font-black uppercase transition-all ${!businessInfo.isAccountingObliged ? 'bg-white dark:bg-slate-700 shadow-sm text-indigo-600 dark:text-indigo-400' : 'text-slate-400'}`}>NO</button>
                         </div>
                       </div>
                     </div>
@@ -1025,9 +1034,9 @@ const App: React.FC = () => {
 
                 {/* Regímenes y Resoluciones */}
                 {isUserAdmin && (
-                  <section className="bg-white dark:bg-[#1e293b] p-10 rounded-[3rem] border border-slate-100 dark:border-slate-700/50 shadow-sm dark:shadow-lg dark:shadow-black/10 space-y-8 transition-colors duration-300">
+                  <section className="bg-white dark:bg-slate-800 p-10 rounded-[3rem] border border-slate-100 dark:border-slate-700/50 shadow-sm dark:shadow-lg dark:shadow-black/10 space-y-8 transition-colors duration-300">
                     <h3 className="font-black text-slate-800 dark:text-white text-xl uppercase tracking-tighter border-b border-slate-50 dark:border-slate-700/50 pb-4 flex items-center gap-3">
-                      <span className="text-emerald-500">🛡️</span> Regímenes Especiales
+                      <ShieldCheckIcon className="w-6 h-6 text-emerald-500" /> Regímenes Especiales
                     </h3>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       <div className="space-y-2">
@@ -1052,9 +1061,9 @@ const App: React.FC = () => {
                 )}
 
                 {/* SECCIÓN: MI CUENTA PERSONAL */}
-                <section className="bg-white dark:bg-[#1e293b] p-10 rounded-[3rem] border border-slate-100 dark:border-slate-700/50 shadow-sm dark:shadow-lg dark:shadow-black/10 space-y-8 transition-colors duration-300">
+                <section className="bg-white dark:bg-slate-800 p-10 rounded-[3rem] border border-slate-100 dark:border-slate-700/50 shadow-sm dark:shadow-lg dark:shadow-black/10 space-y-8 transition-colors duration-300">
                   <h3 className="font-black text-slate-800 dark:text-white text-xl uppercase tracking-tighter border-b border-slate-50 dark:border-slate-700/50 pb-4 flex items-center gap-3">
-                    <span className="text-purple-500">👤</span> Mi Cuenta (Acceso Personal)
+                    <UserIcon className="w-6 h-6 text-purple-500" /> Mi Cuenta (Acceso Personal)
                   </h3>
 
                   <div className="grid grid-cols-1 gap-6">
@@ -1083,31 +1092,31 @@ const App: React.FC = () => {
                             placeholder="Contraseña Actual"
                             value={passwordData.current}
                             onChange={(e) => setPasswordData({ ...passwordData, current: e.target.value })}
-                            className="w-full p-4 bg-slate-50 dark:bg-slate-800/50 dark:text-white rounded-2xl font-bold text-sm outline-none border-2 border-transparent focus:border-purple-500 transition-colors pr-10"
-                          />
-                          <button
-                            type="button"
-                            onClick={() => setShowProfilePassword(!showProfilePassword)}
-                            className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300"
-                          >
-                            <span className="material-symbols-outlined text-lg">{showProfilePassword ? 'visibility_off' : 'visibility'}</span>
-                          </button>
-                        </div>
-                        <div className="relative">
-                          <input
-                            type={showProfilePassword ? "text" : "password"}
-                            placeholder="Nueva Contraseña"
-                            value={passwordData.new}
-                            onChange={(e) => setPasswordData({ ...passwordData, new: e.target.value })}
-                            className="w-full p-4 bg-slate-50 dark:bg-slate-800/50 dark:text-white rounded-2xl font-bold text-sm outline-none border-2 border-transparent focus:border-purple-500 transition-colors pr-10"
-                          />
-                          <button
-                            type="button"
-                            onClick={() => setShowProfilePassword(!showProfilePassword)}
-                            className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300"
-                          >
-                            <span className="material-symbols-outlined text-lg">{showProfilePassword ? 'visibility_off' : 'visibility'}</span>
-                          </button>
+                          className="w-full p-4 bg-slate-50 dark:bg-slate-800/50 dark:text-white rounded-2xl font-bold text-sm outline-none border-2 border-transparent focus:border-purple-500 transition-colors pr-10"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => setShowProfilePassword(!showProfilePassword)}
+                          className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300"
+                        >
+                          {showProfilePassword ? <EyeSlashIcon className="w-5 h-5" /> : <EyeIcon className="w-5 h-5" />}
+                        </button>
+                      </div>
+                      <div className="relative">
+                        <input
+                          type={showProfilePassword ? "text" : "password"}
+                          placeholder="Nueva Contraseña"
+                          value={passwordData.new}
+                          onChange={(e) => setPasswordData({ ...passwordData, new: e.target.value })}
+                          className="w-full p-4 bg-slate-50 dark:bg-slate-800/50 dark:text-white rounded-2xl font-bold text-sm outline-none border-2 border-transparent focus:border-purple-500 transition-colors pr-10"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => setShowProfilePassword(!showProfilePassword)}
+                          className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300"
+                        >
+                          {showProfilePassword ? <EyeSlashIcon className="w-5 h-5" /> : <EyeIcon className="w-5 h-5" />}
+                        </button>
                         </div>
                         <div className="relative">
                           <input
@@ -1134,18 +1143,18 @@ const App: React.FC = () => {
               {/* Sidebar de Configuración */}
               {isUserAdmin && (
                 <div className="space-y-8">
-                  <section className="bg-slate-900 dark:bg-[#0f172a] text-white p-10 rounded-[3rem] space-y-8 shadow-2xl dark:shadow-black/30 border border-transparent dark:border-slate-700/50">
+                  <section className="bg-slate-900 dark:bg-slate-900 text-white p-10 rounded-[3rem] space-y-8 shadow-2xl dark:shadow-black/30 border border-transparent dark:border-slate-700/50">
                     <div className="flex items-center justify-between border-b border-white/10 dark:border-slate-700/50 pb-6">
-                      <h3 className="font-black text-blue-400 text-xs uppercase tracking-widest">Certificado P12</h3>
+                      <h3 className="font-black text-indigo-400 text-xs uppercase tracking-widest">Certificado P12</h3>
                       <div className={`w-3 h-3 rounded-full ${signatureFile ? 'bg-emerald-500 animate-pulse' : 'bg-rose-500'}`}></div>
                     </div>
 
                     <div className="space-y-6">
                       <div
                         onClick={() => fileInputRef.current?.click()}
-                        className="w-full py-10 border-2 border-dashed border-white/20 hover:border-blue-500 hover:bg-white/5 rounded-3xl flex flex-col items-center justify-center cursor-pointer transition-all"
+                        className="w-full py-10 border-2 border-dashed border-white/20 hover:border-indigo-500 hover:bg-white/5 rounded-3xl flex flex-col items-center justify-center cursor-pointer transition-all"
                       >
-                        <span className="text-3xl mb-3">🔑</span>
+                        <KeyIcon className="w-8 h-8 mb-3 text-white/50" />
                         <p className="text-[10px] font-black uppercase tracking-widest text-white/50">{signatureFile ? signatureFile.name : 'Subir firma .p12'}</p>
                       </div>
                       <input type="file" ref={fileInputRef} className="hidden" accept=".p12" onChange={handleSignatureFileChange} />
@@ -1164,14 +1173,14 @@ const App: React.FC = () => {
                                 features: { ...((prev as any).features || {}), signaturePassword: e.target.value }
                               }));
                             }}
-                            className="w-full p-4 pr-12 bg-white/5 border border-white/10 rounded-2xl font-bold text-sm focus:border-blue-500 outline-none"
+                            className="w-full p-4 pr-12 bg-white/5 border border-white/10 rounded-2xl font-bold text-sm focus:border-indigo-500 outline-none"
                           />
                           <button
                             type="button"
                             onClick={() => setShowSignaturePassword(!showSignaturePassword)}
-                            className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-blue-400 transition-colors"
+                            className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-indigo-400 transition-colors"
                           >
-                            {showSignaturePassword ? '👁️' : '👁️‍🗨️'}
+                            {showSignaturePassword ? <EyeSlashIcon className="w-5 h-5" /> : <EyeIcon className="w-5 h-5" />}
                           </button>
                         </div>
                       </div>
@@ -1190,9 +1199,9 @@ const App: React.FC = () => {
                             }));
                             showNotify('Firma digital eliminada. Puedes activar el modo demo.');
                           }}
-                          className="w-full py-3 bg-red-500/20 hover:bg-red-500/30 text-red-400 rounded-2xl font-bold text-xs uppercase tracking-widest transition-all"
+                          className="w-full py-3 bg-red-500/20 hover:bg-red-500/30 text-red-400 rounded-2xl font-bold text-xs uppercase tracking-widest transition-all inline-flex items-center justify-center gap-2"
                         >
-                          🗑️ Eliminar Firma Digital
+                          <TrashIcon className="w-4 h-4" /> Eliminar Firma Digital
                         </button>
                       )}
                     </div>
@@ -1204,7 +1213,7 @@ const App: React.FC = () => {
 
                   <button
                     onClick={saveBusinessConfig}
-                    className="w-full py-6 bg-blue-600 hover:bg-blue-700 text-white rounded-[2.5rem] font-black uppercase text-xs tracking-widest shadow-2xl shadow-blue-500/20 transition-all hover:scale-[1.02] active:scale-95"
+                    className="w-full py-6 bg-indigo-600 hover:bg-indigo-700 text-white rounded-[2.5rem] font-black uppercase text-xs tracking-widest shadow-2xl shadow-indigo-500/20 transition-all hover:scale-[1.02] active:scale-95"
                   >
                     Guardar Cambios Legales
                   </button>
@@ -1233,12 +1242,16 @@ const App: React.FC = () => {
 
       {/* --- EL BOTÓN SECRETO DEL SUPERADMIN --- */}
       {currentUser?.role === 'SUPERADMIN' && (
-        <div className="fixed top-5 right-24 z-[9999] flex items-center gap-3 bg-white/90 dark:bg-[#1e293b]/90 backdrop-blur-sm px-4 py-2 rounded-full shadow-sm border border-slate-200 dark:border-slate-600/50 transition-colors duration-300">
+        <div className="fixed top-5 right-24 z-[9999] flex items-center gap-3 bg-white/90 dark:bg-slate-800/90 backdrop-blur-sm px-4 py-2 rounded-full shadow-sm border border-slate-200 dark:border-slate-600/50 transition-colors duration-300">
           <button
             onClick={toggleDarkMode}
-            className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-slate-500 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+            className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-slate-500 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors"
           >
-            {((businessInfo as any).features?.isDarkMode ?? window.matchMedia('(prefers-color-scheme: dark)').matches) ? '☀️ Claro' : '🌙 Oscuro'}
+            {((businessInfo as any).features?.isDarkMode ?? false) ? (
+              <><SunIcon className="w-4 h-4" /> Claro</>
+            ) : (
+              <><MoonIcon className="w-4 h-4" /> Oscuro</>
+            )}
           </button>
         </div>
       )}

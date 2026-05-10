@@ -2,6 +2,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Product } from '../../../types/types';
 import { TAX_RATES, PRODUCT_CATEGORIES } from '../../../constants';
+import { CameraIcon } from '@heroicons/react/24/outline';
 
 interface ProductManagerProps {
   products: Product[];
@@ -15,15 +16,24 @@ const API_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:3001';
 
 const ProductManager: React.FC<ProductManagerProps> = ({ products, setProducts, onNotify, isDemoMode }) => {
   // Detectar modo oscuro
-  const [isDarkMode, setIsDarkMode] = useState(() => 
-    window.matchMedia('(prefers-color-scheme: dark)').matches
-  );
+  const [isDarkMode, setIsDarkMode] = useState(false);
 
   useEffect(() => {
-    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
-    const handleChange = (e: MediaQueryListEvent) => setIsDarkMode(e.matches);
-    mediaQuery.addEventListener('change', handleChange);
-    return () => mediaQuery.removeEventListener('change', handleChange);
+    // Escuchar cambios en la clase 'dark' del documento
+    const observer = new MutationObserver((mutations) => {
+      mutations.forEach((mutation) => {
+        if (mutation.attributeName === 'class') {
+          setIsDarkMode(document.documentElement.classList.contains('dark'));
+        }
+      });
+    });
+
+    observer.observe(document.documentElement, { attributes: true });
+    
+    // Estado inicial
+    setIsDarkMode(document.documentElement.classList.contains('dark'));
+
+    return () => observer.disconnect();
   }, []);
   const [showModal, setShowModal] = useState(false);
   const [editingProd, setEditingProd] = useState<Product | null>(null);
@@ -181,7 +191,7 @@ const ProductManager: React.FC<ProductManagerProps> = ({ products, setProducts, 
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8">
-        {products.map(p => (
+        {(Array.isArray(products) ? products : []).map(p => (
           <div key={p.id} className={`${isDarkMode ? 'bg-slate-800 border-slate-700' : 'bg-white border-slate-100'} rounded-[2.5rem] shadow-sm overflow-hidden hover:shadow-2xl transition-all group relative`}>
             {p.isSynced && (
               <div className="absolute top-4 right-4 z-10" title={`Sincronizado: ${p.lastSync}`}>
@@ -189,9 +199,9 @@ const ProductManager: React.FC<ProductManagerProps> = ({ products, setProducts, 
               </div>
             )}
             <div className="h-48 relative bg-slate-50 border-b border-slate-50">
-              <img src={p.imageUrl || 'https://placehold.co/400x300?text=📦'} alt="" className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
+              <img src={p.imageUrl || 'https://placehold.co/400x300?text=Producto'} alt="" className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
               <div className="absolute top-4 left-4">
-                 <span className={`px-3 py-1 rounded-lg text-[9px] font-black uppercase tracking-widest ${p.type === 'FISICO' ? 'bg-blue-600 text-white' : 'bg-amber-500 text-white'}`}>
+                 <span className={`px-3 py-1 rounded-lg text-[9px] font-black uppercase tracking-widest ${p.type === 'FISICO' ? 'bg-indigo-600 text-white' : 'bg-amber-500 text-white'}`}>
                    {p.type}
                  </span>
               </div>
@@ -209,8 +219,8 @@ const ProductManager: React.FC<ProductManagerProps> = ({ products, setProducts, 
                   <p className={`text-xs font-black ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>${p.price.toFixed(2)}</p>
                 </div>
                 <div className="text-center border-x border-slate-50">
-                  <p className="text-[8px] font-black text-blue-500 uppercase mb-1">Mayorista</p>
-                  <p className="text-xs font-black text-blue-700">${p.wholesalePrice?.toFixed(2)}</p>
+                  <p className="text-[8px] font-black text-indigo-500 uppercase mb-1">Mayorista</p>
+                  <p className="text-xs font-black text-indigo-700">${p.wholesalePrice?.toFixed(2)}</p>
                 </div>
                 <div className="text-center">
                   <p className="text-[8px] font-black text-indigo-500 uppercase mb-1">Distrib.</p>
@@ -242,13 +252,13 @@ const ProductManager: React.FC<ProductManagerProps> = ({ products, setProducts, 
               <label className={`text-[10px] font-black ${isDarkMode ? 'text-slate-500' : 'text-slate-400'} uppercase tracking-widest mb-6 text-center`}>Imagen del Producto</label>
               <div 
                 onClick={() => fileInputRef.current?.click()}
-                className="w-48 h-48 rounded-[2.5rem] bg-white border-2 border-dashed border-slate-200 flex items-center justify-center cursor-pointer overflow-hidden group relative hover:border-blue-400 transition-all shadow-inner"
+                className="w-48 h-48 rounded-[2.5rem] bg-white border-2 border-dashed border-slate-200 flex items-center justify-center cursor-pointer overflow-hidden group relative hover:border-indigo-400 transition-all shadow-inner"
               >
                 {formData.imageUrl ? (
                   <img src={formData.imageUrl} className="w-full h-full object-cover group-hover:opacity-50 transition-opacity" />
                 ) : (
                   <div className="text-center p-4">
-                    <span className="text-4xl block mb-2">📸</span>
+                    <CameraIcon className="w-10 h-10 mx-auto mb-2 text-slate-300 dark:text-slate-600" />
                     <span className={`text-[10px] font-black ${isDarkMode ? 'text-slate-500' : 'text-slate-400'} uppercase`}>Subir Foto</span>
                   </div>
                 )}
@@ -267,7 +277,7 @@ const ProductManager: React.FC<ProductManagerProps> = ({ products, setProducts, 
               <div className="flex justify-between items-start mb-10">
                 <h4 className={`text-3xl font-black ${isDarkMode ? 'text-white' : 'text-slate-900'} tracking-tighter`}>Ficha Técnica</h4>
                 <div className="flex gap-2">
-                   <button onClick={() => setFormData({...formData, type: 'FISICO'})} className={`px-4 py-2 rounded-xl text-[10px] font-black uppercase transition-all ${formData.type === 'FISICO' ? 'bg-blue-600 text-white' : (isDarkMode ? 'bg-slate-600 text-slate-300' : 'bg-slate-100 text-slate-400')}`}>Físico</button>
+                   <button onClick={() => setFormData({...formData, type: 'FISICO'})} className={`px-4 py-2 rounded-xl text-[10px] font-black uppercase transition-all ${formData.type === 'FISICO' ? 'bg-indigo-600 text-white' : (isDarkMode ? 'bg-slate-600 text-slate-300' : 'bg-slate-100 text-slate-400')}`}>Físico</button>
                    <button onClick={() => setFormData({...formData, type: 'SERVICIO'})} className={`px-4 py-2 rounded-xl text-[10px] font-black uppercase transition-all ${formData.type === 'SERVICIO' ? 'bg-amber-500 text-white' : (isDarkMode ? 'bg-slate-600 text-slate-300' : 'bg-slate-100 text-slate-400')}`}>Servicio</button>
                 </div>
               </div>
@@ -276,42 +286,42 @@ const ProductManager: React.FC<ProductManagerProps> = ({ products, setProducts, 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div className="space-y-2">
                     <label className={`text-[10px] font-black ${isDarkMode ? 'text-slate-500' : 'text-slate-400'} uppercase tracking-widest ml-1`}>Nombre / Descripción</label>
-                    <input value={formData.description} className={`w-full p-4 ${isDarkMode ? 'bg-slate-700 text-white border-slate-600' : 'bg-slate-50'} rounded-2xl font-bold outline-none border-2 border-transparent focus:border-blue-500 transition-all`} onChange={e => setFormData({...formData, description: e.target.value})} placeholder="Ej: Laptop Dell Inspiron..." />
+                    <input value={formData.description} className={`w-full p-4 ${isDarkMode ? 'bg-slate-700 text-white border-slate-600' : 'bg-slate-50'} rounded-2xl font-bold outline-none border-2 border-transparent focus:border-indigo-500 transition-all`} onChange={e => setFormData({...formData, description: e.target.value})} placeholder="Ej: Laptop Dell Inspiron..." />
                   </div>
                   <div className="space-y-2">
                     <label className={`text-[10px] font-black ${isDarkMode ? 'text-slate-500' : 'text-slate-400'} uppercase tracking-widest ml-1`}>Código SKU / Barra</label>
-                    <input value={formData.code} className={`w-full p-4 ${isDarkMode ? 'bg-slate-700 text-white border-slate-600' : 'bg-slate-50'} rounded-2xl font-bold outline-none border-2 border-transparent focus:border-blue-500 transition-all`} onChange={e => setFormData({...formData, code: e.target.value})} placeholder="Ej: LP-001" />
+                    <input value={formData.code} className={`w-full p-4 ${isDarkMode ? 'bg-slate-700 text-white border-slate-600' : 'bg-slate-50'} rounded-2xl font-bold outline-none border-2 border-transparent focus:border-indigo-500 transition-all`} onChange={e => setFormData({...formData, code: e.target.value})} placeholder="Ej: LP-001" />
                   </div>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                    <div className="space-y-2">
                     <label className={`text-[10px] font-black ${isDarkMode ? 'text-slate-500' : 'text-slate-400'} uppercase tracking-widest ml-1`}>Categoría</label>
-                    <select className="w-full p-4 bg-slate-50 rounded-2xl font-bold outline-none border-2 border-transparent focus:border-blue-500 transition-all appearance-none" value={formData.category} onChange={e => setFormData({...formData, category: e.target.value})}>
+                    <select className="w-full p-4 bg-slate-50 rounded-2xl font-bold outline-none border-2 border-transparent focus:border-indigo-500 transition-all appearance-none" value={formData.category} onChange={e => setFormData({...formData, category: e.target.value})}>
                       {PRODUCT_CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
                     </select>
                   </div>
                   <div className="space-y-2">
                     <label className={`text-[10px] font-black ${isDarkMode ? 'text-slate-500' : 'text-slate-400'} uppercase tracking-widest ml-1`}>Impuesto IVA</label>
-                    <select className="w-full p-4 bg-slate-50 rounded-2xl font-bold outline-none border-2 border-transparent focus:border-blue-500 transition-all appearance-none" value={formData.taxRate} onChange={e => setFormData({...formData, taxRate: Number(e.target.value)})}>
+                    <select className="w-full p-4 bg-slate-50 rounded-2xl font-bold outline-none border-2 border-transparent focus:border-indigo-500 transition-all appearance-none" value={formData.taxRate} onChange={e => setFormData({...formData, taxRate: Number(e.target.value)})}>
                       {TAX_RATES.map(r => <option key={r.value} value={r.value}>{r.label}</option>)}
                     </select>
                   </div>
                   <div className="space-y-2">
                     <label className={`text-[10px] font-black ${isDarkMode ? 'text-slate-500' : 'text-slate-400'} uppercase tracking-widest ml-1`}>Stock Actual</label>
-                    <input type="number" value={formData.stock} className={`w-full p-4 ${isDarkMode ? 'bg-slate-700 text-white border-slate-600' : 'bg-slate-50'} rounded-2xl font-bold outline-none border-2 border-transparent focus:border-blue-500 transition-all`} onChange={e => setFormData({...formData, stock: Number(e.target.value)})} />
+                    <input type="number" value={formData.stock} className={`w-full p-4 ${isDarkMode ? 'bg-slate-700 text-white border-slate-600' : 'bg-slate-50'} rounded-2xl font-bold outline-none border-2 border-transparent focus:border-indigo-500 transition-all`} onChange={e => setFormData({...formData, stock: Number(e.target.value)})} />
                   </div>
                 </div>
 
-                <div className="p-8 bg-blue-50/50 rounded-[2.5rem] border border-blue-100">
-                  <p className="text-[10px] font-black text-blue-600 uppercase tracking-widest mb-6">Configuración Multitarifa ($)</p>
+                <div className="p-8 bg-indigo-50/50 rounded-[2.5rem] border border-indigo-100">
+                  <p className="text-[10px] font-black text-indigo-600 uppercase tracking-widest mb-6">Configuración Multitarifa ($)</p>
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                     <div className="space-y-2">
                       <label className={`text-[9px] font-black ${isDarkMode ? 'text-slate-400' : 'text-slate-400'} uppercase ml-1`}>PVP Público</label>
                       <input type="number" step="0.01" value={formData.price} className={`w-full p-4 ${isDarkMode ? 'bg-slate-700 text-white border-slate-500' : 'bg-white'} rounded-2xl font-black outline-none border focus:ring-2 focus:ring-blue-500 transition-all`} onChange={e => setFormData({...formData, price: Number(e.target.value)})} />
                     </div>
                     <div className="space-y-2">
-                      <label className={`text-[9px] font-black ${isDarkMode ? 'text-blue-400' : 'text-blue-500'} uppercase ml-1`}>Precio Mayorista</label>
+                      <label className={`text-[9px] font-black ${isDarkMode ? 'text-indigo-400' : 'text-indigo-500'} uppercase ml-1`}>Precio Mayorista</label>
                       <input type="number" step="0.01" value={formData.wholesalePrice} className={`w-full p-4 ${isDarkMode ? 'bg-slate-700 text-white border-slate-500' : 'bg-white'} rounded-2xl font-black outline-none border focus:ring-2 focus:ring-blue-500 transition-all`} onChange={e => setFormData({...formData, wholesalePrice: Number(e.target.value)})} />
                     </div>
                     <div className="space-y-2">
@@ -323,7 +333,7 @@ const ProductManager: React.FC<ProductManagerProps> = ({ products, setProducts, 
 
                 <div className="flex gap-4 pt-4">
                   <button onClick={() => setShowModal(false)} className={`flex-1 py-5 font-black ${isDarkMode ? 'text-slate-500 hover:text-slate-300' : 'text-slate-400 hover:text-slate-600'} uppercase text-[10px] tracking-widest transition-colors`}>Descartar</button>
-                  <button onClick={handleSave} disabled={loading} className={`flex-[2] py-5 font-black bg-blue-600 text-white rounded-[1.5rem] shadow-xl shadow-blue-100 uppercase text-[10px] tracking-widest hover:scale-[1.02] active:scale-95 transition-all ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}>
+                  <button onClick={handleSave} disabled={loading} className={`flex-[2] py-5 font-black bg-indigo-600 text-white rounded-[1.5rem] shadow-xl shadow-indigo-100 uppercase text-[10px] tracking-widest hover:scale-[1.02] active:scale-95 transition-all ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}>
                     {loading ? 'Guardando...' : (editingProd ? 'Actualizar Ficha' : 'Registrar Producto')}
                   </button>
                 </div>

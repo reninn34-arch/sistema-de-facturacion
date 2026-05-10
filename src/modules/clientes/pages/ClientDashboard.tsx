@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { Document } from '../../../types/types';
+import { DocumentTextIcon, ArrowRightOnRectangleIcon, CheckCircleIcon, CreditCardIcon, ClockIcon, DocumentIcon, CodeBracketIcon, LockClosedIcon, QuestionMarkCircleIcon } from '@heroicons/react/24/outline';
 
 const API_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:3001';
 
@@ -150,8 +151,6 @@ const ClientDashboard = () => {
       <style>
         {`
           @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
-          @import url('https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap');
-          .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
           .font-display { font-family: 'Inter', sans-serif; }
         `}
       </style>
@@ -163,7 +162,7 @@ const ClientDashboard = () => {
             <div className="flex items-center gap-8">
               <div className="flex items-center gap-3 text-[#135bec]">
                 <div className="size-8 flex items-center justify-center bg-[#135bec] rounded-lg text-white">
-                  <span className="material-symbols-outlined">receipt_long</span>
+                  <DocumentTextIcon className="w-5 h-5" />
                 </div>
                 <h2 className="text-[#0d121b] dark:text-white text-lg font-bold leading-tight tracking-tight">FacturaPortal</h2>
               </div>
@@ -194,7 +193,7 @@ const ClientDashboard = () => {
                     {user?.type === 'BUSINESS' ? (user?.name?.charAt(0) || 'E') : (user?.name?.charAt(0) || 'C')}
                 </div>
                 <button onClick={handleLogout} className="ml-2 text-slate-400 hover:text-red-500" title="Cerrar Sesión">
-                    <span className="material-symbols-outlined">logout</span>
+                    <ArrowRightOnRectangleIcon className="w-5 h-5" />
                 </button>
               </div>
             </div>
@@ -210,17 +209,17 @@ const ClientDashboard = () => {
                 <div className="flex flex-col gap-2 rounded-xl p-6 bg-white dark:bg-slate-900 border border-[#cfd7e7] dark:border-slate-800 shadow-sm">
                   <div className="flex items-center justify-between mb-2">
                     <p className="text-[#4c669a] dark:text-slate-400 text-sm font-medium leading-normal">Total Facturas</p>
-                    <span className="material-symbols-outlined text-[#135bec] bg-[#135bec]/10 p-2 rounded-lg">description</span>
+                    <DocumentTextIcon className="w-6 h-6 text-[#135bec] bg-[#135bec]/10 p-2 rounded-lg" />
                   </div>
                   <p className="text-[#0d121b] dark:text-white tracking-light text-3xl font-bold leading-tight">{stats.totalDocs}</p>
                   <p className="text-[#07883b] text-sm font-medium flex items-center gap-1">
-                    <span className="material-symbols-outlined text-[18px]">check_circle</span> Registradas
+                    <CheckCircleIcon className="w-[18px] h-[18px]" /> Registradas
                   </p>
                 </div>
                 <div className="flex flex-col gap-2 rounded-xl p-6 bg-white dark:bg-slate-900 border border-[#cfd7e7] dark:border-slate-800 shadow-sm">
                   <div className="flex items-center justify-between mb-2">
                     <p className="text-[#4c669a] dark:text-slate-400 text-sm font-medium leading-normal">Total Compras</p>
-                    <span className="material-symbols-outlined text-[#135bec] bg-[#135bec]/10 p-2 rounded-lg">payments</span>
+                    <CreditCardIcon className="w-6 h-6 text-[#135bec] bg-[#135bec]/10 p-2 rounded-lg" />
                   </div>
                   <p className="text-[#0d121b] dark:text-white tracking-light text-3xl font-bold leading-tight">${stats.totalAmount.toFixed(2)}</p>
                   <p className="text-[#4c669a] text-sm font-medium flex items-center gap-1">
@@ -230,7 +229,7 @@ const ClientDashboard = () => {
                 <div className="flex flex-col gap-2 rounded-xl p-6 bg-white dark:bg-slate-900 border border-[#cfd7e7] dark:border-slate-800 shadow-sm">
                   <div className="flex items-center justify-between mb-2">
                     <p className="text-[#4c669a] dark:text-slate-400 text-sm font-medium leading-normal">Pendientes</p>
-                    <span className="material-symbols-outlined text-[#135bec] bg-[#135bec]/10 p-2 rounded-lg">pending_actions</span>
+                    <ClockIcon className="w-6 h-6 text-[#135bec] bg-[#135bec]/10 p-2 rounded-lg" />
                   </div>
                   <p className="text-[#0d121b] dark:text-white tracking-light text-3xl font-bold leading-tight">{stats.pendingDocs}</p>
                   <p className="text-[#4c669a] dark:text-slate-400 text-sm font-medium">Por procesar o pagar</p>
@@ -244,7 +243,7 @@ const ClientDashboard = () => {
                   {getDashboardTitle()}
                 </h2>
                 {userType === 'BUSINESS' && (
-                  <span className="px-3 py-1 text-xs font-medium bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300 rounded-full">
+                  <span className="px-3 py-1 text-xs font-medium bg-indigo-100 text-indigo-700 dark:bg-indigo-900 dark:text-blue-300 rounded-full">
                     Facturas SaaS
                   </span>
                 )}
@@ -285,10 +284,10 @@ const ClientDashboard = () => {
                             <td className="px-4 py-5 text-[#0d121b] dark:text-white text-sm font-semibold">${doc.total?.toFixed(2) || '0.00'}</td>
                             <td className="px-4 py-5 text-right space-x-2">
                               <button className="inline-flex items-center justify-center p-2 rounded-lg bg-[#135bec]/10 text-[#135bec] hover:bg-[#135bec] hover:text-white transition-all" title="Descargar PDF">
-                                <span className="material-symbols-outlined text-[20px]">picture_as_pdf</span>
+                                <DocumentIcon className="w-5 h-5" />
                               </button>
                               <button className="inline-flex items-center justify-center p-2 rounded-lg bg-[#135bec]/10 text-[#135bec] hover:bg-[#135bec] hover:text-white transition-all" title="Descargar XML">
-                                <span className="material-symbols-outlined text-[20px]">code</span>
+                                <CodeBracketIcon className="w-5 h-5" />
                               </button>
                             </td>
                           </tr>
@@ -328,10 +327,10 @@ const ClientDashboard = () => {
                           </span>
                           <div className="flex gap-2">
                             <button className="inline-flex items-center justify-center p-2 rounded-lg bg-[#135bec]/10 text-[#135bec] hover:bg-[#135bec] hover:text-white transition-all" title="Descargar PDF">
-                              <span className="material-symbols-outlined text-[20px]">picture_as_pdf</span>
+                              <DocumentIcon className="w-5 h-5" />
                             </button>
                             <button className="inline-flex items-center justify-center p-2 rounded-lg bg-[#135bec]/10 text-[#135bec] hover:bg-[#135bec] hover:text-white transition-all" title="Descargar XML">
-                              <span className="material-symbols-outlined text-[20px]">code</span>
+                              <CodeBracketIcon className="w-5 h-5" />
                             </button>
                           </div>
                         </div>
@@ -350,7 +349,7 @@ const ClientDashboard = () => {
               </div>
               <div className="bg-white dark:bg-slate-900 rounded-xl border border-[#cfd7e7] dark:border-slate-800 p-6 shadow-sm">
                 <div className="flex items-center gap-3 mb-6">
-                  <span className="material-symbols-outlined text-[#135bec]">lock</span>
+                  <LockClosedIcon className="w-6 h-6 text-[#135bec]" />
                   <h3 className="text-lg font-bold text-[#0d121b] dark:text-white">Cambiar Contraseña</h3>
                 </div>
                 
@@ -401,7 +400,7 @@ const ClientDashboard = () => {
               {/* Quick Help Card */}
               <div className="bg-[#135bec]/5 dark:bg-[#135bec]/10 rounded-xl p-6 border border-[#135bec]/10">
                 <div className="flex items-start gap-3">
-                  <span className="material-symbols-outlined text-[#135bec]">help</span>
+                  <QuestionMarkCircleIcon className="w-6 h-6 text-[#135bec]" />
                   <div>
                     <h4 className="text-sm font-bold text-[#0d121b] dark:text-white mb-1">Â¿Necesitas ayuda?</h4>
                     <p className="text-xs text-[#4c669a] dark:text-slate-400 leading-relaxed mb-3">

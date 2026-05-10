@@ -1,4 +1,5 @@
 import React, { useState, useMemo } from 'react';
+import { CubeIcon, ArrowDownTrayIcon, InboxIcon } from '@heroicons/react/24/outline';
 import { Product, Document, InventoryMovement } from '../../../types/types';
 
 interface KardexProps {
@@ -12,7 +13,10 @@ export default function Kardex({ products, documents, onNotify }: KardexProps) {
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
 
-  const selectedProduct = products.find(p => p.id === selectedProductId);
+  const safeProducts = Array.isArray(products) ? products : [];
+  const safeDocuments = Array.isArray(documents) ? documents : [];
+
+  const selectedProduct = safeProducts.find(p => p.id === selectedProductId);
 
   const movements = useMemo((): InventoryMovement[] => {
     if (!selectedProductId) return [];
@@ -98,7 +102,7 @@ export default function Kardex({ products, documents, onNotify }: KardexProps) {
       <div className="bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-sm">
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-3">
-            <span className="text-4xl">📦</span>
+            <CubeIcon className="w-10 h-10" />
             <div>
               <h2 className="text-2xl font-black text-slate-800 tracking-tight">Kardex de Inventario</h2>
               <p className="text-sm text-slate-500 font-bold">Control de movimientos por producto</p>
@@ -107,9 +111,9 @@ export default function Kardex({ products, documents, onNotify }: KardexProps) {
           <button
             onClick={exportToCSV}
             disabled={movements.length === 0}
-            className="px-6 py-3 bg-blue-600 text-white rounded-xl font-bold text-sm hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="px-6 py-3 bg-indigo-600 text-white rounded-xl font-bold text-sm hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            📥 Exportar CSV
+            <ArrowDownTrayIcon className="w-4 h-4 inline" /> Exportar CSV
           </button>
         </div>
 
@@ -122,7 +126,7 @@ export default function Kardex({ products, documents, onNotify }: KardexProps) {
               className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl font-bold text-sm"
             >
               <option value="">Selecciona producto</option>
-              {products.filter(p => p.type === 'FISICO').map(product => (
+              {(Array.isArray(products) ? products : []).filter(p => p.type === 'FISICO').map(product => (
                 <option key={product.id} value={product.id}>
                   {product.code} - {product.description}
                 </option>
@@ -196,7 +200,7 @@ export default function Kardex({ products, documents, onNotify }: KardexProps) {
                   <td className="p-3 text-right font-bold text-red-600">{mov.quantityOut || '-'}</td>
                   <td className="p-3 text-right font-black text-slate-800">{mov.balance}</td>
                   <td className="p-3 text-right font-bold text-slate-600">${mov.unitCost.toFixed(2)}</td>
-                  <td className="p-3 text-right font-black text-blue-600">${mov.totalCost.toFixed(2)}</td>
+                  <td className="p-3 text-right font-black text-indigo-600">${mov.totalCost.toFixed(2)}</td>
                 </tr>
               ))}
             </tbody>
@@ -205,7 +209,7 @@ export default function Kardex({ products, documents, onNotify }: KardexProps) {
 
         {movements.length === 0 && (
           <div className="text-center py-12">
-            <span className="text-6xl opacity-20">📭</span>
+            <InboxIcon className="w-16 h-16 mx-auto opacity-20" />
             <p className="text-slate-400 font-bold mt-4">
               {selectedProductId ? 'No hay movimientos en el rango seleccionado' : 'Selecciona un producto para ver su kardex'}
             </p>

@@ -1,6 +1,19 @@
 import React, { useState, useMemo } from 'react';
 import { Client } from '../../../types/types';
 import { validateEcuadorianId, getEntityAvatarColor } from '../../../utils/validation';
+import {
+  IdentificationIcon,
+  ShoppingCartIcon,
+  TruckIcon,
+  MagnifyingGlassIcon,
+  EnvelopeIcon,
+  PhoneIcon,
+  MapPinIcon,
+  ChatBubbleLeftRightIcon,
+  KeyIcon,
+  UserIcon,
+  XMarkIcon,
+} from '@heroicons/react/24/outline';
 
 interface ClientManagerProps {
   clients: Client[];
@@ -19,26 +32,26 @@ const ClientManager: React.FC<ClientManagerProps> = ({ clients, setClients, onNo
   const [formData, setFormData] = useState<Partial<Client>>({ type: 'CLIENTE' });
   const [searchTerm, setSearchTerm] = useState('');
   const [filterType, setFilterType] = useState<'TODOS' | 'CLIENTE' | 'PROVEEDOR'>('TODOS');
-  // Estado de carga
   const [loading, setLoading] = useState(false);
-  // Estado para reset de contraseña
   const [showResetModal, setShowResetModal] = useState(false);
   const [resetPasswordClient, setResetPasswordClient] = useState<Client | null>(null);
   const [newPassword, setNewPassword] = useState('');
 
+  const safeClients = Array.isArray(clients) ? clients : [];
+
   const stats = useMemo(() => ({
-    total: clients.length,
-    clients: clients.filter(c => c.type === 'CLIENTE' || c.type === 'AMBOS').length,
-    suppliers: clients.filter(c => c.type === 'PROVEEDOR' || c.type === 'AMBOS').length
-  }), [clients]);
+    total: safeClients.length,
+    clients: safeClients.filter(c => c.type === 'CLIENTE' || c.type === 'AMBOS').length,
+    suppliers: safeClients.filter(c => c.type === 'PROVEEDOR' || c.type === 'AMBOS').length
+  }), [safeClients]);
 
   const filteredClients = useMemo(() => {
-    return clients.filter(c => {
+    return safeClients.filter(c => {
       const matchesSearch = c.name.toLowerCase().includes(searchTerm.toLowerCase()) || c.ruc.includes(searchTerm);
       const matchesType = filterType === 'TODOS' || c.type === filterType || c.type === 'AMBOS';
       return matchesSearch && matchesType;
     });
-  }, [clients, searchTerm, filterType]);
+  }, [safeClients, searchTerm, filterType]);
 
   const handleOpenModal = (client?: Client) => {
     if (client) {
@@ -78,7 +91,7 @@ const ClientManager: React.FC<ClientManagerProps> = ({ clients, setClients, onNo
       } as Client;
 
       if (editingClient) {
-        setClients(clients.map(c => c.id === editingClient.id ? fakeClient : c));
+        setClients(safeClients.map(c => c.id === editingClient.id ? fakeClient : c));
         onNotify("Cliente actualizado (Modo Demo)");
       } else {
         setClients([fakeClient, ...clients]);
@@ -119,7 +132,7 @@ const ClientManager: React.FC<ClientManagerProps> = ({ clients, setClients, onNo
         }
 
         const updatedClient = await response.json();
-        setClients(clients.map(c => c.id === editingClient.id ? updatedClient : c));
+        setClients(safeClients.map(c => c.id === editingClient.id ? updatedClient : c));
         onNotify("Entidad actualizada correctamente en base de datos");
       } else {
         // CREAR (POST)
@@ -162,7 +175,7 @@ const ClientManager: React.FC<ClientManagerProps> = ({ clients, setClients, onNo
     if (confirm("¿Está seguro de eliminar esta entidad?")) {
       // 1. MODO DEMO
       if (isDemoMode) {
-        setClients(clients.filter(c => c.id !== id));
+        setClients(safeClients.filter(c => c.id !== id));
         onNotify("Entidad eliminada (Modo Demo)");
         return;
       }
@@ -175,7 +188,7 @@ const ClientManager: React.FC<ClientManagerProps> = ({ clients, setClients, onNo
         });
         if (!response.ok) throw new Error('Error al eliminar');
 
-        setClients(clients.filter(c => c.id !== id));
+        setClients(safeClients.filter(c => c.id !== id));
         onNotify("Entidad eliminada de la base de datos");
       } catch (error) {
         onNotify("Error al eliminar del servidor", "error");
@@ -230,9 +243,9 @@ const ClientManager: React.FC<ClientManagerProps> = ({ clients, setClients, onNo
       {/* Cards de Resumen */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {[
-          { label: 'Entidades Totales', value: stats.total, icon: '📇', color: 'slate' },
-          { label: 'Clientes Activos', value: stats.clients, icon: '🛍️', color: 'blue' },
-          { label: 'Proveedores', value: stats.suppliers, icon: '🚚', color: 'emerald' },
+          { label: 'Entidades Totales', value: stats.total, icon: <IdentificationIcon className="w-7 h-7" />, color: 'slate' },
+          { label: 'Clientes Activos', value: stats.clients, icon: <ShoppingCartIcon className="w-7 h-7" />, color: 'blue' },
+          { label: 'Proveedores', value: stats.suppliers, icon: <TruckIcon className="w-7 h-7" />, color: 'emerald' },
         ].map((s, i) => (
           <div key={i} className="bg-white dark:bg-slate-800 p-8 rounded-[2.5rem] shadow-sm border border-slate-100 dark:border-slate-700 flex items-center gap-6">
             <div className={`w-14 h-14 rounded-2xl flex items-center justify-center text-2xl bg-${s.color}-50 dark:bg-${s.color}-900/30 text-${s.color}-600 dark:text-${s.color}-400`}>
@@ -250,11 +263,11 @@ const ClientManager: React.FC<ClientManagerProps> = ({ clients, setClients, onNo
       <div className="bg-white dark:bg-slate-800 p-4 sm:p-6 md:p-8 rounded-[3rem] border border-slate-100 dark:border-slate-700 shadow-sm flex flex-col lg:flex-row justify-between items-center gap-4 sm:gap-6">
         <div className="flex flex-col md:flex-row gap-3 sm:gap-4 w-full lg:w-auto">
           <div className="relative w-full md:w-64 lg:w-80">
-            <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">🔍</span>
+            <MagnifyingGlassIcon className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
             <input
               type="text"
               placeholder="Nombre o RUC..."
-              className="w-full md:w-64 lg:w-80 bg-slate-50 dark:bg-slate-700 p-3 sm:p-4 pl-10 sm:pl-12 rounded-2xl font-bold text-sm outline-none border-2 border-transparent focus:border-blue-500 transition-all min-h-[48px] text-slate-800 dark:text-white"
+              className="w-full md:w-64 lg:w-80 bg-slate-50 dark:bg-slate-700 p-3 sm:p-4 pl-10 sm:pl-12 rounded-2xl font-bold text-sm outline-none border-2 border-transparent focus:border-indigo-500 transition-all min-h-[48px] text-slate-800 dark:text-white"
               value={searchTerm}
               onChange={e => setSearchTerm(e.target.value)}
             />
@@ -264,7 +277,7 @@ const ClientManager: React.FC<ClientManagerProps> = ({ clients, setClients, onNo
               <button
                 key={t}
                 onClick={() => setFilterType(t)}
-                className={`px-4 sm:px-6 py-2.5 sm:py-3 text-[10px] font-black uppercase rounded-xl transition-all min-h-[44px] ${filterType === t ? 'bg-white dark:bg-slate-600 shadow-sm text-blue-600 dark:text-blue-400' : 'text-slate-400 dark:text-slate-400'}`}
+                className={`px-4 sm:px-6 py-2.5 sm:py-3 text-[10px] font-black uppercase rounded-xl transition-all min-h-[44px] ${filterType === t ? 'bg-white dark:bg-slate-600 shadow-sm text-indigo-600 dark:text-indigo-400' : 'text-slate-400 dark:text-slate-400'}`}
               >
                 {t === 'TODOS' ? 'Todos' : t === 'CLIENTE' ? 'Clientes' : 'Proveedores'}
               </button>
@@ -273,7 +286,7 @@ const ClientManager: React.FC<ClientManagerProps> = ({ clients, setClients, onNo
         </div>
         <button
           onClick={() => handleOpenModal()}
-          className="w-full lg:w-auto bg-slate-900 dark:bg-blue-600 text-white px-6 sm:px-10 py-4 sm:py-5 rounded-[1.5rem] font-black text-[10px] uppercase tracking-widest hover:scale-105 transition-all shadow-xl shadow-slate-200 dark:shadow-slate-900 min-h-[52px]"
+          className="w-full lg:w-auto bg-slate-900 dark:bg-indigo-600 text-white px-6 sm:px-10 py-4 sm:py-5 rounded-[1.5rem] font-black text-[10px] uppercase tracking-widest hover:scale-105 transition-all shadow-xl shadow-slate-200 dark:shadow-slate-900 min-h-[52px]"
         >
           + Agregar Entidad
         </button>
@@ -289,7 +302,7 @@ const ClientManager: React.FC<ClientManagerProps> = ({ clients, setClients, onNo
                   {client.name.charAt(0)}
                 </div>
                 <div className="flex flex-col items-end">
-                  <span className={`px-3 py-1 rounded-lg text-[8px] font-black uppercase tracking-widest ${client.type === 'CLIENTE' ? 'bg-blue-50 text-blue-600' :
+                  <span className={`px-3 py-1 rounded-lg text-[8px] font-black uppercase tracking-widest ${client.type === 'CLIENTE' ? 'bg-indigo-50 text-indigo-600' :
                       client.type === 'PROVEEDOR' ? 'bg-emerald-50 text-emerald-600' : 'bg-purple-50 text-purple-600'
                     }`}>
                     {client.type}
@@ -298,23 +311,23 @@ const ClientManager: React.FC<ClientManagerProps> = ({ clients, setClients, onNo
                 </div>
               </div>
 
-              <h4 className="text-xl font-black text-slate-800 dark:text-white tracking-tight leading-tight mb-2 group-hover:text-blue-600 transition-colors">
+              <h4 className="text-xl font-black text-slate-800 dark:text-white tracking-tight leading-tight mb-2 group-hover:text-indigo-600 transition-colors">
                 {client.name}
               </h4>
               <div className="space-y-3 mt-6">
                 {client.email && (
                   <div className="flex items-center gap-3 text-xs text-slate-500 dark:text-slate-400 font-medium">
-                    <span className="opacity-50">✉️</span> {client.email}
+                    <EnvelopeIcon className="w-4 h-4 opacity-50 inline" /> {client.email}
                   </div>
                 )}
                 {client.phone && (
                   <div className="flex items-center gap-3 text-xs text-slate-500 dark:text-slate-400 font-medium">
-                    <span className="opacity-50">📞</span> {client.phone}
+                    <PhoneIcon className="w-4 h-4 opacity-50 inline" /> {client.phone}
                   </div>
                 )}
                 {client.address && (
                   <div className="flex items-center gap-3 text-xs text-slate-500 dark:text-slate-400 font-medium truncate">
-                    <span className="opacity-50">📍</span> {client.address}
+                    <MapPinIcon className="w-4 h-4 opacity-50 inline" /> {client.address}
                   </div>
                 )}
               </div>
@@ -327,26 +340,26 @@ const ClientManager: React.FC<ClientManagerProps> = ({ clients, setClients, onNo
                     onClick={() => window.open(`https://wa.me/593${client.phone.replace(/^0/, '')}`, '_blank')}
                     className="w-10 h-10 bg-white dark:bg-slate-600 border border-slate-200 dark:border-slate-500 rounded-xl flex items-center justify-center hover:bg-emerald-500 hover:text-white transition-all shadow-sm min-w-[40px] min-h-[40px]"
                     title="WhatsApp"
-                  >💬</button>
+                  ><ChatBubbleLeftRightIcon className="w-4 h-4" /></button>
                 )}
                 {client.email && (
                   <button
                     onClick={() => window.location.href = `mailto:${client.email}`}
-                    className="w-10 h-10 bg-white dark:bg-slate-600 border border-slate-200 dark:border-slate-500 rounded-xl flex items-center justify-center hover:bg-blue-500 hover:text-white transition-all shadow-sm min-w-[40px] min-h-[40px]"
+                    className="w-10 h-10 bg-white dark:bg-slate-600 border border-slate-200 dark:border-slate-500 rounded-xl flex items-center justify-center hover:bg-indigo-500 hover:text-white transition-all shadow-sm min-w-[40px] min-h-[40px]"
                     title="Email"
-                  >✉️</button>
+                  ><EnvelopeIcon className="w-4 h-4" /></button>
                 )}
                 {client.address && (
                   <button
                     onClick={() => window.open(`https://www.google.com/maps/search/${encodeURIComponent(client.address)}`, '_blank')}
                     className="w-10 h-10 bg-white dark:bg-slate-600 border border-slate-200 dark:border-slate-500 rounded-xl flex items-center justify-center hover:bg-rose-500 hover:text-white transition-all shadow-sm min-w-[40px] min-h-[40px]"
                     title="Mapa"
-                  >📍</button>
+                  ><MapPinIcon className="w-4 h-4" /></button>
                 )}
               </div>
               <div className="flex gap-4">
-                <button onClick={() => handleOpenModal(client)} className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest hover:text-blue-600 dark:hover:text-blue-400 transition-colors">Editar</button>
-                <button onClick={() => { setResetPasswordClient(client); setShowResetModal(true); }} className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest hover:text-amber-500 transition-colors">🔑 Reset</button>
+                <button onClick={() => handleOpenModal(client)} className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">Editar</button>
+                <button onClick={() => { setResetPasswordClient(client); setShowResetModal(true); }} className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest hover:text-amber-500 transition-colors"><KeyIcon className="w-4 h-4 inline" /> Reset</button>
                 <button onClick={() => handleDelete(client.id, client.ruc)} className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest hover:text-rose-500 transition-colors">Eliminar</button>
               </div>
             </div>
@@ -362,7 +375,7 @@ const ClientManager: React.FC<ClientManagerProps> = ({ clients, setClients, onNo
                 <h4 className="text-3xl font-black text-slate-900 dark:text-white tracking-tighter">
                   {editingClient ? 'Actualizar Entidad' : 'Nueva Entidad'}
                 </h4>
-                <div className="bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 p-3 rounded-2xl text-2xl">👤</div>
+                <div className="bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 p-3 rounded-2xl"><UserIcon className="w-6 h-6" /></div>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -371,14 +384,14 @@ const ClientManager: React.FC<ClientManagerProps> = ({ clients, setClients, onNo
                   <input
                     placeholder="Ej: 1722334455001"
                     value={formData.ruc || ''}
-                    className="w-full p-3 sm:p-4 bg-slate-50 rounded-2xl font-bold outline-none border-2 border-transparent focus:border-blue-500 transition-all min-h-[48px] text-sm sm:text-base"
+                    className="w-full p-3 sm:p-4 bg-slate-50 rounded-2xl font-bold outline-none border-2 border-transparent focus:border-indigo-500 transition-all min-h-[48px] text-sm sm:text-base"
                     onChange={e => setFormData({ ...formData, ruc: e.target.value })}
                   />
                 </div>
                 <div className="space-y-2">
                   <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Tipo de Entidad</label>
                   <select
-                    className="w-full p-3 sm:p-4 bg-slate-50 rounded-2xl font-bold outline-none border-2 border-transparent focus:border-blue-500 transition-all appearance-none min-h-[48px] text-sm sm:text-base"
+                    className="w-full p-3 sm:p-4 bg-slate-50 rounded-2xl font-bold outline-none border-2 border-transparent focus:border-indigo-500 transition-all appearance-none min-h-[48px] text-sm sm:text-base"
                     value={formData.type}
                     onChange={e => setFormData({ ...formData, type: e.target.value as any })}
                   >
@@ -392,7 +405,7 @@ const ClientManager: React.FC<ClientManagerProps> = ({ clients, setClients, onNo
                   <input
                     placeholder="Ej: Juan Pérez o Empresa S.A."
                     value={formData.name || ''}
-                    className="w-full p-3 sm:p-4 bg-slate-50 rounded-2xl font-bold outline-none border-2 border-transparent focus:border-blue-500 transition-all min-h-[48px] text-sm sm:text-base"
+                    className="w-full p-3 sm:p-4 bg-slate-50 rounded-2xl font-bold outline-none border-2 border-transparent focus:border-indigo-500 transition-all min-h-[48px] text-sm sm:text-base"
                     onChange={e => setFormData({ ...formData, name: e.target.value })}
                   />
                 </div>
@@ -401,7 +414,7 @@ const ClientManager: React.FC<ClientManagerProps> = ({ clients, setClients, onNo
                   <input
                     placeholder="email@ejemplo.com"
                     value={formData.email || ''}
-                    className="w-full p-3 sm:p-4 bg-slate-50 rounded-2xl font-bold outline-none border-2 border-transparent focus:border-blue-500 transition-all min-h-[48px] text-sm sm:text-base"
+                    className="w-full p-3 sm:p-4 bg-slate-50 rounded-2xl font-bold outline-none border-2 border-transparent focus:border-indigo-500 transition-all min-h-[48px] text-sm sm:text-base"
                     onChange={e => setFormData({ ...formData, email: e.target.value })}
                   />
                 </div>
@@ -410,7 +423,7 @@ const ClientManager: React.FC<ClientManagerProps> = ({ clients, setClients, onNo
                   <input
                     placeholder="Ej: 0998877665"
                     value={formData.phone || ''}
-                    className="w-full p-3 sm:p-4 bg-slate-50 rounded-2xl font-bold outline-none border-2 border-transparent focus:border-blue-500 transition-all min-h-[48px] text-sm sm:text-base"
+                    className="w-full p-3 sm:p-4 bg-slate-50 rounded-2xl font-bold outline-none border-2 border-transparent focus:border-indigo-500 transition-all min-h-[48px] text-sm sm:text-base"
                     onChange={e => setFormData({ ...formData, phone: e.target.value })}
                   />
                 </div>
@@ -419,7 +432,7 @@ const ClientManager: React.FC<ClientManagerProps> = ({ clients, setClients, onNo
                   <input
                     placeholder="Ej: Av. Amazonas y República, Quito"
                     value={formData.address || ''}
-                    className="w-full p-3 sm:p-4 bg-slate-50 rounded-2xl font-bold outline-none border-2 border-transparent focus:border-blue-500 transition-all min-h-[48px] text-sm sm:text-base"
+                    className="w-full p-3 sm:p-4 bg-slate-50 rounded-2xl font-bold outline-none border-2 border-transparent focus:border-indigo-500 transition-all min-h-[48px] text-sm sm:text-base"
                     onChange={e => setFormData({ ...formData, address: e.target.value })}
                   />
                 </div>
@@ -427,7 +440,7 @@ const ClientManager: React.FC<ClientManagerProps> = ({ clients, setClients, onNo
 
               <div className="flex gap-4 pt-6">
                 <button onClick={() => setShowModal(false)} className="flex-1 py-4 sm:py-5 font-black text-slate-400 uppercase text-[10px] tracking-widest hover:text-slate-600 transition-colors min-h-[48px]">Cancelar</button>
-                <button onClick={handleSave} className="flex-[2] py-4 sm:py-5 font-black bg-blue-600 text-white rounded-[1.5rem] shadow-xl shadow-blue-100 uppercase text-[10px] tracking-widest hover:scale-[1.02] active:scale-95 transition-all min-h-[52px]">
+                <button onClick={handleSave} className="flex-[2] py-4 sm:py-5 font-black bg-indigo-600 text-white rounded-[1.5rem] shadow-xl shadow-indigo-100 uppercase text-[10px] tracking-widest hover:scale-[1.02] active:scale-95 transition-all min-h-[52px]">
                   {editingClient ? 'Guardar Cambios' : 'Registrar Entidad'}
                 </button>
               </div>
@@ -443,9 +456,9 @@ const ClientManager: React.FC<ClientManagerProps> = ({ clients, setClients, onNo
             <div className="p-10 space-y-6">
               <div className="flex justify-between items-center">
                 <h4 className="text-2xl font-black text-slate-900 dark:text-white tracking-tighter">
-                  🔑 Resetear Contraseña
+                  <KeyIcon className="w-5 h-5 inline" /> Resetear Contraseña
                 </h4>
-                <button onClick={() => { setShowResetModal(false); setResetPasswordClient(null); setNewPassword(''); }} className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 text-2xl">✕</button>
+                <button onClick={() => { setShowResetModal(false); setResetPasswordClient(null); setNewPassword(''); }} className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"><XMarkIcon className="w-5 h-5" /></button>
               </div>
               
               <p className="text-sm text-slate-500 dark:text-slate-400">

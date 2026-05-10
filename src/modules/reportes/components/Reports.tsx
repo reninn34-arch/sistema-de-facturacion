@@ -3,6 +3,7 @@ import React, { useState, useMemo } from 'react';
 import { Document, DocumentType, SriStatus, PaymentStatus, BusinessInfo } from '../../../types/types';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from 'recharts';
 import RideViewer from '../../facturacion/components/RideViewer';
+import { ScaleIcon, BanknotesIcon, BuildingOffice2Icon, LightBulbIcon } from '@heroicons/react/24/outline';
 
 interface ReportsProps {
   documents: Document[];
@@ -13,13 +14,15 @@ const Reports: React.FC<ReportsProps> = ({ documents, businessInfo }) => {
   const [activeSubTab, setActiveSubTab] = useState<'CARTERA' | 'TRIBUTOS' | 'SRI'>('TRIBUTOS');
   const [filter, setFilter] = useState<'ALL' | 'PAID' | 'PENDING'>('ALL');
   const [selectedDocForRide, setSelectedDocForRide] = useState<Document | null>(null);
+  const safeDocuments = Array.isArray(documents) ? documents : [];
 
   const fiscalStats = useMemo(() => {
     let sub15 = 0;
     let sub0 = 0;
     let totalIva = 0;
     let totalNeto = 0;
-    documents.filter(d => d.type === DocumentType.INVOICE && d.status === SriStatus.AUTHORIZED).forEach(doc => {
+    
+    safeDocuments.filter(d => d.type === DocumentType.INVOICE && d.status === SriStatus.AUTHORIZED).forEach(doc => {
       // Si el documento tiene ítems guardados, calculamos sobre ellos
       if (doc.items && doc.items.length > 0) {
         doc.items.forEach(it => {
@@ -54,9 +57,9 @@ const Reports: React.FC<ReportsProps> = ({ documents, businessInfo }) => {
     <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700 pb-20">
       <div className="flex bg-white p-2 rounded-[2rem] shadow-sm border border-slate-100 max-w-fit mx-auto lg:mx-0">
         {[
-          { id: 'TRIBUTOS', label: 'Resumen Fiscal', icon: '⚖️' },
-          { id: 'CARTERA', label: 'Cartera y Cobros', icon: '💰' },
-          { id: 'SRI', label: 'Documentos SRI', icon: '🏛️' },
+          { id: 'TRIBUTOS', label: 'Resumen Fiscal', icon: <ScaleIcon className="w-4 h-4" /> },
+          { id: 'CARTERA', label: 'Cartera y Cobros', icon: <BanknotesIcon className="w-4 h-4" /> },
+          { id: 'SRI', label: 'Documentos SRI', icon: <BuildingOffice2Icon className="w-4 h-4" /> },
         ].map(tab => (
           <button
             key={tab.id}
@@ -76,10 +79,10 @@ const Reports: React.FC<ReportsProps> = ({ documents, businessInfo }) => {
           <div className="lg:col-span-1 space-y-6">
             <div className="bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-sm">
               <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Total IVA Generado</p>
-              <h4 className="text-4xl font-black text-blue-600 tracking-tighter">${fiscalStats.totalIva.toFixed(2)}</h4>
+              <h4 className="text-4xl font-black text-indigo-600 tracking-tighter">${fiscalStats.totalIva.toFixed(2)}</h4>
             </div>
             <div className="bg-slate-900 p-8 rounded-[2.5rem] text-white">
-              <h5 className="font-black text-sm uppercase tracking-widest mb-4 text-blue-400">💡 Tip Fiscal</h5>
+              <h5 className="font-black text-sm uppercase tracking-widest mb-4 text-indigo-400 flex items-center gap-2"><LightBulbIcon className="w-4 h-4" /> Tip Fiscal</h5>
               <p className="text-xs leading-relaxed text-slate-400 font-medium">Recuerda que el IVA se declara mensualmente según tu noveno dígito del RUC.</p>
             </div>
           </div>
@@ -120,7 +123,7 @@ const Reports: React.FC<ReportsProps> = ({ documents, businessInfo }) => {
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-50">
-                {documents.map(doc => (
+                {safeDocuments.map(doc => (
                   <tr key={doc.id} className="hover:bg-slate-50/50">
                     <td className="py-6 px-10">
                       <p className="text-xs font-black text-slate-800">{doc.number}</p>

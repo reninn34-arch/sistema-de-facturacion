@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { ChartBarIcon, InformationCircleIcon, ArrowDownTrayIcon } from '@heroicons/react/24/outline';
 import { Document, BusinessInfo, ATSPurchase, ATSSale } from '../../../types/types';
 import { generateATSXML } from '../../../services/atsService';
 
@@ -21,7 +22,7 @@ export default function ATSReport({ documents, business, onNotify }: ATSReportPr
     const period = `${month}${year}`;
     
     // Filtrar documentos del período
-    const filteredDocs = documents.filter(doc => {
+    const filteredDocs = (Array.isArray(documents) ? documents : []).filter(doc => {
       const docDate = new Date(doc.issueDate);
       const docMonth = (docDate.getMonth() + 1).toString().padStart(2, '0');
       const docYear = docDate.getFullYear().toString();
@@ -77,7 +78,7 @@ export default function ATSReport({ documents, business, onNotify }: ATSReportPr
     <div className="max-w-4xl mx-auto space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
       <div className="bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-sm">
         <div className="flex items-center gap-3 mb-8">
-          <span className="text-4xl">📊</span>
+          <ChartBarIcon className="w-10 h-10" />
           <div>
             <h2 className="text-2xl font-black text-slate-800 tracking-tight">Anexo Transaccional Simplificado</h2>
             <p className="text-sm text-slate-500 font-bold">Genera el archivo XML para el SRI</p>
@@ -121,9 +122,9 @@ export default function ATSReport({ documents, business, onNotify }: ATSReportPr
             </div>
           </div>
 
-          <div className="bg-blue-50 p-6 rounded-2xl border border-blue-100">
-            <h3 className="font-black text-blue-900 text-sm mb-2">ℹ️ Información</h3>
-            <ul className="text-xs text-blue-700 space-y-1 font-bold">
+          <div className="bg-indigo-50 p-6 rounded-2xl border border-indigo-100">
+            <h3 className="font-black text-indigo-900 text-sm mb-2"><InformationCircleIcon className="w-4 h-4 inline" /> Información</h3>
+            <ul className="text-xs text-indigo-700 space-y-1 font-bold">
               <li>• El ATS debe presentarse hasta el día 28 del mes siguiente</li>
               <li>• Incluye todas las transacciones autorizadas del período</li>
               <li>• El archivo XML debe subirse al portal del SRI</li>
@@ -133,9 +134,9 @@ export default function ATSReport({ documents, business, onNotify }: ATSReportPr
 
           <button
             onClick={generateATS}
-            className="w-full py-4 bg-blue-600 hover:bg-blue-700 text-white rounded-2xl font-black uppercase text-sm tracking-wide shadow-lg shadow-blue-500/20"
+            className="w-full py-4 bg-indigo-600 hover:bg-indigo-700 text-white rounded-2xl font-black uppercase text-sm tracking-wide shadow-lg shadow-indigo-500/20"
           >
-            📥 Generar ATS (XML)
+            <ArrowDownTrayIcon className="w-4 h-4 inline" /> Generar ATS (XML)
           </button>
         </div>
 

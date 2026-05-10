@@ -1,4 +1,25 @@
 import React, { useState, useEffect } from 'react';
+import {
+  UserIcon,
+  ShieldCheckIcon,
+  BriefcaseIcon,
+  ShoppingCartIcon,
+  ChartBarIcon,
+  MagnifyingGlassIcon,
+  PlusIcon,
+  ClockIcon,
+  InboxIcon,
+  TrashIcon,
+  PencilIcon,
+  KeyIcon,
+  PauseCircleIcon,
+  PlayCircleIcon,
+  XMarkIcon,
+  EyeIcon,
+  EyeSlashIcon,
+  ExclamationTriangleIcon,
+  QuestionMarkCircleIcon,
+} from '@heroicons/react/24/outline';
 
 const API_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:3001';
 
@@ -127,12 +148,22 @@ const UserManagement: React.FC<UserManagementProps> = ({ currentUser, onNotify }
     ? ['SUPERADMIN', 'ADMIN']
     : ['ADMIN', 'VENDEDOR', 'CONTADOR'];
 
-  const roleLabels: Record<string, { label: string; color: string; icon: string }> = {
-    '': { label: 'Sin rol', color: 'slate', icon: '❓' },
-    SUPERADMIN: { label: 'Super Admin', color: 'red', icon: '🛡️' },
-    ADMIN: { label: 'Admin Empresa', color: 'blue', icon: '👔' },
-    VENDEDOR: { label: 'Vendedor', color: 'emerald', icon: '🛒' },
-    CONTADOR: { label: 'Contador', color: 'purple', icon: '📊' }
+  const getRoleIcon = (role: string) => {
+    switch (role) {
+      case 'SUPERADMIN': return <ShieldCheckIcon className="w-5 h-5" />;
+      case 'ADMIN': return <BriefcaseIcon className="w-5 h-5" />;
+      case 'VENDEDOR': return <ShoppingCartIcon className="w-5 h-5" />;
+      case 'CONTADOR': return <ChartBarIcon className="w-5 h-5" />;
+      default: return <QuestionMarkCircleIcon className="w-5 h-5" />;
+    }
+  };
+
+  const roleLabels: Record<string, { label: string; color: string }> = {
+    '': { label: 'Sin rol', color: 'slate' },
+    SUPERADMIN: { label: 'Super Admin', color: 'red' },
+    ADMIN: { label: 'Admin Empresa', color: 'blue' },
+    VENDEDOR: { label: 'Vendedor', color: 'emerald' },
+    CONTADOR: { label: 'Contador', color: 'purple' }
   };
 
   // Crear usuario
@@ -345,11 +376,11 @@ const UserManagement: React.FC<UserManagementProps> = ({ currentUser, onNotify }
   return (
     <div className="space-y-6 animate-in fade-in duration-500">
       {/* Header */}
-      <div className="bg-white dark:bg-[#1e293b] p-8 rounded-[2.5rem] shadow-sm dark:shadow-lg dark:shadow-black/10 border border-slate-100 dark:border-slate-700/50">
+      <div className="bg-white dark:bg-slate-800 p-8 rounded-[2.5rem] shadow-sm dark:shadow-lg dark:shadow-black/10 border border-slate-100 dark:border-slate-700/50">
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
           <div>
             <h2 className="text-2xl font-black text-slate-800 dark:text-white tracking-tighter flex items-center gap-3">
-              <span className="text-3xl">👔</span>
+              <BriefcaseIcon className="w-8 h-8" />
               {isSuperAdmin ? 'Gestión Global de Administradores' : 'Administradores de la Empresa'}
             </h2>
             <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
@@ -360,16 +391,16 @@ const UserManagement: React.FC<UserManagementProps> = ({ currentUser, onNotify }
           </div>
           <button
             onClick={() => setShowModal(true)}
-            className="px-6 py-3 bg-blue-600 text-white rounded-2xl font-bold text-sm hover:bg-blue-700 transition-all shadow-lg shadow-blue-600/20 flex items-center gap-2"
+            className="px-6 py-3 bg-indigo-600 text-white rounded-2xl font-bold text-sm hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-600/20 flex items-center gap-2"
           >
-            <span>+</span> Nuevo Administrador
+            <PlusIcon className="w-4 h-4" /> Nuevo Administrador
           </button>
         </div>
 
         {/* Filtros */}
         <div className="mt-6 flex flex-col md:flex-row gap-4">
           <div className="relative flex-1">
-            <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">🔍</span>
+            <MagnifyingGlassIcon className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
             <input
               type="text"
               placeholder="Buscar por email, nombre o empresa..."
@@ -390,7 +421,7 @@ const UserManagement: React.FC<UserManagementProps> = ({ currentUser, onNotify }
               Todos ({users.length})
             </button>
             {uniqueRoles.map(role => {
-              const info = roleLabels[role as keyof typeof roleLabels] || { label: role, color: 'slate', icon: '👤' };
+              const info = roleLabels[role as keyof typeof roleLabels] || { label: role, color: 'slate' };
               const count = users.filter(u => u.role === role).length;
               return (
                 <button
@@ -402,7 +433,7 @@ const UserManagement: React.FC<UserManagementProps> = ({ currentUser, onNotify }
                       : 'bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700'
                   }`}
                 >
-                  {info.icon} {info.label} ({count})
+                  {getRoleIcon(role)} {info.label} ({count})
                 </button>
               );
             })}
@@ -411,15 +442,15 @@ const UserManagement: React.FC<UserManagementProps> = ({ currentUser, onNotify }
       </div>
 
       {/* Tabla de Usuarios */}
-      <div className="bg-white dark:bg-[#1e293b] rounded-[2rem] shadow-sm dark:shadow-lg dark:shadow-black/10 border border-slate-100 dark:border-slate-700/50 overflow-hidden">
+      <div className="bg-white dark:bg-slate-800 rounded-[2rem] shadow-sm dark:shadow-lg dark:shadow-black/10 border border-slate-100 dark:border-slate-700/50 overflow-hidden">
         {loading ? (
           <div className="p-16 text-center text-slate-400 dark:text-slate-500">
-            <div className="text-4xl mb-4 animate-pulse">⏳</div>
+            <ClockIcon className="w-12 h-12 mb-4 animate-pulse mx-auto" />
             <p className="font-bold">Cargando administradores...</p>
           </div>
         ) : filteredUsers.length === 0 ? (
           <div className="p-16 text-center text-slate-400 dark:text-slate-500">
-            <div className="text-4xl mb-4">📭</div>
+            <InboxIcon className="w-12 h-12 mx-auto mb-4 text-slate-300" />
             <p className="font-bold">No se encontraron administradores</p>
             <p className="text-xs mt-2">Intenta con otro término de búsqueda o crea un nuevo administrador</p>
           </div>
@@ -439,20 +470,20 @@ const UserManagement: React.FC<UserManagementProps> = ({ currentUser, onNotify }
               </thead>
               <tbody className="divide-y divide-slate-50 dark:divide-slate-700/50">
                 {filteredUsers.map((user) => {
-                  const roleInfo = roleLabels[user.role] || { label: user.role, color: 'slate', icon: '👤' };
+                  const roleInfo = roleLabels[user.role] || { label: user.role, color: 'slate' };
                   const isCurrentUser = user.id === currentUser?.id;
                   
                   return (
-                    <tr key={user.id} className={`hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors ${isCurrentUser ? 'bg-blue-50/30 dark:bg-blue-500/5' : ''}`}>
+                    <tr key={user.id} className={`hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors ${isCurrentUser ? 'bg-indigo-50/30 dark:bg-indigo-500/5' : ''}`}>
                       <td className="px-6 py-4">
                         <div className="flex items-center gap-3">
-                          <div className={`w-10 h-10 rounded-xl flex items-center justify-center text-lg bg-${roleInfo.color}-100 dark:bg-${roleInfo.color}-500/10`}>
-                            {roleInfo.icon}
+                          <div className={`w-10 h-10 rounded-xl flex items-center justify-center bg-${roleInfo.color}-100 dark:bg-${roleInfo.color}-500/10`}>
+                            {getRoleIcon(user.role)}
                           </div>
                           <div>
                             <p className="font-bold text-sm text-slate-800 dark:text-white">
                               {user.name || user.email}
-                              {isCurrentUser && <span className="ml-2 text-[9px] bg-blue-100 dark:bg-blue-500/20 text-blue-600 dark:text-blue-400 px-2 py-0.5 rounded-full font-black">TÚ</span>}
+                              {isCurrentUser && <span className="ml-2 text-[9px] bg-indigo-100 dark:bg-indigo-500/20 text-indigo-600 dark:text-indigo-400 px-2 py-0.5 rounded-full font-black">TÚ</span>}
                             </p>
                             {user.name && <p className="text-xs text-slate-400 dark:text-slate-500">{user.email}</p>}
                           </div>
@@ -460,7 +491,7 @@ const UserManagement: React.FC<UserManagementProps> = ({ currentUser, onNotify }
                       </td>
                       <td className="px-6 py-4">
                         <span className={`inline-flex items-center gap-1 px-3 py-1 rounded-lg text-xs font-bold bg-${roleInfo.color}-50 dark:bg-${roleInfo.color}-500/10 text-${roleInfo.color}-600 dark:text-${roleInfo.color}-400`}>
-                          {roleInfo.icon} {roleInfo.label}
+                          {getRoleIcon(user.role)} {roleInfo.label}
                         </span>
                       </td>
                       {isSuperAdmin && (
@@ -497,7 +528,7 @@ const UserManagement: React.FC<UserManagementProps> = ({ currentUser, onNotify }
                             className="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700/50 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 transition-colors"
                             title="Restablecer contraseña"
                           >
-                            🔑
+                            <KeyIcon className="w-4 h-4" />
                           </button>
                           
                           {/* Toggle Status (solo ADMIN de empresa) */}
@@ -511,7 +542,7 @@ const UserManagement: React.FC<UserManagementProps> = ({ currentUser, onNotify }
                               }`}
                               title={user.isActive ? 'Desactivar' : 'Activar'}
                             >
-                              {user.isActive ? '⏸️' : '▶️'}
+                              {user.isActive ? <PauseCircleIcon className="w-4 h-4" /> : <PlayCircleIcon className="w-4 h-4" />}
                             </button>
                           )}
 
@@ -522,7 +553,7 @@ const UserManagement: React.FC<UserManagementProps> = ({ currentUser, onNotify }
                               className="p-2 rounded-lg hover:bg-red-50 dark:hover:bg-red-500/10 text-slate-400 hover:text-red-500 transition-colors"
                               title="Eliminar administrador"
                             >
-                              🗑️
+                              <TrashIcon className="w-4 h-4" />
                             </button>
                           )}
 
@@ -530,10 +561,10 @@ const UserManagement: React.FC<UserManagementProps> = ({ currentUser, onNotify }
                           {(isSuperAdmin || isAdmin) && !isCurrentUser && (
                             <button
                               onClick={() => openEditModal(user)}
-                              className="p-2 rounded-lg hover:bg-blue-50 dark:hover:bg-blue-500/10 text-slate-400 hover:text-blue-500 transition-colors"
+                              className="p-2 rounded-lg hover:bg-indigo-50 dark:hover:bg-indigo-500/10 text-slate-400 hover:text-indigo-500 transition-colors"
                               title="Editar administrador"
                             >
-                              ✏️
+                              <PencilIcon className="w-4 h-4" />
                             </button>
                           )}
                         </div>
@@ -550,12 +581,12 @@ const UserManagement: React.FC<UserManagementProps> = ({ currentUser, onNotify }
       {/* Resumen */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         {uniqueRoles.map(role => {
-          const info = roleLabels[role as keyof typeof roleLabels] || { label: role, color: 'slate', icon: '👤' };
+          const info = roleLabels[role as keyof typeof roleLabels] || { label: role, color: 'slate' };
           const count = users.filter(u => u.role === role).length;
           return (
-            <div key={role} className="bg-white dark:bg-[#1e293b] p-5 rounded-2xl border border-slate-100 dark:border-slate-700/50 shadow-sm">
+            <div key={role} className="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-100 dark:border-slate-700/50 shadow-sm">
               <div className="flex items-center gap-2 mb-2">
-                <span className="text-xl">{info.icon}</span>
+                {getRoleIcon(role)}
                 <span className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest">{info.label}</span>
               </div>
               <p className="text-2xl font-black text-slate-800 dark:text-white">{count}</p>
@@ -567,13 +598,13 @@ const UserManagement: React.FC<UserManagementProps> = ({ currentUser, onNotify }
       {/* ============ MODAL: CREAR USUARIO ============ */}
       {showModal && (
         <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-in fade-in duration-200">
-          <div className="bg-white dark:bg-[#1e293b] rounded-[2rem] shadow-2xl dark:shadow-black/40 w-full max-w-lg border border-slate-200 dark:border-slate-700/50 animate-in zoom-in-95 duration-300">
+          <div className="bg-white dark:bg-slate-800 rounded-[2rem] shadow-2xl dark:shadow-black/40 w-full max-w-lg border border-slate-200 dark:border-slate-700/50 animate-in zoom-in-95 duration-300">
             <div className="p-6 border-b border-slate-100 dark:border-slate-700/50">
               <div className="flex justify-between items-center">
                 <h3 className="text-lg font-black text-slate-800 dark:text-white flex items-center gap-2">
-                  <span>➕</span> Nuevo Administrador
+                  <PlusIcon className="w-5 h-5" /> Nuevo Administrador
                 </h3>
-                <button onClick={() => setShowModal(false)} className="text-slate-400 hover:text-slate-600 dark:hover:text-white text-xl">✕</button>
+                <button onClick={() => setShowModal(false)} className="text-slate-400 hover:text-slate-600 dark:hover:text-white"><XMarkIcon className="w-5 h-5" /></button>
               </div>
             </div>
 
@@ -611,9 +642,9 @@ const UserManagement: React.FC<UserManagementProps> = ({ currentUser, onNotify }
                   className="w-full p-3 bg-slate-50 dark:bg-slate-800/50 dark:text-white rounded-xl text-sm font-bold border border-slate-200 dark:border-slate-700/50 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
                   {availableRoles.map(role => {
-                    const info = roleLabels[role] || { label: role, icon: '👤' };
+                    const info = roleLabels[role] || { label: role };
                     return (
-                      <option key={role} value={role}>{info.icon} {info.label}</option>
+                      <option key={role} value={role}>{info.label}</option>
                     );
                   })}
                 </select>
@@ -654,7 +685,7 @@ const UserManagement: React.FC<UserManagementProps> = ({ currentUser, onNotify }
                       onClick={() => setShowPassword(!showPassword)}
                       className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400"
                     >
-                      {showPassword ? '🙈' : '👁️'}
+                      {showPassword ? <EyeSlashIcon className="w-4 h-4" /> : <EyeIcon className="w-4 h-4" />}
                     </button>
                   </div>
                 </div>
@@ -681,7 +712,7 @@ const UserManagement: React.FC<UserManagementProps> = ({ currentUser, onNotify }
                 </button>
                 <button
                   type="submit"
-                  className="flex-1 py-3 bg-blue-600 text-white rounded-xl font-bold text-sm hover:bg-blue-700 transition-colors shadow-lg shadow-blue-600/20"
+                  className="flex-1 py-3 bg-indigo-600 text-white rounded-xl font-bold text-sm hover:bg-indigo-700 transition-colors shadow-lg shadow-indigo-600/20"
                 >
                   Crear Usuario
                 </button>
@@ -694,8 +725,8 @@ const UserManagement: React.FC<UserManagementProps> = ({ currentUser, onNotify }
       {/* ============ MODAL: CONFIRMAR ELIMINACIÓN ============ */}
       {showDeleteModal && selectedUser && (
         <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-in fade-in duration-200">
-          <div className="bg-white dark:bg-[#1e293b] rounded-[2rem] shadow-2xl dark:shadow-black/40 w-full max-w-md border border-slate-200 dark:border-slate-700/50 p-8 text-center animate-in zoom-in-95 duration-300">
-            <div className="text-5xl mb-4">⚠️</div>
+          <div className="bg-white dark:bg-slate-800 rounded-[2rem] shadow-2xl dark:shadow-black/40 w-full max-w-md border border-slate-200 dark:border-slate-700/50 p-8 text-center animate-in zoom-in-95 duration-300">
+            <ExclamationTriangleIcon className="w-14 h-14 mx-auto mb-4 text-amber-500" />
             <h3 className="text-xl font-black text-slate-800 dark:text-white mb-2">¿Eliminar administrador?</h3>
             <p className="text-sm text-slate-500 dark:text-slate-400 mb-6">
               Se eliminará permanentemente a <strong className="text-slate-800 dark:text-white">{selectedUser.email}</strong>. Esta acción no se puede deshacer.
@@ -721,9 +752,9 @@ const UserManagement: React.FC<UserManagementProps> = ({ currentUser, onNotify }
       {/* ============ MODAL: RESET PASSWORD ============ */}
       {showResetModal && selectedUser && (
         <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-in fade-in duration-200">
-          <div className="bg-white dark:bg-[#1e293b] rounded-[2rem] shadow-2xl dark:shadow-black/40 w-full max-w-md border border-slate-200 dark:border-slate-700/50 p-8 animate-in zoom-in-95 duration-300">
+          <div className="bg-white dark:bg-slate-800 rounded-[2rem] shadow-2xl dark:shadow-black/40 w-full max-w-md border border-slate-200 dark:border-slate-700/50 p-8 animate-in zoom-in-95 duration-300">
             <h3 className="text-lg font-black text-slate-800 dark:text-white mb-2 flex items-center gap-2">
-              <span>🔑</span> Restablecer Contraseña
+              <KeyIcon className="w-5 h-5" /> Restablecer Contraseña
             </h3>
             <p className="text-sm text-slate-500 dark:text-slate-400 mb-6">
               Nueva contraseña temporal para <strong className="text-slate-800 dark:text-white">{selectedUser.email}</strong>
@@ -745,7 +776,7 @@ const UserManagement: React.FC<UserManagementProps> = ({ currentUser, onNotify }
               <button
                 onClick={handleResetPassword}
                 disabled={!tempPassword}
-                className="flex-1 py-3 bg-blue-600 text-white rounded-xl font-bold text-sm hover:bg-blue-700 transition-colors shadow-lg shadow-blue-600/20 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="flex-1 py-3 bg-indigo-600 text-white rounded-xl font-bold text-sm hover:bg-indigo-700 transition-colors shadow-lg shadow-indigo-600/20 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 Restablecer
               </button>
@@ -757,13 +788,13 @@ const UserManagement: React.FC<UserManagementProps> = ({ currentUser, onNotify }
       {/* ============ MODAL: EDITAR USUARIO ============ */}
       {showEditModal && editingUser && (
         <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-in fade-in duration-200">
-          <div className="bg-white dark:bg-[#1e293b] rounded-[2rem] shadow-2xl dark:shadow-black/40 w-full max-w-lg border border-slate-200 dark:border-slate-700/50 animate-in zoom-in-95 duration-300">
+          <div className="bg-white dark:bg-slate-800 rounded-[2rem] shadow-2xl dark:shadow-black/40 w-full max-w-lg border border-slate-200 dark:border-slate-700/50 animate-in zoom-in-95 duration-300">
             <div className="p-6 border-b border-slate-100 dark:border-slate-700/50">
               <div className="flex justify-between items-center">
                 <h3 className="text-lg font-black text-slate-800 dark:text-white flex items-center gap-2">
-                  <span>✏️</span> Editar Administrador
+                  <PencilIcon className="w-5 h-5" /> Editar Administrador
                 </h3>
-                <button onClick={() => { setShowEditModal(false); setEditingUser(null); }} className="text-slate-400 hover:text-slate-600 dark:hover:text-white text-xl">✕</button>
+                <button onClick={() => { setShowEditModal(false); setEditingUser(null); }} className="text-slate-400 hover:text-slate-600 dark:hover:text-white"><XMarkIcon className="w-5 h-5" /></button>
               </div>
             </div>
 
@@ -826,7 +857,7 @@ const UserManagement: React.FC<UserManagementProps> = ({ currentUser, onNotify }
                 </button>
                 <button
                   type="submit"
-                  className="flex-1 py-3 bg-blue-600 text-white rounded-xl font-bold text-sm hover:bg-blue-700 transition-colors shadow-lg shadow-blue-600/20"
+                  className="flex-1 py-3 bg-indigo-600 text-white rounded-xl font-bold text-sm hover:bg-indigo-700 transition-colors shadow-lg shadow-indigo-600/20"
                 >
                   Guardar Cambios
                 </button>

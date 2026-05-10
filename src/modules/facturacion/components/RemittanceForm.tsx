@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { TruckIcon, MapPinIcon, PlusIcon, TrashIcon, CubeIcon } from '@heroicons/react/24/outline';
 import { RemittanceGuide, RemittanceRecipient, RemittanceItem, BusinessInfo, Client, Product } from '../../../types/types';
 import { generateRemittanceXML } from '../../../services/remittanceService';
 import { getLocalDateISO } from '../../../utils/date';
@@ -120,7 +121,7 @@ export default function RemittanceForm({ business, clients, products, onSubmit }
     <div className="max-w-6xl mx-auto p-6">
       <div className="bg-white rounded-lg shadow-md p-6">
         <div className="flex items-center gap-3 mb-6">
-          <span className="text-4xl">🚚</span>
+          <TruckIcon className="w-10 h-10" />
           <h2 className="text-2xl font-bold text-gray-800">Nueva Guía de Remisión</h2>
         </div>
 
@@ -128,7 +129,7 @@ export default function RemittanceForm({ business, clients, products, onSubmit }
           {/* Información del Transporte */}
           <div className="border-b pb-4">
             <h3 className="text-lg font-semibold text-gray-700 mb-4 flex items-center gap-2">
-              <span className="text-xl">🚚</span>
+              <TruckIcon className="w-5 h-5" />
               Información del Transporte
             </h3>
 
@@ -241,7 +242,7 @@ export default function RemittanceForm({ business, clients, products, onSubmit }
           <div className="border-b pb-4">
             <div className="flex justify-between items-center mb-4">
               <h3 className="text-lg font-semibold text-gray-700 flex items-center gap-2">
-                <span className="text-xl">📍</span>
+                <MapPinIcon className="w-5 h-5" />
                 Destinatarios
               </h3>
               <button
@@ -249,7 +250,7 @@ export default function RemittanceForm({ business, clients, products, onSubmit }
                 onClick={addRecipient}
                 className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition"
               >
-                <span className="text-lg">➕</span>
+                <PlusIcon className="w-5 h-5" />
                 Agregar Destinatario
               </button>
             </div>
@@ -269,7 +270,7 @@ export default function RemittanceForm({ business, clients, products, onSubmit }
                         onClick={() => removeRecipient(index)}
                         className="text-red-600 hover:text-red-800 text-lg"
                       >
-                        🗑️
+                        <TrashIcon className="w-5 h-5" />
                       </button>
                     </div>
 
@@ -283,7 +284,7 @@ export default function RemittanceForm({ business, clients, products, onSubmit }
                           className="w-full px-3 py-2 border rounded-lg"
                         >
                           <option value="">Seleccione o ingrese manualmente</option>
-                          {clients.map(client => (
+                          {(Array.isArray(clients) ? clients : []).map(client => (
                             <option key={client.id} value={client.id}>
                               {client.name} - {client.ruc}
                             </option>
@@ -368,7 +369,7 @@ export default function RemittanceForm({ business, clients, products, onSubmit }
           <div>
             <div className="flex justify-between items-center mb-4">
               <h3 className="text-lg font-semibold text-gray-700 flex items-center gap-2">
-                <span className="text-xl">📦</span>
+                <CubeIcon className="w-5 h-5" />
                 Productos a Transportar
               </h3>
               <button
@@ -376,7 +377,7 @@ export default function RemittanceForm({ business, clients, products, onSubmit }
                 onClick={addItem}
                 className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition"
               >
-                <span className="text-lg">➕</span>
+                <PlusIcon className="w-5 h-5" />
                 Agregar Producto
               </button>
             </div>
@@ -396,7 +397,7 @@ export default function RemittanceForm({ business, clients, products, onSubmit }
                         onClick={() => removeItem(index)}
                         className="text-red-600 hover:text-red-800 text-lg"
                       >
-                        🗑️
+                        <TrashIcon className="w-5 h-5" />
                       </button>
                     </div>
 
@@ -410,7 +411,7 @@ export default function RemittanceForm({ business, clients, products, onSubmit }
                           className="w-full px-3 py-2 border rounded-lg"
                         >
                           <option value="">Seleccione o ingrese manualmente</option>
-                          {products.map(product => (
+                          {(Array.isArray(products) ? products : []).map(product => (
                             <option key={product.id} value={product.id}>
                               {product.code} - {product.description}
                             </option>

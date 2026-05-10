@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { ChartBarIcon, UserIcon, ShoppingCartIcon, PlusIcon, TrashIcon, BanknotesIcon } from '@heroicons/react/24/outline';
 import { PurchaseSettlement, SettlementPayment, InvoiceItem, BusinessInfo, Client, Product } from '../../../types/types';
 import { generateSettlementXML } from '../../../services/settlementService';
 import { getLocalDateISO } from '../../../utils/date';
@@ -152,12 +153,12 @@ export default function SettlementForm({ business, clients, products, onSubmit }
     <div className="max-w-5xl mx-auto p-6">
       <div className="bg-white rounded-lg shadow-md p-6">
         <div className="flex items-center gap-3 mb-6">
-          <span className="text-4xl">📊</span>
+          <ChartBarIcon className="w-10 h-10" />
           <h2 className="text-2xl font-bold text-gray-800">Nueva Liquidación de Compra</h2>
         </div>
 
-        <div className="bg-blue-50 border-l-4 border-blue-500 p-4 mb-6">
-          <p className="text-sm text-blue-700">
+        <div className="bg-indigo-50 border-l-4 border-indigo-500 p-4 mb-6">
+          <p className="text-sm text-indigo-700">
             <strong>Nota:</strong> Las liquidaciones de compra se emiten cuando compras bienes o servicios
             a personas sin RUC o que no están obligadas a emitir comprobantes de venta.
           </p>
@@ -167,7 +168,7 @@ export default function SettlementForm({ business, clients, products, onSubmit }
           {/* Información del Proveedor */}
           <div className="border-b pb-4">
             <h3 className="text-lg font-semibold text-gray-700 mb-4 flex items-center gap-2">
-              <span className="text-xl">👤</span>
+              <UserIcon className="w-5 h-5" />
               Proveedor (Sin RUC)
             </h3>
 
@@ -182,7 +183,7 @@ export default function SettlementForm({ business, clients, products, onSubmit }
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500"
                 >
                   <option value="">Seleccione o ingrese manualmente</option>
-                  {clients.filter(c => c.type !== 'CLIENTE').map(client => (
+                  {(Array.isArray(clients) ? clients : []).filter(c => c.type !== 'CLIENTE').map(client => (
                     <option key={client.id} value={client.id}>
                       {client.name} - {client.ruc}
                     </option>
@@ -249,7 +250,7 @@ export default function SettlementForm({ business, clients, products, onSubmit }
           <div>
             <div className="flex justify-between items-center mb-4">
               <h3 className="text-lg font-semibold text-gray-700 flex items-center gap-2">
-                <span className="text-xl">🛒</span>
+                <ShoppingCartIcon className="w-5 h-5" />
                 Productos / Servicios
               </h3>
               <button
@@ -257,7 +258,7 @@ export default function SettlementForm({ business, clients, products, onSubmit }
                 onClick={addItem}
                 className="flex items-center gap-2 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition"
               >
-                <span className="text-lg">➕</span>
+                <PlusIcon className="w-5 h-5" />
                 Agregar Ítem
               </button>
             </div>
@@ -277,7 +278,7 @@ export default function SettlementForm({ business, clients, products, onSubmit }
                         onClick={() => removeItem(index)}
                         className="text-red-600 hover:text-red-800 text-lg"
                       >
-                        🗑️
+                        <TrashIcon className="w-5 h-5" />
                       </button>
                     </div>
 
@@ -291,7 +292,7 @@ export default function SettlementForm({ business, clients, products, onSubmit }
                           className="w-full px-3 py-2 border rounded-lg"
                         >
                           <option value="">Seleccione o ingrese manualmente</option>
-                          {products.map(product => (
+                          {(Array.isArray(products) ? products : []).map(product => (
                             <option key={product.id} value={product.id}>
                               {product.code} - {product.description}
                             </option>
@@ -386,7 +387,7 @@ export default function SettlementForm({ business, clients, products, onSubmit }
           {/* Forma de Pago */}
           <div className="border-b pb-4">
             <h3 className="text-lg font-semibold text-gray-700 mb-4 flex items-center gap-2">
-              <span className="text-xl">💰</span>
+              <BanknotesIcon className="w-5 h-5" />
               Forma de Pago
             </h3>
 

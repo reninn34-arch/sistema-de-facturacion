@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { PayPalScriptProvider, PayPalButtons } from "@paypal/react-paypal-js";
+import { CheckCircleIcon, LockClosedIcon, ShieldCheckIcon, ArrowLeftIcon, EyeIcon, EyeSlashIcon, CreditCardIcon, BuildingLibraryIcon, SunIcon, MoonIcon } from '@heroicons/react/24/outline';
 
 // Interface para planes de suscripción
 interface SubscriptionPlan {
@@ -57,7 +58,7 @@ const SubscriptionPage: React.FC = () => {
   const [isDarkMode, setIsDarkMode] = useState(() => {
     const saved = localStorage.getItem('subscriptionPageDarkMode');
     if (saved !== null) return JSON.parse(saved);
-    return window.matchMedia('(prefers-color-scheme: dark)').matches;
+    return false; // Desactivado por defecto a petición del usuario
   });
 
   // Aplicar modo oscuro al documento
@@ -276,7 +277,7 @@ const SubscriptionPage: React.FC = () => {
               className={`flex items-center justify-center w-10 h-10 rounded-lg transition-all ${isDarkMode ? 'bg-amber-500/20 text-amber-400 hover:bg-amber-500/30' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'}`}
               title={isDarkMode ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro'}
             >
-              {isDarkMode ? '☀️' : '🌙'}
+              {isDarkMode ? <SunIcon className="w-5 h-5" /> : <MoonIcon className="w-5 h-5" />}
             </button>
           </div>
         </div>
@@ -333,7 +334,7 @@ const SubscriptionPage: React.FC = () => {
                         <div className="flex flex-col gap-4 min-h-[180px]">
                           {plan.features.slice(0, 5).map((feat, i) => (
                             <div key={i} className="flex items-center gap-3 text-slate-700 dark:text-slate-300 text-sm">
-                              <span className="material-symbols-outlined text-[#135bec] font-bold text-lg">check_circle</span>
+                              <CheckCircleIcon className="w-5 h-5 text-[#135bec]" />
                               {feat}
                             </div>
                           ))}
@@ -366,9 +367,9 @@ const SubscriptionPage: React.FC = () => {
                     <p className="text-slate-500 text-sm mt-1">Transacciones encriptadas con seguridad SSL de nivel bancario.</p>
                   </div>
                   <div className="flex gap-2">
-                    <span className="material-symbols-outlined text-slate-400 text-2xl">lock</span>
-                    <span className="material-symbols-outlined text-slate-400 text-2xl">verified_user</span>
-                    <span className="material-symbols-outlined text-slate-400 text-2xl">shield</span>
+                    <LockClosedIcon className="w-6 h-6 text-slate-400" />
+                    <ShieldCheckIcon className="w-6 h-6 text-slate-400" />
+                    <ShieldCheckIcon className="w-6 h-6 text-slate-400" />
                   </div>
                 </div>
                 <div className="flex justify-center items-center gap-6 mt-4 opacity-60 flex-wrap">
@@ -387,7 +388,7 @@ const SubscriptionPage: React.FC = () => {
               <div className="flex-1 bg-white dark:bg-slate-900 rounded-2xl p-8 border border-slate-200 dark:border-slate-800 shadow-sm">
                 <div className="mb-6">
                   <button onClick={() => setStep('plans')} className="text-sm text-slate-500 hover:text-[#135bec] mb-4 flex items-center gap-1">
-                    <span className="material-symbols-outlined text-sm">arrow_back</span> Volver a planes
+                    <ArrowLeftIcon className="w-4 h-4" /> Volver a planes
                   </button>
                   <h2 className="text-2xl font-black text-slate-900 dark:text-white">Crea tu cuenta de Empresa</h2>
                   <p className="text-slate-500 text-sm">Ingresa los datos para tu facturación electrónica.</p>
@@ -435,7 +436,7 @@ const SubscriptionPage: React.FC = () => {
                         onClick={() => setShowPassword(!showPassword)}
                         className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
                       >
-                        <span className="material-symbols-outlined text-lg">{showPassword ? 'visibility_off' : 'visibility'}</span>
+                        {showPassword ? <EyeSlashIcon className="w-5 h-5" /> : <EyeIcon className="w-5 h-5" />}
                       </button>
                     </div>
                     {formData.password && !isValidPassword(formData.password) && <p className="text-xs text-red-500 mt-1">Mínimo 8 caracteres, una mayúscula y un número.</p>}
@@ -449,7 +450,7 @@ const SubscriptionPage: React.FC = () => {
                       onClick={() => setPaymentMethod('PAYPAL')}
                       className={`cursor-pointer flex items-center gap-3 p-4 rounded-xl border transition-all ${paymentMethod === 'PAYPAL' ? 'border-[#135bec] bg-[#135bec]/5' : 'border-slate-200 dark:border-slate-800'}`}
                     >
-                      <span className="material-symbols-outlined text-[#135bec]">payments</span>
+                      <CreditCardIcon className="w-5 h-5 text-[#135bec]" />
                       <div>
                         <p className="font-bold text-sm dark:text-white">PayPal / Tarjeta</p>
                         <p className="text-xs text-slate-500">Activación inmediata</p>
@@ -459,7 +460,7 @@ const SubscriptionPage: React.FC = () => {
                       onClick={() => setPaymentMethod('TRANSFER')}
                       className={`cursor-pointer flex items-center gap-3 p-4 rounded-xl border transition-all ${paymentMethod === 'TRANSFER' ? 'border-[#135bec] bg-[#135bec]/5' : 'border-slate-200 dark:border-slate-800'}`}
                     >
-                      <span className="material-symbols-outlined text-[#135bec]">account_balance</span>
+                      <BuildingLibraryIcon className="w-5 h-5 text-[#135bec]" />
                       <div>
                         <p className="font-bold text-sm dark:text-white">Transferencia</p>
                         <p className="text-xs text-slate-500">Vía WhatsApp</p>
@@ -534,7 +535,7 @@ const SubscriptionPage: React.FC = () => {
                     disabled={loading || !isFormValid}
                     className={`w-full flex items-center justify-center gap-2 rounded-xl h-12 font-bold transition-colors ${loading || !isFormValid
                         ? 'bg-slate-200 dark:bg-slate-800 text-slate-400 cursor-not-allowed'
-                        : 'bg-[#25D366] text-white hover:bg-[#20bd5a]'
+                        : 'bg-[#25D366] text-white hover:bg-[20bd5a]'
                       }`}
                   >
                     {loading ? 'Procesando...' : 'Finalizar en WhatsApp'}

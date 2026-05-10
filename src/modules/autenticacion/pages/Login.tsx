@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
+import { EnvelopeIcon, LockClosedIcon, EyeIcon, EyeSlashIcon, ArrowLeftIcon, ExclamationCircleIcon, CheckCircleIcon } from '@heroicons/react/24/outline';
 
-// URL del backend - usar variable de entorno o fallback a ruta relativa
 const API_URL = import.meta.env.VITE_BACKEND_URL || '';
 
 interface LoginProps {
@@ -29,12 +29,12 @@ const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
             });
             const data = await response.json();
             if (data.success) {
-                setResetMessage('✅ ' + (data.message || 'Enlace enviado. Revise su correo.'));
+                setResetMessage('Enlace enviado. Revise su correo.');
             } else {
-                setResetMessage('❌ ' + (data.message || 'Error al solicitar recuperación.'));
+                setResetMessage(data.message || 'Error al solicitar recuperación.');
             }
         } catch (err) {
-            setResetMessage('❌ Error de conexión.');
+            setResetMessage('Error de conexión.');
         } finally {
             setLoading(false);
         }
@@ -45,8 +45,6 @@ const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
         setError('');
         setLoading(true);
 
-        console.log('[LOGIN] Intentando iniciar sesión con:', email);
-
         try {
             const response = await fetch(`${API_URL}/api/login`, {
                 method: 'POST',
@@ -54,28 +52,21 @@ const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
                 body: JSON.stringify({ email, password })
             });
 
-            console.log('[LOGIN] Respuesta del servidor:', response.status, response.statusText);
-
             const data = await response.json();
-            console.log('[LOGIN] Datos recibidos:', JSON.stringify(data));
 
             if (!response.ok) {
-                console.error('[LOGIN] Error en respuesta:', data);
                 throw new Error(data.message || 'Error de autenticación');
             }
 
             if (!data.token) {
-                console.error('[LOGIN] ERROR: No se recibió token en la respuesta');
                 throw new Error('Respuesta del servidor inválida: no se recibió token');
             }
 
-            console.log('[LOGIN] Token recibido, guardando en localStorage...');
             localStorage.setItem('adminToken', data.token);
             if (data.user) {
                 localStorage.setItem('adminUser', JSON.stringify(data.user));
             }
 
-            // Guardar flags de suscripción
             if (data.subscriptionExpired !== undefined) {
                 localStorage.setItem('subscriptionExpired', JSON.stringify(data.subscriptionExpired));
             }
@@ -86,11 +77,9 @@ const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
                 localStorage.setItem('subscriptionPending', JSON.stringify(data.subscriptionPending));
             }
 
-            console.log('[LOGIN] Login exitoso, token guardado:', data.token.substring(0, 20) + '...');
             onLoginSuccess();
 
         } catch (err: any) {
-            console.error('[LOGIN] Error durante el proceso de login:', err);
             setError('Credenciales incorrectas. Intente nuevamente.');
         } finally {
             setLoading(false);
@@ -99,45 +88,65 @@ const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
 
     if (view === 'forgot') {
         return (
-            <div className="font-display bg-background-light dark:bg-background-dark text-gray-800 dark:text-gray-100 h-screen w-full flex items-center justify-center selection:bg-primary selection:text-white relative overflow-hidden">
-                <div className="relative z-10 w-full max-w-md px-6">
-                    <div className="bg-white dark:bg-surface-dark rounded-2xl shadow-2xl overflow-hidden border border-gray-200 dark:border-gray-800 backdrop-blur-sm p-8">
+            <div className="h-screen w-full flex items-center justify-center bg-slate-50 dark:bg-slate-900 relative overflow-hidden transition-colors duration-300">
+                <div className="fixed inset-0 overflow-hidden pointer-events-none z-0">
+                    <div className="absolute -top-40 -left-40 w-96 h-96 rounded-full bg-indigo-600/20 blur-3xl mix-blend-multiply dark:mix-blend-lighten opacity-70 animate-blob"></div>
+                    <div className="absolute -bottom-40 -right-40 w-96 h-96 rounded-full bg-purple-500/20 blur-3xl mix-blend-multiply dark:mix-blend-lighten opacity-70 animate-blob animation-delay-2000"></div>
+                </div>
+
+                <div className="relative z-10 w-full max-w-md px-6 animate-slide-up">
+                    <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-700 p-8">
                         <div className="text-center mb-6">
-                            <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Recuperar Contraseña</h2>
-                            <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">
+                            <h2 className="text-2xl font-bold text-slate-900 dark:text-white">Recuperar Contraseña</h2>
+                            <p className="text-sm text-slate-500 dark:text-slate-400 mt-2">
                                 Ingresa tu correo para recibir un enlace de recuperación.
                             </p>
                         </div>
 
                         {resetMessage && (
-                            <div className={`mb-4 p-3 rounded-lg text-xs ${resetMessage.startsWith('✅') ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
+                            <div className={`mb-4 p-3 rounded-lg text-xs font-medium flex items-center gap-2 ${
+                                resetMessage.startsWith('Error') || resetMessage.startsWith('Error')
+                                    ? 'bg-red-50 text-red-700 dark:bg-red-500/10 dark:text-red-400 border border-red-200 dark:border-red-500/20'
+                                    : 'bg-emerald-50 text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-500/20'
+                            }`}>
+                                {resetMessage.startsWith('Error') ? (
+                                    <ExclamationCircleIcon className="w-4 h-4 flex-shrink-0" />
+                                ) : (
+                                    <CheckCircleIcon className="w-4 h-4 flex-shrink-0" />
+                                )}
                                 {resetMessage}
                             </div>
                         )}
 
                         <form onSubmit={handleForgotPassword} className="space-y-6">
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Correo Electrónico</label>
-                                <input
-                                    type="email"
-                                    required
-                                    value={resetEmail}
-                                    onChange={(e) => setResetEmail(e.target.value)}
-                                    className="block w-full px-3 py-2.5 border border-gray-300 dark:border-gray-700 rounded-lg bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary focus:border-primary sm:text-sm"
-                                    placeholder="usuario@empresa.com"
-                                />
+                                <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1.5">Correo Electrónico</label>
+                                <div className="relative">
+                                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
+                                        <EnvelopeIcon className="w-5 h-5" />
+                                    </div>
+                                    <input
+                                        type="email"
+                                        required
+                                        value={resetEmail}
+                                        onChange={(e) => setResetEmail(e.target.value)}
+                                        className="block w-full pl-10 pr-3 py-2.5 border border-slate-300 dark:border-slate-600 rounded-lg bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm transition duration-150"
+                                        placeholder="usuario@empresa.com"
+                                    />
+                                </div>
                             </div>
                             <button
                                 type="submit"
                                 disabled={loading}
-                                className="w-full flex justify-center py-3 px-4 border border-transparent rounded-xl shadow-lg text-sm font-bold text-white bg-primary hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary transition-all disabled:opacity-70"
+                                className="w-full flex justify-center py-3 px-4 border border-transparent rounded-xl shadow-lg text-sm font-bold text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all duration-200 disabled:opacity-70"
                             >
                                 {loading ? 'Enviando...' : 'Enviar Enlace'}
                             </button>
                         </form>
 
                         <div className="mt-6 text-center">
-                            <button onClick={() => setView('login')} className="text-sm text-primary hover:underline font-medium">
+                            <button onClick={() => setView('login')} className="inline-flex items-center gap-1.5 text-sm text-indigo-600 hover:text-indigo-700 font-medium">
+                                <ArrowLeftIcon className="w-4 h-4" />
                                 Volver al Inicio de Sesión
                             </button>
                         </div>
@@ -148,44 +157,40 @@ const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
     }
 
     return (
-        <div className="font-display bg-background-light dark:bg-background-dark text-gray-800 dark:text-gray-100 h-screen w-full flex items-center justify-center selection:bg-primary selection:text-white relative overflow-hidden">
+        <div className="h-screen w-full flex items-center justify-center bg-slate-50 dark:bg-slate-900 relative overflow-hidden transition-colors duration-300">
 
-            {/* FONDO ANIMADO */}
             <div className="fixed inset-0 overflow-hidden pointer-events-none z-0">
-                <div className="absolute -top-40 -left-40 w-96 h-96 rounded-full bg-primary/20 blur-3xl mix-blend-multiply dark:mix-blend-lighten opacity-70 animate-blob"></div>
+                <div className="absolute -top-40 -left-40 w-96 h-96 rounded-full bg-indigo-600/20 blur-3xl mix-blend-multiply dark:mix-blend-lighten opacity-70 animate-blob"></div>
                 <div className="absolute -bottom-40 -right-40 w-96 h-96 rounded-full bg-purple-500/20 blur-3xl mix-blend-multiply dark:mix-blend-lighten opacity-70 animate-blob animation-delay-2000"></div>
             </div>
 
-            <div className="relative z-10 w-full max-w-md px-6">
-                <div className="bg-white dark:bg-surface-dark rounded-2xl shadow-2xl overflow-hidden border border-gray-200 dark:border-gray-800 backdrop-blur-sm">
+            <div className="relative z-10 w-full max-w-md px-6 animate-slide-up">
+                <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl overflow-hidden border border-slate-200 dark:border-slate-700">
 
-                    {/* CABECERA */}
                     <div className="pt-10 pb-6 px-8 text-center">
                         <div className="flex flex-col items-center justify-center mb-6">
                             <div className="flex items-baseline tracking-tight">
-                                <span className="text-3xl font-bold text-ecua-blue">ECUAFACT</span>
+                                <span className="text-3xl font-bold text-indigo-600">ECUAFACT</span>
                                 <span className="text-3xl font-extrabold text-slate-900 dark:text-white ml-1">PRO</span>
                             </div>
-                            <span className="text-[10px] uppercase tracking-[0.2em] font-medium text-gray-500 dark:text-gray-400 mt-1">Enterprise Edition</span>
+                            <span className="text-[10px] uppercase tracking-[0.2em] font-semibold text-slate-400 dark:text-slate-500 mt-1">Enterprise Edition</span>
                         </div>
-                        <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Bienvenido</h2>
-                        <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">
+                        <h2 className="text-2xl font-bold text-slate-900 dark:text-white">Bienvenido</h2>
+                        <p className="text-sm text-slate-500 dark:text-slate-400 mt-2">
                             Ingresa tus credenciales para acceder al panel.
                         </p>
                     </div>
 
-                    {/* FORMULARIO */}
                     <div className="px-8 pb-10">
                         <form onSubmit={handleLogin} className="space-y-6">
 
-                            {/* EMAIL INPUT */}
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5" htmlFor="email">
+                                <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1.5" htmlFor="email">
                                     Correo Electrónico
                                 </label>
                                 <div className="relative">
-                                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
-                                        <span className="material-icons-outlined text-xl">email</span>
+                                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
+                                        <EnvelopeIcon className="w-5 h-5" />
                                     </div>
                                     <input
                                         id="email"
@@ -195,25 +200,24 @@ const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
                                         required
                                         value={email}
                                         onChange={(e) => setEmail(e.target.value)}
-                                        className="block w-full pl-10 pr-3 py-2.5 border border-gray-300 dark:border-gray-700 rounded-lg leading-5 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary sm:text-sm transition duration-150 ease-in-out"
+                                        className="block w-full pl-10 pr-3 py-2.5 border border-slate-300 dark:border-slate-600 rounded-lg bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm transition duration-150"
                                         placeholder="usuario@empresa.com"
                                     />
                                 </div>
                             </div>
 
-                            {/* PASSWORD INPUT */}
                             <div>
                                 <div className="flex items-center justify-between mb-1.5">
-                                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300" htmlFor="password">
+                                    <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300" htmlFor="password">
                                         Contraseña
                                     </label>
-                                    <button type="button" onClick={() => setView('forgot')} className="text-xs font-medium text-primary hover:text-blue-600 hover:underline">
+                                    <button type="button" onClick={() => setView('forgot')} className="text-xs font-medium text-indigo-600 hover:text-indigo-700 hover:underline">
                                         ¿Olvidaste tu contraseña?
                                     </button>
                                 </div>
                                 <div className="relative">
-                                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
-                                        <span className="material-icons-outlined text-xl">lock</span>
+                                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
+                                        <LockClosedIcon className="w-5 h-5" />
                                     </div>
                                     <input
                                         id="password"
@@ -223,35 +227,35 @@ const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
                                         required
                                         value={password}
                                         onChange={(e) => setPassword(e.target.value)}
-                                        className="block w-full pl-10 pr-10 py-2.5 border border-gray-300 dark:border-gray-700 rounded-lg leading-5 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary sm:text-sm transition duration-150 ease-in-out"
+                                        className="block w-full pl-10 pr-10 py-2.5 border border-slate-300 dark:border-slate-600 rounded-lg bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm transition duration-150"
                                         placeholder="••••••••"
                                     />
                                     <button
                                         type="button"
-                                        className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600 cursor-pointer"
+                                        className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-slate-600 dark:hover:text-slate-300"
                                         onClick={() => setShowPassword(!showPassword)}
                                     >
-                                        <span className="material-icons-outlined text-xl">
-                                            {showPassword ? 'visibility_off' : 'visibility'}
-                                        </span>
+                                        {showPassword ? (
+                                            <EyeSlashIcon className="w-5 h-5" />
+                                        ) : (
+                                            <EyeIcon className="w-5 h-5" />
+                                        )}
                                     </button>
                                 </div>
                             </div>
 
-                            {/* MENSAJE DE ERROR */}
                             {error && (
-                                <div className="bg-red-500/10 border border-red-500/20 rounded-lg p-3 flex items-center gap-2 text-red-600 text-xs">
-                                    <span className="material-icons-outlined text-sm">error</span>
+                                <div className="bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/20 rounded-lg p-3 flex items-center gap-2 text-red-600 dark:text-red-400 text-xs font-medium">
+                                    <ExclamationCircleIcon className="w-4 h-4 flex-shrink-0" />
                                     {error}
                                 </div>
                             )}
 
-                            {/* BOTÓN SUBMIT */}
                             <div>
                                 <button
                                     type="submit"
                                     disabled={loading}
-                                    className={`w-full flex justify-center items-center py-3 px-4 border border-transparent rounded-xl shadow-lg text-sm font-bold text-white bg-primary hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary transition-all duration-200 transform hover:-translate-y-0.5 ${loading ? 'opacity-70 cursor-not-allowed' : ''}`}
+                                    className={`w-full flex justify-center items-center py-3 px-4 border border-transparent rounded-xl shadow-lg text-sm font-bold text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all duration-200 transform hover:-translate-y-0.5 disabled:opacity-70 disabled:cursor-not-allowed`}
                                 >
                                     {loading ? (
                                         <>
@@ -262,44 +266,36 @@ const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
                                             Ingresando...
                                         </>
                                     ) : (
-                                        <>
-                                            <span className="material-icons-outlined mr-2 text-lg">login</span>
-                                            Iniciar Sesión
-                                        </>
+                                        'Iniciar Sesión'
                                     )}
                                 </button>
                                 <div className="mt-4 text-center">
-                                    <a href="/portal/login" className="text-sm text-gray-500 hover:text-primary transition-colors font-medium">
+                                    <a href="/portal/login" className="text-sm text-slate-500 hover:text-indigo-600 transition-colors font-medium">
                                         ¿Eres cliente? <span className="underline">Ingresa al Portal aquí</span>
                                     </a>
                                 </div>
                             </div>
                         </form>
 
-                        {/* FOOTER */}
                         <div className="mt-8 relative">
                             <div className="absolute inset-0 flex items-center">
-                                <div className="w-full border-t border-gray-200 dark:border-gray-700"></div>
+                                <div className="w-full border-t border-slate-200 dark:border-slate-700"></div>
                             </div>
                             <div className="relative flex justify-center text-sm">
-                                <span className="px-2 bg-white dark:bg-surface-dark text-gray-500 dark:text-gray-400">Acceso Seguro</span>
+                                <span className="px-2 bg-white dark:bg-slate-800 text-slate-400 dark:text-slate-500 text-xs font-medium">Acceso Seguro</span>
                             </div>
                         </div>
 
-                        <div className="mt-6 grid grid-cols-2 gap-4 text-center text-xs text-gray-500 dark:text-gray-500">
-                            <a className="hover:text-primary transition-colors flex items-center justify-center gap-1 cursor-pointer">
-                                <span className="material-icons-outlined text-sm">help_outline</span> Soporte
-                            </a>
-                            <a className="hover:text-primary transition-colors flex items-center justify-center gap-1 cursor-pointer">
-                                <span className="material-icons-outlined text-sm">security</span> Privacidad
-                            </a>
+                        <div className="mt-6 flex justify-center gap-6 text-xs text-slate-400 dark:text-slate-500">
+                            <span className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors cursor-pointer">Soporte</span>
+                            <span className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors cursor-pointer">Privacidad</span>
                         </div>
                     </div>
-                    <div className="h-1.5 w-full bg-gradient-to-r from-primary to-ecua-blue"></div>
+                    <div className="h-1.5 w-full bg-gradient-to-r from-indigo-600 to-indigo-400"></div>
                 </div>
                 <div className="mt-8 text-center">
-                    <p className="text-xs text-gray-500 dark:text-gray-600">
-                        © 2024 Corporación EcuaFact. Todos los derechos reservados.
+                    <p className="text-xs text-slate-400 dark:text-slate-600">
+                        &copy; 2024 Corporación EcuaFact. Todos los derechos reservados.
                     </p>
                 </div>
             </div>

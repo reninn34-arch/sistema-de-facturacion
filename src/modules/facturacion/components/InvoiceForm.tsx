@@ -6,6 +6,7 @@ import { generateAccessKey } from '../../../utils/sri';
 import { buildInvoiceXml, authorizeWithSRI } from '../../../services/sriService';
 import { getLocalDateISO } from '../../../utils/date';
 import RideViewer from './RideViewer';
+import { DocumentTextIcon, PrinterIcon, EnvelopeIcon, MagnifyingGlassIcon, CubeIcon, Cog6ToothIcon, ShoppingCartIcon } from '@heroicons/react/24/outline';
 import { jsPDF } from 'jspdf';
 import autoTable from 'jspdf-autotable';
 
@@ -22,7 +23,7 @@ interface InvoiceFormProps {
 
 const InvoiceForm: React.FC<InvoiceFormProps> = ({ clients, products, businessInfo, signatureFile, signaturePassword, notificationSettings, onNotify, onAuthorize }) => {
   // Detectar modo oscuro
-  const isDarkMode = (businessInfo as any)?.features?.isDarkMode ?? window.matchMedia('(prefers-color-scheme: dark)').matches;
+  const isDarkMode = (businessInfo as any)?.features?.isDarkMode ?? false;
   const [selectedClient, setSelectedClient] = useState<Client | null>(null);
   const [paymentMethod, setPaymentMethod] = useState('01');
   const [priceTier, setPriceTier] = useState<'price' | 'wholesalePrice' | 'distributorPrice'>('price');
@@ -693,21 +694,28 @@ const InvoiceForm: React.FC<InvoiceFormProps> = ({ clients, products, businessIn
         {lastDocument && (
           <div className="bg-emerald-600 rounded-[2.5rem] lg:rounded-[3.5rem] p-6 lg:p-10 text-white flex flex-col md:flex-row items-center justify-between gap-6 shadow-2xl shadow-emerald-200 print:hidden">
             <div className="flex items-center gap-4 lg:gap-6 text-center md:text-left flex-col md:flex-row">
-              <div className="w-16 h-16 lg:w-20 lg:h-20 bg-white/20 rounded-[1.5rem] lg:rounded-[2rem] flex items-center justify-center text-3xl lg:text-4xl">🏛️</div>
+              <div className="w-16 h-16 lg:w-20 lg:h-20 bg-white/20 rounded-[1.5rem] lg:rounded-[2rem] flex items-center justify-center"><DocumentTextIcon className="w-8 h-8 lg:w-10 lg:h-10" /></div>
               <div>
                 <h3 className="text-xl lg:text-2xl font-black tracking-tighter uppercase">Factura Autorizada</h3>
                 <p className="text-white/70 font-bold text-[10px] uppercase tracking-widest mt-1">Clave: {lastDocument.accessKey.substring(0, 20)}...</p>
               </div>
             </div>
             <div className="flex flex-col sm:flex-row gap-3 w-full md:w-auto">
-              <button onClick={() => setShowRide(true)} className={`${isDarkMode ? 'bg-slate-700 text-emerald-400' : 'bg-white text-emerald-600'} px-6 py-3 rounded-xl lg:rounded-2xl font-black text-[10px] uppercase tracking-widest hover:scale-105 transition-all`}>🖨️ Ver RIDE</button>
+              <button onClick={() => setShowRide(true)} className={`${isDarkMode ? 'bg-slate-700 text-emerald-400' : 'bg-white text-emerald-600'} px-6 py-3 rounded-xl lg:rounded-2xl font-black text-[10px] uppercase tracking-widest hover:scale-105 transition-all inline-flex items-center gap-2`}><PrinterIcon className="w-4 h-4" /> Ver RIDE</button>
               {lastDocument.entityEmail && (
                 <button
                   onClick={handleSendEmail}
                   disabled={sendingEmail}
-                  className={`${isDarkMode ? 'bg-slate-700 text-blue-400' : 'bg-white text-blue-600'} px-6 py-3 rounded-xl lg:rounded-2xl font-black text-[10px] uppercase tracking-widest hover:scale-105 transition-all disabled:opacity-50 disabled:cursor-not-allowed`}
+                  className={`${isDarkMode ? 'bg-slate-700 text-indigo-400' : 'bg-white text-indigo-600'} px-6 py-3 rounded-xl lg:rounded-2xl font-black text-[10px] uppercase tracking-widest hover:scale-105 transition-all disabled:opacity-50 disabled:cursor-not-allowed`}
                 >
-                  {sendingEmail ? '📧 Enviando...' : '📧 Enviar Email'}
+                  {sendingEmail ? (
+                    <div className="flex items-center gap-2">
+                      <svg className="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" /><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" /></svg>
+                      Enviando...
+                    </div>
+                  ) : (
+                    <div className="flex items-center gap-2"><EnvelopeIcon className="w-4 h-4" /> Enviar Email</div>
+                  )}
                 </button>
               )}
               <button onClick={() => setLastDocument(null)} className="bg-emerald-700 text-white px-6 py-3 rounded-xl lg:rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-emerald-800 transition-all">Nueva Factura</button>
@@ -720,14 +728,14 @@ const InvoiceForm: React.FC<InvoiceFormProps> = ({ clients, products, businessIn
             <div className={`${isDarkMode ? 'bg-slate-800 border-slate-700' : 'bg-white border-slate-100'} p-4 sm:p-6 lg:p-8 rounded-[2rem] lg:rounded-[2.5rem] shadow-sm flex flex-col md:flex-row gap-4 sm:gap-6 items-stretch md:items-end`}>
               <div className="flex-1 space-y-2">
                 <label className={`text-[10px] font-black uppercase tracking-widest ${isDarkMode ? 'text-slate-500' : 'text-slate-400'} px-1 block`}>Cliente Receptor</label>
-                <select className={`w-full ${isDarkMode ? 'bg-slate-700 text-white border-slate-600' : 'bg-slate-50'} p-3 sm:p-4 rounded-2xl font-bold outline-none border-2 border-transparent focus:border-blue-500 transition-all text-sm min-h-[48px]`} onChange={e => setSelectedClient(clients.find(c => c.id === e.target.value) || null)} value={selectedClient?.id || ''}>
+                <select className={`w-full ${isDarkMode ? 'bg-slate-700 text-white border-slate-600' : 'bg-slate-50'} p-3 sm:p-4 rounded-2xl font-bold outline-none border-2 border-transparent focus:border-indigo-500 transition-all text-sm min-h-[48px]`} onChange={e => setSelectedClient(clients.find(c => c.id === e.target.value) || null)} value={selectedClient?.id || ''}>
                   <option value="">Consumidor Final (9999999999999)</option>
-                  {clients.map(c => <option key={c.id} value={c.id}>{c.name} ({c.ruc})</option>)}
+                  {(Array.isArray(clients) ? clients : []).map(c => <option key={c.id} value={c.id}>{c.name} ({c.ruc})</option>)}
                 </select>
               </div>
               <div className="md:w-64 space-y-2">
                 <label className={`text-[10px] font-black uppercase tracking-widest ${isDarkMode ? 'text-slate-500' : 'text-slate-400'} px-1 block`}>Esquema Tarifario</label>
-                <select className={`w-full ${isDarkMode ? 'bg-slate-700 text-blue-300 border-slate-600' : 'bg-blue-50 text-blue-700'} p-3 sm:p-4 rounded-2xl font-black outline-none border-2 text-sm min-h-[48px]`} value={priceTier} onChange={e => setPriceTier(e.target.value as any)}>
+                <select className={`w-full ${isDarkMode ? 'bg-slate-700 text-blue-300 border-slate-600' : 'bg-indigo-50 text-indigo-700'} p-3 sm:p-4 rounded-2xl font-black outline-none border-2 text-sm min-h-[48px]`} value={priceTier} onChange={e => setPriceTier(e.target.value as any)}>
                   <option value="price">PVP PÚBLICO</option>
                   <option value="wholesalePrice">MAYORISTA</option>
                   <option value="distributorPrice">DISTRIBUIDOR</option>
@@ -739,51 +747,51 @@ const InvoiceForm: React.FC<InvoiceFormProps> = ({ clients, products, businessIn
               <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-3 sm:gap-4 mb-6 sm:mb-8">
                 <h3 className={`font-black ${isDarkMode ? 'text-white' : 'text-slate-800'} uppercase tracking-tighter text-base sm:text-lg`}>Detalle de Productos</h3>
                 <div ref={searchRef} className="relative w-full lg:w-96">
-                  <div className="absolute left-3 sm:left-4 top-1/2 -translate-y-1/2 text-lg sm:text-xl">🔍</div>
+                  <div className="absolute left-3 sm:left-4 top-1/2 -translate-y-1/2 text-slate-400"><MagnifyingGlassIcon className="w-5 h-5" /></div>
                   <input
                     type="text"
                     placeholder="Buscar producto por nombre o código..."
-                    className="w-full bg-slate-100 p-3 sm:p-4 pl-10 sm:pl-12 rounded-2xl font-bold text-sm outline-none focus:ring-2 focus:ring-blue-500 transition-all border-2 border-transparent focus:border-blue-400"
+                    className="w-full bg-slate-100 p-3 sm:p-4 pl-10 sm:pl-12 rounded-2xl font-bold text-sm outline-none focus:ring-2 focus:ring-blue-500 transition-all border-2 border-transparent focus:border-indigo-400"
                     value={searchTerm}
                     onChange={e => { setSearchTerm(e.target.value); setShowProductDropdown(true); }}
                     onFocus={() => searchTerm && setShowProductDropdown(true)}
                   />
                   {showProductDropdown && searchTerm && (
-                    <div className={`absolute top-full left-0 right-0 ${isDarkMode ? 'bg-slate-800 border-slate-600' : 'bg-white border-blue-200'} rounded-2xl mt-2 shadow-2xl z-[100] max-h-64 sm:max-h-96 overflow-y-auto`}>
-                      {products.filter(p =>
+                    <div className={`absolute top-full left-0 right-0 ${isDarkMode ? 'bg-slate-800 border-slate-600' : 'bg-white border-indigo-200'} rounded-2xl mt-2 shadow-2xl z-[100] max-h-64 sm:max-h-96 overflow-y-auto`}>
+                      {(Array.isArray(products) ? products : []).filter(p =>
                         p.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
                         p.code.toLowerCase().includes(searchTerm.toLowerCase())
                       ).length > 0 ? (
                         <div className="p-2">
-                          {products.filter(p =>
+                          {(Array.isArray(products) ? products : []).filter(p =>
                             p.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
                             p.code.toLowerCase().includes(searchTerm.toLowerCase())
                           ).map(p => (
                             <button
                               key={p.id}
                               onClick={() => addItem(p)}
-                              className="w-full text-left p-3 hover:bg-blue-50 rounded-xl flex items-center gap-4 transition-colors group"
+                              className="w-full text-left p-3 hover:bg-indigo-50 rounded-xl flex items-center gap-4 transition-colors group"
                             >
                               {p.imageUrl ? (
-                                <img src={p.imageUrl} alt={p.description} className="w-14 h-14 rounded-lg object-cover border border-slate-200 group-hover:border-blue-400" />
+                                <img src={p.imageUrl} alt={p.description} className="w-14 h-14 rounded-lg object-cover border border-slate-200 group-hover:border-indigo-400" />
                               ) : (
-                                <div className="w-14 h-14 rounded-lg bg-slate-100 flex items-center justify-center text-2xl">📦</div>
+                                <div className="w-14 h-14 rounded-lg bg-slate-100 flex items-center justify-center"><CubeIcon className="w-6 h-6 text-slate-400" /></div>
                               )}
                               <div className="flex-1 min-w-0">
                                 <p className={`font-bold text-sm ${isDarkMode ? 'text-white' : 'text-slate-800'} truncate`}>{p.description}</p>
                                 <div className="flex items-center gap-3 mt-1">
                                   <span className={`text-xs ${isDarkMode ? 'text-slate-400' : 'text-slate-500'}`}>{p.code}</span>
-                                  <span className={`text-xs font-bold ${isDarkMode ? 'text-blue-400' : 'text-blue-600'}`}>${p[priceTier].toFixed(2)}</span>
+                                  <span className={`text-xs font-bold ${isDarkMode ? 'text-indigo-400' : 'text-indigo-600'}`}>${p[priceTier].toFixed(2)}</span>
                                   <span className={`text-xs ${isDarkMode ? 'text-slate-500' : 'text-slate-400'}`}>Stock: {p.stock}</span>
                                 </div>
                               </div>
-                              <span className="text-blue-500 text-xl opacity-0 group-hover:opacity-100 transition-opacity">+</span>
+                              <span className="text-indigo-500 text-xl opacity-0 group-hover:opacity-100 transition-opacity">+</span>
                             </button>
                           ))}
                         </div>
                       ) : (
                         <div className={`p-8 text-center ${isDarkMode ? 'text-slate-500' : 'text-slate-400'}`}>
-                          <p className="text-3xl mb-2">🔍</p>
+                          <p className="text-3xl mb-2"><MagnifyingGlassIcon className="w-10 h-10 mx-auto text-slate-300 dark:text-slate-600" /></p>
                           <p className="font-bold">No se encontraron productos</p>
                           <p className="text-sm">Intenta con otro término de búsqueda</p>
                         </div>
@@ -813,19 +821,21 @@ const InvoiceForm: React.FC<InvoiceFormProps> = ({ clients, products, businessIn
                           {item.imageUrl ? (
                             <img src={item.imageUrl} alt={item.description} className="w-12 h-12 rounded-lg object-cover border border-slate-200" />
                           ) : (
-                            <div className="w-12 h-12 rounded-lg bg-slate-100 flex items-center justify-center text-xl">📦</div>
+                            <div className="w-12 h-12 rounded-lg bg-slate-100 flex items-center justify-center"><CubeIcon className="w-5 h-5 text-slate-400" /></div>
                           )}
                         </td>
                         <td className="py-4 px-4">
                           <p className={`font-bold text-sm ${isDarkMode ? 'text-white' : 'text-slate-800'}`}>{item.description}</p>
-                          <p className={`text-xs ${isDarkMode ? 'text-slate-400' : 'text-slate-400'}`}>{item.type === 'FISICO' ? '📦 Producto' : '⚙️ Servicio'}</p>
+                          <p className={`text-xs flex items-center gap-1 ${isDarkMode ? 'text-slate-400' : 'text-slate-400'}`}>
+                            {item.type === 'FISICO' ? <><CubeIcon className="w-3 h-3 inline" /> Producto</> : <><Cog6ToothIcon className="w-3 h-3 inline" /> Servicio</>}
+                          </p>
                         </td>
                         <td className="py-4 text-center">
                           <input
                             type="number"
                             min="1"
                             value={item.quantity}
-                            className="w-16 sm:w-20 p-2 text-center font-black bg-slate-100 rounded-xl border-2 border-transparent focus:border-blue-500 focus:outline-none min-h-[40px]"
+                            className="w-16 sm:w-20 p-2 text-center font-black bg-slate-100 rounded-xl border-2 border-transparent focus:border-indigo-500 focus:outline-none min-h-[40px]"
                             onChange={e => updateItem(item.productId, 'quantity', Math.max(1, parseInt(e.target.value) || 1))}
                           />
                         </td>
@@ -835,7 +845,7 @@ const InvoiceForm: React.FC<InvoiceFormProps> = ({ clients, products, businessIn
                             min="0"
                             step="0.01"
                             value={item.unitPrice}
-                            className={`w-20 sm:w-24 p-2 text-right font-bold ${isDarkMode ? 'bg-slate-700 text-white border-slate-600' : 'bg-slate-100'} rounded-xl border-2 border-transparent focus:border-blue-500 focus:outline-none text-sm min-h-[40px]`}
+                            className={`w-20 sm:w-24 p-2 text-right font-bold ${isDarkMode ? 'bg-slate-700 text-white border-slate-600' : 'bg-slate-100'} rounded-xl border-2 border-transparent focus:border-indigo-500 focus:outline-none text-sm min-h-[40px]`}
                             onChange={e => updateItem(item.productId, 'unitPrice', Math.max(0, parseFloat(e.target.value) || 0))}
                           />
                         </td>
@@ -850,7 +860,7 @@ const InvoiceForm: React.FC<InvoiceFormProps> = ({ clients, products, businessIn
                             placeholder="0.00"
                           />
                         </td>
-                        <td className="py-4 text-right font-black text-blue-600 px-4">${item.total.toFixed(2)}</td>
+                        <td className="py-4 text-right font-black text-indigo-600 px-4">${item.total.toFixed(2)}</td>
                         <td className="py-4 px-4 text-right">
                           <button onClick={() => setItems(items.filter(i => i.productId !== item.productId))} className={`${isDarkMode ? 'text-slate-500 hover:text-rose-400' : 'text-slate-300 hover:text-rose-500'} text-lg`}>✕</button>
                         </td>
@@ -861,7 +871,7 @@ const InvoiceForm: React.FC<InvoiceFormProps> = ({ clients, products, businessIn
 
                 {items.length === 0 && (
                   <div className={`text-center py-12 ${isDarkMode ? 'text-slate-500' : 'text-slate-400'}`}>
-                    <p className="text-4xl mb-2">🛒</p>
+                    <p className="mb-2"><ShoppingCartIcon className="w-10 h-10 mx-auto text-slate-300 dark:text-slate-600" /></p>
                     <p className="font-bold">No hay productos agregados</p>
                     <p className="text-sm">Busca y agrega productos para crear la factura</p>
                   </div>
@@ -881,7 +891,7 @@ const InvoiceForm: React.FC<InvoiceFormProps> = ({ clients, products, businessIn
               {totals.desc > 0 && (
                 <div className="flex justify-between text-xs font-bold text-amber-600"><span>Descuentos</span><span>-${totals.desc.toFixed(2)}</span></div>
               )}
-              <div className="flex justify-between text-xs font-black text-blue-600"><span>IVA (15%)</span><span>${totals.tax.toFixed(2)}</span></div>
+              <div className="flex justify-between text-xs font-black text-indigo-600"><span>IVA (15%)</span><span>${totals.tax.toFixed(2)}</span></div>
               <div className="pt-4 border-t border-slate-100">
                 <p className={`text-4xl font-black ${isDarkMode ? 'text-white' : 'text-slate-900'} tracking-tighter`}>${totals.total.toFixed(2)}</p>
                 <p className={`text-[9px] ${isDarkMode ? 'text-slate-500' : 'text-slate-400'} font-bold uppercase tracking-widest mt-1`}>Total Comprobante</p>
@@ -891,7 +901,7 @@ const InvoiceForm: React.FC<InvoiceFormProps> = ({ clients, products, businessIn
             <button
               disabled={items.length === 0 || isSubmitting}
               onClick={() => setShowPreview(true)}
-              className="w-full bg-slate-900 text-white font-black py-5 rounded-2xl hover:bg-blue-600 transition-all disabled:opacity-50 text-[10px] uppercase tracking-widest"
+              className="w-full bg-slate-900 text-white font-black py-5 rounded-2xl hover:bg-indigo-600 transition-all disabled:opacity-50 text-[10px] uppercase tracking-widest"
             >
               Conectar con SRI
             </button>
@@ -903,7 +913,7 @@ const InvoiceForm: React.FC<InvoiceFormProps> = ({ clients, products, businessIn
         <div className="fixed inset-0 bg-slate-900/95 backdrop-blur-2xl z-[500] flex items-center justify-center p-4">
           <div className={`${isDarkMode ? 'bg-slate-800 border-slate-700' : 'bg-white rounded-[3.5rem] p-10 max-w-2xl w-full space-y-8 animate-in zoom-in duration-300 shadow-2xl overflow-hidden border border-slate-200'}`}>
             <div className="flex items-center gap-6">
-              <div className="w-20 h-20 border-[6px] border-blue-50 border-t-blue-600 rounded-full animate-spin"></div>
+              <div className="w-20 h-20 border-[6px] border-indigo-50 border-t-blue-600 rounded-full animate-spin"></div>
               <div>
                 <h3 className={`text-2xl font-black ${isDarkMode ? 'text-white' : 'text-slate-900'} tracking-tight uppercase`}>Protocolo SRI en Curso</h3>
                 <p className={`text-sm ${isDarkMode ? 'text-slate-400' : 'text-slate-500'} font-medium`}>{authStep}</p>
@@ -934,7 +944,7 @@ const InvoiceForm: React.FC<InvoiceFormProps> = ({ clients, products, businessIn
               <div className={`${isDarkMode ? 'bg-slate-700' : 'bg-slate-50'} p-6 rounded-3xl space-y-2`}>
                 <p className={`text-[10px] font-black ${isDarkMode ? 'text-slate-500' : 'text-slate-400'} uppercase tracking-widest`}>Ambiente Seleccionado</p>
                 <p className={`font-black uppercase text-sm ${businessInfo.isProduction ? (isDarkMode ? 'text-emerald-400' : 'text-emerald-600') : (isDarkMode ? 'text-amber-400' : 'text-amber-500')}`}>
-                  {businessInfo.isProduction ? '🚀 PRODUCCIÓN (Servidor Real)' : '🧪 PRUEBAS (Servidor Demo)'}
+                  {businessInfo.isProduction ? 'PRODUCCIÓN (Servidor Real)' : 'PRUEBAS (Servidor Demo)'}
                 </p>
               </div>
               <div className="flex justify-between items-end border-t border-slate-100 pt-6">
@@ -944,7 +954,7 @@ const InvoiceForm: React.FC<InvoiceFormProps> = ({ clients, products, businessIn
                 </div>
                 <button
                   onClick={handleProcess}
-                  className="bg-blue-600 text-white px-10 py-5 rounded-2xl font-black text-xs uppercase tracking-widest shadow-xl shadow-blue-100 hover:scale-105 transition-all"
+                  className="bg-indigo-600 text-white px-10 py-5 rounded-2xl font-black text-xs uppercase tracking-widest shadow-xl shadow-indigo-100 hover:scale-105 transition-all"
                 >
                   Autorizar con SRI
                 </button>

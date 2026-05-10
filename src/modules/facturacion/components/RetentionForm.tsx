@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { DocumentTextIcon, UserIcon, CalendarDaysIcon, BanknotesIcon, PlusIcon, TrashIcon } from '@heroicons/react/24/outline';
 import { Retention, RetentionTax, BusinessInfo, Client } from '../../../types/types';
 import { generateRetentionXML, RETENTION_PERCENTAGES } from '../../../services/retentionService';
 import { getLocalDateISO } from '../../../utils/date';
@@ -123,7 +124,7 @@ export default function RetentionForm({ business, clients, onSubmit }: Retention
     <div className="max-w-5xl mx-auto p-6">
       <div className="bg-white rounded-lg shadow-md p-6">
         <div className="flex items-center gap-3 mb-6">
-          <span className="text-4xl">📄</span>
+          <DocumentTextIcon className="w-10 h-10" />
           <h2 className="text-2xl font-bold text-gray-800">Nueva Retención</h2>
         </div>
 
@@ -131,7 +132,7 @@ export default function RetentionForm({ business, clients, onSubmit }: Retention
           {/* Información del Proveedor */}
           <div className="border-b pb-4">
             <h3 className="text-lg font-semibold text-gray-700 mb-4 flex items-center gap-2">
-              <span className="text-xl">👤</span>
+              <UserIcon className="w-5 h-5" />
               Proveedor (Sujeto Retenido)
             </h3>
 
@@ -146,7 +147,7 @@ export default function RetentionForm({ business, clients, onSubmit }: Retention
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
                 >
                   <option value="">Seleccione o ingrese manualmente</option>
-                  {clients.filter(c => c.type !== 'CLIENTE').map(client => (
+                  {(Array.isArray(clients) ? clients : []).filter(c => c.type !== 'CLIENTE').map(client => (
                     <option key={client.id} value={client.id}>
                       {client.name} - {client.ruc}
                     </option>
@@ -214,7 +215,7 @@ export default function RetentionForm({ business, clients, onSubmit }: Retention
           {/* Documento Sustento */}
           <div className="border-b pb-4">
             <h3 className="text-lg font-semibold text-gray-700 mb-4 flex items-center gap-2">
-              <span className="text-xl">📅</span>
+              <CalendarDaysIcon className="w-5 h-5" />
               Documento Sustento
             </h3>
 
@@ -282,7 +283,7 @@ export default function RetentionForm({ business, clients, onSubmit }: Retention
           <div>
             <div className="flex justify-between items-center mb-4">
               <h3 className="text-lg font-semibold text-gray-700 flex items-center gap-2">
-                <span className="text-xl">💰</span>
+                <BanknotesIcon className="w-5 h-5" />
                 Impuestos Retenidos
               </h3>
               <button
@@ -290,7 +291,7 @@ export default function RetentionForm({ business, clients, onSubmit }: Retention
                 onClick={addTax}
                 className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition"
               >
-                <span className="text-lg">➕</span>
+                <PlusIcon className="w-5 h-5" />
                 Agregar Impuesto
               </button>
             </div>
@@ -310,7 +311,7 @@ export default function RetentionForm({ business, clients, onSubmit }: Retention
                         onClick={() => removeTax(index)}
                         className="text-red-600 hover:text-red-800 text-lg"
                       >
-                        🗑️
+                        <TrashIcon className="w-5 h-5" />
                       </button>
                     </div>
 
@@ -385,7 +386,7 @@ export default function RetentionForm({ business, clients, onSubmit }: Retention
                           step="0.01"
                           value={tax.taxValue.toFixed(2)}
                           readOnly
-                          className="w-full px-3 py-2 border rounded-lg bg-gray-100 font-bold text-blue-600"
+                          className="w-full px-3 py-2 border rounded-lg bg-gray-100 font-bold text-indigo-600"
                         />
                       </div>
                     </div>
@@ -396,10 +397,10 @@ export default function RetentionForm({ business, clients, onSubmit }: Retention
           </div>
 
           {/* Total */}
-          <div className="bg-blue-50 rounded-lg p-4">
+          <div className="bg-indigo-50 rounded-lg p-4">
             <div className="flex justify-between items-center">
               <span className="text-lg font-semibold text-gray-700">Total Retenido:</span>
-              <span className="text-2xl font-bold text-blue-600">
+              <span className="text-2xl font-bold text-indigo-600">
                 ${calculateTotalRetained().toFixed(2)}
               </span>
             </div>
@@ -415,7 +416,7 @@ export default function RetentionForm({ business, clients, onSubmit }: Retention
             </button>
             <button
               type="submit"
-              className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
+              className="px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition"
             >
               Emitir Retención
             </button>

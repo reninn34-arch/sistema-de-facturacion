@@ -1,5 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { Document, DocumentType, SriStatus, InvoiceItem } from '../../../types/types';
+import {
+  MagnifyingGlassIcon,
+  PencilSquareIcon,
+  DocumentTextIcon,
+  ArrowPathIcon,
+  PencilIcon,
+  XMarkIcon,
+  ExclamationTriangleIcon,
+  CheckCircleIcon,
+} from '@heroicons/react/24/outline';
 
 // Interfaces
 interface Business {
@@ -481,7 +491,7 @@ export default function SaasCreditNote({ businesses, documents, onNotify }: Saas
                     : 'text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700'
                 }`}
               >
-                📄 Facturas
+                <DocumentTextIcon className="w-4 h-4 inline" /> Facturas
               </button>
               <button
                 onClick={() => setActiveTab('credit-notes')}
@@ -491,7 +501,7 @@ export default function SaasCreditNote({ businesses, documents, onNotify }: Saas
                     : 'text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700'
                 }`}
               >
-                📝 Notas de Crédito
+                <PencilSquareIcon className="w-4 h-4 inline" /> Notas de Crédito
               </button>
             </div>
           </div>
@@ -502,7 +512,7 @@ export default function SaasCreditNote({ businesses, documents, onNotify }: Saas
             {/* Selección de Factura */}
             <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-xl border border-slate-200 dark:border-slate-700 p-6 md:p-8 mb-8">
               <h2 className="text-xl font-bold text-slate-800 dark:text-white mb-6 flex items-center gap-2">
-                <span className="text-2xl">🔍</span>
+                <MagnifyingGlassIcon className="w-6 h-6" />
                 1. Seleccione la Factura a Modificar
               </h2>
 
@@ -557,7 +567,7 @@ export default function SaasCreditNote({ businesses, documents, onNotify }: Saas
             {selectedInvoice && (
               <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-xl border border-slate-200 dark:border-slate-700 p-6 md:p-8 mb-8">
                 <h2 className="text-xl font-bold text-slate-800 dark:text-white mb-6 flex items-center gap-2">
-                  <span className="text-2xl">📝</span>
+                  <PencilSquareIcon className="w-6 h-6" />
                   2. Complete los Datos de la Nota de Crédito
                 </h2>
 
@@ -578,10 +588,10 @@ export default function SaasCreditNote({ businesses, documents, onNotify }: Saas
                     onChange={(e) => setReason(e.target.value)}
                     className="w-full p-3 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-800 dark:text-white"
                   >
-                    <optgroup label="🔄 DEVOLUCIÓN/ANULACIÓN">
+                    <optgroup label="DEVOLUCION/ANULACION">
                       <option value="01">01 - Devolución/Anulación</option>
                     </optgroup>
-                    <optgroup label="✏️ MODIFICACIÓN/CORRECCIÓN">
+                    <optgroup label="MODIFICACION/CORRECCION">
                       <option value="04">04 - Modificación/Corrección</option>
                     </optgroup>
                   </select>
@@ -596,14 +606,14 @@ export default function SaasCreditNote({ businesses, documents, onNotify }: Saas
                       onClick={handleSelectAllForAnulation}
                       className="mt-2 px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg text-sm font-medium transition-all"
                     >
-                      🔴 Anular todos los items
+                      <XMarkIcon className="w-4 h-4 inline" /> Anular todos los items
                     </button>
                   )}
                   
                   {/* Información según la razón */}
                   {reason === '04' && (
-                    <p className="text-xs text-blue-600 dark:text-blue-400 mt-2">
-                      ✏️ Modificación/Corrección: Puede editar la descripción, precio y cantidad de los items.
+                    <p className="text-xs text-indigo-600 dark:text-indigo-400 mt-2">
+                      <PencilIcon className="w-4 h-4 inline" /> Modificación/Corrección: Puede editar la descripción, precio y cantidad de los items.
                     </p>
                   )}
                 </div>
@@ -635,7 +645,7 @@ export default function SaasCreditNote({ businesses, documents, onNotify }: Saas
                     </label>
                     {items.length === 0 && (
                       <span className="text-xs text-amber-600 dark:text-amber-400">
-                        ⚠️ Los items de la factura no están disponibles. Agregue los items manualmente.
+                        <ExclamationTriangleIcon className="w-4 h-4 inline" /> Los items de la factura no están disponibles. Agregue los items manualmente.
                       </span>
                     )}
                   </div>
@@ -729,7 +739,7 @@ export default function SaasCreditNote({ businesses, documents, onNotify }: Saas
                                 className="text-red-500 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300 p-1"
                                 title="Eliminar item"
                               >
-                                ✕
+                                <XMarkIcon className="w-4 h-4" />
                               </button>
                             </td>
                           </tr>
@@ -749,7 +759,7 @@ export default function SaasCreditNote({ businesses, documents, onNotify }: Saas
                                   total: 0,
                                   type: 'FISICO'
                                 }])}
-                                className="text-sm text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300"
+                                className="text-sm text-indigo-600 hover:text-indigo-800 dark:text-indigo-400 dark:hover:text-blue-300"
                               >
                                 + Agregar otro item
                               </button>
@@ -815,7 +825,7 @@ export default function SaasCreditNote({ businesses, documents, onNotify }: Saas
                         Procesando...
                       </span>
                     ) : (
-                      '✅ Generar Nota de Crédito'
+                      <><CheckCircleIcon className="w-5 h-5 inline" /> Generar Nota de Crédito</>
                     )}
                   </button>
                   <button

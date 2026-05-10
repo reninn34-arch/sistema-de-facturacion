@@ -1,5 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { Document, BusinessInfo, SalesBookEntry } from '../../../types/types';
+import { BookOpenIcon, ArrowDownTrayIcon, EnvelopeIcon } from '@heroicons/react/24/outline';
 
 interface SalesBookProps {
   documents: Document[];
@@ -13,6 +14,8 @@ export default function SalesBook({ documents, business, onNotify }: SalesBookPr
   const [filterType, setFilterType] = useState<'ALL' | '01' | '04'>('ALL');
 
   const salesEntries = useMemo((): SalesBookEntry[] => {
+    if (!Array.isArray(documents)) return [];
+    
     return documents
       .filter(doc => {
         if (doc.status !== 'AUTORIZADA') return false;
@@ -77,7 +80,7 @@ export default function SalesBook({ documents, business, onNotify }: SalesBookPr
       <div className="bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-sm">
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-3">
-            <span className="text-4xl">📚</span>
+            <BookOpenIcon className="w-8 h-8 text-slate-400" />
             <div>
               <h2 className="text-2xl font-black text-slate-800 tracking-tight">Libro de Ventas</h2>
               <p className="text-sm text-slate-500 font-bold">Registro detallado de documentos emitidos</p>
@@ -86,9 +89,9 @@ export default function SalesBook({ documents, business, onNotify }: SalesBookPr
           <button
             onClick={exportToCSV}
             disabled={salesEntries.length === 0}
-            className="px-6 py-3 bg-blue-600 text-white rounded-xl font-bold text-sm hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="px-6 py-3 bg-indigo-600 text-white rounded-xl font-bold text-sm hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed inline-flex items-center gap-2"
           >
-            📥 Exportar CSV
+            <ArrowDownTrayIcon className="w-4 h-4" /> Exportar CSV
           </button>
         </div>
 
@@ -148,7 +151,7 @@ export default function SalesBook({ documents, business, onNotify }: SalesBookPr
                   <td className="p-3 font-bold text-slate-800">{entry.clientName}</td>
                   <td className="p-3 text-right font-bold text-slate-600">${entry.subtotal0.toFixed(2)}</td>
                   <td className="p-3 text-right font-bold text-slate-600">${entry.subtotal12.toFixed(2)}</td>
-                  <td className="p-3 text-right font-bold text-blue-600">${entry.iva.toFixed(2)}</td>
+                  <td className="p-3 text-right font-bold text-indigo-600">${entry.iva.toFixed(2)}</td>
                   <td className="p-3 text-right font-black text-slate-800">${entry.total.toFixed(2)}</td>
                 </tr>
               ))}
@@ -158,7 +161,7 @@ export default function SalesBook({ documents, business, onNotify }: SalesBookPr
                 <td colSpan={4} className="p-3 font-black text-slate-800 uppercase">TOTALES</td>
                 <td className="p-3 text-right font-black text-slate-800">${totals.subtotal0.toFixed(2)}</td>
                 <td className="p-3 text-right font-black text-slate-800">${totals.subtotal12.toFixed(2)}</td>
-                <td className="p-3 text-right font-black text-blue-600">${totals.iva.toFixed(2)}</td>
+                <td className="p-3 text-right font-black text-indigo-600">${totals.iva.toFixed(2)}</td>
                 <td className="p-3 text-right font-black text-slate-800">${totals.total.toFixed(2)}</td>
               </tr>
             </tfoot>
@@ -167,7 +170,7 @@ export default function SalesBook({ documents, business, onNotify }: SalesBookPr
 
         {salesEntries.length === 0 && (
           <div className="text-center py-12">
-            <span className="text-6xl opacity-20">📭</span>
+            <EnvelopeIcon className="w-16 h-16 mx-auto text-slate-200 dark:text-slate-700" />
             <p className="text-slate-400 font-bold mt-4">No hay documentos en el rango seleccionado</p>
           </div>
         )}

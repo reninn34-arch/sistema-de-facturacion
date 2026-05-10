@@ -1,4 +1,18 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import {
+  BuildingOffice2Icon,
+  CheckCircleIcon,
+  XCircleIcon,
+  CalendarDaysIcon,
+  ChartBarIcon,
+  CubeIcon,
+  ClockIcon,
+  BoltIcon,
+  DocumentTextIcon,
+  DocumentIcon,
+  RocketLaunchIcon,
+  HandRaisedIcon,
+} from '@heroicons/react/24/outline';
 
 const API_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:3001';
 
@@ -156,9 +170,9 @@ const SubscriptionManager: React.FC<SubscriptionManagerProps> = ({ businessId, o
 
   // Planes disponibles
   const plans = [
-    { id: 'BASIC', name: 'Básico', months: 1, price: 29, icon: '📦' },
-    { id: 'PRO', name: 'Profesional', months: 1, price: 49, icon: '🚀' },
-    { id: 'ENTERPRISE', name: 'Empresarial', months: 1, price: 99, icon: '🏢' },
+    { id: 'BASIC', name: 'Básico', months: 1, price: 29 },
+    { id: 'PRO', name: 'Profesional', months: 1, price: 49 },
+    { id: 'ENTERPRISE', name: 'Empresarial', months: 1, price: 99 },
   ];
 
   return (
@@ -166,7 +180,7 @@ const SubscriptionManager: React.FC<SubscriptionManagerProps> = ({ businessId, o
       {/* Sidebar: Lista de Empresas */}
       <div className="w-full md:w-1/3 bg-white rounded-3xl shadow-xl border border-slate-100 overflow-hidden flex flex-col">
         <div className="p-6 border-b border-slate-100 bg-slate-50 flex justify-between items-center">
-          <h3 className="font-black text-slate-700 text-lg tracking-tight">🏢 Empresas</h3>
+          <h3 className="font-black text-slate-700 text-lg tracking-tight">          <BuildingOffice2Icon className="w-5 h-5 inline" /> Empresas</h3>
           <span className="text-xs font-bold text-slate-400 bg-white px-2 py-1 rounded-lg border border-slate-200">
             {businesses.length} Total
           </span>
@@ -178,12 +192,12 @@ const SubscriptionManager: React.FC<SubscriptionManagerProps> = ({ businessId, o
               onClick={() => setSelectedBusinessId(b.id)}
               className={`p-4 rounded-2xl cursor-pointer transition-all border-2 group ${
                 String(selectedBusinessId) === String(b.id)
-                  ? 'border-blue-500 bg-blue-50 shadow-md'
+                  ? 'border-indigo-500 bg-indigo-50 shadow-md'
                   : 'border-transparent hover:bg-slate-50 hover:border-slate-200'
               }`}
             >
               <div className="flex justify-between items-start mb-1">
-                <h3 className="font-bold text-slate-800 group-hover:text-blue-600 transition-colors line-clamp-1">{b.name}</h3>
+                <h3 className="font-bold text-slate-800 group-hover:text-indigo-600 transition-colors line-clamp-1">{b.name}</h3>
                 <span className={`text-[10px] font-black uppercase px-2 py-1 rounded-full ${
                   b.isActive ? 'bg-emerald-100 text-emerald-700' : 'bg-red-100 text-red-700'
                 }`}>
@@ -218,12 +232,12 @@ const SubscriptionManager: React.FC<SubscriptionManagerProps> = ({ businessId, o
         {selectedBusiness ? (
           <div className="bg-white rounded-[3rem] shadow-2xl border border-slate-100 h-full flex flex-col relative overflow-hidden">
             {/* Fondo decorativo */}
-            <div className="absolute top-0 right-0 w-64 h-64 bg-blue-50 rounded-full blur-3xl -mr-32 -mt-32 opacity-50 pointer-events-none"></div>
+            <div className="absolute top-0 right-0 w-64 h-64 bg-indigo-50 rounded-full blur-3xl -mr-32 -mt-32 opacity-50 pointer-events-none"></div>
 
             <div className="p-8 pb-0 relative z-10">
               <h2 className="text-3xl font-black text-slate-800 mb-1">{selectedBusiness.name}</h2>
               <p className="text-slate-400 font-medium flex items-center gap-2">
-                <span className="w-2 h-2 rounded-full bg-blue-500"></span>
+                <span className="w-2 h-2 rounded-full bg-indigo-500"></span>
                 Gestión de Suscripción
               </p>
 
@@ -231,21 +245,21 @@ const SubscriptionManager: React.FC<SubscriptionManagerProps> = ({ businessId, o
               <div className="flex gap-4 mt-6 border-b border-slate-100">
                 <button 
                   onClick={() => setActiveTab('manage')}
-                  className={`pb-3 text-sm font-bold transition-colors ${activeTab === 'manage' ? 'text-blue-600 border-b-2 border-blue-600' : 'text-slate-400 hover:text-slate-600'}`}
+                  className={`pb-3 text-sm font-bold transition-colors ${activeTab === 'manage' ? 'text-indigo-600 border-b-2 border-indigo-600' : 'text-slate-400 hover:text-slate-600'}`}
                 >
-                  ⚡ Gestión Ágil
+                  <BoltIcon className="w-4 h-4 inline" /> Gestión Ágil
                 </button>
                 <button 
                   onClick={() => setActiveTab('details')}
-                  className={`pb-3 text-sm font-bold transition-colors ${activeTab === 'details' ? 'text-blue-600 border-b-2 border-blue-600' : 'text-slate-400 hover:text-slate-600'}`}
+                  className={`pb-3 text-sm font-bold transition-colors ${activeTab === 'details' ? 'text-indigo-600 border-b-2 border-indigo-600' : 'text-slate-400 hover:text-slate-600'}`}
                 >
-                  📋 Detalles
+                  <DocumentTextIcon className="w-4 h-4 inline" /> Detalles
                 </button>
                 <button 
                   onClick={() => setActiveTab('history')}
-                  className={`pb-3 text-sm font-bold transition-colors ${activeTab === 'history' ? 'text-blue-600 border-b-2 border-blue-600' : 'text-slate-400 hover:text-slate-600'}`}
+                  className={`pb-3 text-sm font-bold transition-colors ${activeTab === 'history' ? 'text-indigo-600 border-b-2 border-indigo-600' : 'text-slate-400 hover:text-slate-600'}`}
                 >
-                  📜 Historial
+                  <DocumentIcon className="w-4 h-4 inline" /> Historial
                 </button>
               </div>
             </div>
@@ -269,7 +283,7 @@ const SubscriptionManager: React.FC<SubscriptionManagerProps> = ({ businessId, o
                     <div className={`text-right px-4 py-2 rounded-xl ${
                       selectedBusiness.isActive ? 'bg-emerald-500/20 text-emerald-300' : 'bg-red-500/20 text-red-300'
                     }`}>
-                      <span className="font-black text-sm">{selectedBusiness.isActive ? '✅ ACTIVO' : '❌ SUSPENDIDO'}</span>
+                      <span className="font-black text-sm">                       {selectedBusiness.isActive ? <><CheckCircleIcon className="w-5 h-5 inline" /> ACTIVO</> : <><XCircleIcon className="w-5 h-5 inline" /> SUSPENDIDO</>}</span>
                     </div>
                   </div>
                   
@@ -308,17 +322,17 @@ const SubscriptionManager: React.FC<SubscriptionManagerProps> = ({ businessId, o
                 <div className="p-6 bg-slate-50 rounded-3xl border border-slate-100">
                   <div className="text-xs font-black text-slate-400 uppercase tracking-widest mb-2">Plan Actual</div>
                   <div className="text-2xl font-black text-slate-700 flex items-center gap-2">
-                    {selectedBusiness.plan === 'MONTHLY' ? '📅' : selectedBusiness.plan === 'SEMIANNUAL' ? '📆' : selectedBusiness.plan === 'YEARLY' ? '📊' : selectedBusiness.plan === 'PENDING' ? '⏳' : '📦'}
+                    {selectedBusiness.plan === 'MONTHLY' ? <CalendarDaysIcon className="w-5 h-5 inline" /> : selectedBusiness.plan === 'YEARLY' ? <ChartBarIcon className="w-5 h-5 inline" /> : selectedBusiness.plan === 'PENDING' ? <ClockIcon className="w-5 h-5 inline" /> : <CubeIcon className="w-5 h-5 inline" />}
                     {selectedBusiness.plan === 'MONTHLY' ? 'Mensual' : selectedBusiness.plan === 'SEMIANNUAL' ? 'Semestral' : selectedBusiness.plan === 'YEARLY' ? 'Anual' : selectedBusiness.plan === 'PENDING' ? 'Pendiente' : selectedBusiness.plan || 'Mensual'}
                   </div>
                 </div>
               </div>
 
               <div className="mt-auto bg-slate-900 rounded-[2.5rem] p-8 text-white shadow-2xl shadow-slate-200 relative overflow-hidden group">
-                <div className="absolute inset-0 bg-gradient-to-r from-blue-600 to-purple-600 opacity-0 group-hover:opacity-10 transition-opacity duration-500"></div>
+                <div className="absolute inset-0 bg-gradient-to-r from-indigo-600 to-purple-600 opacity-0 group-hover:opacity-10 transition-opacity duration-500"></div>
                 
                 <h3 className="text-xl font-black mb-6 flex items-center gap-2">
-                  <span>🚀</span> Acciones Rápidas
+                  <RocketLaunchIcon className="w-5 h-5 inline" /> Acciones Rápidas
                 </h3>
                 
                 {selectedBusiness.plan === 'UNLIMITED' ? (
@@ -364,9 +378,9 @@ const SubscriptionManager: React.FC<SubscriptionManagerProps> = ({ businessId, o
                         <button
                           onClick={() => handleUpdateSubscription(monthsInput)}
                           disabled={loading}
-                          className="flex-1 sm:flex-none px-6 py-3 bg-blue-600 hover:bg-blue-500 text-white rounded-xl font-black uppercase tracking-widest transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-blue-900/50 active:scale-95 text-xs"
+                          className="flex-1 sm:flex-none px-6 py-3 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl font-black uppercase tracking-widest transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-indigo-900/50 active:scale-95 text-xs"
                         >
-                          {loading ? '⏳...' : 'Aplicar'}
+                          {loading ? <ClockIcon className="w-4 h-4 inline animate-spin" /> : 'Aplicar'}
                         </button>
                       </div>
                     </div>
@@ -378,9 +392,9 @@ const SubscriptionManager: React.FC<SubscriptionManagerProps> = ({ businessId, o
               <div className="p-8 flex-1 overflow-y-auto custom-scrollbar">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   {/* Card: Información de la Empresa */}
-                  <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-[2rem] p-6 border border-blue-100">
+                  <div className="bg-gradient-to-br from-indigo-50 to-indigo-50 rounded-[2rem] p-6 border border-indigo-100">
                     <h3 className="text-lg font-black text-slate-800 mb-4 flex items-center gap-2">
-                      <span>🏢</span> Información de la Empresa
+                      <BuildingOffice2Icon className="w-5 h-5 inline" /> Información de la Empresa
                     </h3>
                     <div className="space-y-4">
                       <div>
@@ -393,7 +407,7 @@ const SubscriptionManager: React.FC<SubscriptionManagerProps> = ({ businessId, o
                       </div>
                       <div>
                         <div className="text-xs font-bold text-slate-400 uppercase tracking-widest">Plan</div>
-                        <div className="font-bold text-blue-600">{selectedBusiness.plan === 'MONTHLY' ? 'Mensual' : selectedBusiness.plan === 'SEMIANNUAL' ? 'Semestral' : selectedBusiness.plan === 'YEARLY' ? 'Anual' : selectedBusiness.plan === 'PENDING' ? 'Pendiente' : selectedBusiness.plan || 'Mensual'}</div>
+                        <div className="font-bold text-indigo-600">{selectedBusiness.plan === 'MONTHLY' ? 'Mensual' : selectedBusiness.plan === 'SEMIANNUAL' ? 'Semestral' : selectedBusiness.plan === 'YEARLY' ? 'Anual' : selectedBusiness.plan === 'PENDING' ? 'Pendiente' : selectedBusiness.plan || 'Mensual'}</div>
                       </div>
                     </div>
                   </div>
@@ -401,13 +415,13 @@ const SubscriptionManager: React.FC<SubscriptionManagerProps> = ({ businessId, o
                   {/* Card: Estado de Suscripción */}
                   <div className="bg-gradient-to-br from-emerald-50 to-teal-50 rounded-[2rem] p-6 border border-emerald-100">
                     <h3 className="text-lg font-black text-slate-800 mb-4 flex items-center gap-2">
-                      <span>📊</span> Estado de Suscripción
+                      <ChartBarIcon className="w-5 h-5 inline" /> Estado de Suscripción
                     </h3>
                     <div className="space-y-4">
                       <div>
                         <div className="text-xs font-bold text-slate-400 uppercase tracking-widest">Estado</div>
                         <div className={`font-bold ${selectedBusiness.isActive ? 'text-emerald-600' : 'text-red-600'}`}>
-                          {selectedBusiness.isActive ? '✅ Activo' : '❌ Inactivo'}
+                          {selectedBusiness.isActive ? <><CheckCircleIcon className="w-4 h-4 inline" /> Activo</> : <><XCircleIcon className="w-4 h-4 inline" /> Inactivo</>}
                         </div>
                       </div>
                       <div>
@@ -432,11 +446,11 @@ const SubscriptionManager: React.FC<SubscriptionManagerProps> = ({ businessId, o
                   {/* Card: Historial de Tiempo */}
                   <div className="bg-gradient-to-br from-purple-50 to-pink-50 rounded-[2rem] p-6 border border-purple-100 md:col-span-2">
                     <h3 className="text-lg font-black text-slate-800 mb-4 flex items-center gap-2">
-                      <span>📈</span> Resumen de Tiempo
+                      <ChartBarIcon className="w-5 h-5 inline" /> Resumen de Tiempo
                     </h3>
                     <div className="grid grid-cols-3 gap-4">
                       <div className="text-center p-4 bg-white/50 rounded-2xl">
-                        <div className="text-2xl font-black text-blue-600">
+                        <div className="text-2xl font-black text-indigo-600">
                           {daysRemaining !== null ? Math.max(0, daysRemaining) : '∞'}
                         </div>
                         <div className="text-xs font-bold text-slate-400 uppercase">Días Restantes</div>
@@ -491,7 +505,7 @@ const SubscriptionManager: React.FC<SubscriptionManagerProps> = ({ businessId, o
           </div>
         ) : (
           <div className="h-full bg-slate-50 rounded-[3rem] border-2 border-dashed border-slate-200 flex flex-col items-center justify-center text-slate-400 p-10 text-center">
-            <span className="text-6xl mb-6 opacity-50">👈</span>
+            <HandRaisedIcon className="w-16 h-16 mb-6 opacity-50 mx-auto" />
             <h3 className="text-xl font-bold text-slate-600 mb-2">Selecciona una empresa</h3>
             <p className="text-sm max-w-md">Haz clic en una empresa de la lista para gestionar su suscripción</p>
           </div>

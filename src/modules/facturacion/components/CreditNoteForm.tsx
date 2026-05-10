@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { ArrowPathIcon, MagnifyingGlassIcon, ClockIcon, CheckCircleIcon, XCircleIcon } from '@heroicons/react/24/outline';
 import { Client, Product, Document, DocumentType, SriStatus, PaymentStatus, InvoiceItem, BusinessInfo } from '../../../types/types';
 import { buildCreditNoteXml, authorizeWithSRI } from '../../../services/sriService';
 import { SignatureOptions } from '../../../services/xmlSigner';
@@ -27,7 +28,7 @@ const CreditNoteForm: React.FC<Props> = ({
   onDocumentCreated
 }) => {
   // Filtrar solo facturas autorizadas
-  const authorizedInvoices = invoices.filter(inv =>
+  const authorizedInvoices = (Array.isArray(invoices) ? invoices : []).filter(inv =>
     inv.type === DocumentType.INVOICE &&
     inv.status === SriStatus.AUTHORIZED
   );
@@ -191,7 +192,7 @@ const CreditNoteForm: React.FC<Props> = ({
     <div className="max-w-7xl mx-auto">
       <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
         <div className="flex items-center gap-3 mb-6">
-          <span className="text-5xl">🔄</span>
+          <ArrowPathIcon className="w-12 h-12" />
           <div>
             <h2 className="text-2xl font-bold text-gray-800">Nota de Crédito</h2>
             <p className="text-gray-600">Devoluciones, anulaciones y correcciones de facturas</p>
@@ -201,7 +202,7 @@ const CreditNoteForm: React.FC<Props> = ({
         {/* Selección de Factura */}
         <div className="mb-6">
           <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
-            <span className="text-xl">🔍</span>
+            <MagnifyingGlassIcon className="w-5 h-5" />
             1. Seleccione la Factura a Modificar
           </h3>
 
@@ -252,7 +253,7 @@ const CreditNoteForm: React.FC<Props> = ({
                 onChange={(e) => setReason(e.target.value)}
                 className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-orange-500 mb-3"
               >
-                {CREDIT_NOTE_REASONS.map(r => (
+                {(Array.isArray(CREDIT_NOTE_REASONS) ? CREDIT_NOTE_REASONS : []).map(r => (
                   <option key={r.code} value={r.code}>
                     {r.code} - {r.description}
                   </option>
@@ -361,12 +362,12 @@ const CreditNoteForm: React.FC<Props> = ({
               >
                 {isAuthorizing ? (
                   <>
-                    <span className="animate-spin text-xl">⏳</span>
+                    <ClockIcon className="w-5 h-5 animate-spin" />
                     Procesando...
                   </>
                 ) : (
                   <>
-                    <span className="text-xl">✅</span>
+                    <CheckCircleIcon className="w-5 h-5" />
                     Autorizar Nota de Crédito con SRI
                   </>
                 )}
@@ -400,7 +401,7 @@ const CreditNoteForm: React.FC<Props> = ({
 
           {authStatus === 'success' && (
             <div className="bg-green-50 border border-green-200 rounded-lg p-4 flex items-start gap-3">
-              <span className="text-3xl">✅</span>
+              <CheckCircleIcon className="w-8 h-8 text-green-600" />
               <div>
                 <div className="font-semibold text-green-800">¡Nota de Crédito Autorizada!</div>
                 <div className="text-sm text-green-700 mt-1">{authMessage}</div>
@@ -410,7 +411,7 @@ const CreditNoteForm: React.FC<Props> = ({
 
           {authStatus === 'error' && (
             <div className="bg-red-50 border border-red-200 rounded-lg p-4 flex items-start gap-3">
-              <span className="text-3xl">❌</span>
+              <XCircleIcon className="w-8 h-8 text-red-600" />
               <div>
                 <div className="font-semibold text-red-800">Error en Autorización</div>
                 <div className="text-sm text-red-700 mt-1">{authMessage}</div>

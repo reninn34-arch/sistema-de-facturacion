@@ -1,4 +1,13 @@
 import React, { useState, useEffect } from 'react';
+import {
+  BeakerIcon,
+  CalendarDaysIcon,
+  ClockIcon,
+  BuildingOffice2Icon,
+  CheckCircleIcon,
+  ExclamationTriangleIcon,
+  HomeIcon,
+} from '@heroicons/react/24/outline';
 
 // Interfaces
 interface Business {
@@ -68,7 +77,7 @@ export default function SaasEmission({ businesses, subscriptions, onNotify }: Sa
 
   // Recargar empresas cuando cambian las props
   useEffect(() => {
-    if (businesses && businesses.length > 0) {
+    if (Array.isArray(businesses) && businesses.length > 0) {
       // Las empresas ya se pasan desde App.tsx
     }
   }, [businesses]);
@@ -85,7 +94,7 @@ export default function SaasEmission({ businesses, subscriptions, onNotify }: Sa
         if (response.ok) {
           const data = await response.json();
           // Las suscripciones están en data.subscriptions
-          const subscriptionsList = data.subscriptions || data;
+          const subscriptionsList = Array.isArray(data.subscriptions) ? data.subscriptions : (Array.isArray(data) ? data : []);
           // Transformar las suscripciones al formato de facturas
           const transformedInvoices = subscriptionsList.map((sub: any) => ({
             id: sub.id,
@@ -147,7 +156,7 @@ export default function SaasEmission({ businesses, subscriptions, onNotify }: Sa
   }, []);
 
   // Usar datos de ejemplo si no se proporcionan
-  const businessList = businesses && businesses.length > 0 ? businesses : sampleBusinesses;
+  const businessList = Array.isArray(businesses) && businesses.length > 0 ? businesses : sampleBusinesses;
 
   // Planes por defecto si no hay suscripciones
   const getDefaultSubscriptions = (): SaasSubscription[] => [
@@ -447,7 +456,7 @@ export default function SaasEmission({ businesses, subscriptions, onNotify }: Sa
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 dark:from-slate-900 dark:to-slate-800 p-4 md:p-8">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-indigo-50 dark:from-slate-900 dark:to-slate-800 p-4 md:p-8">
       <div className="max-w-5xl mx-auto">
         {/* Header */}
         <div className="mb-8">
@@ -459,7 +468,7 @@ export default function SaasEmission({ businesses, subscriptions, onNotify }: Sa
             <div className="flex items-center gap-3">
               {isDemoBusiness() && (
                 <span className="px-4 py-2 bg-purple-100 dark:bg-purple-900/50 text-purple-700 dark:text-purple-300 text-sm font-bold rounded-full border border-purple-300 dark:border-purple-700">
-                  🧪 EMPRESA DE PRUEBAS
+                  <BeakerIcon className="w-4 h-4 inline" /> EMPRESA DE PRUEBAS
                 </span>
               )}
             </div>
@@ -482,7 +491,7 @@ export default function SaasEmission({ businesses, subscriptions, onNotify }: Sa
                   const business = businessList.find(b => b.id === e.target.value);
                   setSelectedBusiness(business || null);
                 }}
-                className="w-full p-4 bg-slate-50 dark:bg-slate-700 border-2 border-slate-200 dark:border-slate-600 rounded-xl font-medium focus:border-blue-500 focus:outline-none transition-colors text-slate-800 dark:text-white"
+                className="w-full p-4 bg-slate-50 dark:bg-slate-700 border-2 border-slate-200 dark:border-slate-600 rounded-xl font-medium focus:border-indigo-500 focus:outline-none transition-colors text-slate-800 dark:text-white"
               >
                 <option value="">Seleccionar empresa...</option>
                 {businessList.map(b => (
@@ -504,7 +513,7 @@ export default function SaasEmission({ businesses, subscriptions, onNotify }: Sa
                   const sub = activeSubscriptions.find(s => s.id === e.target.value);
                   setSelectedSubscription(sub || null);
                 }}
-                className="w-full p-4 bg-slate-50 dark:bg-slate-700 border-2 border-slate-200 dark:border-slate-600 rounded-xl font-medium focus:border-blue-500 focus:outline-none transition-colors text-slate-800 dark:text-white"
+                className="w-full p-4 bg-slate-50 dark:bg-slate-700 border-2 border-slate-200 dark:border-slate-600 rounded-xl font-medium focus:border-indigo-500 focus:outline-none transition-colors text-slate-800 dark:text-white"
               >
                 <option value="">Seleccionar plan...</option>
                 {activeSubscriptions.map(s => (
@@ -518,32 +527,32 @@ export default function SaasEmission({ businesses, subscriptions, onNotify }: Sa
 
           {/* Datos del cliente y tiempo de suscripción */}
           {selectedBusiness && (
-            <div className="mt-6 p-6 bg-blue-50 dark:bg-blue-900/30 rounded-xl border border-blue-100 dark:border-blue-800">
-              <h3 className="font-bold text-blue-800 dark:text-blue-300 mb-4">Datos del Cliente</h3>
+            <div className="mt-6 p-6 bg-indigo-50 dark:bg-indigo-900/30 rounded-xl border border-indigo-100 dark:border-indigo-800">
+              <h3 className="font-bold text-indigo-800 dark:text-blue-300 mb-4">Datos del Cliente</h3>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
                 <div>
-                  <span className="text-blue-600 dark:text-blue-400 font-medium">Razón Social:</span>
+                  <span className="text-indigo-600 dark:text-indigo-400 font-medium">Razón Social:</span>
                   <p className="font-bold text-slate-800 dark:text-white">{selectedBusiness.name}</p>
                 </div>
                 <div>
-                  <span className="text-blue-600 dark:text-blue-400 font-medium">RUC:</span>
+                  <span className="text-indigo-600 dark:text-indigo-400 font-medium">RUC:</span>
                   <p className="font-bold text-slate-800 dark:text-white">{selectedBusiness.ruc}</p>
                 </div>
                 <div>
-                  <span className="text-blue-600 dark:text-blue-400 font-medium">Email:</span>
+                  <span className="text-indigo-600 dark:text-indigo-400 font-medium">Email:</span>
                   <p className="font-bold text-slate-800 dark:text-white">{selectedBusiness.email}</p>
                 </div>
                 <div>
-                  <span className="text-blue-600 dark:text-blue-400 font-medium">Plan Actual:</span>
+                  <span className="text-indigo-600 dark:text-indigo-400 font-medium">Plan Actual:</span>
                   <p className="font-bold text-slate-800 dark:text-white">{selectedBusiness.plan}</p>
                 </div>
               </div>
               
               {/* Tiempo de suscripción actual */}
-              <div className="mt-4 pt-4 border-t border-blue-200 dark:border-blue-700">
+              <div className="mt-4 pt-4 border-t border-indigo-200 dark:border-indigo-700">
                 <div className="flex flex-wrap gap-4 text-sm">
                   <div className="flex items-center gap-2">
-                    <span className="text-blue-600 dark:text-blue-400 font-medium">📅 Fecha actual:</span>
+                    <CalendarDaysIcon className="w-4 h-4 inline text-indigo-600 dark:text-indigo-400" /> Fecha actual:
                     <span className="font-bold text-slate-800 dark:text-white">
                       {selectedBusiness.subscriptionEnd 
                         ? new Date(selectedBusiness.subscriptionEnd).toLocaleDateString('es-EC')
@@ -551,7 +560,7 @@ export default function SaasEmission({ businesses, subscriptions, onNotify }: Sa
                     </span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <span className="text-blue-600 dark:text-blue-400 font-medium">⏰ Días restantes:</span>
+                    <ClockIcon className="w-4 h-4 inline text-indigo-600 dark:text-indigo-400" /> Días restantes:
                     <span className={`font-bold ${calculateDaysRemaining(selectedBusiness.subscriptionEnd) > 10 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
                       {calculateDaysRemaining(selectedBusiness.subscriptionEnd)} días
                     </span>
@@ -560,10 +569,10 @@ export default function SaasEmission({ businesses, subscriptions, onNotify }: Sa
               </div>
 
               {/* Configuración SRI de la empresa */}
-              <div className="mt-4 pt-4 border-t border-blue-200 dark:border-blue-700">
+              <div className="mt-4 pt-4 border-t border-indigo-200 dark:border-indigo-700">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <span className="text-blue-600 dark:text-blue-400 font-medium">🏛️ Facturación SRI:</span>
+                    <BuildingOffice2Icon className="w-4 h-4 inline text-indigo-600 dark:text-indigo-400" /> Facturación SRI:
                     <span className={`px-2 py-1 text-xs font-bold rounded ${
                       (selectedBusiness as any).sriEnabled 
                         ? 'bg-green-100 dark:bg-green-900/50 text-green-600 dark:text-green-400'
@@ -574,13 +583,13 @@ export default function SaasEmission({ businesses, subscriptions, onNotify }: Sa
                   </div>
                   {(selectedBusiness as any).sriEnabled && (
                     <span className="text-xs text-green-600 dark:text-green-400">
-                      ✓ Firma electrónica configurada
+                      <CheckCircleIcon className="w-4 h-4 inline text-green-600 dark:text-green-400" /> Firma electrónica configurada
                     </span>
                   )}
                 </div>
                 {!(selectedBusiness as any).sriEnabled && (
                   <p className="text-xs text-amber-600 dark:text-amber-400 mt-2">
-                    ⚠️ Para emitir facturas al SRI, configure la firma electrónica en la gestión de empresas.
+                    <ExclamationTriangleIcon className="w-4 h-4 inline" /> Para emitir facturas al SRI, configure la firma electrónica en la gestión de empresas.
                   </p>
                 )}
               </div>
@@ -601,10 +610,10 @@ export default function SaasEmission({ businesses, subscriptions, onNotify }: Sa
                   </p>
                   <div className="mt-3 pt-3 border-t border-emerald-200 dark:border-emerald-700">
                     <p className="text-emerald-700 dark:text-emerald-300 font-medium">
-                      ✅ Se añadirán: <span className="font-bold text-emerald-800 dark:text-emerald-200">{selectedSubscription.durationDays} días</span>
+                      <CheckCircleIcon className="w-4 h-4 inline text-emerald-600" /> Se añadirán: <span className="font-bold text-emerald-800 dark:text-emerald-200">{selectedSubscription.durationDays} días</span>
                     </p>
                     <p className="text-slate-600 dark:text-slate-300 text-sm mt-1">
-                      📆 Nueva fecha: <span className="font-bold text-slate-800 dark:text-white">
+                      <CalendarDaysIcon className="w-4 h-4 inline text-slate-600 dark:text-slate-300" /> Nueva fecha: <span className="font-bold text-slate-800 dark:text-white">
                         {calculateNewEndDate(selectedBusiness.subscriptionEnd, selectedSubscription.durationDays)}
                       </span>
                     </p>
@@ -620,7 +629,7 @@ export default function SaasEmission({ businesses, subscriptions, onNotify }: Sa
               {isDemoBusiness() && (
                 <div className="mt-4 p-3 bg-purple-100 dark:bg-purple-900/50 rounded-lg border border-purple-300 dark:border-purple-700">
                   <p className="text-purple-800 dark:text-purple-200 text-sm font-medium text-center">
-                    🧪 Empresa de pruebas
+                    <BeakerIcon className="w-4 h-4 inline" /> Empresa de pruebas
                   </p>
                 </div>
               )}
@@ -644,18 +653,18 @@ export default function SaasEmission({ businesses, subscriptions, onNotify }: Sa
                       : 'bg-slate-200 dark:bg-slate-600 text-slate-600 dark:text-slate-200 hover:bg-slate-300 dark:hover:bg-slate-500'
                   }`}
                 >
-                  🏠 Local (Sin SRI)
+                  <HomeIcon className="w-4 h-4 inline" /> Local (Sin SRI)
                 </button>
                 <button
                   type="button"
                   onClick={() => setEmissionMode('SRI')}
                   className={`px-4 py-2 rounded-lg font-medium transition-colors ${
                     emissionMode === 'SRI'
-                      ? 'bg-blue-600 text-white'
+                      ? 'bg-indigo-600 text-white'
                       : 'bg-slate-200 dark:bg-slate-600 text-slate-600 dark:text-slate-200 hover:bg-slate-300 dark:hover:bg-slate-500'
                   }`}
                 >
-                  🏛️ SRI (Autorizado)
+                  <BuildingOffice2Icon className="w-4 h-4 inline" /> SRI (Autorizado)
                 </button>
               </div>
             </div>
@@ -664,7 +673,7 @@ export default function SaasEmission({ businesses, subscriptions, onNotify }: Sa
             {emissionMode === 'SRI' && (
               <div className="p-3 bg-amber-50 dark:bg-amber-900/30 rounded-lg border border-amber-200 dark:border-amber-700">
                 <p className="text-sm text-amber-700 dark:text-amber-300">
-                  ⚠️ <strong>Modo SRI:</strong> La factura será enviada al SRI para autorización. 
+                  <ExclamationTriangleIcon className="w-4 h-4 inline" /> <strong>Modo SRI:</strong> La factura será enviada al SRI para autorización. 
                   Requires que la empresa tenga configurada la firma electrónica y clave SRI.
                 </p>
               </div>
@@ -672,7 +681,7 @@ export default function SaasEmission({ businesses, subscriptions, onNotify }: Sa
             {emissionMode === 'LOCAL' && (
               <div className="p-3 bg-emerald-50 dark:bg-emerald-900/30 rounded-lg border border-emerald-200 dark:border-emerald-700">
                 <p className="text-sm text-emerald-700 dark:text-emerald-300">
-                  ✓ <strong>Modo Local:</strong> La factura se emite localmente sin enviar al SRI. 
+                  <CheckCircleIcon className="w-4 h-4 inline" /> <strong>Modo Local:</strong> La factura se emite localmente sin enviar al SRI. 
                   Ideal para pruebas o facturación offline.
                 </p>
               </div>
@@ -702,10 +711,10 @@ export default function SaasEmission({ businesses, subscriptions, onNotify }: Sa
                 >
                   {loading ? (
                     <span className="flex items-center justify-center gap-2">
-                      <span className="animate-spin">⏳</span> Emitiendo...
+                      <ClockIcon className="w-5 h-5 animate-spin" /> Emitiendo...
                     </span>
                   ) : (
-                    '🏠 Emitir Factura (Local)'
+                    <><HomeIcon className="w-4 h-4 inline" /> Emitir Factura (Local)</>
                   )}
                 </button>
               ) : (
@@ -715,15 +724,15 @@ export default function SaasEmission({ businesses, subscriptions, onNotify }: Sa
                   className={`flex-[2] py-4 font-bold rounded-xl shadow-lg transition-all ${
                     loading || !selectedBusiness || !selectedSubscription
                       ? 'bg-slate-300 dark:bg-slate-600 text-slate-500 dark:text-slate-400 cursor-not-allowed'
-                      : 'bg-blue-600 text-white hover:bg-blue-700 hover:shadow-xl'
+                      : 'bg-indigo-600 text-white hover:bg-indigo-700 hover:shadow-xl'
                   }`}
                 >
                   {loading ? (
                     <span className="flex items-center justify-center gap-2">
-                      <span className="animate-spin">⏳</span> Enviando al SRI...
+                      <ClockIcon className="w-5 h-5 animate-spin" /> Enviando al SRI...
                     </span>
                   ) : (
-                    '🏛️ Emitir y Enviar al SRI'
+                    <><BuildingOffice2Icon className="w-4 h-4 inline" /> Emitir y Enviar al SRI</>
                   )}
                 </button>
               )}

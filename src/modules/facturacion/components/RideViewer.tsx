@@ -2,6 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import { Document, BusinessInfo, InvoiceItem } from '../../../types/types';
 import QRCode from 'qrcode';
+import { DocumentTextIcon, PrinterIcon, BuildingOffice2Icon } from '@heroicons/react/24/outline';
 
 interface RideViewerProps {
   document: Document;
@@ -155,19 +156,20 @@ const RideViewer: React.FC<RideViewerProps> = ({ document, businessInfo, items, 
               >
                 {isGeneratingPdf ? (
                   <>
-                    <span className="animate-spin text-lg">⏳</span> Generando PDF...
+                    <svg className="animate-spin w-5 h-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" /><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" /></svg>
+                    Generando PDF...
                   </>
                 ) : (
                   <>
-                    <span className="text-lg">📄</span> Guardar PDF
+                    <DocumentTextIcon className="w-5 h-5" /> Guardar PDF
                   </>
                 )}
               </button>
               <button 
                 onClick={handlePrint}
-                className="flex items-center gap-2 bg-blue-600 text-white px-6 py-3 rounded-xl font-bold text-sm uppercase tracking-wide shadow-lg shadow-blue-200 hover:bg-blue-700 hover:scale-105 transition-all"
+                className="flex items-center gap-2 bg-indigo-600 text-white px-6 py-3 rounded-xl font-bold text-sm uppercase tracking-wide shadow-lg shadow-indigo-200 hover:bg-indigo-700 hover:scale-105 transition-all"
               >
-                <span className="text-lg">🖨️</span> Imprimir
+                <PrinterIcon className="w-5 h-5" /> Imprimir
               </button>
             </div>
           </div>
@@ -181,7 +183,7 @@ const RideViewer: React.FC<RideViewerProps> = ({ document, businessInfo, items, 
               {businessInfo.logo ? (
                 <img src={businessInfo.logo} className="max-h-16 object-contain" alt="Logo" />
               ) : (
-                <div className="w-12 h-12 bg-slate-100 flex items-center justify-center text-xl rounded-xl">🏢</div>
+                <div className="w-12 h-12 bg-slate-100 flex items-center justify-center rounded-xl"><BuildingOffice2Icon className="w-6 h-6 text-slate-400" /></div>
               )}
               <div className="space-y-0.5">
                 <p className="font-bold text-sm uppercase leading-tight">{businessInfo.name}</p>
@@ -279,7 +281,7 @@ const RideViewer: React.FC<RideViewerProps> = ({ document, businessInfo, items, 
                   <tr><td className="p-1 font-bold">SUBTOTAL 0%</td><td className="p-1 text-right">${subtotal0.toFixed(2)}</td></tr>
                   <tr><td className="p-1 font-bold">SUBTOTAL SIN IMPUESTOS</td><td className="p-1 text-right">${(subtotal15 + subtotal0).toFixed(2)}</td></tr>
                   <tr><td className="p-1 font-bold">DESCUENTO</td><td className="p-1 text-right">${totalDiscount.toFixed(2)}</td></tr>
-                  <tr><td className="p-1 font-bold text-blue-700">IVA 15%</td><td className="p-1 text-right">${totalIva.toFixed(2)}</td></tr>
+                  <tr><td className="p-1 font-bold text-indigo-700">IVA 15%</td><td className="p-1 text-right">${totalIva.toFixed(2)}</td></tr>
                   <tr className="bg-slate-100 font-bold text-[9px]"><td className="p-1.5">VALOR TOTAL</td><td className="p-1.5 text-right">${finalTotal.toFixed(2)}</td></tr>
                 </tbody>
               </table>

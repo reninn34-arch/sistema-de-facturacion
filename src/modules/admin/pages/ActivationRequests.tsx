@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { ArrowPathIcon, MagnifyingGlassIcon, InboxIcon, DocumentTextIcon, ArrowUpTrayIcon, CheckIcon, XMarkIcon, BuildingOffice2Icon, CheckCircleIcon, NoSymbolIcon, InformationCircleIcon } from '@heroicons/react/24/outline';
 
 const API_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:3001';
 
@@ -203,9 +204,9 @@ const ActivationRequests: React.FC<ActivationRequestsProps> = ({ onNotify }) => 
           <div className="flex gap-3">
             <button
               onClick={() => loadRequests()}
-              className="flex items-center justify-center gap-2 rounded-lg h-10 px-4 bg-primary text-white text-sm font-bold shadow-lg shadow-primary/20 hover:bg-blue-600 transition-all"
+              className="flex items-center justify-center gap-2 rounded-lg h-10 px-4 bg-primary text-white text-sm font-bold shadow-lg shadow-primary/20 hover:bg-indigo-600 transition-all"
             >
-              <span className="material-symbols-outlined text-[18px]">refresh</span>
+              <ArrowPathIcon className="w-[18px] h-[18px]" />
               Actualizar
             </button>
           </div>
@@ -247,7 +248,7 @@ const ActivationRequests: React.FC<ActivationRequestsProps> = ({ onNotify }) => 
         <div className="mb-4">
           <div className="relative max-w-md">
             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-              <span className="material-symbols-outlined text-slate-400">search</span>
+              <MagnifyingGlassIcon className="w-5 h-5 text-slate-400" />
             </div>
             <input
               type="text"
@@ -266,7 +267,7 @@ const ActivationRequests: React.FC<ActivationRequestsProps> = ({ onNotify }) => 
             </div>
           ) : filteredRequests.length === 0 ? (
             <div className="flex flex-col items-center justify-center h-64 text-slate-400">
-              <span className="material-symbols-outlined text-6xl mb-4 opacity-50">inbox</span>
+              <InboxIcon className="text-6xl mb-4 opacity-50 w-16 h-16" />
               <p className="text-lg font-medium">No hay solicitudes</p>
               <p className="text-sm">Las solicitudes de activación aparecerán aquí</p>
             </div>
@@ -319,11 +320,11 @@ const ActivationRequests: React.FC<ActivationRequestsProps> = ({ onNotify }) => 
                               className="size-10 bg-slate-200 dark:bg-slate-700 rounded-lg overflow-hidden border border-slate-300 dark:border-slate-600 flex items-center justify-center hover:bg-slate-300 transition-colors cursor-pointer"
                               title="Ver comprobante"
                             >
-                              <span className="material-symbols-outlined text-[20px] text-slate-600">receipt</span>
+                              <DocumentTextIcon className="w-5 h-5 text-slate-600" />
                             </button>
                           ) : (
                             <span className="size-10 bg-slate-100 dark:bg-slate-800 rounded-lg flex items-center justify-center" title="Sin comprobante">
-                              <span className="material-symbols-outlined text-[20px] text-slate-400">upload_file</span>
+                              <ArrowUpTrayIcon className="w-5 h-5 text-slate-400" />
                             </span>
                           )}
                         </div>
@@ -347,7 +348,7 @@ const ActivationRequests: React.FC<ActivationRequestsProps> = ({ onNotify }) => 
                               className="size-8 flex items-center justify-center rounded-lg bg-emerald-100 text-emerald-600 hover:bg-emerald-600 hover:text-white transition-all disabled:opacity-50"
                               title="Aprobar"
                             >
-                              <span className="material-symbols-outlined text-[20px]">check</span>
+                              <CheckIcon className="w-5 h-5" />
                             </button>
                             <button
                               onClick={() => handleRejectClick(req)}
@@ -355,7 +356,7 @@ const ActivationRequests: React.FC<ActivationRequestsProps> = ({ onNotify }) => 
                               className="size-8 flex items-center justify-center rounded-lg bg-rose-100 text-rose-600 hover:bg-rose-600 hover:text-white transition-all disabled:opacity-50"
                               title="Rechazar"
                             >
-                              <span className="material-symbols-outlined text-[20px]">close</span>
+                              <XMarkIcon className="w-5 h-5" />
                             </button>
                           </div>
                         )}
@@ -377,7 +378,7 @@ const ActivationRequests: React.FC<ActivationRequestsProps> = ({ onNotify }) => 
               onClick={() => setSelectedRequest(null)}
               className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
             >
-              <span className="material-symbols-outlined">close</span>
+              <XMarkIcon className="w-5 h-5" />
             </button>
           </div>
           
@@ -385,7 +386,7 @@ const ActivationRequests: React.FC<ActivationRequestsProps> = ({ onNotify }) => 
             <div className="p-4 bg-primary/5 rounded-xl border border-primary/10">
               <div className="flex items-center gap-4 mb-4">
                 <div className="size-12 rounded-full bg-primary/20 flex items-center justify-center text-primary">
-                  <span className="material-symbols-outlined text-[28px]">domain</span>
+                  <BuildingOffice2Icon className="w-7 h-7" />
                 </div>
                 <div>
                   <h3 className="text-base font-bold text-slate-900 dark:text-slate-100">
@@ -420,7 +421,7 @@ const ActivationRequests: React.FC<ActivationRequestsProps> = ({ onNotify }) => 
             {selectedRequest.paymentProofUrl && (
               <div>
                 <h4 className="text-sm font-bold text-slate-700 dark:text-slate-300 mb-3 flex items-center gap-2">
-                  <span className="material-symbols-outlined text-[18px]">receipt_long</span>
+                  <DocumentTextIcon className="w-[18px] h-[18px]" />
                   Comprobante de Pago
                 </h4>
                 {/* Debug: mostrar URL si hay problemas */}
@@ -503,7 +504,7 @@ const ActivationRequests: React.FC<ActivationRequestsProps> = ({ onNotify }) => 
                     disabled={actionLoading}
                     className="flex-1 flex items-center justify-center gap-2 h-12 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold transition-all shadow-lg shadow-emerald-200 dark:shadow-none disabled:opacity-50"
                   >
-                    <span className="material-symbols-outlined text-[20px]">check_circle</span>
+                    <CheckCircleIcon className="w-5 h-5" />
                     {actionLoading ? 'Procesando...' : 'Validar y Activar'}
                   </button>
                 </div>
@@ -512,7 +513,7 @@ const ActivationRequests: React.FC<ActivationRequestsProps> = ({ onNotify }) => 
                   disabled={actionLoading}
                   className="flex items-center justify-center gap-2 h-10 rounded-xl bg-slate-100 dark:bg-slate-800 text-rose-600 dark:text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-900/20 text-sm font-bold transition-all disabled:opacity-50"
                 >
-                  <span className="material-symbols-outlined text-[18px]">block</span>
+                  <NoSymbolIcon className="w-[18px] h-[18px]" />
                   Rechazar Solicitud
                 </button>
               </div>
@@ -533,7 +534,7 @@ const ActivationRequests: React.FC<ActivationRequestsProps> = ({ onNotify }) => 
             <div className="flex items-center justify-between p-6 border-b border-slate-100 dark:border-slate-800">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 rounded-full bg-rose-100 dark:bg-rose-900/30 flex items-center justify-center">
-                  <span className="material-symbols-outlined text-rose-600 dark:text-rose-500">block</span>
+                  <NoSymbolIcon className="w-5 h-5 text-rose-600 dark:text-rose-500" />
                 </div>
                 <div>
                   <h3 className="text-lg font-bold text-slate-900 dark:text-slate-100">Rechazar Solicitud</h3>
@@ -545,7 +546,7 @@ const ActivationRequests: React.FC<ActivationRequestsProps> = ({ onNotify }) => 
                 disabled={actionLoading}
                 className="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors disabled:opacity-50"
               >
-                <span className="material-symbols-outlined text-slate-500">close</span>
+                <XMarkIcon className="w-5 h-5 text-slate-500" />
               </button>
             </div>
             
@@ -553,7 +554,7 @@ const ActivationRequests: React.FC<ActivationRequestsProps> = ({ onNotify }) => 
             <div className="p-6">
               <div className="mb-4 p-4 bg-amber-50 dark:bg-amber-900/20 rounded-xl border border-amber-100 dark:border-amber-900/50">
                 <div className="flex items-start gap-3">
-                  <span className="material-symbols-outlined text-amber-600 dark:text-amber-500 mt-0.5">info</span>
+                  <InformationCircleIcon className="w-5 h-5 text-amber-600 dark:text-amber-500 mt-0.5" />
                   <div>
                     <p className="text-sm font-medium text-amber-800 dark:text-amber-200">Empresa: {requestToReject?.business?.name}</p>
                     <p className="text-sm text-amber-700 dark:text-amber-300">Plan: {getPlanName(requestToReject?.plan || '')} - ${requestToReject?.amount}</p>
@@ -589,12 +590,12 @@ const ActivationRequests: React.FC<ActivationRequestsProps> = ({ onNotify }) => 
               >
                 {actionLoading ? (
                   <>
-                    <span className="animate-spin material-symbols-outlined">sync</span>
+                    <ArrowPathIcon className="animate-spin w-5 h-5" />
                     Procesando...
                   </>
                 ) : (
                   <>
-                    <span className="material-symbols-outlined">block</span>
+                    <NoSymbolIcon className="w-5 h-5" />
                     Rechazar
                   </>
                 )}
@@ -615,8 +616,8 @@ const ActivationRequests: React.FC<ActivationRequestsProps> = ({ onNotify }) => 
             {/* Header */}
             <div className="flex items-center justify-between p-4 border-b border-slate-100 dark:border-slate-800">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center">
-                  <span className="material-symbols-outlined text-blue-600 dark:text-blue-500">receipt</span>
+                <div className="w-10 h-10 rounded-full bg-indigo-100 dark:bg-indigo-900/30 flex items-center justify-center">
+                  <DocumentTextIcon className="w-5 h-5 text-indigo-600 dark:text-indigo-500" />
                 </div>
                 <div>
                   <h3 className="text-lg font-bold text-slate-900 dark:text-slate-100">Comprobante de Pago</h3>
@@ -627,7 +628,7 @@ const ActivationRequests: React.FC<ActivationRequestsProps> = ({ onNotify }) => 
                 onClick={() => setPaymentProofImage(null)}
                 className="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
               >
-                <span className="material-symbols-outlined text-slate-500">close</span>
+                <XMarkIcon className="w-5 h-5 text-slate-500" />
               </button>
             </div>
             

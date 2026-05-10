@@ -2,6 +2,7 @@
 import React, { useState } from 'react';
 import { WebOrder, Product, Client, Document, DocumentType, SriStatus, PaymentStatus, BusinessInfo, InvoiceItem } from '../../../types/types';
 import { generateAccessKey } from '../../../utils/sri';
+import { ShoppingCartIcon, CreditCardIcon, BuildingLibraryIcon, ShieldCheckIcon, CheckCircleIcon, ClockIcon, PaperAirplaneIcon, XCircleIcon } from '@heroicons/react/24/outline';
 
 interface IntegrationsProps {
   products: Product[];
@@ -47,13 +48,13 @@ const Integrations: React.FC<IntegrationsProps> = ({ products, clients, business
     addLog("Sincronizando catálogo de productos...", "info");
     
     setTimeout(() => {
-      const updatedProducts = products.map(p => ({
+      const updatedProducts = (Array.isArray(products) ? products : []).map(p => ({
         ...p,
         isSynced: true,
         lastSync: new Date().toLocaleString()
       }));
       onUpdateProducts(updatedProducts);
-      addLog(`Éxito: ${products.length} productos vinculados.`, "success");
+      addLog(`Éxito: ${(Array.isArray(products) ? products : []).length} productos vinculados.`, "success");
       onNotify("Inventario web actualizado");
       setIsSyncing(false);
     }, 1500);
@@ -189,19 +190,19 @@ const Integrations: React.FC<IntegrationsProps> = ({ products, clients, business
                 type="text" 
                 value={storeUrl} 
                 onChange={(e) => setStoreUrl(e.target.value)}
-                className="w-full p-4 bg-slate-50 rounded-2xl font-bold text-xs border border-slate-100 outline-none focus:border-blue-500"
+                className="w-full p-4 bg-slate-50 rounded-2xl font-bold text-xs border border-slate-100 outline-none focus:border-indigo-500"
                 placeholder="URL de tu tienda"
               />
               <input 
                 type="password" 
                 value={storeApiKey} 
                 onChange={(e) => setStoreApiKey(e.target.value)}
-                className="w-full p-4 bg-slate-50 rounded-2xl font-bold text-xs border border-slate-100 outline-none focus:border-blue-500"
+                className="w-full p-4 bg-slate-50 rounded-2xl font-bold text-xs border border-slate-100 outline-none focus:border-indigo-500"
                 placeholder="API Secret Key"
               />
               <button 
                 onClick={saveConfiguration}
-                className="w-full py-4 bg-slate-900 text-white rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-blue-600 transition-all"
+                className="w-full py-4 bg-slate-900 text-white rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-indigo-600 transition-all"
               >
                 Conectar ahora
               </button>
@@ -210,7 +211,7 @@ const Integrations: React.FC<IntegrationsProps> = ({ products, clients, business
                <button 
                 onClick={syncInventory}
                 disabled={isSyncing || !isConfigured}
-                className="w-full py-4 bg-blue-600 text-white rounded-2xl font-black text-[10px] uppercase tracking-widest shadow-lg shadow-blue-100 disabled:opacity-30"
+                className="w-full py-4 bg-indigo-600 text-white rounded-2xl font-black text-[10px] uppercase tracking-widest shadow-lg shadow-indigo-100 disabled:opacity-30"
                >
                  {isSyncing ? 'Sincronizando...' : 'Sincronizar Inventario'}
                </button>
@@ -218,7 +219,7 @@ const Integrations: React.FC<IntegrationsProps> = ({ products, clients, business
           </div>
 
           <div className="bg-slate-900 rounded-[3rem] p-8 text-white min-h-[300px] flex flex-col shadow-2xl">
-             <h4 className="font-black text-blue-400 uppercase tracking-widest text-[10px] mb-6">Actividad de Integración</h4>
+             <h4 className="font-black text-indigo-400 uppercase tracking-widest text-[10px] mb-6">Actividad de Integración</h4>
              <div className="flex-1 space-y-3 font-mono text-[9px] overflow-y-auto max-h-[250px]">
                 {syncLogs.length === 0 ? <p className="text-slate-600 italic">Esperando eventos...</p> : 
                   syncLogs.map((log, i) => (
@@ -246,7 +247,7 @@ const Integrations: React.FC<IntegrationsProps> = ({ products, clients, business
            <div className="space-y-4">
              {pendingOrders.length === 0 ? (
                <div className="bg-white p-32 rounded-[4rem] text-center border-2 border-dashed border-slate-100">
-                  <span className="text-6xl opacity-20">🛒</span>
+                  <ShoppingCartIcon className="w-16 h-16 mx-auto text-slate-200 dark:text-slate-700" />
                   <p className="text-slate-400 font-bold uppercase text-[10px] mt-4">Sin pedidos pendientes</p>
                </div>
              ) : (
@@ -255,8 +256,8 @@ const Integrations: React.FC<IntegrationsProps> = ({ products, clients, business
                    <div className="flex flex-col md:flex-row justify-between gap-8">
                      <div className="flex-1 space-y-4">
                        <div className="flex flex-wrap items-center gap-4">
-                          <span className={`px-4 py-1.5 rounded-full text-[9px] font-black uppercase tracking-widest ${order.paymentMethod === 'CARD' ? 'bg-blue-600 text-white' : 'bg-amber-500 text-white'}`}>
-                            {order.paymentMethod === 'CARD' ? '💳 Tarjeta' : '🏦 Transferencia'}
+                          <span className={`px-4 py-1.5 rounded-full text-[9px] font-black uppercase tracking-widest inline-flex items-center gap-1.5 ${order.paymentMethod === 'CARD' ? 'bg-indigo-600 text-white' : 'bg-amber-500 text-white'}`}>
+                            {order.paymentMethod === 'CARD' ? <><CreditCardIcon className="w-3 h-3" /> Tarjeta</> : <><BuildingLibraryIcon className="w-3 h-3" /> Transferencia</>}
                           </span>
                           {order.transactionId && (
                             <span className="bg-slate-100 text-slate-500 px-3 py-1.5 rounded-lg text-[9px] font-mono font-bold">
@@ -287,8 +288,8 @@ const Integrations: React.FC<IntegrationsProps> = ({ products, clients, business
                           )}
 
                           <div className={`px-5 py-3 rounded-2xl flex items-center gap-3 ${order.paymentConfirmed ? 'bg-emerald-50 text-emerald-600' : 'bg-rose-50 text-rose-600'}`}>
-                            <span className="text-[10px] font-black uppercase tracking-widest">
-                              {order.paymentMethod === 'CARD' ? '🛡️ Auto-Validado' : (order.paymentConfirmed ? '✅ Confirmado' : '⏳ Pendiente')}
+                            <span className="text-[10px] font-black uppercase tracking-widest inline-flex items-center gap-1.5">
+                              {order.paymentMethod === 'CARD' ? <><ShieldCheckIcon className="w-3.5 h-3.5" /> Auto-Validado</> : (order.paymentConfirmed ? <><CheckCircleIcon className="w-3.5 h-3.5" /> Confirmado</> : <><ClockIcon className="w-3.5 h-3.5" /> Pendiente</>)}
                             </span>
                           </div>
                        </div>
@@ -316,7 +317,11 @@ const Integrations: React.FC<IntegrationsProps> = ({ products, clients, business
                          disabled={!order.paymentConfirmed}
                          className={`w-full py-5 rounded-2xl font-black text-[10px] uppercase tracking-widest transition-all ${order.paymentConfirmed ? 'bg-slate-900 text-white shadow-xl hover:scale-105' : 'bg-slate-100 text-slate-400'}`}
                        >
-                         {order.paymentConfirmed ? '🚀 Emitir SRI' : '❌ Sin Pago'}
+                          {order.paymentConfirmed ? (
+                            <span className="inline-flex items-center gap-1.5"><PaperAirplaneIcon className="w-3.5 h-3.5" /> Emitir SRI</span>
+                          ) : (
+                            <span className="inline-flex items-center gap-1.5"><XCircleIcon className="w-3.5 h-3.5" /> Sin Pago</span>
+                          )}
                        </button>
                      </div>
                    </div>
@@ -345,7 +350,7 @@ const Integrations: React.FC<IntegrationsProps> = ({ products, clients, business
                  <div className="space-y-2">
                     <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Razón Social</label>
                     <input 
-                      className="w-full p-4 bg-slate-50 rounded-2xl font-bold text-sm outline-none border-2 border-transparent focus:border-blue-500"
+                      className="w-full p-4 bg-slate-50 rounded-2xl font-bold text-sm outline-none border-2 border-transparent focus:border-indigo-500"
                       value={editingOrder.customerName}
                       onChange={e => setEditingOrder({...editingOrder, customerName: e.target.value})}
                     />
@@ -353,7 +358,7 @@ const Integrations: React.FC<IntegrationsProps> = ({ products, clients, business
                  <div className="space-y-2">
                     <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">RUC / Cédula</label>
                     <input 
-                      className="w-full p-4 bg-slate-50 rounded-2xl font-bold text-sm outline-none border-2 border-transparent focus:border-blue-500"
+                      className="w-full p-4 bg-slate-50 rounded-2xl font-bold text-sm outline-none border-2 border-transparent focus:border-indigo-500"
                       value={editingOrder.customerRuc}
                       onChange={e => setEditingOrder({...editingOrder, customerRuc: e.target.value})}
                     />
@@ -361,7 +366,7 @@ const Integrations: React.FC<IntegrationsProps> = ({ products, clients, business
                  <div className="space-y-2">
                     <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Email Cliente</label>
                     <input 
-                      className="w-full p-4 bg-slate-50 rounded-2xl font-bold text-sm outline-none border-2 border-transparent focus:border-blue-500"
+                      className="w-full p-4 bg-slate-50 rounded-2xl font-bold text-sm outline-none border-2 border-transparent focus:border-indigo-500"
                       value={editingOrder.customerEmail}
                       onChange={e => setEditingOrder({...editingOrder, customerEmail: e.target.value})}
                     />
@@ -428,8 +433,8 @@ const Integrations: React.FC<IntegrationsProps> = ({ products, clients, business
                     <p className="text-xl font-black">${editingOrder.items.reduce((a,b) => a + (b.quantity * b.unitPrice - (b.discount || 0)), 0).toFixed(2)}</p>
                   </div>
                   <div>
-                    <p className="text-[9px] font-black text-blue-400 uppercase">Total + IVA 15%</p>
-                    <p className="text-3xl font-black text-blue-400">
+                    <p className="text-[9px] font-black text-indigo-400 uppercase">Total + IVA 15%</p>
+                    <p className="text-3xl font-black text-indigo-400">
                       ${(editingOrder.items.reduce((a,b) => a + (b.quantity * b.unitPrice - (b.discount || 0)), 0) * 1.15).toFixed(2)}
                     </p>
                   </div>
@@ -438,7 +443,7 @@ const Integrations: React.FC<IntegrationsProps> = ({ products, clients, business
                   <button onClick={() => setEditingOrder(null)} className="px-8 py-4 font-black text-[10px] uppercase text-slate-400 hover:text-white transition-colors">Cancelar</button>
                   <button 
                     onClick={saveEditedOrder}
-                    className="px-10 py-4 bg-blue-600 text-white rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-blue-500 transition-all shadow-xl shadow-blue-900/40"
+                    className="px-10 py-4 bg-indigo-600 text-white rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-indigo-500 transition-all shadow-xl shadow-indigo-900/40"
                   >
                     Guardar Cambios
                   </button>

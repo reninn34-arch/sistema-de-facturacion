@@ -1,4 +1,5 @@
 import React, { useState, useMemo } from 'react';
+import { ChartBarIcon, ArrowDownTrayIcon, LightBulbIcon } from '@heroicons/react/24/outline';
 import { Product, Document, ProductProfitability } from '../../../types/types';
 
 interface ProfitabilityAnalysisProps {
@@ -12,11 +13,14 @@ export default function ProfitabilityAnalysis({ products, documents, onNotify }:
   const [endDate, setEndDate] = useState('');
   const [sortBy, setSortBy] = useState<'revenue' | 'profit' | 'margin'>('profit');
 
+  const safeProducts = Array.isArray(products) ? products : [];
+  const safeDocuments = Array.isArray(documents) ? documents : [];
+
   const profitabilityData = useMemo((): ProductProfitability[] => {
     const productMap = new Map<string, ProductProfitability>();
 
     // Filtrar documentos autorizados
-    const filteredDocs = documents.filter(doc => {
+    const filteredDocs = safeDocuments.filter(doc => {
       if (doc.status !== 'AUTORIZADA' || doc.type !== '01') return false;
       const docDate = new Date(doc.issueDate);
       if (startDate && docDate < new Date(startDate)) return false;
@@ -27,7 +31,7 @@ export default function ProfitabilityAnalysis({ products, documents, onNotify }:
     // Calcular ventas por producto
     filteredDocs.forEach(doc => {
       doc.items?.forEach(item => {
-        const product = products.find(p => p.id === item.productId);
+        const product = safeProducts.find(p => p.id === item.productId);
         if (!product) return;
 
         const existing = productMap.get(item.productId);
@@ -103,7 +107,7 @@ export default function ProfitabilityAnalysis({ products, documents, onNotify }:
       <div className="bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-sm">
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-3">
-            <span className="text-4xl">📈</span>
+            <ChartBarIcon className="w-10 h-10" />
             <div>
               <h2 className="text-2xl font-black text-slate-800 tracking-tight">Análisis de Rentabilidad</h2>
               <p className="text-sm text-slate-500 font-bold">Utilidad por producto</p>
@@ -112,9 +116,9 @@ export default function ProfitabilityAnalysis({ products, documents, onNotify }:
           <button
             onClick={exportToCSV}
             disabled={profitabilityData.length === 0}
-            className="px-6 py-3 bg-blue-600 text-white rounded-xl font-bold text-sm hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="px-6 py-3 bg-indigo-600 text-white rounded-xl font-bold text-sm hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            📥 Exportar CSV
+            <ArrowDownTrayIcon className="w-4 h-4 inline" /> Exportar CSV
           </button>
         </div>
 
@@ -152,9 +156,9 @@ export default function ProfitabilityAnalysis({ products, documents, onNotify }:
         </div>
 
         <div className="grid grid-cols-4 gap-4 mb-6">
-          <div className="bg-gradient-to-br from-blue-50 to-blue-100 p-5 rounded-2xl border border-blue-200">
-            <p className="text-xs text-blue-600 font-bold uppercase mb-1">Unidades Vendidas</p>
-            <p className="text-2xl font-black text-blue-900">{totals.unitsSold}</p>
+          <div className="bg-gradient-to-br from-indigo-50 to-indigo-100 p-5 rounded-2xl border border-indigo-200">
+            <p className="text-xs text-indigo-600 font-bold uppercase mb-1">Unidades Vendidas</p>
+            <p className="text-2xl font-black text-indigo-900">{totals.unitsSold}</p>
           </div>
           <div className="bg-gradient-to-br from-emerald-50 to-emerald-100 p-5 rounded-2xl border border-emerald-200">
             <p className="text-xs text-emerald-600 font-bold uppercase mb-1">Ingresos Totales</p>
@@ -192,7 +196,7 @@ export default function ProfitabilityAnalysis({ products, documents, onNotify }:
                   <td className="p-3 text-right font-bold text-emerald-600">${item.totalRevenue.toFixed(2)}</td>
                   <td className="p-3 text-right font-bold text-red-600">${item.totalCost.toFixed(2)}</td>
                   <td className="p-3 text-right font-black text-purple-600">${item.grossProfit.toFixed(2)}</td>
-                  <td className="p-3 text-right font-black text-blue-600">{item.profitMargin.toFixed(1)}%</td>
+                  <td className="p-3 text-right font-black text-indigo-600">{item.profitMargin.toFixed(1)}%</td>
                 </tr>
               ))}
             </tbody>
@@ -201,14 +205,14 @@ export default function ProfitabilityAnalysis({ products, documents, onNotify }:
 
         {profitabilityData.length === 0 && (
           <div className="text-center py-12">
-            <span className="text-6xl opacity-20">📊</span>
+            <ChartBarIcon className="w-16 h-16 mx-auto opacity-20" />
             <p className="text-slate-400 font-bold mt-4">No hay ventas en el rango seleccionado</p>
           </div>
         )}
 
         <div className="mt-6 bg-amber-50 p-4 rounded-xl border border-amber-200">
           <p className="text-xs text-amber-800 font-bold">
-            💡 Los costos se estiman en 60% del precio de venta. Para mayor precisión, configura costos reales en cada producto.
+            <LightBulbIcon className="w-4 h-4 inline text-amber-600" /> Los costos se estiman en 60% del precio de venta. Para mayor precisión, configura costos reales en cada producto.
           </p>
         </div>
       </div>

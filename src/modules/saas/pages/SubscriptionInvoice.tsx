@@ -1,4 +1,12 @@
 import React, { useState, useMemo } from 'react';
+import {
+  BuildingOffice2Icon,
+  DocumentTextIcon,
+  RocketLaunchIcon,
+  ExclamationTriangleIcon,
+  ClockIcon,
+  HandRaisedIcon,
+} from '@heroicons/react/24/outline';
 
 const API_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:3001';
 
@@ -146,7 +154,7 @@ const SubscriptionInvoice: React.FC<SubscriptionInvoiceProps> = ({ onNotify }) =
       {/* Sidebar: Lista de Empresas */}
       <div className="w-full lg:w-1/4 bg-white rounded-2xl lg:rounded-3xl shadow-xl border border-slate-100 overflow-hidden flex flex-col">
         <div className="p-4 lg:p-6 border-b border-slate-100 bg-slate-50">
-          <h3 className="font-black text-slate-700 text-base lg:text-lg">🏢 Empresas</h3>
+          <h3 className="font-black text-slate-700 text-base lg:text-lg">          <BuildingOffice2Icon className="w-4 h-4 inline" /> Empresas</h3>
           <p className="text-xs text-slate-400 mt-1">{businesses.length} empresas registradas</p>
         </div>
         <div className="overflow-y-auto flex-1 p-3 space-y-2 custom-scrollbar max-h-[30vh] lg:max-h-none">
@@ -159,7 +167,7 @@ const SubscriptionInvoice: React.FC<SubscriptionInvoiceProps> = ({ onNotify }) =
                 onClick={() => setSelectedBusinessId(b.id)}
                 className={`p-3 lg:p-4 rounded-xl cursor-pointer transition-all border-2 ${
                   String(selectedBusinessId) === String(b.id)
-                    ? 'border-blue-500 bg-blue-50'
+                    ? 'border-indigo-500 bg-indigo-50'
                     : 'border-transparent hover:bg-slate-50'
                 }`}
               >
@@ -184,8 +192,8 @@ const SubscriptionInvoice: React.FC<SubscriptionInvoiceProps> = ({ onNotify }) =
           <div className="bg-white rounded-xl lg:rounded-2xl shadow-xl border border-slate-100 p-4 lg:p-6">
             {/* Header */}
             <div className="flex items-center gap-4 mb-8">
-              <div className="w-12 h-12 bg-blue-100 rounded-2xl flex items-center justify-center text-2xl">
-                🧾
+              <div className="w-12 h-12 bg-indigo-100 rounded-2xl flex items-center justify-center">
+                <DocumentTextIcon className="w-6 h-6 text-indigo-600" />
               </div>
               <div>
                 <h2 className="text-2xl lg:text-3xl font-black text-slate-800">Factura de Suscripción</h2>
@@ -250,8 +258,8 @@ const SubscriptionInvoice: React.FC<SubscriptionInvoiceProps> = ({ onNotify }) =
 
               {/* Right Column - Summary */}
               <div className="space-y-6">
-                <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-2xl p-6 border border-blue-100">
-                  <h3 className="font-black text-slate-800 mb-4">📋 Resumen de Factura</h3>
+                <div className="bg-gradient-to-br from-indigo-50 to-indigo-50 rounded-2xl p-6 border border-indigo-100">
+                  <h3 className="font-black text-slate-800 mb-4">                  <DocumentTextIcon className="w-4 h-4 inline" /> Resumen de Factura</h3>
                   
                   <div className="space-y-3">
                     <div className="flex justify-between">
@@ -266,12 +274,12 @@ const SubscriptionInvoice: React.FC<SubscriptionInvoiceProps> = ({ onNotify }) =
                     </div>
                     <div className="flex justify-between">
                       <span className="text-slate-500 font-medium">Plan:</span>
-                      <span className="font-bold text-blue-600">{selectedBusiness.plan || 'Básico'}</span>
+                      <span className="font-bold text-indigo-600">{selectedBusiness.plan || 'Básico'}</span>
                     </div>
                     <div className="border-t border-slate-200 pt-3 mt-3">
                       <div className="flex justify-between items-center">
                         <span className="text-slate-600 font-bold">Total:</span>
-                        <span className="text-3xl font-black text-blue-600">${amount.toFixed(2)}</span>
+                        <span className="text-3xl font-black text-indigo-600">${amount.toFixed(2)}</span>
                       </div>
                     </div>
                   </div>
@@ -280,14 +288,14 @@ const SubscriptionInvoice: React.FC<SubscriptionInvoiceProps> = ({ onNotify }) =
                 <button
                   onClick={handleGenerateInvoice}
                   disabled={loading || amount <= 0}
-                  className="w-full py-4 bg-blue-600 hover:bg-blue-500 disabled:bg-slate-300 disabled:cursor-not-allowed text-white rounded-xl font-black uppercase tracking-widest transition-all shadow-lg shadow-blue-900/30"
+                  className="w-full py-4 bg-indigo-600 hover:bg-indigo-500 disabled:bg-slate-300 disabled:cursor-not-allowed text-white rounded-xl font-black uppercase tracking-widest transition-all shadow-lg shadow-indigo-900/30"
                 >
-                  {loading ? '⏳ Generando...' : '🚀 Generar Factura SRI'}
+                  {loading ? <><ClockIcon className="w-4 h-4 inline animate-spin" /> Generando...</> : <><RocketLaunchIcon className="w-4 h-4 inline" /> Generar Factura SRI</>}
                 </button>
 
                 <div className="bg-amber-50 rounded-xl p-4 border border-amber-200">
                   <p className="text-xs text-amber-700 font-medium">
-                    ⚠️ Esta acción generará una factura electrónica autorizada por el SRI.
+                    <ExclamationTriangleIcon className="w-4 h-4 inline" /> Esta acción generará una factura electrónica autorizada por el SRI.
                     Asegúrate de tener los certificados digitales configurados.
                   </p>
                 </div>
@@ -297,7 +305,7 @@ const SubscriptionInvoice: React.FC<SubscriptionInvoiceProps> = ({ onNotify }) =
         ) : (
           <div className="h-full flex items-center justify-center">
             <div className="text-center p-10">
-              <span className="text-6xl mb-4 block">👈</span>
+              <HandRaisedIcon className="w-16 h-16 mb-4 mx-auto opacity-30" />
               <h3 className="text-xl font-bold text-slate-600 mb-2">Selecciona una empresa</h3>
               <p className="text-slate-400">Haz clic en una empresa de la lista para crear una factura</p>
             </div>
