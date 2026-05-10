@@ -1258,7 +1258,14 @@ const App: React.FC = () => {
       {/* --- TOASTS DE NOTIFICACIONES --- */}
       <div className="fixed bottom-6 right-6 z-[999] flex flex-col gap-3 pointer-events-none">
         {toasts.map((toast) => (
-          <div key={toast.id} className="pointer-events-auto min-w-[320px] p-6 rounded-[2.5rem] shadow-2xl backdrop-blur-xl border animate-in slide-in-from-right-10 flex items-start gap-4 text-white" style={{ backgroundColor: `${businessInfo.themeColor}EE`, borderColor: `${businessInfo.themeColor}55` }}>
+          <div 
+            key={toast.id} 
+            className="pointer-events-auto min-w-[320px] p-6 rounded-[2.5rem] shadow-2xl backdrop-blur-xl border animate-in slide-in-from-right-10 flex items-start gap-4 text-slate-950 dark:text-white" 
+            style={{ 
+              backgroundColor: `${businessInfo.themeColor}EE`, 
+              borderColor: `${businessInfo.themeColor}44` 
+            }}
+          >
             <span className="text-2xl">{toast.type === 'success' ? '✅' : 'ℹ️'}</span>
             <p className="font-black text-sm leading-tight mt-1">{toast.text}</p>
           </div>

@@ -197,10 +197,10 @@ const Dashboard: React.FC<DashboardProps> = ({ documents, products, setActiveTab
                 };
                 const revenue = (planPrices[plan.plan] || 0) * plan.count;
                 return (
-                  <div key={i} className={`p-5 rounded-2xl bg-${planColors[plan.plan] || 'slate'}-50 dark:bg-${planColors[plan.plan] || 'slate'}-500/10 border border-${planColors[plan.plan] || 'slate'}-100 dark:border-${planColors[plan.plan] || 'slate'}-500/20`}>
-                    <p className={`text-[10px] font-bold text-${planColors[plan.plan] || 'slate'}-600 dark:text-${planColors[plan.plan] || 'slate'}-400 uppercase mb-1`}>{plan.plan}</p>
-                    <p className="text-2xl font-bold text-slate-800 dark:text-white">{plan.count}</p>
-                    <p className="text-[10px] font-semibold text-slate-400 dark:text-slate-500 mt-1">${revenue.toFixed(2)}/mes</p>
+                  <div key={i} className={`p-5 rounded-2xl bg-${planColors[plan.plan] || 'slate'}-100 dark:bg-${planColors[plan.plan] || 'slate'}-500/10 transition-all hover:scale-[1.02]`}>
+                    <p className={`text-[10px] font-black text-${planColors[plan.plan] || 'slate'}-700 dark:text-${planColors[plan.plan] || 'slate'}-400 uppercase mb-1 tracking-widest`}>{plan.plan}</p>
+                    <p className="text-2xl font-black text-slate-900 dark:text-white">{plan.count}</p>
+                    <p className={`text-[10px] font-bold text-${planColors[plan.plan] || 'slate'}-600 dark:text-slate-500 mt-1`}>${revenue.toFixed(2)}/mes</p>
                   </div>
                 );
               })}
@@ -223,39 +223,39 @@ const Dashboard: React.FC<DashboardProps> = ({ documents, products, setActiveTab
                 };
                 const rl = roleLabels[role.role] || { label: role.role, icon: null };
                 return (
-                  <div key={i} className="p-4 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-700/50">
-                    <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 mb-1 flex items-center gap-1.5">
+                  <div key={i} className="p-4 rounded-xl bg-slate-100 dark:bg-slate-800/50 transition-all hover:bg-slate-200/60">
+                    <p className="text-xs font-black text-slate-500 dark:text-slate-400 mb-1 flex items-center gap-1.5 uppercase tracking-tighter">
                       {rl.icon}{rl.label}
                     </p>
-                    <p className="text-xl font-bold text-slate-800 dark:text-white">{role.count}</p>
+                    <p className="text-xl font-black text-slate-900 dark:text-white">{role.count}</p>
                   </div>
                 );
               })}
             </div>
           </Card>
 
-          <Card padding="lg" className="bg-slate-900 dark:bg-slate-900 border-slate-700/50 text-white flex flex-col">
-            <h3 className="font-bold mb-6 uppercase tracking-tight text-indigo-400 flex items-center gap-2">
+          <Card padding="lg" className="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700/50 text-slate-800 dark:text-white flex flex-col transition-colors duration-300">
+            <h3 className="font-bold mb-6 uppercase tracking-tight text-indigo-600 dark:text-indigo-400 flex items-center gap-2">
               <BuildingOffice2Icon className="w-5 h-5" />
               Empresas Recientes
             </h3>
-            <div className="space-y-4 flex-1 overflow-y-auto pr-2">
+            <div className="space-y-4 flex-1 overflow-y-auto pr-2 custom-scrollbar">
               {(subscriptionStats?.recentBusinesses || []).map((b, i) => (
-                <div key={b.id || i} className="p-4 bg-white/5 rounded-2xl border border-white/10 hover:bg-white/10 transition-colors">
+                <div key={b.id || i} className="p-4 bg-slate-50 dark:bg-white/5 rounded-2xl transition-all hover:bg-slate-100 group">
                   <div className="flex justify-between items-start mb-2">
-                    <h4 className="font-bold text-sm truncate pr-2">{b.name}</h4>
+                    <h4 className="font-bold text-sm truncate pr-2 text-slate-800 dark:text-white group-hover:text-indigo-600 transition-colors">{b.name}</h4>
                     <Badge variant={b.isActive ? 'success' : 'danger'}>
                       {b.isActive ? 'ACTIVO' : 'INACTIVO'}
                     </Badge>
                   </div>
-                  <div className="flex items-center gap-2 text-[10px] text-slate-400">
+                  <div className="flex items-center gap-2 text-[10px] text-slate-500 dark:text-slate-400">
                     <span>RUC: {b.ruc}</span>
-                    <span className="text-slate-600">•</span>
-                    <span className="text-indigo-400">{b.plan}</span>
-                    <span className="text-slate-600">•</span>
+                    <span className="text-slate-200 dark:text-slate-600">•</span>
+                    <span className="text-indigo-600 dark:text-indigo-400 font-bold">{b.plan}</span>
+                    <span className="text-slate-200 dark:text-slate-600">•</span>
                     <span>{b._count?.users || 0} usuarios</span>
                   </div>
-                  <div className="mt-2 text-[10px] text-slate-500">
+                  <div className="mt-2 text-[10px] text-slate-400 dark:text-slate-500 font-medium">
                     Vence: {b.subscriptionEnd ? new Date(b.subscriptionEnd).toLocaleDateString() : 'N/A'}
                   </div>
                 </div>
@@ -372,16 +372,16 @@ const Dashboard: React.FC<DashboardProps> = ({ documents, products, setActiveTab
       )}
 
       {isAdmin && businessInfo && businessInfo.plan === 'UNLIMITED' && (
-        <div className="bg-gradient-to-r from-emerald-900 to-slate-900 rounded-2xl p-6 text-white shadow-xl border border-emerald-500/30">
-          <div className="flex items-center gap-4">
-            <div className="w-14 h-14 rounded-2xl flex items-center justify-center text-2xl bg-emerald-500/20">
-              <SparklesIcon className="w-7 h-7 text-emerald-400" />
+        <div className="bg-gradient-to-r from-emerald-600 to-emerald-800 dark:from-emerald-900 dark:to-slate-900 rounded-[2rem] p-8 text-white shadow-xl shadow-emerald-500/10 transition-all hover:scale-[1.01] duration-300">
+          <div className="flex items-center gap-6">
+            <div className="w-16 h-16 rounded-[1.5rem] flex items-center justify-center text-3xl bg-white/20 backdrop-blur-sm">
+              <SparklesIcon className="w-8 h-8 text-white" />
             </div>
             <div>
-              <div className="text-xs font-bold text-emerald-400 uppercase tracking-widest mb-1">Suscripción Activa</div>
-              <div className="text-xl font-bold text-emerald-400">Plan Ilimitado</div>
-              <div className="text-xs text-slate-400 mt-1">
-                Disfruta de todas las funcionalidades sin límites
+              <div className="text-[10px] font-black text-emerald-200 uppercase tracking-[0.2em] mb-1">Estatus Premium</div>
+              <div className="text-2xl font-black text-white uppercase tracking-tighter">Plan Ilimitado Activo</div>
+              <div className="text-sm text-emerald-50/70 mt-1 font-medium italic">
+                "Tu empresa no tiene límites de crecimiento con Ecuafact Pro"
               </div>
             </div>
           </div>
@@ -429,11 +429,11 @@ const Dashboard: React.FC<DashboardProps> = ({ documents, products, setActiveTab
             Auditoría en Tiempo Real
             <span className="text-[8px] opacity-30 font-mono">v1.1</span>
           </h3>
-          <div className="bg-slate-50 dark:bg-slate-800/50 p-4 sm:p-6 rounded-2xl border border-slate-100 dark:border-slate-700/50 flex items-start gap-3 sm:gap-4">
-            <div className="w-10 sm:w-12 h-10 sm:h-12 bg-indigo-600 text-white rounded-2xl flex items-center justify-center flex-shrink-0 shadow-lg shadow-indigo-200 dark:shadow-indigo-500/20">
-              <SparklesIcon className="w-5 h-5 sm:w-6 sm:h-6" />
+          <div className="bg-slate-100 dark:bg-slate-800/80 p-4 sm:p-6 rounded-[2rem] flex items-start gap-3 sm:gap-4 transition-all hover:bg-slate-200 dark:hover:bg-slate-700 group">
+            <div className="w-10 sm:w-12 h-10 sm:h-12 bg-indigo-600 text-white rounded-2xl flex items-center justify-center flex-shrink-0 shadow-lg shadow-indigo-500/20">
+              <SparklesIcon className="w-5 h-5 sm:w-6 sm:h-6 group-hover:scale-110 transition-transform" />
             </div>
-            <div className="flex-1">
+            <div className="flex-1 overflow-hidden">
               {insightsLoading ? (
                 <div className="space-y-2">
                   <Skeleton width="90%" height="1rem" />
@@ -441,7 +441,7 @@ const Dashboard: React.FC<DashboardProps> = ({ documents, products, setActiveTab
                   <Skeleton width="60%" height="1rem" />
                 </div>
               ) : (
-                <p className="text-sm leading-relaxed text-slate-600 dark:text-slate-300 font-medium italic">
+                <p className="text-sm leading-relaxed text-slate-700 dark:text-slate-200 font-medium italic max-h-[150px] overflow-y-auto pr-2 custom-scrollbar">
                   "{insights}"
                 </p>
               )}
@@ -451,22 +451,22 @@ const Dashboard: React.FC<DashboardProps> = ({ documents, products, setActiveTab
           <div className="mt-8 grid grid-cols-2 gap-4">
             <div
               onClick={() => setActiveTab('products')}
-              className="p-6 rounded-2xl bg-indigo-50/50 dark:bg-indigo-500/5 border border-indigo-100 dark:border-indigo-500/20 cursor-pointer hover:bg-indigo-100 dark:hover:bg-indigo-500/10 transition-colors"
+              className="p-6 rounded-[1.5rem] bg-indigo-100 dark:bg-indigo-500/10 cursor-pointer hover:bg-indigo-200 dark:hover:bg-indigo-500/20 transition-all group"
             >
-              <p className="text-[10px] font-bold text-indigo-600 dark:text-indigo-400 uppercase mb-2">Top Producto</p>
-              <p className="font-bold text-slate-800 dark:text-white">Licencia Cloud Pro</p>
+              <p className="text-[10px] font-black text-indigo-600 dark:text-indigo-400 uppercase mb-2 tracking-widest">Top Producto</p>
+              <p className="font-black text-slate-900 dark:text-white group-hover:text-indigo-700 dark:group-hover:text-indigo-300 transition-colors">Licencia Cloud Pro</p>
             </div>
             <div
               onClick={() => setActiveTab('config')}
-              className="p-6 rounded-2xl bg-indigo-50/50 dark:bg-indigo-500/5 border border-indigo-100 dark:border-indigo-500/20 cursor-pointer hover:bg-indigo-100 dark:hover:bg-indigo-500/10 transition-colors"
+              className="p-6 rounded-[1.5rem] bg-slate-100 dark:bg-slate-800 cursor-pointer hover:bg-slate-200 dark:hover:bg-slate-700 transition-all group"
             >
-              <p className="text-[10px] font-bold text-indigo-600 dark:text-indigo-400 uppercase mb-2">Próximo Vencimiento</p>
-              <p className="font-bold text-slate-800 dark:text-white">Firma Electrónica: 28 Jul</p>
+              <p className="text-[10px] font-black text-slate-500 dark:text-slate-400 uppercase mb-2 tracking-widest">Próximo Vencimiento</p>
+              <p className="font-black text-slate-900 dark:text-white group-hover:text-slate-700 dark:group-hover:text-slate-200 transition-colors">Firma: 28 Jul</p>
             </div>
           </div>
         </Card>
 
-        <Card padding="lg" className="bg-slate-900 dark:bg-slate-900 border-slate-700/50 text-white flex flex-col">
+        <Card padding="lg" className="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700/50 text-slate-800 dark:text-white flex flex-col transition-colors duration-300">
           <h3 className="font-bold mb-6 uppercase tracking-tight text-indigo-400 text-sm sm:text-base">Estado de Inventario</h3>
           <div className="space-y-6 flex-1 overflow-y-auto pr-2">
             {safeProducts.length === 0 ? (
@@ -487,9 +487,9 @@ const Dashboard: React.FC<DashboardProps> = ({ documents, products, setActiveTab
                     <span className="truncate w-20 sm:w-40">{p.description}</span>
                     <span className={p.stock < p.minStock ? 'text-rose-400' : 'text-indigo-400'}>{p.stock} un.</span>
                   </div>
-                  <div className="h-2 bg-slate-800 dark:bg-slate-700 rounded-full overflow-hidden">
+                  <div className="h-2 bg-slate-200 dark:bg-slate-800 rounded-full overflow-hidden">
                     <div
-                      className={`h-full transition-all duration-1000 ${p.stock < p.minStock ? 'bg-rose-500' : 'bg-indigo-500'}`}
+                      className={`h-full transition-all duration-1000 ${p.stock < p.minStock ? 'bg-rose-500 shadow-[0_0_8px_rgba(244,63,94,0.4)]' : 'bg-indigo-500 shadow-[0_0_8px_rgba(99,102,241,0.4)]'}`}
                       style={{ width: `${Math.min((p.stock / 100) * 100, 100)}%` }}
                     />
                   </div>

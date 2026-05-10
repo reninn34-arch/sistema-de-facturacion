@@ -197,8 +197,8 @@ const Layout: React.FC<LayoutProps> = ({
                 activeTab === item.id
                   ? 'bg-indigo-600 text-white font-bold shadow-lg shadow-indigo-600/20'
                   : item.id === 'logout_btn'
-                    ? 'text-red-500 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-500/10 hover:text-red-600 dark:hover:text-red-300 mt-4'
-                    : 'text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700/50 hover:text-slate-800 dark:hover:text-white'
+                    ? 'text-red-500 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-500/20 hover:text-red-600 dark:hover:text-red-300 mt-4 font-bold'
+                    : 'text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700 hover:text-slate-800 dark:hover:text-white font-semibold'
               }`}
             >
               <span className="flex-shrink-0">{iconMap[item.label] || <CubeIcon className="w-6 h-6" />}</span>
@@ -208,8 +208,8 @@ const Layout: React.FC<LayoutProps> = ({
         </nav>
 
         <div className="p-4 border-t border-slate-200 dark:border-slate-700/50">
-          <div className="flex items-center space-x-3 bg-slate-50 dark:bg-slate-800/60 p-3 rounded-xl border border-slate-200 dark:border-slate-600/30">
-            <div className="w-9 h-9 rounded-lg bg-indigo-100 dark:bg-slate-700 flex items-center justify-center font-bold text-indigo-600 dark:text-white shadow-sm overflow-hidden border border-indigo-200 dark:border-slate-600">
+          <div className="flex items-center space-x-3 bg-slate-100 dark:bg-slate-900/50 p-3 rounded-xl transition-colors">
+            <div className="w-9 h-9 rounded-lg bg-indigo-600 dark:bg-indigo-500 flex items-center justify-center font-bold text-white shadow-sm overflow-hidden">
               {businessInfo.logo ? (
                 <img src={businessInfo.logo} className="w-full h-full object-cover" alt="Logo" />
               ) : (
@@ -244,8 +244,8 @@ const Layout: React.FC<LayoutProps> = ({
                 onClick={() => setShowNotifications(!showNotifications)}
                 className={`relative p-2 rounded-xl transition-all min-w-[44px] min-h-[44px] flex items-center justify-center ${
                   showNotifications
-                    ? 'bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400'
-                    : 'text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700/50'
+                    ? 'bg-indigo-100 dark:bg-indigo-500/20 text-indigo-600 dark:text-indigo-400'
+                    : 'text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700'
                 }`}
               >
                 <BellIcon className="w-5 h-5 sm:w-6 sm:h-6" />
