@@ -179,7 +179,7 @@ const Layout: React.FC<LayoutProps> = ({
 
       {isSidebarOpen && (
         <div
-          className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-40 lg:hidden"
+          className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[990] lg:hidden"
           onClick={() => setIsSidebarOpen(false)}
         />
       )}
@@ -190,7 +190,7 @@ const Layout: React.FC<LayoutProps> = ({
         text-slate-800 dark:text-slate-200
         flex flex-col shadow-xl dark:shadow-2xl dark:shadow-black/30
         border-r border-slate-200 dark:border-slate-700/50
-        z-50 transform transition-all duration-300 ease-in-out
+        z-[1000] transform transition-all duration-300 ease-in-out
         ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
       `}>
         <div className="p-4 sm:p-6 border-b border-slate-200 dark:border-slate-700/50 flex justify-between items-center">

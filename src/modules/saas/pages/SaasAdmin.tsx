@@ -51,7 +51,7 @@ const SaasAdmin: React.FC<SaasAdminProps> = ({ onNotify }) => {
   const [loadingExpiring, setLoadingExpiring] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [processing, setProcessing] = useState(false);
-  const [activeTab, setActiveTab] = useState<'businesses' | 'superadmins' | 'users' | 'subscription-payments' | 'expiring'>('businesses');
+  const [activeTab, setActiveTab] = useState<'businesses' | 'superadmins' | 'users' | 'subscription-payments' | 'config' | 'expiring'>('businesses');
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
 
   // Estados para historial de pagos de suscripciones
@@ -145,6 +145,79 @@ const SaasAdmin: React.FC<SaasAdminProps> = ({ onNotify }) => {
     password: '',
     businessType: 'GENERAL' as string
   });
+
+  // Estado para configuración de pagos
+  const [paymentConfig, setPaymentConfig] = useState({
+    bankName: '',
+    bankAccount: '',
+    bankAccountType: 'Cuenta Corriente',
+    bankHolderName: '',
+    bankHolderRuc: '',
+    paypalEnabled: true,
+    transferEnabled: true,
+    cardEnabled: false
+  });
+  const [savingConfig, setSavingConfig] = useState(false);
+  const [loadingConfig, setLoadingConfig] = useState(true);
+
+  const loadPaymentConfig = async () => {
+    try {
+      const token = localStorage.getItem('adminToken');
+      const response = await fetch(`${API_URL}/api/admin/settings`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      if (response.ok) {
+        const data = await response.json();
+        if (data && data.bankName !== undefined) {
+          setPaymentConfig({
+            bankName: data.bankName || '',
+            bankAccount: data.bankAccount || '',
+            bankAccountType: data.bankAccountType || 'Cuenta Corriente',
+            bankHolderName: data.bankHolderName || '',
+            bankHolderRuc: data.bankHolderRuc || '',
+            paypalEnabled: data.paypalEnabled !== false,
+            transferEnabled: data.transferEnabled !== false,
+            cardEnabled: data.cardEnabled || false
+          });
+        }
+      }
+    } catch (error) {
+      console.error('Error cargando config:', error);
+    } finally {
+      setLoadingConfig(false);
+    }
+  };
+
+  const savePaymentConfig = async () => {
+    setSavingConfig(true);
+    try {
+      const token = localStorage.getItem('adminToken');
+      const response = await fetch(`${API_URL}/api/admin/settings`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify(paymentConfig)
+      });
+      if (response.ok) {
+        onNotify('Configuración de pagos guardada correctamente', 'success');
+      } else {
+        onNotify('Error al guardar configuración', 'error');
+      }
+    } catch (error) {
+      onNotify('Error de conexión', 'error');
+    } finally {
+      setSavingConfig(false);
+    }
+  };
+
+  // Cargar configuración al entrar a la pestaña config
+  useEffect(() => {
+    if (activeTab === 'config') {
+      loadPaymentConfig();
+    }
+  }, [activeTab]);
 
   // Cargar usuarios de la empresa seleccionada
   const loadBusinessUsers = async (businessId: string) => {
@@ -757,6 +830,12 @@ const SaasAdmin: React.FC<SaasAdminProps> = ({ onNotify }) => {
                       </span>
                     )}
                   </button>
+                  <button 
+                    className={`px-3 py-1 text-sm font-medium transition-colors rounded-lg ${activeTab === 'config' ? 'bg-[#135bec]/10 text-[#135bec]' : 'text-[#4c669a] dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'}`}
+                    onClick={() => setActiveTab('config')}
+                  >
+                    Pagos
+                  </button>
                 </div>
               </div>
               <div className="flex items-center gap-2">
@@ -812,6 +891,12 @@ const SaasAdmin: React.FC<SaasAdminProps> = ({ onNotify }) => {
                     {expiringRiskCount}
                   </span>
                 )}
+              </button>
+              <button 
+                className={`px-3 py-1 text-sm font-medium transition-colors rounded-lg whitespace-nowrap ${activeTab === 'config' ? 'bg-[#135bec]/10 text-[#135bec]' : 'text-[#4c669a] dark:text-slate-400'}`}
+                onClick={() => setActiveTab('config')}
+              >
+                Pagos
               </button>
             </div>
           </div>
@@ -2247,6 +2332,73 @@ const SaasAdmin: React.FC<SaasAdminProps> = ({ onNotify }) => {
         </div>
       </div>
         )}
+      
+      {/* Configuración de Pagos */}
+      {activeTab === 'config' && (
+        <div className="max-w-2xl mx-auto">
+          <div className="bg-white dark:bg-slate-900 rounded-xl border border-[#cfd7e7] dark:border-slate-800 overflow-hidden shadow-sm p-6 md:p-8">
+            <h2 className="text-[#0d121b] dark:text-white text-lg font-bold mb-6">Configuración de Métodos de Pago</h2>
+            
+            {loadingConfig ? (
+              <p className="text-slate-400">Cargando...</p>
+            ) : (
+              <div className="space-y-6">
+                {/* Toggles */}
+                <div className="grid grid-cols-3 gap-3 mb-6">
+                  <label className={`flex items-center justify-center gap-2 p-3 rounded-xl border-2 cursor-pointer transition-all ${paymentConfig.paypalEnabled ? 'border-indigo-500 bg-indigo-50 dark:bg-indigo-500/10' : 'border-slate-200 dark:border-slate-700'}`}>
+                    <input type="checkbox" checked={paymentConfig.paypalEnabled} onChange={e => setPaymentConfig({...paymentConfig, paypalEnabled: e.target.checked})} className="sr-only" />
+                    <span className="text-sm font-bold">PayPal</span>
+                  </label>
+                  <label className={`flex items-center justify-center gap-2 p-3 rounded-xl border-2 cursor-pointer transition-all ${paymentConfig.transferEnabled ? 'border-indigo-500 bg-indigo-50 dark:bg-indigo-500/10' : 'border-slate-200 dark:border-slate-700'}`}>
+                    <input type="checkbox" checked={paymentConfig.transferEnabled} onChange={e => setPaymentConfig({...paymentConfig, transferEnabled: e.target.checked})} className="sr-only" />
+                    <span className="text-sm font-bold">Transferencia</span>
+                  </label>
+                  <label className={`flex items-center justify-center gap-2 p-3 rounded-xl border-2 cursor-pointer transition-all ${paymentConfig.cardEnabled ? 'border-indigo-500 bg-indigo-50 dark:bg-indigo-500/10' : 'border-slate-200 dark:border-slate-700'}`}>
+                    <input type="checkbox" checked={paymentConfig.cardEnabled} onChange={e => setPaymentConfig({...paymentConfig, cardEnabled: e.target.checked})} className="sr-only" />
+                    <span className="text-sm font-bold">Tarjeta</span>
+                  </label>
+                </div>
+
+                {/* Datos bancarios */}
+                <div className="border-t border-slate-100 dark:border-slate-700 pt-6">
+                  <h3 className="font-bold text-slate-700 dark:text-slate-300 mb-4 text-sm uppercase tracking-wider">Datos Bancarios para Transferencia</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="text-xs font-bold text-slate-400 uppercase mb-1 block">Banco</label>
+                      <input type="text" value={paymentConfig.bankName} onChange={e => setPaymentConfig({...paymentConfig, bankName: e.target.value})} className="w-full p-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl font-medium text-sm outline-none focus:border-indigo-500" placeholder="Ej: Banco Pichincha" />
+                    </div>
+                    <div>
+                      <label className="text-xs font-bold text-slate-400 uppercase mb-1 block">N° de Cuenta</label>
+                      <input type="text" value={paymentConfig.bankAccount} onChange={e => setPaymentConfig({...paymentConfig, bankAccount: e.target.value})} className="w-full p-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl font-medium text-sm outline-none focus:border-indigo-500" placeholder="Ej: 1234567890" />
+                    </div>
+                    <div>
+                      <label className="text-xs font-bold text-slate-400 uppercase mb-1 block">Tipo de Cuenta</label>
+                      <select value={paymentConfig.bankAccountType} onChange={e => setPaymentConfig({...paymentConfig, bankAccountType: e.target.value})} className="w-full p-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl font-medium text-sm outline-none focus:border-indigo-500">
+                        <option>Cuenta Corriente</option>
+                        <option>Cuenta de Ahorros</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label className="text-xs font-bold text-slate-400 uppercase mb-1 block">Titular</label>
+                      <input type="text" value={paymentConfig.bankHolderName} onChange={e => setPaymentConfig({...paymentConfig, bankHolderName: e.target.value})} className="w-full p-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl font-medium text-sm outline-none focus:border-indigo-500" placeholder="Ej: ECUAFACT S.A." />
+                    </div>
+                    <div className="md:col-span-2">
+                      <label className="text-xs font-bold text-slate-400 uppercase mb-1 block">RUC del Titular</label>
+                      <input type="text" value={paymentConfig.bankHolderRuc} onChange={e => setPaymentConfig({...paymentConfig, bankHolderRuc: e.target.value})} className="w-full p-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl font-medium text-sm outline-none focus:border-indigo-500" placeholder="Ej: 0953443769" />
+                    </div>
+                  </div>
+                </div>
+
+                <div className="border-t border-slate-100 dark:border-slate-700 pt-4">
+                  <button onClick={savePaymentConfig} disabled={savingConfig} className="w-full py-3 bg-indigo-600 text-white font-bold rounded-xl hover:bg-indigo-700 transition-colors disabled:opacity-50">
+                    {savingConfig ? 'Guardando...' : 'Guardar Configuración'}
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
       </div>
     </>
   );

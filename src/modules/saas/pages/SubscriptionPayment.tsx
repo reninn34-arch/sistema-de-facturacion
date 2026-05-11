@@ -2,9 +2,37 @@ import React, { useState, useEffect } from 'react';
 import { EnvelopeIcon } from '@heroicons/react/24/outline';
 import { PayPalScriptProvider, PayPalButtons } from "@paypal/react-paypal-js";
 
+const API_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:3001';
+
 // Configuración de PayPal
 const PAYPAL_CLIENT_ID = import.meta.env.VITE_PAYPAL_CLIENT_ID || 'sb';
 const IS_SANDBOX = import.meta.env.VITE_PAYPAL_SANDBOX === 'true';
+
+// Componente para mostrar datos bancarios desde API
+const BankDetailsDisplay: React.FC = () => {
+  const [bank, setBank] = useState<any>(null);
+  useEffect(() => {
+    fetch(`${API_URL}/api/admin/settings`)
+      .then(r => r.json())
+      .then(d => setBank(d))
+      .catch(() => {});
+  }, []);
+  if (!bank || !bank.bankName) {
+    return <div className="text-xs text-indigo-700 dark:text-indigo-400 space-y-1">
+      <p>Banco Pichincha</p>
+      <p>Cuenta: 1234567890</p>
+    </div>;
+  }
+  return (
+    <div className="text-xs text-indigo-700 dark:text-indigo-400 space-y-1">
+      <p><strong>Banco:</strong> {bank.bankName}</p>
+      <p><strong>Cuenta:</strong> {bank.bankAccount}</p>
+      <p><strong>Tipo:</strong> {bank.bankAccountType}</p>
+      <p><strong>Titular:</strong> {bank.bankHolderName}</p>
+      <p><strong>RUC:</strong> {bank.bankHolderRuc}</p>
+    </div>
+  );
+};
 
 interface BusinessInfo {
   id: string;
@@ -24,8 +52,6 @@ interface PagoInternoProps {
   onNotify?: (text: string, type?: 'success' | 'error' | 'info' | 'warning') => void;
 }
 
-const API_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:3001';
-
 const PagoInterno: React.FC<PagoInternoProps> = ({ businessInfo, isExpired = false, onPaymentComplete, onBack, onNotify }) => {
   // Valor por defecto para onNotify
   const showNotify = onNotify || (() => {});
@@ -44,6 +70,21 @@ const PagoInterno: React.FC<PagoInternoProps> = ({ businessInfo, isExpired = fal
   const [showSuccess, setShowSuccess] = useState(false);
   const [showPendingApproval, setShowPendingApproval] = useState(false);
   const [availablePlans, setAvailablePlans] = useState<any[]>([]);
+  const [paymentSettings, setPaymentSettings] = useState({ paypalEnabled: true, transferEnabled: true, cardEnabled: false });
+
+  // Cargar configuración de métodos de pago
+  useEffect(() => {
+    fetch(`${API_URL}/api/admin/settings`)
+      .then(r => r.json())
+      .then(d => {
+        if (d) setPaymentSettings({
+          paypalEnabled: d.paypalEnabled !== false,
+          transferEnabled: d.transferEnabled !== false,
+          cardEnabled: d.cardEnabled || false
+        });
+      })
+      .catch(() => {});
+  }, []);
 
   // Cargar planes disponibles desde la API
   useEffect(() => {
@@ -396,6 +437,7 @@ const PagoInterno: React.FC<PagoInternoProps> = ({ businessInfo, isExpired = fal
 
               {/* Selector de método */}
               <div className="flex gap-2 mb-6">
+                {paymentSettings.transferEnabled && (
                 <button
                   onClick={() => { setPaymentMethod('TRANSFER'); setPaymentData({...paymentData, cardNumber: '', cardName: '', cardExpiry: '', cardCvv: ''}); }}
                   className={`flex-1 py-2 px-4 rounded-xl text-sm font-bold transition-all ${
@@ -406,6 +448,8 @@ const PagoInterno: React.FC<PagoInternoProps> = ({ businessInfo, isExpired = fal
                 >
                   Transferencia
                 </button>
+                )}
+                {paymentSettings.cardEnabled && (
                 <button
                   onClick={() => { setPaymentMethod('CARD'); setPaymentData({...paymentData, transferReference: ''}); }}
                   className={`flex-1 py-2 px-4 rounded-xl text-sm font-bold transition-all ${
@@ -416,6 +460,8 @@ const PagoInterno: React.FC<PagoInternoProps> = ({ businessInfo, isExpired = fal
                 >
                   Tarjeta
                 </button>
+                )}
+                {paymentSettings.paypalEnabled && (
                 <button
                   onClick={() => { setPaymentMethod('PAYPAL'); setPaymentData({...paymentData, transferReference: ''}); }}
                   className={`flex-1 py-2 px-4 rounded-xl text-sm font-bold transition-all ${
@@ -426,6 +472,7 @@ const PagoInterno: React.FC<PagoInternoProps> = ({ businessInfo, isExpired = fal
                 >
                   PayPal
                 </button>
+                )}
               </div>
 
               {/* Formulario según método */}
@@ -435,12 +482,7 @@ const PagoInterno: React.FC<PagoInternoProps> = ({ businessInfo, isExpired = fal
                     <p className="text-sm font-bold text-indigo-800 dark:text-blue-300 mb-2">
                       Datos para transferencia:
                     </p>
-                    <div className="text-xs text-indigo-700 dark:text-indigo-400 space-y-1">
-                      <p><strong>Banco:</strong> Banco Pichincha</p>
-                      <p><strong>Cuenta:</strong> 1234567890</p>
-                      <p><strong>Tipo:</strong> Cuenta Corriente</p>
-                      <p><strong>RUC:</strong> 1799999999001</p>
-                    </div>
+                    <BankDetailsDisplay />
                   </div>
                   <div>
                     <label className="block text-xs font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider mb-2">

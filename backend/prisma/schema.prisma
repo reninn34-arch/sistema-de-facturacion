@@ -459,3 +459,19 @@ model QuickSale {
   businessId     String
   business       Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
 }
+
+// ---------------------------------------------------------
+// 12. MODELO DE CONFIGURACIÓN GLOBAL (App Settings)
+// ---------------------------------------------------------
+model AppSettings {
+  id           String   @id @default("global")
+  bankName     String   @default("")
+  bankAccount  String   @default("")
+  bankAccountType String @default("Cuenta Corriente")
+  bankHolderName String  @default("")
+  bankHolderRuc String  @default("")
+  paypalEnabled Boolean  @default(true)
+  transferEnabled Boolean @default(true)
+  cardEnabled   Boolean  @default(false)
+  updatedAt    DateTime @updatedAt
+}

@@ -3,6 +3,32 @@ import { PayPalScriptProvider, PayPalButtons } from "@paypal/react-paypal-js";
 import { CheckCircleIcon, LockClosedIcon, ShieldCheckIcon, ArrowLeftIcon, EyeIcon, EyeSlashIcon, CreditCardIcon, BuildingLibraryIcon, SunIcon, MoonIcon } from '@heroicons/react/24/outline';
 import { BUSINESS_TYPES, BusinessType } from '../../../types/types';
 
+const API_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:3001';
+
+const BankDetails: React.FC = () => {
+  const [bank, setBank] = useState<any>(null);
+  useEffect(() => {
+    fetch(`${API_URL}/api/admin/settings`)
+      .then(r => r.json())
+      .then(d => setBank(d))
+      .catch(() => {});
+  }, []);
+  if (!bank || !bank.bankName) {
+    return <div className="text-xs text-slate-600 dark:text-slate-400 space-y-1">
+      <p><strong>Banco:</strong> Banco Pichincha</p>
+      <p><strong>Cuenta:</strong> 1234567890</p>
+    </div>;
+  }
+  return (
+    <div className="text-xs text-slate-600 dark:text-slate-400 space-y-1">
+      <p><strong>Banco:</strong> {bank.bankName}</p>
+      <p><strong>Cuenta:</strong> {bank.bankAccount}</p>
+      <p><strong>Titular:</strong> {bank.bankHolderName}</p>
+      <p><strong>RUC:</strong> {bank.bankHolderRuc}</p>
+    </div>
+  );
+};
+
 // Interface para planes de suscripción
 interface SubscriptionPlan {
   id: string;
@@ -56,6 +82,20 @@ const SubscriptionPage: React.FC = () => {
   const [plans, setPlans] = useState<SubscriptionPlan[]>([]);
   const [loadingPlans, setLoadingPlans] = useState(true);
   const [currentPlanIndex, setCurrentPlanIndex] = useState(0);
+  const [paymentSettings, setPaymentSettings] = useState({ paypalEnabled: true, transferEnabled: true, cardEnabled: false });
+
+  useEffect(() => {
+    fetch(`${API_URL}/api/admin/settings`)
+      .then(r => r.json())
+      .then(d => {
+        if (d) setPaymentSettings({
+          paypalEnabled: d.paypalEnabled !== false,
+          transferEnabled: d.transferEnabled !== false,
+          cardEnabled: d.cardEnabled || false
+        });
+      })
+      .catch(() => {});
+  }, []);
   
   // Estado para modo oscuro - detectar preferencia del sistema
   const [isDarkMode, setIsDarkMode] = useState(() => {
@@ -584,6 +624,7 @@ const SubscriptionPage: React.FC = () => {
                     return (
                       <>
                         <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-3">Método de Pago</h3>
+                    {paymentSettings.paypalEnabled && (
                     <div
                       onClick={() => setPaymentMethod('PAYPAL')}
                       className={`cursor-pointer flex items-center gap-3 p-4 rounded-xl border transition-all ${paymentMethod === 'PAYPAL' ? 'border-[#135bec] bg-[#135bec]/5' : 'border-slate-200 dark:border-slate-800'}`}
@@ -594,6 +635,8 @@ const SubscriptionPage: React.FC = () => {
                         <p className="text-xs text-slate-500">Activación inmediata</p>
                       </div>
                     </div>
+                    )}
+                    {paymentSettings.transferEnabled && (
                     <div
                       onClick={() => setPaymentMethod('TRANSFER')}
                       className={`cursor-pointer flex items-center gap-3 p-4 rounded-xl border transition-all ${paymentMethod === 'TRANSFER' ? 'border-[#135bec] bg-[#135bec]/5' : 'border-slate-200 dark:border-slate-800'}`}
@@ -604,6 +647,7 @@ const SubscriptionPage: React.FC = () => {
                         <p className="text-xs text-slate-500">Aprobación manual (24-48h)</p>
                       </div>
                     </div>
+                    )}
                     </>
                   );
                 })()}
@@ -686,12 +730,7 @@ const SubscriptionPage: React.FC = () => {
                     {/* Datos bancarios */}
                     <div className="bg-indigo-50 dark:bg-indigo-500/10 border border-indigo-200 dark:border-indigo-500/20 rounded-xl p-4 space-y-2">
                       <p className="text-xs font-black text-indigo-700 dark:text-indigo-400 uppercase tracking-widest">Datos para la transferencia</p>
-                      <div className="text-xs text-slate-600 dark:text-slate-400 space-y-1">
-                        <p><strong>Banco:</strong> Banco Pichincha</p>
-                        <p><strong>Cuenta:</strong> 1234567890</p>
-                        <p><strong>Titular:</strong> ECUAFACT S.A.</p>
-                        <p><strong>RUC:</strong> 0953443769</p>
-                      </div>
+                      <BankDetails />
                     </div>
 
                     {/* Número de referencia */}
