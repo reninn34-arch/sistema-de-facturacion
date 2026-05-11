@@ -100,24 +100,37 @@ const adminController = {
 
   // 2. Obtener empresas con suscripciones por vencer
   getExpiringBusinesses: catchAsync(async (req, res) => {
-    const days = parseInt(req.query.days) || 30;
     const today = new Date();
-    const futureDate = new Date();
-    futureDate.setDate(today.getDate() + days);
 
-    const expiringBusinesses = await prisma.business.findMany({
+    // Cargar thresholds dinámicos por plan
+    const allPlans = await prisma.subscriptionPlan.findMany({
+      select: { code: true, durationDays: true }
+    });
+    const thresholdMap = {};
+    allPlans.forEach(p => {
+      const duration = p.durationDays || 30;
+      thresholdMap[p.code] = Math.max(Math.ceil(duration * 0.50), 7);
+    });
+
+    // Traer empresas activas con suscripción vigente (excluir UNLIMITED)
+    const allActiveWithSubscription = await prisma.business.findMany({
       where: {
-        subscriptionEnd: {
-          gte: today,
-          lte: futureDate
-        },
-        isActive: true
+        subscriptionEnd: { gte: today },
+        isActive: true,
+        plan: { not: 'UNLIMITED' }
       },
       select: {
         id: true, name: true, ruc: true, email: true, plan: true,
         subscriptionEnd: true, subscriptionStatus: true
       },
       orderBy: { subscriptionEnd: 'asc' }
+    });
+
+    // Filtrar solo las que están en zona de riesgo según su plan
+    const expiringBusinesses = allActiveWithSubscription.filter(b => {
+      const daysLeft = Math.ceil((new Date(b.subscriptionEnd).getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+      const threshold = thresholdMap[b.plan] || 15;
+      return daysLeft <= threshold;
     });
 
     res.json(expiringBusinesses);
@@ -548,8 +561,6 @@ const adminController = {
   // 12. Estadísticas de suscripciones para el Dashboard del Superadmin
   getSubscriptionStats: catchAsync(async (req, res) => {
     const now = new Date();
-    const thirtyDaysFromNow = new Date();
-    thirtyDaysFromNow.setDate(now.getDate() + 30);
 
     // Total de empresas
     const totalBusinesses = await prisma.business.count();
@@ -566,16 +577,30 @@ const adminController = {
       }
     });
 
-    // Empresas por vencer (próximos 30 días)
-    const expiringBusinesses = await prisma.business.count({
-      where: {
-        subscriptionEnd: {
-          gte: now,
-          lte: thirtyDaysFromNow
-        },
-        isActive: true
-      }
+    // Empresas por vencer (cálculo dinámico según plan: ≤50% de durationDays)
+    const plansForThreshold = await prisma.subscriptionPlan.findMany({
+      select: { code: true, durationDays: true }
     });
+    const planThresholdMap = {};
+    plansForThreshold.forEach(p => {
+      const duration = p.durationDays || 30;
+      planThresholdMap[p.code] = Math.max(Math.ceil(duration * 0.50), 7);
+    });
+
+    const allActiveWithSubscription = await prisma.business.findMany({
+      where: {
+        subscriptionEnd: { gte: now },
+        isActive: true,
+        plan: { not: 'UNLIMITED' }
+      },
+      select: { plan: true, subscriptionEnd: true }
+    });
+
+    const expiringBusinesses = allActiveWithSubscription.filter(b => {
+      const daysLeft = Math.ceil((new Date(b.subscriptionEnd).getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
+      const threshold = planThresholdMap[b.plan] || 15;
+      return daysLeft <= threshold;
+    }).length;
 
     // Distribución por plan
     const planDistribution = await prisma.business.groupBy({

@@ -52,6 +52,7 @@ interface DashboardProps {
   isLoading?: boolean;
   businessInfo?: BusinessInfo;
   planHasAudit?: boolean;
+  planDurationDays?: number;
 }
 
 const planColors: Record<string, string> = {
@@ -67,7 +68,7 @@ const planColors: Record<string, string> = {
   PENDING: 'gray'
 };
 
-const Dashboard: React.FC<DashboardProps> = ({ documents, products, setActiveTab, currentUser, businessInfo, planHasAudit }) => {
+const Dashboard: React.FC<DashboardProps> = ({ documents, products, setActiveTab, currentUser, businessInfo, planHasAudit, planDurationDays = 30 }) => {
   const [auditResult, setAuditResult] = useState<AuditResult | null>(null);
   const [auditLoading, setAuditLoading] = useState(true);
   const [auditError, setAuditError] = useState<string | null>(null);
@@ -88,10 +89,12 @@ const Dashboard: React.FC<DashboardProps> = ({ documents, products, setActiveTab
   const subscriptionStatusColor = React.useMemo(() => {
     if (subscriptionDaysRemaining === null) return 'emerald';
     if (subscriptionDaysRemaining < 0) return 'red';
-    if (subscriptionDaysRemaining < 30) return 'red';
-    if (subscriptionDaysRemaining < 90) return 'amber';
+    const redThreshold = Math.max(Math.ceil(planDurationDays * 0.20), 3);
+    const amberThreshold = Math.max(Math.ceil(planDurationDays * 0.50), 7);
+    if (subscriptionDaysRemaining <= redThreshold) return 'red';
+    if (subscriptionDaysRemaining <= amberThreshold) return 'amber';
     return 'emerald';
-  }, [subscriptionDaysRemaining]);
+  }, [subscriptionDaysRemaining, planDurationDays]);
 
   const getPlanLabel = (plan: string | undefined) => {
     const labels: Record<string, string> = {
@@ -366,7 +369,7 @@ const Dashboard: React.FC<DashboardProps> = ({ documents, products, setActiveTab
                       subscriptionStatusColor === 'emerald' ? 'bg-emerald-500' :
                       subscriptionStatusColor === 'amber' ? 'bg-amber-500' : 'bg-red-500'
                     }`}
-                    style={{ width: subscriptionDaysRemaining === null ? '100%' : `${Math.min(Math.max((subscriptionDaysRemaining / 90) * 100, 0), 100)}%` }}
+                    style={{ width: subscriptionDaysRemaining === null ? '100%' : `${Math.min(Math.max((subscriptionDaysRemaining / planDurationDays) * 100, 0), 100)}%` }}
                   />
                 </div>
                 <div className="text-[10px] text-slate-400 mt-1 text-center">Tiempo restante</div>
@@ -381,7 +384,7 @@ const Dashboard: React.FC<DashboardProps> = ({ documents, products, setActiveTab
                       : 'bg-indigo-600 hover:bg-indigo-500 text-white shadow-indigo-600/30'
                 }`}
               >
-                {subscriptionDaysRemaining !== null && subscriptionDaysRemaining < 30 ? 'Renovar' : 'Gestionar'}
+                {subscriptionDaysRemaining !== null && subscriptionDaysRemaining <= Math.max(Math.ceil(planDurationDays * 0.20), 3) ? 'Renovar' : 'Gestionar'}
               </button>
             </div>
           </div>

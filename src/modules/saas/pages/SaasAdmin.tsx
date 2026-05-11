@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { ShieldCheckIcon, BuildingOffice2Icon, UserPlusIcon, CheckCircleIcon, CheckBadgeIcon, UsersIcon, MagnifyingGlassIcon, EyeIcon, XMarkIcon, Cog6ToothIcon, ArrowPathIcon, PauseIcon, PlayIcon, TrashIcon, UserIcon, PencilIcon, PlusIcon, EyeSlashIcon, UserMinusIcon } from '@heroicons/react/24/outline';
 import { BUSINESS_TYPES, BusinessType } from '../../../types/types';
 
@@ -62,6 +62,27 @@ const SaasAdmin: React.FC<SaasAdminProps> = ({ onNotify }) => {
 
   // Estados para suscripciones del SaaS
   const [saasSubscriptions, setSaasSubscriptions] = useState<SaasSubscription[]>([]);
+
+  // Helper: obtener info de umbrales dinámicos según el plan
+  const getPlanThreshold = (planCode: string | undefined) => {
+    const plan = saasSubscriptions.find(p => p.code === planCode);
+    const durationDays = plan?.durationDays || 30;
+    const redThreshold = Math.max(Math.ceil(durationDays * 0.20), 3);
+    const amberThreshold = Math.max(Math.ceil(durationDays * 0.50), 7);
+    return { durationDays, redThreshold, amberThreshold };
+  };
+
+  // Conteo de empresas realmente en zona de riesgo (filtrado por umbrales dinámicos)
+  const expiringRiskCount = useMemo(() => {
+    return expiringBusinesses.filter((b: any) => {
+      if (b.plan === 'UNLIMITED') return false;
+      const daysLeft = Math.ceil((new Date(b.subscriptionEnd).getTime() - Date.now()) / (1000 * 60 * 60 * 24));
+      if (daysLeft < 0) return true;
+      const { amberThreshold: at } = getPlanThreshold(b.plan);
+      return daysLeft <= at;
+    }).length;
+  }, [expiringBusinesses, saasSubscriptions]);
+
   const [loadingPlans, setLoadingPlans] = useState(true);
   const [showSubscriptionModal, setShowSubscriptionModal] = useState(false);
   const [editingSubscription, setEditingSubscription] = useState<SaasSubscription | null>(null);
@@ -730,9 +751,9 @@ const SaasAdmin: React.FC<SaasAdminProps> = ({ onNotify }) => {
                     onClick={() => setActiveTab('expiring')}
                   >
                     Por Vencer
-                    {expiringBusinesses.length > 0 && (
+                    {expiringRiskCount > 0 && (
                       <span className="bg-red-500 text-white text-[10px] font-black px-1.5 py-0.5 rounded-full min-w-[18px] text-center">
-                        {expiringBusinesses.length}
+                        {expiringRiskCount}
                       </span>
                     )}
                   </button>
@@ -786,9 +807,9 @@ const SaasAdmin: React.FC<SaasAdminProps> = ({ onNotify }) => {
                 onClick={() => setActiveTab('expiring')}
               >
                 Por Vencer
-                {expiringBusinesses.length > 0 && (
+                {expiringRiskCount > 0 && (
                   <span className="bg-red-500 text-white text-[10px] font-black px-1.5 py-0.5 rounded-full">
-                    {expiringBusinesses.length}
+                    {expiringRiskCount}
                   </span>
                 )}
               </button>
@@ -956,7 +977,17 @@ const SaasAdmin: React.FC<SaasAdminProps> = ({ onNotify }) => {
           )}
 
           {/* Por Vencer Section */}
-          {activeTab === 'expiring' && (
+          {activeTab === 'expiring' && (() => {
+            // Filtrar solo empresas que realmente están en zona de advertencia según su plan
+            const filteredExpiring = expiringBusinesses.filter((b: any) => {
+              if (b.plan === 'UNLIMITED') return false;
+              const daysLeft = Math.ceil((new Date(b.subscriptionEnd).getTime() - Date.now()) / (1000 * 60 * 60 * 24));
+              if (daysLeft < 0) return true;
+              const { amberThreshold } = getPlanThreshold(b.plan);
+              return daysLeft <= amberThreshold;
+            });
+
+            return (
             <>
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
                 <div className="flex items-center gap-3">
@@ -987,16 +1018,21 @@ const SaasAdmin: React.FC<SaasAdminProps> = ({ onNotify }) => {
                     <tbody className="divide-y divide-[#cfd7e7] dark:divide-slate-800">
                       {loadingExpiring ? (
                         <tr><td colSpan={6} className="p-8 text-center text-slate-400">Cargando...</td></tr>
-                      ) : expiringBusinesses.length === 0 ? (
+                      ) : filteredExpiring.length === 0 ? (
                         <tr><td colSpan={6} className="p-8 text-center">
-                          <p className="text-slate-400 font-bold">Sin empresas por vencer</p>
-                          <p className="text-xs text-slate-300 mt-1">Todas las suscripciones están al día</p>
+                          <p className="text-slate-400 font-bold">
+                            {expiringBusinesses.length === 0 ? 'Sin empresas por vencer' : 'Ninguna en zona de riesgo'}
+                          </p>
+                          <p className="text-xs text-slate-300 mt-1">
+                            {expiringBusinesses.length === 0 ? 'Todas las suscripciones están al día' : `${expiringBusinesses.length} empresa(s) tienen más del 50% de su plan restante`}
+                          </p>
                         </td></tr>
                       ) : (
-                        expiringBusinesses.map((b: any) => {
+                        filteredExpiring.map((b: any) => {
                           const daysLeft = Math.ceil((new Date(b.subscriptionEnd).getTime() - Date.now()) / (1000 * 60 * 60 * 24));
+                          const { redThreshold } = getPlanThreshold(b.plan);
                           const isExpired = daysLeft < 0;
-                          const isUrgent = daysLeft >= 0 && daysLeft <= 7;
+                          const isUrgent = daysLeft >= 0 && daysLeft <= redThreshold;
                           const daysBg = isExpired ? 'bg-red-100 text-red-700' : isUrgent ? 'bg-amber-100 text-amber-700' : 'bg-yellow-100 text-yellow-700';
                           const dateColor = isExpired ? 'text-red-600 font-bold' : isUrgent ? 'text-amber-600 font-bold' : '';
                           return (
@@ -1047,13 +1083,16 @@ const SaasAdmin: React.FC<SaasAdminProps> = ({ onNotify }) => {
                 <div className="md:hidden divide-y divide-[#cfd7e7] dark:divide-slate-800">
                   {loadingExpiring ? (
                     <div className="p-6 text-center text-slate-400">Cargando...</div>
-                  ) : expiringBusinesses.length === 0 ? (
-                    <div className="p-6 text-center text-slate-400">Sin empresas por vencer</div>
+                  ) : filteredExpiring.length === 0 ? (
+                    <div className="p-6 text-center text-slate-400">
+                      {expiringBusinesses.length === 0 ? 'Sin empresas por vencer' : `${expiringBusinesses.length} empresa(s) fuera de zona de riesgo`}
+                    </div>
                   ) : (
-                    expiringBusinesses.map((b: any) => {
+                    filteredExpiring.map((b: any) => {
                       const daysLeft = Math.ceil((new Date(b.subscriptionEnd).getTime() - Date.now()) / (1000 * 60 * 60 * 24));
+                      const { redThreshold } = getPlanThreshold(b.plan);
                       const isExpired = daysLeft < 0;
-                      const isUrgent = daysLeft >= 0 && daysLeft <= 7;
+                      const isUrgent = daysLeft >= 0 && daysLeft <= redThreshold;
                       return (
                         <div key={b.id} className={`p-3 flex flex-col gap-2 ${isExpired ? 'bg-red-50/30' : isUrgent ? 'bg-amber-50/30' : ''}`}>
                           <div className="flex justify-between items-start">
@@ -1078,7 +1117,8 @@ const SaasAdmin: React.FC<SaasAdminProps> = ({ onNotify }) => {
                 </div>
               </div>
             </>
-          )}
+            );
+          })()}
 
           {/* Superadmins Section */}
           {activeTab === 'superadmins' && (

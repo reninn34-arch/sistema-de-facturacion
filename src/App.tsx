@@ -141,6 +141,7 @@ const App: React.FC = () => {
   // Estado para features del plan actual (hasAIAssistant, maxInvoices, etc.)
   const [currentPlanHasAI, setCurrentPlanHasAI] = useState(false);
   const [currentPlanHasAudit, setCurrentPlanHasAudit] = useState(false);
+  const [currentPlanDurationDays, setCurrentPlanDurationDays] = useState(30);
   const [currentPlanMaxInvoices, setCurrentPlanMaxInvoices] = useState(999999);
 
   const showNotify = useCallback((text: string, type: AppNotification['type'] = 'success') => {
@@ -202,6 +203,7 @@ const App: React.FC = () => {
           if (currentPlan) {
             setCurrentPlanHasAI(!!currentPlan.hasAIAssistant);
             setCurrentPlanHasAudit(!!currentPlan.hasAudit);
+            setCurrentPlanDurationDays(currentPlan.durationDays ?? 30);
             setCurrentPlanMaxInvoices(currentPlan.maxInvoicesPerMonth ?? 999999);
           }
         }
@@ -839,7 +841,7 @@ const App: React.FC = () => {
           <div className="space-y-6">
             {/* Mostrar resumen de ventas solo a administradores de empresa */}
             {currentUser?.role === 'ADMIN' && <SalesSummary documents={documents} />}
-            <Dashboard documents={documents} products={products} setActiveTab={setActiveTab} currentUser={currentUser} businessInfo={businessInfo} planHasAudit={currentPlanHasAudit || currentUser?.role === 'SUPERADMIN'} />
+            <Dashboard documents={documents} products={products} setActiveTab={setActiveTab} currentUser={currentUser} businessInfo={businessInfo} planHasAudit={currentPlanHasAudit || currentUser?.role === 'SUPERADMIN'} planDurationDays={currentPlanDurationDays} />
           </div>
         );
 
