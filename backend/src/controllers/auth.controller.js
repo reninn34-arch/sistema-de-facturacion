@@ -77,7 +77,8 @@ const authController = {
     // Agregar flag isDemo desde el negocio
     const userWithDemoFlag = {
       ...userWithoutPass,
-      isDemo: user.business?.isDemo || false
+      isDemo: user.business?.isDemo || false,
+      businessType: user.business?.businessType || 'GENERAL'
     };
 
     // Verificar si la suscripci�n est� vencida o pendiente
@@ -117,7 +118,8 @@ const authController = {
     // Agregar flag isDemo desde el negocio
     const userWithDemoFlag = {
       ...userWithoutPass,
-      isDemo: user.business?.isDemo || false
+      isDemo: user.business?.isDemo || false,
+      businessType: user.business?.businessType || 'GENERAL'
     };
 
     res.json({
@@ -128,7 +130,7 @@ const authController = {
 
   // Registro de nuevos usuarios (Suscripci�n P�blica)
   register: catchAsync(async (req, res) => {
-    const { email, password, name, ruc, plan, businessName, phone, address, paymentMethod, paymentId } = req.body;
+    const { email, password, name, ruc, plan, businessName, phone, address, paymentMethod, paymentId, businessType } = req.body;
 
     // Validaci�n de RUC (Requerido por TC-BB-008)
     if (ruc && ruc.length !== 13) {
@@ -143,12 +145,17 @@ const authController = {
     const existing = await prisma.user.findUnique({ where: { email } });
     if (existing) throw new AppError('El usuario ya existe', 400);
 
-    // Validar plan
-    const validPlans = ['MONTHLY', 'SEMIANNUAL', 'YEARLY', 'UNLIMITED'];
-    const selectedPlan = plan && validPlans.includes(plan) ? plan : 'MONTHLY';
+    // Validar plan desde la base de datos
+    const planRecord = await prisma.subscriptionPlan.findUnique({ where: { code: plan } });
+    if (!planRecord || !planRecord.isActive) {
+      throw new AppError('Plan no v�lido o no disponible', 400);
+    }
+    const selectedPlan = planRecord.code;
+    const isFreePlan = planRecord.price === 0;
+    const planPrice = planRecord.priceWithTax || planRecord.price || 0;
 
-    // Si el m�todo de pago es PayPal, validar el pago
-    if (paymentMethod === 'PAYPAL' && paymentId) {
+    // Si el m�todo de pago es PayPal, validar el pago (solo para planes de pago)
+    if (!isFreePlan && paymentMethod === 'PAYPAL' && paymentId) {
       // Verificar si PayPal est� configurado
       const paypalConfigured = process.env.PAYPAL_CLIENT_ID && process.env.PAYPAL_CLIENT_SECRET;
       
@@ -165,33 +172,8 @@ const authController = {
         // Validar que el monto coincida con el plan
         console.log('[DEBUG register] validateAmount - validation.amount:', validation.amount, 'selectedPlan:', selectedPlan);
         
-        // Obtener precios del plan desde la base de datos
-        let planPrices = null;
-        
-        // Mapear códigos del frontend a códigos de la base de datos
-        const planCodeMapping = {
-          'MONTHLY': 'BASIC',
-          'SEMIANNUAL': 'PRO',
-          'YEARLY': 'ENTERPRISE',
-          'UNLIMITED': 'UNLIMITED'
-        };
-        const dbPlanCode = planCodeMapping[selectedPlan] || selectedPlan;
-        console.log('[DEBUG register] Mapping plan code:', selectedPlan, '->', dbPlanCode);
-        
-        try {
-          const subscriptionPlan = await prisma.subscriptionPlan.findUnique({
-            where: { code: dbPlanCode }
-          });
-          if (subscriptionPlan) {
-            planPrices = {
-              price: subscriptionPlan.price,
-              priceWithTax: subscriptionPlan.priceWithTax
-            };
-            console.log('[DEBUG register] Found plan prices in DB:', planPrices);
-          }
-        } catch (dbError) {
-          console.warn('[DEBUG register] Could not fetch plan prices from DB:', dbError.message);
-        }
+        const planPrices = { price: planRecord.price, priceWithTax: planRecord.priceWithTax };
+        console.log('[DEBUG register] Plan prices from DB:', planPrices);
         
         try {
           validateAmount(validation.amount, selectedPlan, planPrices);
@@ -205,44 +187,29 @@ const authController = {
           captureId: validation.captureId
         });
       }
-    } else if (paymentMethod === 'PAYPAL' && !paymentId) {
+    } else if (!isFreePlan && paymentMethod === 'PAYPAL' && !paymentId) {
       // Si es PayPal pero no hay paymentId, es un error
       throw new AppError('Se requiere ID de pago de PayPal', 400);
     }
 
-    // Funci�n helper para obtener el precio del plan (sin IVA)
-    const getPlanPrice = (planCode) => {
-      const prices = {
-        'MONTHLY': 29.99,
-        'SEMIANNUAL': 149.99,
-        'YEARLY': 249.99,
-        'UNLIMITED': 9999.99
-      };
-      return prices[planCode] || 29.99;
-    };
-
-    // Calcular fecha de vencimiento seg�n el plan
-    let subscriptionEnd = new Date();
-    if (selectedPlan === 'MONTHLY') {
-      subscriptionEnd.setMonth(subscriptionEnd.getMonth() + 1);
-    } else if (selectedPlan === 'SEMIANNUAL') {
-      subscriptionEnd.setMonth(subscriptionEnd.getMonth() + 6);
-    } else if (selectedPlan === 'YEARLY') {
-      subscriptionEnd.setFullYear(subscriptionEnd.getFullYear() + 1);
-    } else if (selectedPlan === 'UNLIMITED') {
-      // Plan indefinido: 100 a�os
-      subscriptionEnd.setFullYear(subscriptionEnd.getFullYear() + 100);
-    }
+    // Calcular fecha de vencimiento usando la duraci�n del plan desde la BD
+    const subscriptionEnd = new Date();
+    subscriptionEnd.setDate(subscriptionEnd.getDate() + (planRecord.durationDays || 30));
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
     // Determinar el estado inicial seg�n el m�todo de pago
-    // Si es transferencia, la empresa queda pendiente hasta que el superadmin apruebe el pago
-    const isPaymentConfirmed = paymentMethod === 'PAYPAL' || paymentMethod === 'CARD';
+    // Plan gratuito: activaci�n inmediata
+    // PayPal/Tarjeta: activaci�n inmediata
+    // Transferencia: pendiente hasta aprobaci�n del superadmin
+    const isPaymentConfirmed = isFreePlan || paymentMethod === 'PAYPAL' || paymentMethod === 'CARD' || paymentMethod === 'FREE';
     const initialStatus = isPaymentConfirmed ? 'ACTIVE' : 'PENDING';
     const initialIsActive = isPaymentConfirmed;
 
     const result = await prisma.$transaction(async (tx) => {
+      const validBusinessTypes = ['GENERAL', 'BAKERY', 'RESTAURANT', 'STORE', 'SERVICE'];
+      const selectedBusinessType = businessType && validBusinessTypes.includes(businessType) ? businessType : 'GENERAL';
+
       const business = await tx.business.create({
         data: {
           name: businessName || name || 'Mi Empresa',
@@ -254,7 +221,8 @@ const authController = {
           isActive: initialIsActive,
           subscriptionStart: isPaymentConfirmed ? new Date() : null,
           subscriptionEnd: isPaymentConfirmed ? subscriptionEnd : null,
-          subscriptionStatus: initialStatus
+          subscriptionStatus: initialStatus,
+          businessType: selectedBusinessType
         }
       });
 
@@ -269,20 +237,22 @@ const authController = {
 
       // Si es transferencia, crear autom�ticamente una solicitud de activaci�n
       // para que el superadmin pueda aprobarla despu�s
-      if (paymentMethod === 'TRANSFER') {
-        await tx.activationRequest.create({
+      let activationRequestId = null;
+      if (!isFreePlan && paymentMethod === 'TRANSFER') {
+        const activationReq = await tx.activationRequest.create({
           data: {
             businessId: business.id,
             plan: selectedPlan,
-            amount: getPlanPrice(selectedPlan),
+            amount: planPrice,
             paymentMethod: 'TRANSFER',
             status: 'PENDING',
             referenceNumber: null
           }
         });
+        activationRequestId = activationReq.id;
       }
 
-      return { business, user };
+      return { business, user, activationRequestId };
     });
 
     // Generar token autom�ticamente
@@ -300,16 +270,19 @@ const authController = {
     const { password: _, ...userWithoutPass } = result.user;
 
     // Mensaje diferente seg�n el m�todo de pago
-    const message = paymentMethod === 'TRANSFER' 
-      ? 'Registro exitoso. Su cuenta est� pendiente de aprobaci�n. Recibir� una notificaci�n cuando el administrador verifique su pago.'
-      : 'Registro exitoso';
+    const message = isFreePlan
+      ? 'Registro exitoso. Su cuenta gratuita est� activa.'
+      : paymentMethod === 'TRANSFER' 
+        ? 'Registro exitoso. Su cuenta est� pendiente de aprobaci�n. Recibir� una notificaci�n cuando el administrador verifique su pago.'
+        : 'Registro exitoso';
 
     res.json({ 
       success: true, 
       token,
       user: { ...userWithoutPass, business: result.business },
       message,
-      pendingApproval: paymentMethod === 'TRANSFER'
+      pendingApproval: !isFreePlan && paymentMethod === 'TRANSFER',
+      activationRequestId: result.activationRequestId || null
     });
   }),
 

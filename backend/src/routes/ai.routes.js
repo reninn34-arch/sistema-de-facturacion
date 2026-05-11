@@ -10,5 +10,6 @@ const aiController = require('../controllers/ai.controller');
 
 router.post('/api/ai/chat', verifyToken, aiController.chat);
 router.post('/api/ai/insights', verifyToken, aiController.insights);
+router.get('/api/ai/audit', verifyToken, aiController.audit);
 
 module.exports = router;

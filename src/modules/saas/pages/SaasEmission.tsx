@@ -123,7 +123,7 @@ export default function SaasEmission({ businesses, subscriptions, onNotify }: Sa
   // Datos de ejemplo para facturas (fallback)
   const getDefaultInvoices = (): SaaSInvoice[] => [
     { id: '1', numero: '001-001-0000001', fecha: '25/02/2026', cliente: 'Empresa Demo S.A.', total: 29.99, estado: 'AUTORIZADA' },
-    { id: '2', numero: '001-001-0000000', fecha: '24/02/2026', cliente: 'Tech Solutions Ltda.', total: 99.99, estado: 'AUTORIZADA' }
+    { id: '2', numero: '001-001-0000000', fecha: '24/02/2026', cliente: 'Tech Solutions Ltda.', total: 149.99, estado: 'AUTORIZADA' }
   ];
 
   // Cargar planes desde el API
@@ -160,12 +160,13 @@ export default function SaasEmission({ businesses, subscriptions, onNotify }: Sa
 
   // Planes por defecto si no hay suscripciones
   const getDefaultSubscriptions = (): SaasSubscription[] => [
-    { id: '1', code: 'FREE', name: 'Plan Free', description: 'Plan gratuito para pruebas', price: 0, period: 'mensual', durationDays: 30, features: ['1 empresa', '10 facturas/mes'], isActive: true },
-    { id: '2', code: 'BASIC', name: 'Plan Basic', description: 'Plan básico para pequeñas empresas', price: 29.99, period: 'mensual', durationDays: 30, features: ['3 empresas', '100 facturas/mes'], isActive: true },
-    { id: '3', code: 'PRO', name: 'Plan Pro', description: 'Plan profesional', price: 59.99, period: 'mensual', durationDays: 30, features: ['10 empresas', 'facturas ilimitadas'], isActive: true },
-    { id: '4', code: 'ENTERPRISE', name: 'Plan Enterprise', description: 'Plan empresarial', price: 99.99, period: 'mensual', durationDays: 30, features: ['50 empresas', 'soporte prioritario'], isActive: true },
-    { id: '5', code: 'UNLIMITED', name: 'Plan Ilimitado', description: 'Plan ilimitado para superadmins', price: 199.99, period: 'mensual', durationDays: 30, features: ['empresas ilimitadas', 'facturas ilimitadas', 'soporte 24/7', 'todas las funcionalidades'], isActive: true },
-    { id: '6', code: 'PENDING', name: 'Pendiente', description: 'Suscripción pendiente de pago', price: 0, period: 'mensual', durationDays: 0, features: ['Sin acceso'], isActive: true }
+    { id: '1', code: 'FREE', name: 'Plan Gratuito', description: 'Plan gratuito para pruebas', price: 0, period: 'mensual', durationDays: 30, features: ['1 empresa', '10 facturas/mes'], isActive: true },
+    { id: '2', code: 'BASIC', name: 'Plan Básico', description: 'Plan básico para pequeñas empresas', price: 29.99, period: 'mensual', durationDays: 30, features: ['1 empresa', '100 facturas/mes'], isActive: true },
+    { id: '3', code: 'GASTRONOMICO', name: 'Plan Gastronómico', description: 'Para restaurantes, panaderías y cafeterías', price: 79.99, period: 'mensual', durationDays: 30, features: ['1 empresa', '300 facturas/mes', 'Caja POS', 'Recetas', 'Asistente IA'], isActive: true },
+    { id: '4', code: 'PRO', name: 'Plan Profesional', description: 'Plan profesional', price: 149.99, period: 'mensual', durationDays: 30, features: ['3 empresas', '500 facturas/mes', 'Asistente IA'], isActive: true },
+    { id: '5', code: 'ENTERPRISE', name: 'Plan Empresarial', description: 'Plan empresarial', price: 249.99, period: 'mensual', durationDays: 30, features: ['10 empresas', '2000 facturas/mes', 'API Access', 'Soporte 24/7'], isActive: true },
+    { id: '6', code: 'UNLIMITED', name: 'Plan Ilimitado', description: 'Plan ilimitado para superadmins', price: 0, period: 'indefinido', durationDays: 36500, features: ['Empresas ilimitadas', 'Facturas ilimitadas', 'Todas las funcionalidades'], isActive: true },
+    { id: '7', code: 'PENDING', name: 'Pendiente', description: 'Suscripción pendiente de pago', price: 0, period: 'mensual', durationDays: 0, features: ['Sin acceso'], isActive: true }
   ];
 
   // Determinar las suscripciones activas

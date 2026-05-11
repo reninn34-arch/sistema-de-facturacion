@@ -15,6 +15,7 @@ interface SubscriptionPlan {
   maxInvoicesPerMonth: number;
   hasAIAssistant: boolean;
   hasPrioritySupport: boolean;
+  hasAudit: boolean;
   isActive: boolean;
   createdAt?: string;
   updatedAt?: string;
@@ -29,8 +30,8 @@ const defaultPlans: SubscriptionPlan[] = [
   {
     id: '1',
     code: 'FREE',
-    name: 'Plan Free',
-    description: 'Plan gratuito para pruebas y usuarios nuevos',
+    name: 'Plan Gratuito',
+    description: 'Plan gratuito para pruebas y micro-emprendedores',
     price: 0,
     period: 'mensual',
     durationDays: 30,
@@ -39,36 +40,71 @@ const defaultPlans: SubscriptionPlan[] = [
     maxInvoicesPerMonth: 10,
     hasAIAssistant: false,
     hasPrioritySupport: false,
+    hasAudit: false,
     isActive: true
   },
   {
     id: '2',
-    code: 'PRO',
-    name: 'Plan Pro',
-    description: 'Plan profesional para negocios en crecimiento',
+    code: 'BASIC',
+    name: 'Plan Básico',
+    description: 'Plan básico para pequeñas empresas',
     price: 29.99,
     period: 'mensual',
     durationDays: 30,
-    features: ['5 empresas', 'Facturas ilimitadas', 'Asistente IA', 'Soporte prioritario'],
-    maxBusinesses: 5,
-    maxInvoicesPerMonth: -1,
-    hasAIAssistant: true,
-    hasPrioritySupport: true,
+    features: ['1 empresa', '100 facturas/mes', 'Reportes básicos', 'Soporte por email'],
+    maxBusinesses: 1,
+    maxInvoicesPerMonth: 100,
+    hasAIAssistant: false,
+    hasPrioritySupport: false,
+    hasAudit: false,
     isActive: true
   },
   {
     id: '3',
-    code: 'ENTERPRISE',
-    name: 'Plan Enterprise',
-    description: 'Plan empresarial para grandes organizaciones',
-    price: 99.99,
+    code: 'GASTRONOMICO',
+    name: 'Plan Gastronómico',
+    description: 'Para restaurantes, panaderías, cafeterías y negocios de comida',
+    price: 79.99,
     period: 'mensual',
     durationDays: 30,
-    features: ['Empresas ilimitadas', 'Facturas ilimitadas', 'Asistente IA', 'Soporte 24/7', 'API Access'],
-    maxBusinesses: -1,
-    maxInvoicesPerMonth: -1,
+    features: ['1 empresa', '300 facturas/mes', 'Caja POS', 'Recetas y Producción', 'Asistente IA', 'Soporte prioritario'],
+    maxBusinesses: 1,
+    maxInvoicesPerMonth: 300,
     hasAIAssistant: true,
     hasPrioritySupport: true,
+    hasAudit: true,
+    isActive: true
+  },
+  {
+    id: '4',
+    code: 'PRO',
+    name: 'Plan Profesional',
+    description: 'Plan profesional para negocios en crecimiento',
+    price: 149.99,
+    period: 'mensual',
+    durationDays: 30,
+    features: ['3 empresas', '500 facturas/mes', 'Asistente IA', 'Soporte prioritario'],
+    maxBusinesses: 3,
+    maxInvoicesPerMonth: 500,
+    hasAIAssistant: true,
+    hasPrioritySupport: true,
+    hasAudit: true,
+    isActive: true
+  },
+  {
+    id: '5',
+    code: 'ENTERPRISE',
+    name: 'Plan Empresarial',
+    description: 'Plan empresarial para grandes organizaciones',
+    price: 249.99,
+    period: 'mensual',
+    durationDays: 30,
+    features: ['10 empresas', '2000 facturas/mes', 'API Access', 'Multi-usuarios', 'Soporte 24/7'],
+    maxBusinesses: 10,
+    maxInvoicesPerMonth: 2000,
+    hasAIAssistant: true,
+    hasPrioritySupport: true,
+    hasAudit: true,
     isActive: true
   }
 ];
@@ -87,6 +123,7 @@ const SubscriptionPlansManager: React.FC<SubscriptionPlansManagerProps> = ({ onN
     maxInvoicesPerMonth: 10,
     hasAIAssistant: false,
     hasPrioritySupport: false,
+    hasAudit: false,
     isActive: true,
     price: 0
   });
@@ -142,6 +179,7 @@ const SubscriptionPlansManager: React.FC<SubscriptionPlansManagerProps> = ({ onN
         maxInvoicesPerMonth: 10,
         hasAIAssistant: false,
         hasPrioritySupport: false,
+        hasAudit: false,
         isActive: true
       });
       setFeaturesText('');
@@ -176,6 +214,7 @@ const SubscriptionPlansManager: React.FC<SubscriptionPlansManagerProps> = ({ onN
       maxInvoicesPerMonth: Number(formData.maxInvoicesPerMonth) || 10,
       hasAIAssistant: formData.hasAIAssistant || false,
       hasPrioritySupport: formData.hasPrioritySupport || false,
+      hasAudit: formData.hasAudit || false,
       isActive: formData.isActive !== false
     };
 
@@ -382,6 +421,11 @@ const SubscriptionPlansManager: React.FC<SubscriptionPlansManagerProps> = ({ onN
                         <StarIcon className="w-3 h-3 inline" /> Prioritario
                       </span>
                     )}
+                    {plan.hasAudit && (
+                      <span className="px-2 py-1 bg-emerald-100 dark:bg-emerald-900/50 text-emerald-600 dark:text-emerald-400 text-xs font-bold rounded-full">
+                        <MegaphoneIcon className="w-3 h-3 inline" /> Auditoría
+                      </span>
+                    )}
                   </div>
 
                   {/* Acciones */}
@@ -548,6 +592,16 @@ const SubscriptionPlansManager: React.FC<SubscriptionPlansManagerProps> = ({ onN
                     />
                     <span className="font-medium text-slate-700 dark:text-slate-300">Asistente IA</span>
                     <CpuChipIcon className="w-4 h-4 text-xs text-slate-400 ml-1 inline" />
+                  </label>
+                  <label className="flex items-center gap-2 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={formData.hasAudit || false}
+                      onChange={e => setFormData({ ...formData, hasAudit: e.target.checked })}
+                      className="w-5 h-5 text-indigo-600 rounded focus:ring-blue-500"
+                    />
+                    <span className="font-medium text-slate-700 dark:text-slate-300">Auditoría en Tiempo Real</span>
+                    <MegaphoneIcon className="w-4 h-4 text-xs text-slate-400 ml-1 inline" />
                   </label>
                   <label className="flex items-center gap-2 cursor-pointer">
                     <input

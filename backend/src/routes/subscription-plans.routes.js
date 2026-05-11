@@ -11,8 +11,8 @@ const prisma = require('../../prisma/client');
 const defaultPlans = [
   {
     code: 'FREE',
-    name: 'Plan Free',
-    description: 'Plan gratuito para pruebas y usuarios nuevos',
+    name: 'Plan Gratuito',
+    description: 'Plan gratuito para pruebas y micro-emprendedores',
     price: 0,
     priceWithTax: 0,
     period: 'mensual',
@@ -22,72 +22,94 @@ const defaultPlans = [
     maxInvoicesPerMonth: 10,
     hasAIAssistant: false,
     hasPrioritySupport: false,
+    hasAudit: false,
     isActive: true,
     displayOrder: 1
   },
   {
     code: 'BASIC',
-    name: 'Plan Basic',
+    name: 'Plan Básico',
     description: 'Plan básico para pequeñas empresas',
     price: 29.99,
-    priceWithTax: 29.99,
+    priceWithTax: 34.49,
     period: 'mensual',
     durationDays: 30,
-    features: ['3 empresas', '100 facturas/mes', 'Soporte por email'],
-    maxBusinesses: 3,
+    features: ['1 empresa', '100 facturas/mes', 'Reportes básicos', 'Soporte por email'],
+    maxBusinesses: 1,
     maxInvoicesPerMonth: 100,
     hasAIAssistant: false,
     hasPrioritySupport: false,
+    hasAudit: false,
     isActive: true,
     displayOrder: 2
   },
   {
-    code: 'PRO',
-    name: 'Plan Pro',
-    description: 'Plan profesional para negocios en crecimiento',
-    price: 59.99,
-    priceWithTax: 59.99,
+    code: 'GASTRONOMICO',
+    name: 'Plan Gastronómico',
+    description: 'Para restaurantes, panaderías, cafeterías y negocios de comida',
+    price: 79.99,
+    priceWithTax: 91.99,
     period: 'mensual',
     durationDays: 30,
-    features: ['10 empresas', 'Facturas ilimitadas', 'Asistente IA', 'Soporte prioritario'],
-    maxBusinesses: 10,
-    maxInvoicesPerMonth: -1,
+    features: ['1 empresa', '300 facturas/mes', 'Caja POS', 'Recetas y Producción', 'Asistente IA', 'Reportes avanzados', 'Soporte prioritario'],
+    maxBusinesses: 1,
+    maxInvoicesPerMonth: 300,
     hasAIAssistant: true,
     hasPrioritySupport: true,
+    hasAudit: true,
     isActive: true,
     displayOrder: 3
   },
   {
-    code: 'ENTERPRISE',
-    name: 'Plan Enterprise',
-    description: 'Plan empresarial para grandes organizaciones',
-    price: 99.99,
-    priceWithTax: 99.99,
+    code: 'PRO',
+    name: 'Plan Profesional',
+    description: 'Plan profesional para negocios en crecimiento',
+    price: 149.99,
+    priceWithTax: 172.49,
     period: 'mensual',
     durationDays: 30,
-    features: ['50 empresas', 'Facturas ilimitadas', 'Asistente IA', 'Soporte 24/7', 'API Access'],
-    maxBusinesses: 50,
-    maxInvoicesPerMonth: -1,
+    features: ['3 empresas', '500 facturas/mes', 'Clientes ilimitados', 'Asistente IA', 'Reportes avanzados', 'Soporte prioritario'],
+    maxBusinesses: 3,
+    maxInvoicesPerMonth: 500,
     hasAIAssistant: true,
     hasPrioritySupport: true,
+    hasAudit: true,
     isActive: true,
     displayOrder: 4
+  },
+  {
+    code: 'ENTERPRISE',
+    name: 'Plan Empresarial',
+    description: 'Plan empresarial para grandes organizaciones',
+    price: 249.99,
+    priceWithTax: 287.49,
+    period: 'mensual',
+    durationDays: 30,
+    features: ['10 empresas', '2000 facturas/mes', 'Clientes ilimitados', 'Asistente IA', 'Reportes avanzados', 'Soporte 24/7', 'API Access', 'Multi-usuarios'],
+    maxBusinesses: 10,
+    maxInvoicesPerMonth: 2000,
+    hasAIAssistant: true,
+    hasPrioritySupport: true,
+    hasAudit: true,
+    isActive: true,
+    displayOrder: 5
   },
   {
     code: 'UNLIMITED',
     name: 'Plan Ilimitado',
     description: 'Plan ilimitado para superadmins y distribuidores',
-    price: 199.99,
-    priceWithTax: 199.99,
-    period: 'mensual',
-    durationDays: 30,
+    price: 0,
+    priceWithTax: 0,
+    period: 'indefinido',
+    durationDays: 36500,
     features: ['Empresas ilimitadas', 'Facturas ilimitadas', 'Asistente IA', 'Soporte 24/7', 'API Access', 'Gestión de resellers'],
-    maxBusinesses: -1,
-    maxInvoicesPerMonth: -1,
+    maxBusinesses: 999,
+    maxInvoicesPerMonth: 999999,
     hasAIAssistant: true,
     hasPrioritySupport: true,
+    hasAudit: true,
     isActive: true,
-    displayOrder: 5
+    displayOrder: 6
   },
   {
     code: 'PENDING',
@@ -102,6 +124,7 @@ const defaultPlans = [
     maxInvoicesPerMonth: 0,
     hasAIAssistant: false,
     hasPrioritySupport: false,
+    hasAudit: false,
     isActive: true,
     displayOrder: 0
   }
@@ -172,7 +195,7 @@ router.get('/:id', jwtMiddleware, roleMiddleware(['SUPERADMIN']), async (req, re
 // POST / - Crear un nuevo plan
 router.post('/', jwtMiddleware, roleMiddleware(['SUPERADMIN']), async (req, res) => {
   try {
-    const { code, name, description, price, priceWithTax, period, durationDays, features, maxBusinesses, maxInvoicesPerMonth, hasAIAssistant, hasPrioritySupport, isActive, displayOrder } = req.body;
+    const { code, name, description, price, priceWithTax, period, durationDays, features, maxBusinesses, maxInvoicesPerMonth, hasAIAssistant, hasPrioritySupport, hasAudit, isActive, displayOrder } = req.body;
 
     if (!code || !name) {
       return res.status(400).json({ error: 'Código y nombre son obligatorios' });
@@ -203,6 +226,7 @@ router.post('/', jwtMiddleware, roleMiddleware(['SUPERADMIN']), async (req, res)
         maxInvoicesPerMonth: parseInt(maxInvoicesPerMonth) || 10,
         hasAIAssistant: hasAIAssistant || false,
         hasPrioritySupport: hasPrioritySupport || false,
+        hasAudit: hasAudit || false,
         isActive: isActive !== false,
         displayOrder: parseInt(displayOrder) || 0
       }
@@ -218,7 +242,7 @@ router.post('/', jwtMiddleware, roleMiddleware(['SUPERADMIN']), async (req, res)
 // PUT /:id - Actualizar un plan
 router.put('/:id', jwtMiddleware, roleMiddleware(['SUPERADMIN']), async (req, res) => {
   try {
-    const { code, name, description, price, priceWithTax, period, durationDays, features, maxBusinesses, maxInvoicesPerMonth, hasAIAssistant, hasPrioritySupport, isActive, displayOrder } = req.body;
+    const { code, name, description, price, priceWithTax, period, durationDays, features, maxBusinesses, maxInvoicesPerMonth, hasAIAssistant, hasPrioritySupport, hasAudit, isActive, displayOrder } = req.body;
     const id = req.params.id;
 
     // Buscar plan por ID o por código
@@ -266,6 +290,7 @@ router.put('/:id', jwtMiddleware, roleMiddleware(['SUPERADMIN']), async (req, re
         maxInvoicesPerMonth: maxInvoicesPerMonth !== undefined ? parseInt(maxInvoicesPerMonth) : existingPlan.maxInvoicesPerMonth,
         hasAIAssistant: hasAIAssistant !== undefined ? hasAIAssistant : existingPlan.hasAIAssistant,
         hasPrioritySupport: hasPrioritySupport !== undefined ? hasPrioritySupport : existingPlan.hasPrioritySupport,
+        hasAudit: hasAudit !== undefined ? hasAudit : existingPlan.hasAudit,
         isActive: isActive !== undefined ? isActive : existingPlan.isActive,
         displayOrder: displayOrder !== undefined ? parseInt(displayOrder) : existingPlan.displayOrder
       }

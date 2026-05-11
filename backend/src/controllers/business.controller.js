@@ -357,6 +357,47 @@ const businessController = {
                 return res.status(400).json({ message: 'El documento debe tener al menos un item' });
             }
 
+            // ENFORCE INVOICE LIMIT: Verificar límite de facturas por mes según el plan
+            if (docData.type === '01' && req.user.role !== 'SUPERADMIN') {
+                const business = await prisma.business.findUnique({
+                    where: { id: businessId },
+                    select: { plan: true }
+                });
+
+                if (business) {
+                    const plan = await prisma.subscriptionPlan.findUnique({
+                        where: { code: business.plan },
+                        select: { maxInvoicesPerMonth: true, code: true }
+                    });
+
+                    const limit = plan?.maxInvoicesPerMonth ?? 999999;
+
+                    if (limit >= 0) {
+                        const now = new Date();
+                        const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+                        const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59, 999);
+
+                        const invoiceCountThisMonth = await prisma.document.count({
+                            where: {
+                                businessId,
+                                type: '01',
+                                issueDate: {
+                                    gte: startOfMonth,
+                                    lte: endOfMonth
+                                },
+                                status: { not: 'CANCELLED' }
+                            }
+                        });
+
+                        if (invoiceCountThisMonth >= limit) {
+                            return res.status(403).json({
+                                message: `Has alcanzado el límite de ${limit} facturas mensuales de tu plan ${plan.code}. Actualiza tu plan para emitir más facturas.`
+                            });
+                        }
+                    }
+                }
+            }
+
             // Validar que los productos existan y pertenezcan al negocio
             // Facturas (01), notas de venta (02) y notas de crédito (04) requieren productos válidos
             const requiresProductValidation = ['01', '02', '04'].includes(docData.type);

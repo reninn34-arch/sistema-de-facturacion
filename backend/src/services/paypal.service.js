@@ -130,17 +130,26 @@ function validateAmount(amount, plan, planPrices = null) {
   // Fallback a precios hardcodeados (solo para compatibilidad)
   // Precios sin IVA (base)
   const planPricesBase = {
+    'FREE': '0.00',
+    'BASIC': '29.99',
+    'GASTRONOMICO': '79.99',
+    'PRO': '149.99',
+    'ENTERPRISE': '249.99',
     'MONTHLY': '29.99',
     'SEMIANNUAL': '149.99',
     'YEARLY': '249.99',
-    'UNLIMITED': '9999.99'
+    'UNLIMITED': '0.00'
   };
-  // Precios con IVA 15%
   const planPricesWithIVA = {
+    'FREE': '0.00',
+    'BASIC': '34.49',
+    'GASTRONOMICO': '91.99',
+    'PRO': '172.49',
+    'ENTERPRISE': '287.49',
     'MONTHLY': '34.49',
     'SEMIANNUAL': '172.49',
     'YEARLY': '287.49',
-    'UNLIMITED': '11499.99'
+    'UNLIMITED': '0.00'
   };
   
   // Aceptar tanto precios con IVA como sin IVA

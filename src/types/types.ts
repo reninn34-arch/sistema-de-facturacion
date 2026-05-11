@@ -26,7 +26,7 @@ export enum DocumentType {
   REMITTANCE = '06'
 }
 
-export type BusinessCategory = 'RETAIL' | 'SERVICIOS' | 'ALIMENTOS' | 'TECNOLOGIA' | 'SALUD' | 'TIENDA_ONLINE' | 'PROFESIONAL_LIBRE';
+export type BusinessCategory = 'RETAIL' | 'SERVICIOS' | 'ALIMENTOS' | 'TECNOLOGIA' | 'SALUD' | 'TIENDA_ONLINE' | 'PROFESIONAL_LIBRE' | 'BAKERY' | 'RESTAURANT' | 'STORE';
 
 export interface BusinessInfo {
   name: string;
@@ -48,6 +48,7 @@ export interface BusinessInfo {
   establishmentCode: string; // Ej: 001
   emissionPointCode: string; // Ej: 001
   taxpayerType: 'PERSONA_NATURAL' | 'EMPRESA'; // Tipo de contribuyente
+  businessType?: BusinessType; // Tipo de negocio (BAKERY, RESTAURANT, etc.)
   notificationSettings?: NotificationSettings;
 }
 
@@ -64,6 +65,8 @@ export interface Product {
   imageUrl?: string;
   category?: string;
   type: 'FISICO' | 'SERVICIO';
+  unitOfMeasure?: string;
+  isRawMaterial?: boolean;
   // Campos para SUSCRIPCIONES
   isSubscription?: boolean;
   subscriptionPeriod?: 'mensual' | 'bimestral' | 'trimestral' | 'semestral' | 'anual';
@@ -381,4 +384,67 @@ export interface NotificationSettings {
 
   paymentRemindersEnabled: boolean;
   reminderDaysBefore: number[];
+}
+
+export type BusinessType = 'GENERAL' | 'BAKERY' | 'RESTAURANT' | 'STORE' | 'SERVICE';
+
+export const BUSINESS_TYPES: Record<BusinessType, { label: string; icon: string; description: string }> = {
+  BAKERY: { label: 'Panadería', icon: '🍞', description: 'Panadería, pastelería, repostería' },
+  RESTAURANT: { label: 'Restaurante', icon: '🍽️', description: 'Restaurante, cafetería, bar' },
+  STORE: { label: 'Tienda / Retail', icon: '🏪', description: 'Tienda, supermercado, comercio' },
+  SERVICE: { label: 'Servicios', icon: '💼', description: 'Consultoría, mantenimiento, profesionales' },
+  GENERAL: { label: 'General', icon: '🏢', description: 'Cualquier tipo de negocio' },
+};
+
+export type UnitOfMeasure = 'kg' | 'lb' | 'g' | 'ml' | 'L' | 'UNIDAD' | 't' | 'oz';
+
+export const UNITS_OF_MEASURE: { value: UnitOfMeasure; label: string }[] = [
+  { value: 'kg', label: 'Kilogramo (kg)' },
+  { value: 'g', label: 'Gramo (g)' },
+  { value: 'lb', label: 'Libra (lb)' },
+  { value: 'oz', label: 'Onza (oz)' },
+  { value: 't', label: 'Tonelada (t)' },
+  { value: 'ml', label: 'Mililitro (ml)' },
+  { value: 'L', label: 'Litro (L)' },
+  { value: 'UNIDAD', label: 'Unidad' },
+];
+
+export interface RecipeIngredient {
+  id?: string;
+  productId: string;
+  productName?: string;
+  productCode?: string;
+  product?: { id: string; description: string; code: string; unitOfMeasure?: string };
+  quantity: number;
+  unitOfMeasure: UnitOfMeasure | string;
+  estimatedCost: number;
+}
+
+export interface Recipe {
+  id: string;
+  name: string;
+  description?: string;
+  instructions?: string;
+  yield: number;
+  productId: string;
+  productName?: string;
+  productCode?: string;
+  product?: { id: string; description: string; code: string; price: number };
+  ingredients: RecipeIngredient[];
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface ProductionRecord {
+  id: string;
+  recipeId: string;
+  recipeName?: string;
+  productName?: string;
+  recipe?: { name: string; product?: { id: string; description: string; code: string } };
+  quantity: number;
+  producedUnits: number;
+  totalCost: number;
+  unitCost: number;
+  notes?: string;
+  createdAt: string;
 }

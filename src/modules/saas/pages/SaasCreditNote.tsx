@@ -336,8 +336,9 @@ export default function SaasCreditNote({ businesses, documents, onNotify }: Saas
       const businessId = selectedInvoice.businessId;
       
       // Calcular los días a devolver basándose en el monto
-      const planPrices = { 'FREE': 0, 'BASIC': 34.49, 'PRO': 172.49, 'ENTERPRISE': 287.49, 'UNLIMITED': 0 };
-      const monthlyPrice = planPrices[selectedInvoice.invoiceType === 'SaaS' ? 'BASIC' : 'BASIC'] || 34.49;
+      const planPrices: Record<string, number> = { 'FREE': 0, 'BASIC': 34.49, 'GASTRONOMICO': 91.99, 'PRO': 172.49, 'ENTERPRISE': 287.49, 'UNLIMITED': 0 };
+      const businessPlan = (selectedInvoice as any).plan || (selectedInvoice as any).business?.plan || 'BASIC';
+      const monthlyPrice = planPrices[businessPlan] || 34.49;
       const dailyRate = monthlyPrice / 30;
       const daysToRefund = Math.ceil(total / dailyRate);
       

@@ -45,6 +45,7 @@ model Business {
   plan                 String   @default("FREE") // FREE, PRO, ENTERPRISE
   isActive             Boolean  @default(true)   // Para bloquear impagos
   isDemo               Boolean  @default(false)  // Empresa de pruebas/demo
+  businessType         String   @default("GENERAL") // GENERAL, BAKERY, RESTAURANT, STORE, SERVICE
 
   // --- CONFIGURACIÓN SRI ---
   sriEnabled           Boolean  @default(false)  // Habilitar facturación SRI
@@ -60,13 +61,16 @@ model Business {
   updatedAt            DateTime @updatedAt
 
   // RELACIONES (Todo lo que pertenece a esta empresa)
-  users     User[]
-  clients   Client[]
-  products  Product[]
-  documents Document[]
-  sequences Sequence[]
+  users       User[]
+  clients     Client[]
+  products    Product[]
+  documents   Document[]
+  sequences   Sequence[]
   subscriptions Subscription[]
   activationRequests ActivationRequest[]
+   recipes     Recipe[]
+   productionRecords ProductionRecord[]
+   quickSales  QuickSale[]
 }
 
 // ---------------------------------------------------------
@@ -137,12 +141,18 @@ model Product {
   subscriptionPeriod String? // PERIODO: mensual, bimestral, trimestral, semestral, anual
   subscriptionDuration Int?  // DURACIÓN en días
   
+  unitOfMeasure    String?  @default("UNIDAD") // kg, lb, g, ml, L, UNIDAD, etc.
+  
+  isRawMaterial    Boolean  @default(false) // Si es un insumo/materia prima (para recetas)
+  
   // SAAS: Pertenece a una empresa
   businessId       String
   business         Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
 
   items              InvoiceItem[]
   inventoryMovements InventoryMovement[]
+  recipeIngredients  RecipeIngredient[]
+  recipes            Recipe[]
 
   // El código de producto es único SOLO para esa empresa
   @@unique([code, businessId])
@@ -250,8 +260,8 @@ model InventoryMovement {
   documentId    String?
   document      Document? @relation(fields: [documentId], references: [id], onDelete: Cascade)
   
-  type          String   // 'VENTA', 'COMPRA', 'DEVOLUCION', 'AJUSTE'
-  quantity      Int      
+  type          String   // 'VENTA', 'COMPRA', 'DEVOLUCION', 'AJUSTE', 'PRODUCCION'
+  quantity      Float      
   previousStock Int
   newStock      Int
   createdAt     DateTime @default(now())
@@ -359,8 +369,93 @@ model SubscriptionPlan {
   maxInvoicesPerMonth Int      @default(10)
   hasAIAssistant      Boolean  @default(false)
   hasPrioritySupport  Boolean  @default(false)
+  hasAudit            Boolean  @default(false)
   isActive            Boolean  @default(true)
   displayOrder        Int      @default(0)
   createdAt            DateTime @default(now())
   updatedAt            DateTime @updatedAt
+}
+
+// ---------------------------------------------------------
+// 8. MODELO DE RECETAS (Producción)
+// ---------------------------------------------------------
+model Recipe {
+  id           String   @id @default(uuid())
+  name         String
+  description  String?
+  instructions String?
+  yield        Float    @default(1) // Cuántas unidades produce esta receta
+  businessId   String
+  business     Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  
+  productId    String
+product    Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  
+  ingredients  RecipeIngredient[]
+  productionRecords ProductionRecord[]
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  
+  @@unique([productId, businessId])
+}
+
+// ---------------------------------------------------------
+// 9. MODELO DE INGREDIENTES DE RECETA
+// ---------------------------------------------------------
+model RecipeIngredient {
+  id            String   @id @default(uuid())
+  quantity      Float
+  unitOfMeasure String   @default("kg")
+  estimatedCost Float    @default(0)
+  
+  recipeId      String
+  recipe        Recipe   @relation(fields: [recipeId], references: [id], onDelete: Cascade)
+  
+  productId     String
+  product       Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  
+  createdAt     DateTime @default(now())
+  
+  @@unique([recipeId, productId])
+}
+
+// ---------------------------------------------------------
+// 10. MODELO DE REGISTRO DE PRODUCCIÓN
+// ---------------------------------------------------------
+model ProductionRecord {
+  id            String   @id @default(uuid())
+  quantity      Float                // Cuántos lotes se produjeron
+  producedUnits Float                // Total unidades (quantity * recipe.yield)
+  totalCost     Float   @default(0)
+  unitCost      Float   @default(0)
+  notes         String?
+  createdAt     DateTime @default(now())
+  
+  recipeId      String
+  recipe        Recipe   @relation(fields: [recipeId], references: [id], onDelete: Restrict)
+  
+   businessId    String
+   business      Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+}
+
+// ---------------------------------------------------------
+// 11. MODELO DE VENTA RÁPIDA (POS sin SRI inmediato)
+// ---------------------------------------------------------
+model QuickSale {
+  id             String   @id @default(uuid())
+  sequential     Int                   // Número secuencial local (por empresa)
+  items          Json                  // Array de { productId, description, qty, unitPrice, total }
+  subtotal       Float
+  iva            Float    @default(0)
+  total          Float
+  paymentMethod  String   @default("EFECTIVO")  // EFECTIVO, TARJETA, TRANSFERENCIA
+  status         String   @default("PENDIENTE") // PENDIENTE, ENVIADO_SRI
+  batchId        String?               // ID del lote cuando se envía al SRI
+  documentId     String?               // FK al Document luego de emitir al SRI
+  notes          String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  businessId     String
+  business       Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
 }

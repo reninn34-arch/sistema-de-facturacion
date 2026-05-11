@@ -30,6 +30,8 @@ const paymentRoutes = require('./src/routes/payment.routes'); // Rutas de pago (
 const internalPaymentRoutes = require('./src/routes/internal-payment.routes'); // Rutas de pago interno
 const subscriptionPlansRoutes = require('./src/routes/subscription-plans.routes'); // Rutas de planes de suscripción
 const activationRequestsRoutes = require('./src/routes/activation-requests.routes'); // Rutas de solicitudes de activación
+const productionRoutes = require('./src/routes/production.routes'); // Rutas de producción (recetas)
+const quickSaleRoutes = require('./src/routes/quicksale.routes'); // Rutas de venta rápida (tickets/POS)
 const { errorHandler } = require('./src/middleware/error.handler'); // [NUEVO] Manejador de errores centralizado
 
 // Middleware de seguridad
@@ -855,8 +857,10 @@ app.use(businessRoutes);
 app.use('/api/subscription-plans', subscriptionPlansRoutes);
 app.use('/api/activation-requests', activationRequestsRoutes);
 app.use(internalPaymentRoutes);
-app.use(aiRoutes);
-app.use(paymentRoutes);
+  app.use(aiRoutes);
+  app.use(productionRoutes);
+  app.use(quickSaleRoutes);
+  app.use(paymentRoutes);
 
 // ============================================
 // SERVIR FRONTEND EN PRODUCCIÓN

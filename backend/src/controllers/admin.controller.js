@@ -8,7 +8,7 @@ const prisma = require('../../prisma/client');
 const adminController = {
   // 1. Crear Nueva Empresa (Tenant)
   createBusiness: catchAsync(async (req, res) => {
-    const { name, ruc, email, address, phone, plan, features, subscriptionEnd, password } = req.body;
+    const { name, ruc, email, address, phone, plan, features, subscriptionEnd, password, businessType } = req.body;
 
     // Convertir strings vacíos a null para evitar problemas con Prisma
     const addressValue = address === '' ? null : address;
@@ -21,7 +21,7 @@ const adminController = {
     if (existingUser) throw new AppError('El correo electrónico ya está registrado por un usuario.', 400);
 
     // Validar plan
-    const validPlans = ['FREE', 'BASIC', 'PRO', 'ENTERPRISE', 'MONTHLY', 'SEMIANNUAL', 'YEARLY', 'UNLIMITED', 'PENDING'];
+    const validPlans = ['FREE', 'BASIC', 'GASTRONOMICO', 'PRO', 'ENTERPRISE', 'MONTHLY', 'SEMIANNUAL', 'YEARLY', 'UNLIMITED', 'PENDING'];
     const selectedPlan = plan && validPlans.includes(plan) ? plan : 'PENDING';
 
     // Calcular fecha de vencimiento según el plan (solo si no es PENDING)
@@ -58,6 +58,7 @@ const adminController = {
           address: addressValue,
           phone: phoneValue,
           plan: selectedPlan,
+          businessType: businessType || 'GENERAL',
           features: features || { inventory: true, accounting: false, billing: true },
           subscriptionStart: selectedPlan !== 'PENDING' ? new Date() : null,
           subscriptionEnd: subscriptionEndDate,
@@ -603,7 +604,7 @@ const adminController = {
     });
 
     // Ingresos estimados por plan (simulado basado en planes)
-    const planPrices = { FREE: 0, BASIC: 29.99, PRO: 59.99, ENTERPRISE: 99.99, MONTHLY: 29.99, SEMIANNUAL: 49.99, YEARLY: 99.99, UNLIMITED: 199.99, PENDING: 0 };
+    const planPrices = { FREE: 0, BASIC: 29.99, GASTRONOMICO: 79.99, PRO: 149.99, ENTERPRISE: 249.99, MONTHLY: 29.99, SEMIANNUAL: 149.99, YEARLY: 249.99, UNLIMITED: 0, PENDING: 0 };
     const monthlyRevenue = planDistribution.reduce((acc, p) => {
       return acc + (planPrices[p.plan] || 0) * Number(p._count.id);
     }, 0);
@@ -1101,7 +1102,7 @@ const processSaaSCreditNote = catchAsync(async (req, res) => {
 
   // Calcular monto a reembolsar (prorrateo)
   // Precios con IVA 15%
-  const planPrices = { 'FREE': 0, 'BASIC': 34.49, 'PRO': 172.49, 'ENTERPRISE': 287.49, 'UNLIMITED': 0 };
+  const planPrices = { 'FREE': 0, 'BASIC': 34.49, 'GASTRONOMICO': 91.99, 'PRO': 172.49, 'ENTERPRISE': 287.49, 'UNLIMITED': 0 };
   const monthlyPrice = planPrices[business.plan] || 0;
   const dailyRate = monthlyPrice / 30;
   const amountToRefund = dailyRate * actualDaysToRefund;

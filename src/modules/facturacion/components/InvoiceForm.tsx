@@ -759,13 +759,15 @@ const InvoiceForm: React.FC<InvoiceFormProps> = ({ clients, products, businessIn
                   {showProductDropdown && searchTerm && (
                     <div className={`absolute top-full left-0 right-0 ${isDarkMode ? 'bg-slate-800 border-slate-600' : 'bg-white border-indigo-200'} rounded-2xl mt-2 shadow-2xl z-[100] max-h-64 sm:max-h-96 overflow-y-auto`}>
                       {(Array.isArray(products) ? products : []).filter(p =>
+                        !p.isRawMaterial && (
                         p.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                        p.code.toLowerCase().includes(searchTerm.toLowerCase())
+                        p.code.toLowerCase().includes(searchTerm.toLowerCase()))
                       ).length > 0 ? (
                         <div className="p-2">
                           {(Array.isArray(products) ? products : []).filter(p =>
+                            !p.isRawMaterial && (
                             p.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                            p.code.toLowerCase().includes(searchTerm.toLowerCase())
+                            p.code.toLowerCase().includes(searchTerm.toLowerCase()))
                           ).map(p => (
                             <button
                               key={p.id}

@@ -35,6 +35,10 @@ router.post('/api/subscriptions/payment-internal', jwtMiddleware, async (req, re
         planDuration = 1;
         newEndDate.setMonth(newEndDate.getMonth() + 1);
         break;
+      case 'GASTRONOMICO':
+        planDuration = 1;
+        newEndDate.setMonth(newEndDate.getMonth() + 1);
+        break;
       case 'SEMIANNUAL':
       case 'PRO':
         planDuration = 6;
@@ -56,20 +60,21 @@ router.post('/api/subscriptions/payment-internal', jwtMiddleware, async (req, re
       newEndDate = new Date(business.subscriptionEnd);
       
       // Determinar los días a agregar según el plan
-      let daysToAdd = 30; // 默认
+      let daysToAdd = 30;
       switch (plan) {
         case 'MONTHLY':
         case 'BASIC':
         case 'FREE':
-          daysToAdd = 30; // 1 mes
+        case 'GASTRONOMICO':
+          daysToAdd = 30;
           break;
         case 'SEMIANNUAL':
         case 'PRO':
-          daysToAdd = 180; // 6 meses = ~180 días
+          daysToAdd = 180;
           break;
         case 'YEARLY':
         case 'ENTERPRISE':
-          daysToAdd = 365; // 1 año = 365 días
+          daysToAdd = 365;
           break;
         default:
           daysToAdd = 30;
@@ -79,9 +84,7 @@ router.post('/api/subscriptions/payment-internal', jwtMiddleware, async (req, re
       newEndDate.setDate(newEndDate.getDate() + daysToAdd);
     }
 
-    // Determinar el código del plan para la base de datos (el nuevo plan)
-    // El plan se actualiza al nuevo plan seleccionado
-    let planCode = plan; // Usar el código que ya viene del frontend si es válido
+    let planCode = plan;
     if (plan === 'MONTHLY') planCode = 'BASIC';
     else if (plan === 'SEMIANNUAL') planCode = 'PRO';
     else if (plan === 'YEARLY') planCode = 'ENTERPRISE';

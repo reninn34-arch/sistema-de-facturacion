@@ -4,19 +4,42 @@ import { Product } from '../../../types/types';
 import { TAX_RATES, PRODUCT_CATEGORIES } from '../../../constants';
 import { CameraIcon } from '@heroicons/react/24/outline';
 
+type InventoryTab = 'all' | 'raw' | 'finished' | 'service';
+
 interface ProductManagerProps {
   products: Product[];
   setProducts: React.Dispatch<React.SetStateAction<Product[]>>;
   onNotify: (msg: string, type?: any) => void;
   isDemoMode: boolean;
+  businessType?: string;
+  isProduction?: boolean;
 }
 
 // URL del backend
 const API_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:3001';
 
-const ProductManager: React.FC<ProductManagerProps> = ({ products, setProducts, onNotify, isDemoMode }) => {
-  // Detectar modo oscuro
+const ProductManager: React.FC<ProductManagerProps> = ({ products, setProducts, onNotify, isDemoMode, businessType, isProduction }) => {
   const [isDarkMode, setIsDarkMode] = useState(false);
+  const [activeTab, setActiveTab] = useState<InventoryTab>('all');
+
+  const showProductionTabs = isProduction || businessType === 'BAKERY' || businessType === 'RESTAURANT';
+
+  const filteredProducts = showProductionTabs
+    ? (Array.isArray(products) ? products : []).filter(p => {
+        if (activeTab === 'all') return true;
+        if (activeTab === 'raw') return p.isRawMaterial === true && p.type === 'FISICO';
+        if (activeTab === 'finished') return p.type === 'FISICO' && !p.isRawMaterial;
+        if (activeTab === 'service') return p.type === 'SERVICIO';
+        return true;
+      })
+    : (Array.isArray(products) ? products : []);
+
+  const tabCounts = {
+    all: (Array.isArray(products) ? products : []).length,
+    raw: (Array.isArray(products) ? products : []).filter(p => p.isRawMaterial === true && p.type === 'FISICO').length,
+    finished: (Array.isArray(products) ? products : []).filter(p => p.type === 'FISICO' && !p.isRawMaterial).length,
+    service: (Array.isArray(products) ? products : []).filter(p => p.type === 'SERVICIO').length,
+  };
 
   useEffect(() => {
     // Escuchar cambios en la clase 'dark' del documento
@@ -37,7 +60,7 @@ const ProductManager: React.FC<ProductManagerProps> = ({ products, setProducts, 
   }, []);
   const [showModal, setShowModal] = useState(false);
   const [editingProd, setEditingProd] = useState<Product | null>(null);
-  const [formData, setFormData] = useState<Partial<Product>>({ taxRate: 15, type: 'FISICO', category: 'Otros' });
+  const [formData, setFormData] = useState<Partial<Product>>({ taxRate: 15, type: 'FISICO', category: 'Otros', unitOfMeasure: 'UNIDAD', isRawMaterial: false });
   const [loading, setLoading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -50,7 +73,9 @@ const ProductManager: React.FC<ProductManagerProps> = ({ products, setProducts, 
       setFormData({ 
         taxRate: 15, 
         type: 'FISICO', 
-        category: 'Otros', 
+        category: 'Otros',
+        unitOfMeasure: 'UNIDAD',
+        isRawMaterial: false,
         imageUrl: '', 
         price: 0, 
         wholesalePrice: 0, 
@@ -190,8 +215,39 @@ const ProductManager: React.FC<ProductManagerProps> = ({ products, setProducts, 
         </button>
       </div>
 
+      {showProductionTabs && (
+        <div className={`flex flex-wrap gap-2 p-1.5 ${isDarkMode ? 'bg-slate-800' : 'bg-slate-100'} rounded-2xl`}>
+          {([
+            { key: 'all' as InventoryTab, label: 'Todos', emoji: '📋' },
+            { key: 'raw' as InventoryTab, label: 'Materia Prima', emoji: '🌾' },
+            { key: 'finished' as InventoryTab, label: 'Productos', emoji: '📦' },
+            { key: 'service' as InventoryTab, label: 'Servicios', emoji: '⚡' },
+          ]).map(tab => (
+            <button
+              key={tab.key}
+              onClick={() => setActiveTab(tab.key)}
+              className={`flex-1 min-w-[100px] px-4 py-3 rounded-xl text-xs font-black uppercase tracking-wider transition-all ${
+                activeTab === tab.key
+                  ? 'bg-white text-slate-900 shadow-lg shadow-slate-200/50'
+                  : `${isDarkMode ? 'text-slate-400 hover:text-slate-200' : 'text-slate-500 hover:text-slate-700'}`
+              }`}
+            >
+              <span className="mr-1.5">{tab.emoji}</span>
+              {tab.label}
+              <span className={`ml-2 px-2 py-0.5 rounded-full text-[10px] font-black ${
+                activeTab === tab.key
+                  ? 'bg-slate-100 text-slate-600'
+                  : `${isDarkMode ? 'bg-slate-700 text-slate-500' : 'bg-slate-200 text-slate-400'}`
+              }`}>
+                {tabCounts[tab.key]}
+              </span>
+            </button>
+          ))}
+        </div>
+      )}
+
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8">
-        {(Array.isArray(products) ? products : []).map(p => (
+        {filteredProducts.map(p => (
           <div key={p.id} className={`${isDarkMode ? 'bg-slate-800 border-slate-700' : 'bg-white border-slate-100'} rounded-[2.5rem] shadow-sm overflow-hidden hover:shadow-2xl transition-all group relative`}>
             {p.isSynced && (
               <div className="absolute top-4 right-4 z-10" title={`Sincronizado: ${p.lastSync}`}>
@@ -200,10 +256,15 @@ const ProductManager: React.FC<ProductManagerProps> = ({ products, setProducts, 
             )}
             <div className="h-48 relative bg-slate-50 border-b border-slate-50">
               <img src={p.imageUrl || 'https://placehold.co/400x300?text=Producto'} alt="" className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
-              <div className="absolute top-4 left-4">
+              <div className="absolute top-4 left-4 flex gap-1.5">
                  <span className={`px-3 py-1 rounded-lg text-[9px] font-black uppercase tracking-widest ${p.type === 'FISICO' ? 'bg-indigo-600 text-white' : 'bg-amber-500 text-white'}`}>
                    {p.type}
                  </span>
+                 {p.isRawMaterial && (
+                   <span className="px-3 py-1 rounded-lg text-[9px] font-black uppercase tracking-widest bg-amber-100 text-amber-700 border border-amber-300">
+                     Insumo
+                   </span>
+                 )}
               </div>
             </div>
             <div className="p-8 space-y-5">
@@ -231,7 +292,7 @@ const ProductManager: React.FC<ProductManagerProps> = ({ products, setProducts, 
               <div className="flex justify-between items-center pt-2">
                 <div className="flex flex-col">
                   <span className={`text-[10px] font-black uppercase ${p.stock <= p.minStock ? 'text-rose-500' : 'text-emerald-500'}`}>
-                    Stock: {p.stock}
+                    Stock: {p.stock}{p.unitOfMeasure ? ` ${p.unitOfMeasure}` : ''}
                   </span>
                   {p.isSynced && <span className={`text-[8px] font-bold ${isDarkMode ? 'text-slate-500' : 'text-slate-400'} uppercase mt-1`}>Web Linked</span>}
                 </div>
@@ -242,6 +303,19 @@ const ProductManager: React.FC<ProductManagerProps> = ({ products, setProducts, 
             </div>
           </div>
         ))}
+        {filteredProducts.length === 0 && (
+          <div className="col-span-full text-center py-16">
+            <p className={`text-5xl mb-4 ${isDarkMode ? 'opacity-30' : 'opacity-20'}`}>
+              {activeTab === 'raw' ? '🌾' : activeTab === 'finished' ? '📦' : activeTab === 'service' ? '⚡' : '📋'}
+            </p>
+            <p className={`text-lg font-black ${isDarkMode ? 'text-slate-600' : 'text-slate-400'}`}>
+              {activeTab === 'raw' ? 'Sin materia prima' : activeTab === 'finished' ? 'Sin productos terminados' : activeTab === 'service' ? 'Sin servicios' : 'Sin productos'}
+            </p>
+            <p className={`text-sm ${isDarkMode ? 'text-slate-600' : 'text-slate-400'} mt-1`}>
+              {activeTab === 'all' ? 'Crea tu primer producto con el botón "Nuevo Producto"' : 'Cambia de pestaña o crea uno nuevo'}
+            </p>
+          </div>
+        )}
       </div>
 
       {showModal && (
@@ -308,10 +382,39 @@ const ProductManager: React.FC<ProductManagerProps> = ({ products, setProducts, 
                     </select>
                   </div>
                   <div className="space-y-2">
-                    <label className={`text-[10px] font-black ${isDarkMode ? 'text-slate-500' : 'text-slate-400'} uppercase tracking-widest ml-1`}>Stock Actual</label>
+                    <label className={`text-[10px] font-black ${isDarkMode ? 'text-slate-500' : 'text-slate-400'} uppercase tracking-widest ml-1`}>Stock Actual{formData.unitOfMeasure ? ` (${formData.unitOfMeasure})` : ''}</label>
                     <input type="number" value={formData.stock} className={`w-full p-4 ${isDarkMode ? 'bg-slate-700 text-white border-slate-600' : 'bg-slate-50'} rounded-2xl font-bold outline-none border-2 border-transparent focus:border-indigo-500 transition-all`} onChange={e => setFormData({...formData, stock: Number(e.target.value)})} />
                   </div>
                 </div>
+
+                {showProductionTabs && (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+                  <div className="space-y-2">
+                    <label className={`text-[10px] font-black ${isDarkMode ? 'text-slate-500' : 'text-slate-400'} uppercase tracking-widest ml-1`}>Unidad de Medida</label>
+                    <select className="w-full p-4 bg-slate-50 rounded-2xl font-bold outline-none border-2 border-transparent focus:border-indigo-500 transition-all appearance-none" value={formData.unitOfMeasure || 'UNIDAD'} onChange={e => setFormData({...formData, unitOfMeasure: e.target.value})}>
+                      <option value="kg">Kilogramo (kg)</option>
+                      <option value="g">Gramo (g)</option>
+                      <option value="lb">Libra (lb)</option>
+                      <option value="oz">Onza (oz)</option>
+                      <option value="t">Tonelada (t)</option>
+                      <option value="ml">Mililitro (ml)</option>
+                      <option value="L">Litro (L)</option>
+                      <option value="UNIDAD">Unidad</option>
+                    </select>
+                  </div>
+                  {showProductionTabs && (
+                  <div className="space-y-2 flex items-end">
+                    <label className={`flex items-center gap-3 p-4 bg-slate-50 rounded-2xl cursor-pointer hover:bg-amber-50 transition-all w-full ${formData.isRawMaterial ? 'border-2 border-amber-500' : 'border-2 border-transparent'}`}>
+                      <input type="checkbox" checked={formData.isRawMaterial || false} onChange={e => setFormData({...formData, isRawMaterial: e.target.checked})} className="w-5 h-5 rounded accent-amber-600" />
+                      <div>
+                        <span className={`text-sm font-black ${isDarkMode ? 'text-slate-300' : 'text-slate-700'}`}>Es Materia Prima / Insumo</span>
+                        <p className={`text-[10px] font-bold ${isDarkMode ? 'text-slate-500' : 'text-slate-400'} mt-0.5`}>Se usará como ingrediente en recetas</p>
+                      </div>
+                    </label>
+                  </div>
+                  )}
+                </div>
+                )}
 
                 <div className="p-8 bg-indigo-50/50 rounded-[2.5rem] border border-indigo-100">
                   <p className="text-[10px] font-black text-indigo-600 uppercase tracking-widest mb-6">Configuración Multitarifa ($)</p>

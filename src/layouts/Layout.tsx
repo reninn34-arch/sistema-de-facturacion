@@ -25,6 +25,10 @@ import {
   BellIcon,
   Bars3Icon,
   XMarkIcon,
+  BeakerIcon,
+  ClipboardDocumentCheckIcon,
+  TicketIcon,
+  DocumentArrowUpIcon,
 } from '@heroicons/react/24/outline';
 
 interface LayoutProps {
@@ -37,6 +41,8 @@ interface LayoutProps {
   businessInfo: BusinessInfo;
   currentUser: any;
   subscriptionExpired?: boolean;
+  pendingActivations?: number;
+  planHasAIAssistant?: boolean;
 }
 
 const iconMap: Record<string, React.ReactNode> = {
@@ -65,6 +71,10 @@ const iconMap: Record<string, React.ReactNode> = {
   'Integración Web': <LinkIcon className="w-6 h-6" />,
   'Perfil de Empresa': <BuildingOffice2Icon className="w-6 h-6" />,
   'Asistente IA': <SparklesIcon className="w-6 h-6" />,
+  'Recetas': <BeakerIcon className="w-6 h-6" />,
+  'Producción': <ClipboardDocumentCheckIcon className="w-6 h-6" />,
+  'Caja': <TicketIcon className="w-6 h-6" />,
+  'Pendientes SRI': <DocumentArrowUpIcon className="w-6 h-6" />,
   'Cerrar Sesión': <ArrowRightOnRectangleIcon className="w-6 h-6" />,
 };
 
@@ -77,7 +87,9 @@ const Layout: React.FC<LayoutProps> = ({
   onRemoveNotif,
   businessInfo,
   currentUser,
-  subscriptionExpired = false
+  subscriptionExpired = false,
+  pendingActivations = 0,
+  planHasAIAssistant = false
 }) => {
   const [showNotifications, setShowNotifications] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -102,6 +114,8 @@ const Layout: React.FC<LayoutProps> = ({
     { id: 'pago-interno', label: 'Suscripción', roles: ['ADMIN'] },
     { id: 'company-users', label: 'Panel de Gestión', roles: ['ADMIN'] },
     { id: 'invoices', label: 'Emisión', roles: ['ADMIN', 'VENDEDOR'] },
+    { id: 'quicksale', label: 'Caja', roles: ['ADMIN', 'VENDEDOR'], businessTypes: ['BAKERY', 'RESTAURANT'] },
+    { id: 'pending-sri', label: 'Pendientes SRI', roles: ['ADMIN', 'VENDEDOR'], businessTypes: ['BAKERY', 'RESTAURANT'] },
     { id: 'credit-notes', label: 'Notas de Crédito', roles: ['ADMIN', 'VENDEDOR'] },
     { id: 'retentions', label: 'Retenciones', roles: ['ADMIN'] },
     { id: 'remittances', label: 'Guías de Remisión', roles: ['ADMIN'] },
@@ -112,6 +126,8 @@ const Layout: React.FC<LayoutProps> = ({
     { id: 'form-104', label: 'Formulario 104', roles: ['ADMIN'] },
     { id: 'kardex', label: 'Kardex', roles: ['ADMIN'] },
     { id: 'profitability', label: 'Rentabilidad', roles: ['ADMIN'] },
+    { id: 'recipes', label: 'Recetas', roles: ['ADMIN'], businessTypes: ['BAKERY', 'RESTAURANT'] },
+    { id: 'production', label: 'Producción', roles: ['ADMIN'], businessTypes: ['BAKERY', 'RESTAURANT'] },
     { id: 'notifications', label: 'Notificaciones', roles: ['ADMIN', 'VENDEDOR', 'CONTADOR', 'SUPERADMIN'] },
     { id: 'clients', label: 'Entidades', roles: ['ADMIN', 'VENDEDOR', 'CONTADOR'] },
     { id: 'products', label: 'Inventario', roles: ['ADMIN'] },
@@ -125,7 +141,16 @@ const Layout: React.FC<LayoutProps> = ({
     if (subscriptionExpired && item.id !== 'pago-interno' && item.id !== 'logout_btn') {
       return false;
     }
-    return !item.roles || (currentUser && item.roles.includes(currentUser.role));
+    const hasRole = !item.roles || (currentUser && item.roles.includes(currentUser.role));
+    if (!hasRole) return false;
+    const userBusinessType = currentUser?.businessType || 'GENERAL';
+    if (item.businessTypes && !item.businessTypes.includes(userBusinessType)) {
+      return false;
+    }
+    if (item.id === 'ai-assistant' && !planHasAIAssistant) {
+      return false;
+    }
+    return true;
   });
 
   const unreadCount = notifications.filter(n => !n.read).length;
@@ -202,7 +227,12 @@ const Layout: React.FC<LayoutProps> = ({
               }`}
             >
               <span className="flex-shrink-0">{iconMap[item.label] || <CubeIcon className="w-6 h-6" />}</span>
-              <span className="text-sm sm:text-base font-medium">{item.label}</span>
+              <span className="text-sm sm:text-base font-medium flex-1">{item.label}</span>
+              {item.id === 'activation-requests' && pendingActivations > 0 && (
+                <span className="bg-red-500 text-white text-xs font-black px-2 py-0.5 rounded-full min-w-[22px] text-center">
+                  {pendingActivations}
+                </span>
+              )}
             </button>
           ))}
         </nav>

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { ShieldCheckIcon, BuildingOffice2Icon, UserPlusIcon, CheckCircleIcon, CheckBadgeIcon, UsersIcon, MagnifyingGlassIcon, EyeIcon, XMarkIcon, Cog6ToothIcon, ArrowPathIcon, PauseIcon, PlayIcon, TrashIcon, UserIcon, PencilIcon, PlusIcon, EyeSlashIcon, UserMinusIcon } from '@heroicons/react/24/outline';
+import { BUSINESS_TYPES, BusinessType } from '../../../types/types';
 
 const API_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:3001';
 
@@ -46,9 +47,11 @@ const SaasAdmin: React.FC<SaasAdminProps> = ({ onNotify }) => {
   const [selectedBusiness, setSelectedBusiness] = useState<Business | null>(null);
   const [businessUsers, setBusinessUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(false);
+  const [expiringBusinesses, setExpiringBusinesses] = useState<any[]>([]);
+  const [loadingExpiring, setLoadingExpiring] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [processing, setProcessing] = useState(false);
-  const [activeTab, setActiveTab] = useState<'businesses' | 'superadmins' | 'users' | 'subscription-payments'>('businesses');
+  const [activeTab, setActiveTab] = useState<'businesses' | 'superadmins' | 'users' | 'subscription-payments' | 'expiring'>('businesses');
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
 
   // Estados para historial de pagos de suscripciones
@@ -95,7 +98,8 @@ const SaasAdmin: React.FC<SaasAdminProps> = ({ onNotify }) => {
     email: '',
     phone: '',
     address: '',
-    plan: 'FREE'
+    plan: 'FREE',
+    businessType: 'GENERAL' as string
   });
   const [tempPassword, setTempPassword] = useState('');
   const [newUserFormData, setNewUserFormData] = useState({
@@ -117,7 +121,8 @@ const SaasAdmin: React.FC<SaasAdminProps> = ({ onNotify }) => {
     address: '',
     phone: '',
     plan: 'PENDING',
-    password: ''
+    password: '',
+    businessType: 'GENERAL' as string
   });
 
   // Cargar usuarios de la empresa seleccionada
@@ -411,9 +416,36 @@ const SaasAdmin: React.FC<SaasAdminProps> = ({ onNotify }) => {
     }
   };
 
+  // Cargar empresas por vencer
+  const loadExpiringBusinesses = async () => {
+    setLoadingExpiring(true);
+    try {
+      const token = localStorage.getItem('adminToken');
+      const response = await fetch(`${API_URL}/api/admin/subscriptions/expiring?days=30`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      if (response.ok) {
+        const data = await response.json();
+        setExpiringBusinesses(data);
+      }
+    } catch (error) {
+      console.error('Error cargando empresas por vencer:', error);
+    } finally {
+      setLoadingExpiring(false);
+    }
+  };
+
   useEffect(() => {
     loadData();
     loadPlans();
+    loadExpiringBusinesses();
+
+    // Leer tab inicial desde sessionStorage (para enlaces desde Dashboard)
+    const initialTab = sessionStorage.getItem('saasAdminTab');
+    if (initialTab === 'expiring') {
+      setActiveTab('expiring');
+      sessionStorage.removeItem('saasAdminTab');
+    }
     
     // Escuchar actualizaciones de planes desde otras páginas
     const handlePlansUpdate = () => {
@@ -634,7 +666,7 @@ const SaasAdmin: React.FC<SaasAdminProps> = ({ onNotify }) => {
       if (response.ok) {
         onNotify('Empresa registrada exitosamente', 'success');
         setShowBusinessModal(false);
-        setBusinessFormData({ name: '', ruc: '', email: '', address: '', phone: '', plan: 'PENDING', password: '' });
+        setBusinessFormData({ name: '', ruc: '', email: '', address: '', phone: '', plan: 'PENDING', password: '', businessType: 'GENERAL' });
         loadData();
       } else {
         const err = await response.json();
@@ -693,6 +725,17 @@ const SaasAdmin: React.FC<SaasAdminProps> = ({ onNotify }) => {
                   >
                     Pagos
                   </button>
+                  <button 
+                    className={`px-3 py-1 text-sm font-medium transition-colors rounded-lg inline-flex items-center gap-1.5 ${activeTab === 'expiring' ? 'bg-amber-100 dark:bg-amber-500/20 text-amber-700 dark:text-amber-400' : 'text-[#4c669a] dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'}`}
+                    onClick={() => setActiveTab('expiring')}
+                  >
+                    Por Vencer
+                    {expiringBusinesses.length > 0 && (
+                      <span className="bg-red-500 text-white text-[10px] font-black px-1.5 py-0.5 rounded-full min-w-[18px] text-center">
+                        {expiringBusinesses.length}
+                      </span>
+                    )}
+                  </button>
                 </div>
               </div>
               <div className="flex items-center gap-2">
@@ -737,6 +780,17 @@ const SaasAdmin: React.FC<SaasAdminProps> = ({ onNotify }) => {
                 onClick={() => setActiveTab('subscription-payments')}
               >
                 Pagos
+              </button>
+              <button 
+                className={`px-3 py-1 text-sm font-medium transition-colors rounded-lg whitespace-nowrap inline-flex items-center gap-1 ${activeTab === 'expiring' ? 'bg-amber-100 dark:bg-amber-500/20 text-amber-700 dark:text-amber-400' : 'text-[#4c669a] dark:text-slate-400'}`}
+                onClick={() => setActiveTab('expiring')}
+              >
+                Por Vencer
+                {expiringBusinesses.length > 0 && (
+                  <span className="bg-red-500 text-white text-[10px] font-black px-1.5 py-0.5 rounded-full">
+                    {expiringBusinesses.length}
+                  </span>
+                )}
               </button>
             </div>
           </div>
@@ -895,6 +949,131 @@ const SaasAdmin: React.FC<SaasAdminProps> = ({ onNotify }) => {
                         </div>
                       </div>
                     ))
+                  )}
+                </div>
+              </div>
+            </>
+          )}
+
+          {/* Por Vencer Section */}
+          {activeTab === 'expiring' && (
+            <>
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
+                <div className="flex items-center gap-3">
+                  <h2 className="text-[#0d121b] dark:text-white text-lg md:text-xl font-bold">Por Vencer</h2>
+                  <span className="text-sm text-[#4c669a] dark:text-slate-400 font-medium">Próximos 30 días</span>
+                </div>
+                <button
+                  onClick={loadExpiringBusinesses}
+                  className="px-3 py-1.5 text-xs font-medium bg-slate-100 dark:bg-slate-800 text-[#4c669a] dark:text-slate-400 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
+                >
+                  Actualizar
+                </button>
+              </div>
+
+              <div className="bg-white dark:bg-slate-900 rounded-xl border border-[#cfd7e7] dark:border-slate-800 overflow-hidden shadow-sm">
+                <div className="hidden md:block overflow-x-auto">
+                  <table className="w-full text-left border-collapse">
+                    <thead>
+                      <tr className="bg-[#f8f9fc] dark:bg-slate-800/50">
+                        <th className="px-4 py-3 text-[#0d121b] dark:text-white text-xs font-bold uppercase">Empresa</th>
+                        <th className="px-4 py-3 text-[#0d121b] dark:text-white text-xs font-bold uppercase">RUC</th>
+                        <th className="px-4 py-3 text-[#0d121b] dark:text-white text-xs font-bold uppercase">Plan</th>
+                        <th className="px-4 py-3 text-[#0d121b] dark:text-white text-xs font-bold uppercase">Vence</th>
+                        <th className="px-4 py-3 text-[#0d121b] dark:text-white text-xs font-bold uppercase">Días</th>
+                        <th className="px-4 py-3 text-[#0d121b] dark:text-white text-xs font-bold uppercase text-right">Acciones</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-[#cfd7e7] dark:divide-slate-800">
+                      {loadingExpiring ? (
+                        <tr><td colSpan={6} className="p-8 text-center text-slate-400">Cargando...</td></tr>
+                      ) : expiringBusinesses.length === 0 ? (
+                        <tr><td colSpan={6} className="p-8 text-center">
+                          <p className="text-slate-400 font-bold">Sin empresas por vencer</p>
+                          <p className="text-xs text-slate-300 mt-1">Todas las suscripciones están al día</p>
+                        </td></tr>
+                      ) : (
+                        expiringBusinesses.map((b: any) => {
+                          const daysLeft = Math.ceil((new Date(b.subscriptionEnd).getTime() - Date.now()) / (1000 * 60 * 60 * 24));
+                          const isExpired = daysLeft < 0;
+                          const isUrgent = daysLeft >= 0 && daysLeft <= 7;
+                          const daysBg = isExpired ? 'bg-red-100 text-red-700' : isUrgent ? 'bg-amber-100 text-amber-700' : 'bg-yellow-100 text-yellow-700';
+                          const dateColor = isExpired ? 'text-red-600 font-bold' : isUrgent ? 'text-amber-600 font-bold' : '';
+                          return (
+                            <tr key={b.id} className={`hover:bg-[#135bec]/5 transition-colors ${isExpired ? 'bg-red-50/30 dark:bg-red-500/5' : isUrgent ? 'bg-amber-50/30 dark:bg-amber-500/5' : ''}`}>
+                              <td className="px-4 py-3">
+                                <div className="flex items-center gap-3">
+                                  <div className="h-8 w-8 rounded-lg bg-[#135bec]/10 flex items-center justify-center text-[#135bec]">
+                                    <BuildingOffice2Icon className="w-[18px] h-[18px]" />
+                                  </div>
+                                  <div>
+                                    <p className="font-bold text-[#0d121b] dark:text-white text-sm">{b.name}</p>
+                                    <p className="text-xs text-[#4c669a] dark:text-slate-400">{b.email}</p>
+                                  </div>
+                                </div>
+                              </td>
+                              <td className="px-4 py-3 text-[#4c669a] dark:text-slate-400 text-sm">{b.ruc}</td>
+                              <td className="px-4 py-3">
+                                <span className="px-2 py-1 bg-purple-100 text-purple-700 rounded-full text-xs font-medium">
+                                  {b.plan || 'Básico'}
+                                </span>
+                              </td>
+                              <td className={`px-4 py-3 text-sm ${dateColor}`}>
+                                {b.subscriptionEnd ? new Date(b.subscriptionEnd).toLocaleDateString() : 'N/A'}
+                              </td>
+                              <td className="px-4 py-3">
+                                <span className={`px-2 py-1 rounded-full text-xs font-bold ${daysBg}`}>
+                                  {isExpired ? `Vencido (${Math.abs(daysLeft)}d)` : `${daysLeft}d`}
+                                </span>
+                              </td>
+                              <td className="px-4 py-3 text-right">
+                                <button
+                                  onClick={() => setSelectedBusiness(b)}
+                                  className="p-1.5 rounded-lg bg-[#135bec]/10 text-[#135bec] hover:bg-[#135bec] hover:text-white transition-all"
+                                  title="Ver detalles"
+                                >
+                                  <EyeIcon className="w-[18px] h-[18px]" />
+                                </button>
+                              </td>
+                            </tr>
+                          );
+                        })
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+
+                {/* Mobile Card View */}
+                <div className="md:hidden divide-y divide-[#cfd7e7] dark:divide-slate-800">
+                  {loadingExpiring ? (
+                    <div className="p-6 text-center text-slate-400">Cargando...</div>
+                  ) : expiringBusinesses.length === 0 ? (
+                    <div className="p-6 text-center text-slate-400">Sin empresas por vencer</div>
+                  ) : (
+                    expiringBusinesses.map((b: any) => {
+                      const daysLeft = Math.ceil((new Date(b.subscriptionEnd).getTime() - Date.now()) / (1000 * 60 * 60 * 24));
+                      const isExpired = daysLeft < 0;
+                      const isUrgent = daysLeft >= 0 && daysLeft <= 7;
+                      return (
+                        <div key={b.id} className={`p-3 flex flex-col gap-2 ${isExpired ? 'bg-red-50/30' : isUrgent ? 'bg-amber-50/30' : ''}`}>
+                          <div className="flex justify-between items-start">
+                            <div>
+                              <p className="font-bold text-[#0d121b] dark:text-white text-sm">{b.name}</p>
+                              <p className="text-xs text-[#4c669a] dark:text-slate-400">{b.ruc}</p>
+                            </div>
+                            <span className={`px-2 py-1 rounded-full text-xs font-bold ${isExpired ? 'bg-red-100 text-red-700' : isUrgent ? 'bg-amber-100 text-amber-700' : 'bg-yellow-100 text-yellow-700'}`}>
+                              {isExpired ? `Vencido ${Math.abs(daysLeft)}d` : `${daysLeft}d`}
+                            </span>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <span className="px-2 py-0.5 bg-purple-100 text-purple-700 rounded-full text-xs">{b.plan || 'Básico'}</span>
+                            <span className={`text-xs ${isExpired ? 'text-red-600 font-bold' : 'text-[#4c669a]'}`}>
+                              Vence: {b.subscriptionEnd ? new Date(b.subscriptionEnd).toLocaleDateString() : 'N/A'}
+                            </span>
+                          </div>
+                        </div>
+                      );
+                    })
                   )}
                 </div>
               </div>
@@ -1630,6 +1809,15 @@ const SaasAdmin: React.FC<SaasAdminProps> = ({ onNotify }) => {
                                 value={businessFormData.address} onChange={e => setBusinessFormData({...businessFormData, address: e.target.value})} />
                         </div>
                       </div>
+                      <div>
+                          <label className="text-xs font-semibold text-[#4c669a] dark:text-slate-400">Tipo de Negocio</label>
+                          <select className="mt-1 w-full p-2.5 border border-[#cfd7e7] dark:border-slate-700 dark:bg-slate-800 dark:text-white rounded-lg text-sm focus:border-[#135bec] outline-none"
+                              value={businessFormData.businessType} onChange={e => setBusinessFormData({...businessFormData, businessType: e.target.value})}>
+                              {Object.entries(BUSINESS_TYPES).map(([key, val]) => (
+                                  <option key={key} value={key}>{val.icon} {val.label}</option>
+                              ))}
+                          </select>
+                      </div>
                       <div className="flex gap-2 pt-2">
                           <button type="button" onClick={() => setShowBusinessModal(false)} className="flex-1 py-2.5 rounded-lg text-sm font-medium text-[#4c669a] hover:bg-slate-100 dark:hover:bg-slate-800">Cancelar</button>
                           <button type="submit" className="flex-1 py-2.5 bg-[#135bec] text-white rounded-lg text-sm font-medium hover:opacity-90">Registrar</button>
@@ -1688,6 +1876,15 @@ const SaasAdmin: React.FC<SaasAdminProps> = ({ onNotify }) => {
                             <input className="mt-1 w-full p-2.5 border border-[#cfd7e7] dark:border-slate-700 dark:bg-slate-800 dark:text-white rounded-lg text-sm focus:border-[#135bec] outline-none"
                                 value={editBusinessForm.address} onChange={e => setEditBusinessForm({...editBusinessForm, address: e.target.value})} />
                         </div>
+                      </div>
+                      <div>
+                          <label className="text-xs font-semibold text-[#4c669a] dark:text-slate-400">Tipo de Negocio</label>
+                          <select className="mt-1 w-full p-2.5 border border-[#cfd7e7] dark:border-slate-700 dark:bg-slate-800 dark:text-white rounded-lg text-sm focus:border-[#135bec] outline-none"
+                              value={editBusinessForm.businessType} onChange={e => setEditBusinessForm({...editBusinessForm, businessType: e.target.value})}>
+                              {Object.entries(BUSINESS_TYPES).map(([key, val]) => (
+                                  <option key={key} value={key}>{val.icon} {val.label}</option>
+                              ))}
+                          </select>
                       </div>
                       <div className="flex gap-2 pt-2">
                           <button type="button" onClick={() => setShowEditBusinessModal(false)} className="flex-1 py-2.5 rounded-lg text-sm font-medium text-[#4c669a] hover:bg-slate-100 dark:hover:bg-slate-800">Cancelar</button>

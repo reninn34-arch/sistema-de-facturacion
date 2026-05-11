@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { PayPalScriptProvider, PayPalButtons } from "@paypal/react-paypal-js";
 import { CheckCircleIcon, LockClosedIcon, ShieldCheckIcon, ArrowLeftIcon, EyeIcon, EyeSlashIcon, CreditCardIcon, BuildingLibraryIcon, SunIcon, MoonIcon } from '@heroicons/react/24/outline';
+import { BUSINESS_TYPES, BusinessType } from '../../../types/types';
 
 // Interface para planes de suscripción
 interface SubscriptionPlan {
@@ -36,6 +37,7 @@ interface RegisterData {
   phone: string;
   address: string;
   plan: string;
+  businessType: string;
 }
 
 interface Toast {
@@ -46,7 +48,8 @@ interface Toast {
 
 const SubscriptionPage: React.FC = () => {
   const [selectedPlan, setSelectedPlan] = useState<string | null>(null);
-  const [step, setStep] = useState<'plans' | 'register'>('plans');
+  const [selectedBusinessType, setSelectedBusinessType] = useState<BusinessType>('GENERAL');
+  const [step, setStep] = useState<'plans' | 'businessType' | 'register'>('plans');
   const [paymentMethod, setPaymentMethod] = useState<'PAYPAL' | 'TRANSFER'>('PAYPAL');
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
@@ -83,7 +86,7 @@ const SubscriptionPage: React.FC = () => {
         const data = await response.json();
         if (data.plans && data.plans.length > 0) {
           // Filtrar planes activos (no guardamos en localStorage)
-          const filteredPlans = data.plans.filter((p: SubscriptionPlan) => p.isActive && p.code !== 'PENDING' && p.code !== 'UNLIMITED' && p.code !== 'FREE');
+          const filteredPlans = data.plans.filter((p: SubscriptionPlan) => p.isActive);
           setPlans(filteredPlans);
           return;
         }
@@ -146,7 +149,7 @@ const SubscriptionPage: React.FC = () => {
           const data = await response.json();
           if (data.plans && data.plans.length > 0) {
             // Los precios del backend ya incluyen IVA
-            const filteredPlans = data.plans.filter((p: SubscriptionPlan) => p.isActive && p.code !== 'PENDING' && p.code !== 'UNLIMITED' && p.code !== 'FREE');
+            const filteredPlans = data.plans.filter((p: SubscriptionPlan) => p.isActive);
             setPlans(filteredPlans);
             setLoadingPlans(false);
             return;
@@ -165,9 +168,11 @@ const SubscriptionPage: React.FC = () => {
 
   // Planes por defecto (fallback) - precios con IVA 15%
   const getDefaultPlans = (): SubscriptionPlan[] => [
-    { id: '1', code: 'FREE', name: 'Plan Free', description: 'Plan gratuito para pruebas', price: 0, period: 'mensual', durationDays: 30, features: ['1 empresa', '10 facturas/mes'], maxBusinesses: 1, maxInvoicesPerMonth: 10, hasAIAssistant: false, hasPrioritySupport: false, isActive: true },
-    { id: '2', code: 'PRO', name: 'Plan Pro', description: 'Plan profesional', price: 34.49, period: 'mensual', durationDays: 30, features: ['5 empresas', 'Facturas ilimitadas'], maxBusinesses: 5, maxInvoicesPerMonth: -1, hasAIAssistant: true, hasPrioritySupport: true, isActive: true },
-    { id: '3', code: 'ENTERPRISE', name: 'Plan Enterprise', description: 'Plan empresarial', price: 114.99, period: 'mensual', durationDays: 30, features: ['Empresas ilimitadas', 'Facturas ilimitadas', 'Soporte 24/7'], maxBusinesses: -1, maxInvoicesPerMonth: -1, hasAIAssistant: true, hasPrioritySupport: true, isActive: true }
+    { id: '1', code: 'FREE', name: 'Plan Gratuito', description: 'Plan gratuito para pruebas y micro-emprendedores', price: 0, period: 'mensual', durationDays: 30, features: ['1 empresa', '10 facturas/mes'], maxBusinesses: 1, maxInvoicesPerMonth: 10, hasAIAssistant: false, hasPrioritySupport: false, isActive: true },
+    { id: '2', code: 'BASIC', name: 'Plan Básico', description: 'Plan básico para pequeñas empresas', price: 34.49, period: 'mensual', durationDays: 30, features: ['1 empresa', '100 facturas/mes', 'Reportes básicos'], maxBusinesses: 1, maxInvoicesPerMonth: 100, hasAIAssistant: false, hasPrioritySupport: false, isActive: true },
+    { id: '3', code: 'GASTRONOMICO', name: 'Plan Gastronómico', description: 'Para restaurantes, panaderías y cafeterías', price: 91.99, period: 'mensual', durationDays: 30, features: ['1 empresa', '300 facturas/mes', 'Caja POS', 'Recetas', 'Asistente IA'], maxBusinesses: 1, maxInvoicesPerMonth: 300, hasAIAssistant: true, hasPrioritySupport: true, isActive: true },
+    { id: '4', code: 'PRO', name: 'Plan Profesional', description: 'Plan profesional para negocios en crecimiento', price: 172.49, period: 'mensual', durationDays: 30, features: ['3 empresas', '500 facturas/mes', 'Asistente IA', 'Soporte prioritario'], maxBusinesses: 3, maxInvoicesPerMonth: 500, hasAIAssistant: true, hasPrioritySupport: true, isActive: true },
+    { id: '5', code: 'ENTERPRISE', name: 'Plan Empresarial', description: 'Plan empresarial para grandes organizaciones', price: 287.49, period: 'mensual', durationDays: 30, features: ['10 empresas', '2000 facturas/mes', 'API Access', 'Soporte 24/7'], maxBusinesses: 10, maxInvoicesPerMonth: 2000, hasAIAssistant: true, hasPrioritySupport: true, isActive: true }
   ];
 
   const [formData, setFormData] = useState<RegisterData>({
@@ -177,10 +182,15 @@ const SubscriptionPage: React.FC = () => {
     password: '',
     phone: '',
     address: '',
-    plan: 'MONTHLY'
+    plan: 'MONTHLY',
+    businessType: 'GENERAL'
   });
 
   const [toasts, setToasts] = useState<Toast[]>([]);
+  const [transferReference, setTransferReference] = useState('');
+  const [paymentProofFile, setPaymentProofFile] = useState<File | null>(null);
+  const [paymentProofPreview, setPaymentProofPreview] = useState<string | null>(null);
+  const [uploadingProof, setUploadingProof] = useState(false);
 
   // Validar RUC: Debe tener 13 dígitos numéricos
   const isValidRuc = (ruc: string) => /^\d{13}$/.test(ruc);
@@ -198,6 +208,13 @@ const SubscriptionPage: React.FC = () => {
 
   const handlePlanSelect = (plan: string) => {
     setSelectedPlan(plan);
+    setStep('businessType');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const handleBusinessTypeSelect = (type: BusinessType) => {
+    setSelectedBusinessType(type);
+    setFormData({ ...formData, businessType: type });
     setStep('register');
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
@@ -206,7 +223,7 @@ const SubscriptionPage: React.FC = () => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleRegister = async (paymentId?: string) => {
+  const handleRegister = async (paymentId?: string): Promise<any> => {
     setLoading(true);
     try {
 
@@ -217,6 +234,7 @@ const SubscriptionPage: React.FC = () => {
         body: JSON.stringify({
           ...formData,
           plan: selectedPlan,
+          businessType: selectedBusinessType,
           paymentMethod: paymentMethod,
           paymentId: paymentId // Solo si es PayPal
         })
@@ -225,30 +243,82 @@ const SubscriptionPage: React.FC = () => {
       const data = await response.json();
 
       if (data.success) {
-        // Guardar token y redirigir
+        // Guardar token
         localStorage.setItem('adminToken', data.token);
         localStorage.setItem('adminUser', JSON.stringify(data.user));
-        showNotify('¡Cuenta creada exitosamente! Bienvenido.', 'success');
-        setTimeout(() => {
-          window.location.href = '/'; // Redirigir al dashboard tras 2 segundos
-        }, 2000);
+
+        if (paymentMethod === 'PAYPAL' || paymentMethod === 'FREE') {
+          showNotify(paymentMethod === 'FREE' ? '¡Cuenta gratuita activada! Bienvenido.' : '¡Cuenta creada exitosamente! Bienvenido.', 'success');
+          setTimeout(() => { window.location.href = '/'; }, 2000);
+        }
+        return data;
       } else {
         showNotify('Error: ' + data.message, 'error');
+        return null;
       }
     } catch (error) {
       console.error(error);
       showNotify('Error de conexión con el servidor.', 'error');
+      return null;
     } finally {
       setLoading(false);
     }
   };
 
-  const handleWhatsAppTransfer = () => {
-    const message = `Hola, deseo suscribirme al plan ${selectedPlan} de EcuaFact Pro. Mis datos: ${formData.businessName} (${formData.ruc}). Solicito datos bancarios.`;
-    const url = `https://wa.me/593999999999?text=${encodeURIComponent(message)}`; // Reemplaza con tu número
-    window.open(url, '_blank');
-    // Opcional: Registrar como pendiente o esperar confirmación manual
-    handleRegister();
+  const handleTransferRegister = async () => {
+    setLoading(true);
+    
+    // Paso 1: Registrar la empresa (queda pendiente)
+    const registerData = await handleRegister();
+    if (!registerData) {
+      setLoading(false);
+      return;
+    }
+
+    const activationId = registerData.activationRequestId;
+
+    // Paso 2: Si hay comprobante y tenemos el ID, subirlo
+    if (paymentProofFile && activationId) {
+      setUploadingProof(true);
+      try {
+        const reader = new FileReader();
+        const base64Promise = new Promise<string>((resolve, reject) => {
+          reader.onload = () => resolve(reader.result as string);
+          reader.onerror = reject;
+          reader.readAsDataURL(paymentProofFile);
+        });
+
+        const base64 = await base64Promise;
+        const API_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:3001';
+        const token = localStorage.getItem('adminToken');
+
+        await fetch(`${API_URL}/api/activation-requests/${activationId}/upload-proof`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify({
+            paymentProofUrl: base64,
+            paymentProofName: paymentProofFile.name,
+            referenceNumber: transferReference || null
+          })
+        });
+
+        showNotify('Comprobante subido correctamente.', 'success');
+      } catch (err) {
+        console.error('Error subiendo comprobante:', err);
+        showNotify('Registro exitoso, pero no se pudo subir el comprobante. Contacte al administrador.', 'error');
+      } finally {
+        setUploadingProof(false);
+      }
+    }
+
+    setLoading(false);
+    
+    // Redirigir al dashboard
+    showNotify('Registro exitoso. Su cuenta está pendiente de aprobación.', 'info');
+    setTimeout(() => { window.location.href = '/'; }, 2500);
   };
 
   return (
@@ -382,13 +452,52 @@ const SubscriptionPage: React.FC = () => {
                 </div>
               </div>
             </>
+          ) : step === 'businessType' ? (
+            /* Step 2: Selección de Tipo de Negocio */
+            <div className="flex flex-col gap-6">
+              <div className="flex flex-col gap-4 text-center max-w-2xl mx-auto">
+                <h1 className="text-slate-900 dark:text-white text-4xl lg:text-5xl font-black leading-tight tracking-tighter">
+                  ¿Qué tipo de negocio tienes?
+                </h1>
+                <p className="text-slate-600 dark:text-slate-400 text-lg">
+                  Activaremos solo los módulos que tu negocio necesita. Si tienes panadería o restaurante, tendrás control de recetas y producción.
+                </p>
+              </div>
+
+              <div className="grid sm:grid-cols-2 lg:grid-cols-5 gap-4 mt-6">
+                {(Object.entries(BUSINESS_TYPES) as [BusinessType, typeof BUSINESS_TYPES[BusinessType]][]).map(([key, value]) => (
+                  <button
+                    key={key}
+                    onClick={() => handleBusinessTypeSelect(key)}
+                    className={`group relative bg-white dark:bg-slate-800 rounded-3xl p-6 border-2 transition-all duration-300 text-center hover:-translate-y-1 cursor-pointer ${
+                      selectedBusinessType === key
+                        ? 'border-[#135bec] shadow-2xl shadow-[#135bec]/20'
+                        : 'border-slate-200 dark:border-slate-700 hover:border-[#135bec]/50 hover:shadow-xl'
+                    }`}
+                  >
+                    <div className="text-4xl mb-4">{value.icon}</div>
+                    <h3 className="text-lg font-black text-slate-800 dark:text-white group-hover:text-[#135bec] transition-colors">{value.label}</h3>
+                    <p className="text-sm text-slate-500 dark:text-slate-400 mt-2 leading-relaxed">{value.description}</p>
+                  </button>
+                ))}
+              </div>
+
+              <div className="text-center mt-4">
+                <button
+                  onClick={() => setStep('plans')}
+                  className="text-sm text-slate-500 hover:text-[#135bec] inline-flex items-center gap-1"
+                >
+                  <ArrowLeftIcon className="w-4 h-4" /> Volver a planes
+                </button>
+              </div>
+            </div>
           ) : (
             /* Registration Form */
             <div className="flex flex-col lg:flex-row gap-8">
               <div className="flex-1 bg-white dark:bg-slate-900 rounded-2xl p-8 border border-slate-200 dark:border-slate-800 shadow-sm">
                 <div className="mb-6">
-                  <button onClick={() => setStep('plans')} className="text-sm text-slate-500 hover:text-[#135bec] mb-4 flex items-center gap-1">
-                    <ArrowLeftIcon className="w-4 h-4" /> Volver a planes
+                  <button onClick={() => setStep('businessType')} className="text-sm text-slate-500 hover:text-[#135bec] mb-4 flex items-center gap-1">
+                    <ArrowLeftIcon className="w-4 h-4" /> Volver a tipo de negocio
                   </button>
                   <h2 className="text-2xl font-black text-slate-900 dark:text-white">Crea tu cuenta de Empresa</h2>
                   <p className="text-slate-500 text-sm">Ingresa los datos para tu facturación electrónica.</p>
@@ -444,8 +553,37 @@ const SubscriptionPage: React.FC = () => {
                 </div>
 
                 <div className="mb-6">
-                  <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-3">Método de Pago</h3>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {(() => {
+                    const currentPlan = plans.find(p => p.code === selectedPlan);
+                    const isFreePlan = currentPlan?.price === 0;
+
+                    if (isFreePlan) {
+                      return (
+                        <div className="space-y-4">
+                          <div className="bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-200 dark:border-emerald-500/20 rounded-xl p-4">
+                            <p className="text-sm font-black text-emerald-700 dark:text-emerald-400">Plan Gratuito</p>
+                            <p className="text-xs text-emerald-600 dark:text-emerald-300 mt-1">No se requiere pago. Su cuenta se activar� inmediatamente con {currentPlan?.durationDays || 30} d�as de acceso.</p>
+                          </div>
+                          <button
+                            onClick={async () => {
+                              setPaymentMethod('FREE');
+                              await handleRegister();
+                            }}
+                            disabled={loading || !isFormValid}
+                            className={`w-full flex items-center justify-center gap-2 rounded-xl h-12 font-bold transition-colors ${loading || !isFormValid
+                                ? 'bg-slate-200 dark:bg-slate-800 text-slate-400 cursor-not-allowed'
+                                : 'bg-emerald-600 text-white hover:bg-emerald-500'
+                              }`}
+                          >
+                            {loading ? 'Registrando...' : 'Activar Cuenta Gratuita'}
+                          </button>
+                        </div>
+                      );
+                    }
+
+                    return (
+                      <>
+                        <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-3">Método de Pago</h3>
                     <div
                       onClick={() => setPaymentMethod('PAYPAL')}
                       className={`cursor-pointer flex items-center gap-3 p-4 rounded-xl border transition-all ${paymentMethod === 'PAYPAL' ? 'border-[#135bec] bg-[#135bec]/5' : 'border-slate-200 dark:border-slate-800'}`}
@@ -463,11 +601,13 @@ const SubscriptionPage: React.FC = () => {
                       <BuildingLibraryIcon className="w-5 h-5 text-[#135bec]" />
                       <div>
                         <p className="font-bold text-sm dark:text-white">Transferencia</p>
-                        <p className="text-xs text-slate-500">Vía WhatsApp</p>
+                        <p className="text-xs text-slate-500">Aprobación manual (24-48h)</p>
                       </div>
                     </div>
-                  </div>
-                </div>
+                    </>
+                  );
+                })()}
+              </div>
 
                 {paymentMethod === 'PAYPAL' ? (
                   <div className="mt-4">
@@ -486,7 +626,10 @@ const SubscriptionPage: React.FC = () => {
                           clientId: PAYPAL_CLIENT_ID, 
                           currency: "USD",
                           intent: "capture",
-                          debug: IS_SANDBOX
+                          debug: IS_SANDBOX,
+                          locale: "es_EC",
+                          buyerCountry: "EC",
+                          "enable-funding": "card"
                         }}
                       >
                         <PayPalButtons
@@ -497,6 +640,15 @@ const SubscriptionPage: React.FC = () => {
                             const price = currentPlan ? currentPlan.price.toFixed(2) : '0.00';
                             return actions.order.create({
                               intent: "CAPTURE",
+                              payer: {
+                                address: {
+                                  country_code: "EC"
+                                }
+                              },
+                              application_context: {
+                                shipping_preference: "NO_SHIPPING",
+                                landing_page: "BILLING"
+                              },
                               purchase_units: [{
                                 amount: { currency_code: "USD", value: price },
                                 description: `Suscripción EcuaFact Pro - ${(() => {
@@ -530,16 +682,76 @@ const SubscriptionPage: React.FC = () => {
                     )}
                   </div>
                 ) : (
-                  <button
-                    onClick={handleWhatsAppTransfer}
-                    disabled={loading || !isFormValid}
-                    className={`w-full flex items-center justify-center gap-2 rounded-xl h-12 font-bold transition-colors ${loading || !isFormValid
-                        ? 'bg-slate-200 dark:bg-slate-800 text-slate-400 cursor-not-allowed'
-                        : 'bg-[#25D366] text-white hover:bg-[20bd5a]'
-                      }`}
-                  >
-                    {loading ? 'Procesando...' : 'Finalizar en WhatsApp'}
-                  </button>
+                  <div className="space-y-4">
+                    {/* Datos bancarios */}
+                    <div className="bg-indigo-50 dark:bg-indigo-500/10 border border-indigo-200 dark:border-indigo-500/20 rounded-xl p-4 space-y-2">
+                      <p className="text-xs font-black text-indigo-700 dark:text-indigo-400 uppercase tracking-widest">Datos para la transferencia</p>
+                      <div className="text-xs text-slate-600 dark:text-slate-400 space-y-1">
+                        <p><strong>Banco:</strong> Banco Pichincha</p>
+                        <p><strong>Cuenta:</strong> 1234567890</p>
+                        <p><strong>Titular:</strong> ECUAFACT S.A.</p>
+                        <p><strong>RUC:</strong> 0953443769</p>
+                      </div>
+                    </div>
+
+                    {/* Número de referencia */}
+                    <div>
+                      <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-1">N° de Referencia / Comprobante</label>
+                      <input
+                        type="text"
+                        value={transferReference}
+                        onChange={e => setTransferReference(e.target.value)}
+                        className="w-full rounded-lg border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 p-3 text-sm focus:ring-[#135bec]"
+                        placeholder="Ej. 00123456789"
+                      />
+                    </div>
+
+                    {/* Subir comprobante */}
+                    <div>
+                      <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-1">Foto del Comprobante de Pago</label>
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={e => {
+                          const file = e.target.files?.[0];
+                          if (file) {
+                            setPaymentProofFile(file);
+                            const reader = new FileReader();
+                            reader.onloadend = () => setPaymentProofPreview(reader.result as string);
+                            reader.readAsDataURL(file);
+                          }
+                        }}
+                        className="w-full rounded-lg border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 p-3 text-sm focus:ring-[#135bec] file:mr-3 file:py-1 file:px-3 file:rounded-lg file:border-0 file:text-sm file:font-bold file:bg-indigo-100 file:text-indigo-700 hover:file:bg-indigo-200"
+                      />
+                      {paymentProofPreview && (
+                        <div className="mt-2 relative">
+                          <img src={paymentProofPreview} alt="Comprobante" className="w-full max-h-40 object-cover rounded-lg border border-slate-200 dark:border-slate-700" />
+                          <button
+                            onClick={() => { setPaymentProofFile(null); setPaymentProofPreview(null); }}
+                            className="absolute top-1 right-1 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold"
+                          >×</button>
+                        </div>
+                      )}
+                    </div>
+
+                    <button
+                      onClick={handleTransferRegister}
+                      disabled={loading || uploadingProof || !isFormValid}
+                      className={`w-full flex items-center justify-center gap-2 rounded-xl h-12 font-bold transition-colors ${loading || uploadingProof || !isFormValid
+                          ? 'bg-slate-200 dark:bg-slate-800 text-slate-400 cursor-not-allowed'
+                          : 'bg-[#135bec] text-white hover:bg-[#135bec]/90'
+                        }`}
+                    >
+                      {loading || uploadingProof ? (
+                        <span className="inline-flex items-center gap-2">
+                          <span className="animate-spin">⏳</span>
+                          {uploadingProof ? 'Subiendo comprobante...' : 'Registrando...'}
+                        </span>
+                      ) : (
+                        'Registrar y Enviar Comprobante'
+                      )}
+                    </button>
+                  </div>
                 )}
               </div>
 

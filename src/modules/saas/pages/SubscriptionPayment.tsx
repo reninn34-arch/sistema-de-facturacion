@@ -78,9 +78,9 @@ const PagoInterno: React.FC<PagoInternoProps> = ({ businessInfo, isExpired = fal
         console.error('Error cargando planes:', error);
         // fallback a planes hardcoded (precios con IVA 15%)
         setAvailablePlans([
-          { id: 'MONTHLY', name: 'Mensual', price: 34.49, period: 'mes' }, // $29.99 + IVA
-          { id: 'SEMIANNUAL', name: 'Semestral', price: 172.49, period: '6 meses' }, // $149.99 + IVA
-          { id: 'YEARLY', name: 'Anual', price: 287.49, period: '1 año' } // $249.99 + IVA
+          { id: 'MONTHLY', name: 'Mensual', price: 34.49, period: 'mes' }, // Plan Básico $29.99 + IVA
+          { id: 'SEMIANNUAL', name: 'Semestral', price: 172.49, period: '6 meses' }, // Plan Profesional $149.99 + IVA
+          { id: 'YEARLY', name: 'Anual', price: 287.49, period: '1 año' } // Plan Empresarial $249.99 + IVA
         ]);
       }
     };
@@ -123,7 +123,7 @@ const PagoInterno: React.FC<PagoInternoProps> = ({ businessInfo, isExpired = fal
     : 0;
 
   // Planes disponibles (cargados desde API)
-  const currentPlan = availablePlans.find(p => p.id === selectedPlan) || availablePlans[0] || { id: 'MONTHLY', name: 'Mensual', price: 29.99, period: 'mes' };
+  const currentPlan = availablePlans.find(p => p.id === selectedPlan) || availablePlans[0] || { id: 'MONTHLY', name: 'Mensual', price: 34.49, period: 'mes' };
 
   const handlePayment = async () => {
     setIsProcessing(true);

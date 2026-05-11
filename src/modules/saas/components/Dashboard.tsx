@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { getBusinessInsights } from '../../../services/geminiService';
+import { getAuditReport, AuditResult, AuditIssue } from '../../../services/geminiService';
 import { Document, Product, DocumentType, SriStatus } from '../../../types/types';
 import { client } from '../../../api/client';
 import { StatCard, Card, Skeleton, Badge } from '../../../components/ui';
@@ -16,6 +16,11 @@ import {
   ShoppingCartIcon,
   BellAlertIcon,
   InboxIcon,
+  CheckCircleIcon,
+  XCircleIcon,
+  ClockIcon,
+  ShieldExclamationIcon,
+  ArrowRightIcon,
 } from '@heroicons/react/24/outline';
 
 interface SubscriptionStats {
@@ -46,11 +51,13 @@ interface DashboardProps {
   currentUser?: any;
   isLoading?: boolean;
   businessInfo?: BusinessInfo;
+  planHasAudit?: boolean;
 }
 
 const planColors: Record<string, string> = {
   FREE: 'slate',
   BASIC: 'indigo',
+  GASTRONOMICO: 'orange',
   PRO: 'purple',
   ENTERPRISE: 'emerald',
   MONTHLY: 'cyan',
@@ -60,9 +67,10 @@ const planColors: Record<string, string> = {
   PENDING: 'gray'
 };
 
-const Dashboard: React.FC<DashboardProps> = ({ documents, products, setActiveTab, currentUser, businessInfo }) => {
-  const [insights, setInsights] = useState<string>('');
-  const [insightsLoading, setInsightsLoading] = useState(true);
+const Dashboard: React.FC<DashboardProps> = ({ documents, products, setActiveTab, currentUser, businessInfo, planHasAudit }) => {
+  const [auditResult, setAuditResult] = useState<AuditResult | null>(null);
+  const [auditLoading, setAuditLoading] = useState(true);
+  const [auditError, setAuditError] = useState<string | null>(null);
   const [subscriptionStats, setSubscriptionStats] = useState<SubscriptionStats | null>(null);
   const [loadingStats, setLoadingStats] = useState(false);
 
@@ -87,7 +95,7 @@ const Dashboard: React.FC<DashboardProps> = ({ documents, products, setActiveTab
 
   const getPlanLabel = (plan: string | undefined) => {
     const labels: Record<string, string> = {
-      FREE: 'Gratis', BASIC: 'Básico', PRO: 'Profesional', ENTERPRISE: 'Empresarial',
+      FREE: 'Gratis', BASIC: 'Básico', GASTRONOMICO: 'Gastronómico', PRO: 'Profesional', ENTERPRISE: 'Empresarial',
       MONTHLY: 'Mensual', SEMIANNUAL: 'Semestral', YEARLY: 'Anual',
       UNLIMITED: 'Ilimitado', PENDING: 'Pendiente'
     };
@@ -124,19 +132,25 @@ const Dashboard: React.FC<DashboardProps> = ({ documents, products, setActiveTab
 
   useEffect(() => {
     if (isSuperAdmin) return;
-    setInsightsLoading(true);
-    const fetchInsights = async () => {
-      const dataForAI = {
-        totalVentas: totalSales,
-        inventario: safeProducts.map(p => ({ n: p.description, s: p.stock })),
-        documentos: safeDocuments.length
-      };
-      const result = await getBusinessInsights(dataForAI);
-      setInsights(result || 'No se pudo generar la auditoría.');
-      setInsightsLoading(false);
+    if (!planHasAudit) {
+      setAuditLoading(false);
+      setAuditResult(null);
+      return;
+    }
+    setAuditLoading(true);
+    setAuditError(null);
+    const fetchAudit = async () => {
+      try {
+        const result = await getAuditReport();
+        setAuditResult(result);
+      } catch (e) {
+        setAuditError('No se pudo ejecutar la auditoría.');
+      } finally {
+        setAuditLoading(false);
+      }
     };
-    fetchInsights();
-  }, [totalSales, safeProducts.length, isSuperAdmin, safeDocuments.length]);
+    fetchAudit();
+  }, [totalSales, safeProducts.length, isSuperAdmin, safeDocuments.length, planHasAudit]);
 
   // =============================================
   // DASHBOARD SUPERADMIN
@@ -169,7 +183,10 @@ const Dashboard: React.FC<DashboardProps> = ({ documents, products, setActiveTab
             subtitle="Próximos 30 días"
             color={(subscriptionStats?.expiringBusinesses || 0) > 0 ? 'amber' : 'indigo'}
             icon={<ExclamationTriangleIcon className="w-5 h-5" />}
-            onClick={() => setActiveTab('saas-admin')}
+            onClick={() => {
+              sessionStorage.setItem('saasAdminTab', 'expiring');
+              setActiveTab('saas-admin');
+            }}
             loading={loadingStats}
           />
           <StatCard
@@ -192,8 +209,8 @@ const Dashboard: React.FC<DashboardProps> = ({ documents, products, setActiveTab
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
               {(subscriptionStats?.planDistribution || []).map((plan, i) => {
                 const planPrices: Record<string, number> = {
-                  FREE: 0, BASIC: 29.99, PRO: 59.99, ENTERPRISE: 99.99,
-                  MONTHLY: 29.99, SEMIANNUAL: 49.99, YEARLY: 99.99, UNLIMITED: 199.99, PENDING: 0
+                  FREE: 0, BASIC: 29.99, GASTRONOMICO: 79.99, PRO: 149.99, ENTERPRISE: 249.99,
+                  MONTHLY: 29.99, SEMIANNUAL: 149.99, YEARLY: 249.99, UNLIMITED: 0, PENDING: 0
                 };
                 const revenue = (planPrices[plan.plan] || 0) * plan.count;
                 return (
@@ -425,45 +442,127 @@ const Dashboard: React.FC<DashboardProps> = ({ documents, products, setActiveTab
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8">
         <Card padding="lg" className="lg:col-span-2 min-h-[300px] sm:min-h-[400px]">
-          <h3 className="font-bold text-slate-800 dark:text-white mb-6 uppercase tracking-tight text-sm sm:text-lg flex justify-between items-center">
+          <h3 className="font-bold text-slate-800 dark:text-white mb-4 uppercase tracking-tight text-sm sm:text-lg flex justify-between items-center">
             Auditoría en Tiempo Real
-            <span className="text-[8px] opacity-30 font-mono">v1.1</span>
+            <span className="text-[10px] font-medium text-slate-400">
+              {auditResult ? new Date(auditResult.generatedAt).toLocaleTimeString('es-EC', { hour: '2-digit', minute: '2-digit' }) : ''}
+            </span>
           </h3>
-          <div className="bg-slate-100 dark:bg-slate-800/80 p-4 sm:p-6 rounded-[2rem] flex items-start gap-3 sm:gap-4 transition-all hover:bg-slate-200 dark:hover:bg-slate-700 group">
-            <div className="w-10 sm:w-12 h-10 sm:h-12 bg-indigo-600 text-white rounded-2xl flex items-center justify-center flex-shrink-0 shadow-lg shadow-indigo-500/20">
-              <SparklesIcon className="w-5 h-5 sm:w-6 sm:h-6 group-hover:scale-110 transition-transform" />
+
+          {!planHasAudit ? (
+            <div className="bg-gradient-to-br from-indigo-50 to-purple-50 dark:from-indigo-900/20 dark:to-purple-900/20 border border-indigo-100 dark:border-indigo-800 rounded-2xl p-8 text-center">
+              <SparklesIcon className="w-12 h-12 text-indigo-400 mx-auto mb-3" />
+              <p className="text-indigo-700 dark:text-indigo-300 font-bold text-lg">Auditoría en Tiempo Real</p>
+              <p className="text-indigo-600 dark:text-indigo-400 text-sm mt-2">
+                Detecta facturas rechazadas, inventario bajo, duplicados y más automáticamente.
+              </p>
+              <button
+                onClick={() => setActiveTab('pago-interno')}
+                className="mt-4 px-6 py-3 bg-indigo-600 text-white font-bold rounded-xl hover:bg-indigo-700 transition-colors shadow-lg shadow-indigo-500/20 text-sm"
+              >
+                Actualizar Plan para Desbloquear
+              </button>
             </div>
-            <div className="flex-1 overflow-hidden">
-              {insightsLoading ? (
-                <div className="space-y-2">
-                  <Skeleton width="90%" height="1rem" />
-                  <Skeleton width="75%" height="1rem" />
-                  <Skeleton width="60%" height="1rem" />
+          ) : auditLoading ? (
+            <div className="space-y-3">
+              <Skeleton width="100%" height="2.5rem" />
+              <Skeleton width="90%" height="4rem" />
+              <Skeleton width="80%" height="4rem" />
+              <Skeleton width="70%" height="4rem" />
+            </div>
+          ) : auditError ? (
+            <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-2xl p-6 text-center">
+              <XCircleIcon className="w-8 h-8 text-red-400 mx-auto mb-2" />
+              <p className="text-red-600 dark:text-red-400 font-medium">{auditError}</p>
+            </div>
+          ) : !auditResult ? null : (
+            <div className="space-y-4">
+              {/* Summary badges */}
+              <div className="flex flex-wrap gap-3 mb-2">
+                <div className="flex items-center gap-2 px-3 py-2 bg-emerald-50 dark:bg-emerald-900/20 rounded-xl text-xs font-bold text-emerald-700 dark:text-emerald-300">
+                  <CheckCircleIcon className="w-4 h-4" /> {auditResult.summary.authorizedDocuments} Autorizadas
+                </div>
+                {auditResult.summary.pendingDocuments > 0 && (
+                  <div className="flex items-center gap-2 px-3 py-2 bg-amber-50 dark:bg-amber-900/20 rounded-xl text-xs font-bold text-amber-700 dark:text-amber-300">
+                    <ClockIcon className="w-4 h-4" /> {auditResult.summary.pendingDocuments} Pendientes
+                  </div>
+                )}
+                {auditResult.summary.rejectedDocuments > 0 && (
+                  <div className="flex items-center gap-2 px-3 py-2 bg-red-50 dark:bg-red-900/20 rounded-xl text-xs font-bold text-red-700 dark:text-red-300">
+                    <XCircleIcon className="w-4 h-4" /> {auditResult.summary.rejectedDocuments} Rechazadas
+                  </div>
+                )}
+                {auditResult.summary.totalIssues === 0 && (
+                  <div className="flex items-center gap-2 px-3 py-2 bg-emerald-50 dark:bg-emerald-900/20 rounded-xl text-xs font-bold text-emerald-700 dark:text-emerald-300">
+                    <SparklesIcon className="w-4 h-4" /> Todo en orden
+                  </div>
+                )}
+              </div>
+
+              {/* Issues */}
+              {auditResult.issues.length === 0 ? (
+                <div className="bg-emerald-50 dark:bg-emerald-900/10 border border-emerald-100 dark:border-emerald-800 rounded-2xl p-8 text-center">
+                  <CheckCircleIcon className="w-12 h-12 text-emerald-400 mx-auto mb-3" />
+                  <p className="text-emerald-700 dark:text-emerald-300 font-bold text-lg">Sin problemas detectados</p>
+                  <p className="text-emerald-600 dark:text-emerald-400 text-sm mt-1">Todos los documentos están autorizados, el inventario está estable y no hay alertas fiscales.</p>
                 </div>
               ) : (
-                <p className="text-sm leading-relaxed text-slate-700 dark:text-slate-200 font-medium italic max-h-[150px] overflow-y-auto pr-2 custom-scrollbar">
-                  "{insights}"
-                </p>
+                <div className="space-y-2 max-h-[350px] overflow-y-auto pr-2 custom-scrollbar">
+                  {auditResult.issues.map((issue: AuditIssue, i: number) => {
+                    const severityColors: Record<string, string> = {
+                      high: 'border-red-200 dark:border-red-800 bg-red-50/80 dark:bg-red-900/10',
+                      medium: 'border-amber-200 dark:border-amber-800 bg-amber-50/80 dark:bg-amber-900/10',
+                      low: 'border-slate-200 dark:border-slate-700 bg-slate-50/80 dark:bg-slate-800/20'
+                    };
+                    const severityIcons: Record<string, React.ReactNode> = {
+                      high: <ShieldExclamationIcon className="w-5 h-5 text-red-500" />,
+                      medium: <ExclamationTriangleIcon className="w-5 h-5 text-amber-500" />,
+                      low: <BellAlertIcon className="w-5 h-5 text-slate-400" />
+                    };
+                    return (
+                      <div key={i} className={`border rounded-2xl p-4 ${severityColors[issue.severity]} transition-all`}>
+                        <div className="flex items-start gap-3">
+                          <div className="flex-shrink-0 mt-0.5">
+                            {severityIcons[issue.severity]}
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-2 mb-1">
+                              <Badge variant={issue.severity === 'high' ? 'error' : issue.severity === 'medium' ? 'warning' : 'default'} size="sm">
+                                {issue.category}
+                              </Badge>
+                            </div>
+                            <p className="font-bold text-slate-800 dark:text-white text-sm">{issue.title}</p>
+                            <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">{issue.description}</p>
+                          </div>
+                          <button
+                            onClick={() => setActiveTab(issue.actionTab)}
+                            className="flex-shrink-0 flex items-center gap-1 px-3 py-1.5 bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl text-xs font-bold text-indigo-600 dark:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-900/30 transition-colors"
+                          >
+                            {issue.action} <ArrowRightIcon className="w-3 h-3" />
+                          </button>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+
+              {/* Recommendations */}
+              {auditResult.recommendations.length > 0 && (
+                <div className="mt-3 pt-3 border-t border-slate-100 dark:border-slate-700">
+                  <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Recomendaciones</p>
+                  <div className="space-y-1">
+                    {auditResult.recommendations.map((rec, i) => (
+                      <p key={i} className="text-xs text-slate-600 dark:text-slate-300 flex items-start gap-2">
+                        <SparklesIcon className="w-3 h-3 text-indigo-400 flex-shrink-0 mt-0.5" />
+                        {rec}
+                      </p>
+                    ))}
+                  </div>
+                </div>
               )}
             </div>
-          </div>
-
-          <div className="mt-8 grid grid-cols-2 gap-4">
-            <div
-              onClick={() => setActiveTab('products')}
-              className="p-6 rounded-[1.5rem] bg-indigo-100 dark:bg-indigo-500/10 cursor-pointer hover:bg-indigo-200 dark:hover:bg-indigo-500/20 transition-all group"
-            >
-              <p className="text-[10px] font-black text-indigo-600 dark:text-indigo-400 uppercase mb-2 tracking-widest">Top Producto</p>
-              <p className="font-black text-slate-900 dark:text-white group-hover:text-indigo-700 dark:group-hover:text-indigo-300 transition-colors">Licencia Cloud Pro</p>
-            </div>
-            <div
-              onClick={() => setActiveTab('config')}
-              className="p-6 rounded-[1.5rem] bg-slate-100 dark:bg-slate-800 cursor-pointer hover:bg-slate-200 dark:hover:bg-slate-700 transition-all group"
-            >
-              <p className="text-[10px] font-black text-slate-500 dark:text-slate-400 uppercase mb-2 tracking-widest">Próximo Vencimiento</p>
-              <p className="font-black text-slate-900 dark:text-white group-hover:text-slate-700 dark:group-hover:text-slate-200 transition-colors">Firma: 28 Jul</p>
-            </div>
-          </div>
+          )}
         </Card>
 
         <Card padding="lg" className="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700/50 text-slate-800 dark:text-white flex flex-col transition-colors duration-300">

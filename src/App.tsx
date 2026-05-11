@@ -18,7 +18,7 @@ import ClientManager from './modules/clientes/components/ClientManager';
 import ProductManager from './modules/clientes/components/ProductManager';
 import Reports from './modules/reportes/components/Reports';
 import Integrations from './modules/configuracion/components/Integrations';
-import { Client, Product, AppNotification, Document, DocumentType, SriStatus, BusinessInfo, InvoiceItem, NotificationSettings } from './types/types';
+import { Client, Product, AppNotification, Document, DocumentType, SriStatus, BusinessInfo, InvoiceItem, NotificationSettings, BUSINESS_TYPES, BusinessType } from './types/types';
 import { MOCK_CLIENTS, MOCK_PRODUCTS } from './constants';
 
 import Login from './modules/autenticacion/pages/Login';
@@ -38,6 +38,11 @@ import UserManagement from './modules/admin/pages/UserManagement';
 import SalesSummary from './modules/saas/pages/SalesSummary';
 import PagoInterno from './modules/saas/pages/SubscriptionPayment';
 import ActivationRequests from './modules/admin/pages/ActivationRequests';
+import LandingPage from './modules/landing/pages/LandingPage';
+import RecipeManager from './modules/produccion/components/RecipeManager';
+import ProductionRecord from './modules/produccion/components/ProductionRecord';
+import QuickSaleForm from './modules/caja/pages/QuickSaleForm';
+import PendingTickets from './modules/caja/pages/PendingTickets';
 
 // URL del backend definida en variable de entorno o fallback
 // Usar variable de entorno VITE_BACKEND_URL para producción en Railway
@@ -90,6 +95,8 @@ const App: React.FC = () => {
   const [clients, setClients] = useState<Client[]>([]);
   const [products, setProducts] = useState<Product[]>([]);
   const [documents, setDocuments] = useState<Document[]>([]);
+  const [quicksales, setQuicksales] = useState<any[]>([]);
+  const [pendingActivationCount, setPendingActivationCount] = useState(0);
   const [businessInfo, setBusinessInfo] = useState<BusinessInfo>({
     name: '',
     tradename: '',
@@ -130,6 +137,11 @@ const App: React.FC = () => {
     { id: '1', text: 'Bienvenido al sistema Ecuafact Pro', type: 'info', time: new Date(), read: false },
   ]);
   const [toasts, setToasts] = useState<AppNotification[]>([]);
+
+  // Estado para features del plan actual (hasAIAssistant, maxInvoices, etc.)
+  const [currentPlanHasAI, setCurrentPlanHasAI] = useState(false);
+  const [currentPlanHasAudit, setCurrentPlanHasAudit] = useState(false);
+  const [currentPlanMaxInvoices, setCurrentPlanMaxInvoices] = useState(999999);
 
   const showNotify = useCallback((text: string, type: AppNotification['type'] = 'success') => {
     const newNotif: AppNotification = {
@@ -174,6 +186,32 @@ const App: React.FC = () => {
     }
   }, [businessInfo]);
 
+  // Efecto para cargar features del plan actual según el plan de la empresa
+  useEffect(() => {
+    const loadPlanFeatures = async () => {
+      const plan = (businessInfo as any).plan;
+      if (!plan) return;
+
+      try {
+        const API_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:3001';
+        const response = await fetch(`${API_URL}/api/subscription-plans`);
+        if (response.ok) {
+          const data = await response.json();
+          const plans = data.plans || [];
+          const currentPlan = plans.find((p: any) => p.code === plan);
+          if (currentPlan) {
+            setCurrentPlanHasAI(!!currentPlan.hasAIAssistant);
+            setCurrentPlanHasAudit(!!currentPlan.hasAudit);
+            setCurrentPlanMaxInvoices(currentPlan.maxInvoicesPerMonth ?? 999999);
+          }
+        }
+      } catch (error) {
+        // Silencioso - usar valores por defecto
+      }
+    };
+    loadPlanFeatures();
+  }, [(businessInfo as any).plan]);
+
   // Efecto para cargar empresas desde la DB para el módulo SaaS
   useEffect(() => {
     const loadBusinesses = async () => {
@@ -206,6 +244,30 @@ const App: React.FC = () => {
 
     loadBusinesses();
   }, [currentUser]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Efecto para cargar el contador de activaciones pendientes (SUPERADMIN)
+  useEffect(() => {
+    if (currentUser?.role !== 'SUPERADMIN') return;
+
+    const fetchPendingCount = async () => {
+      try {
+        const token = localStorage.getItem('adminToken');
+        const response = await fetch(`${API_URL}/api/activation-requests?status=PENDING`, {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        if (response.ok) {
+          const data = await response.json();
+          setPendingActivationCount(Array.isArray(data) ? data.length : (data.requests?.length || 0));
+        }
+      } catch (error) {
+        // Silencioso
+      }
+    };
+
+    fetchPendingCount();
+    const interval = setInterval(fetchPendingCount, 60000); // Cada 60s
+    return () => clearInterval(interval);
+  }, [currentUser, activeTab]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Efecto para recargar empresas cuando se entra al módulo de emisión
   useEffect(() => {
@@ -266,15 +328,15 @@ const App: React.FC = () => {
       try {
 
         // Carga resiliente: Si falla uno, no detiene a los demás
-        const loadBusiness = client.get<BusinessInfo>('/api/business').catch(e => { console.error("Error loading business", e); return null; });
-        const loadClients = client.get<Client[]>('/api/clients').catch(e => { console.error("Error loading clients", e); return []; });
-        const loadProducts = client.get<Product[]>('/api/products').catch(e => { console.error("Error loading products", e); return []; });
-        const loadDocs = client.get<Document[]>('/api/documents').catch(e => { console.error("Error loading documents", e); return []; });
+        const loadBusiness = client.get<{ data: BusinessInfo }>('/api/business').then(r => r.data).catch(e => { console.error("Error loading business", e); return null; });
+        const loadClients = client.get<{ data: Client[] }>('/api/clients').then(r => r.data).catch(e => { console.error("Error loading clients", e); return []; });
+        const loadProducts = client.get<{ data: Product[] }>('/api/products').then(r => r.data).catch(e => { console.error("Error loading products", e); return []; });
+        const loadDocs = client.get<{ data: Document[] }>('/api/documents').then(r => r.data).catch(e => { console.error("Error loading documents", e); return []; });
 
         const [empresa, clientes, productos, docs] = await Promise.all([loadBusiness, loadClients, loadProducts, loadDocs]);
 
         if (empresa) {
-          setBusinessInfo(empresa);
+          setBusinessInfo(empresa as BusinessInfo);
 
           // Verificar si la suscripción está vencida (solo para empresas, no superadmins)
           // Los SUPERADMINES no tienen restricción de suscripción
@@ -674,15 +736,25 @@ const App: React.FC = () => {
   // ESTADO DE SEGURIDAD: Verificamos si existe el token al cargar
   //LA COMPUERTA (Inserta esto ANTES del 'return' principal)
 
-  // 1. Ruta pública para Portal de Clientes
+  // 1. Página de inicio (Landing Page) - Solo para no autenticados
+  if ((window.location.pathname === '/' || window.location.pathname === '/inicio') && !isAuthenticated) {
+    return <LandingPage />;
+  }
+
+  // 2. Login explícito - Solo para no autenticados
+  if (window.location.pathname === '/login' && !isAuthenticated) {
+    return <Login onLoginSuccess={() => setIsAuthenticated(true)} />;
+  }
+
+  // 3. Ruta pública para Portal de Clientes
   if (window.location.pathname === '/portal/login') {
     return <ClientLogin />;
   }
-  // 2. Ruta protegida para Dashboard de Clientes
+  // 4. Ruta protegida para Dashboard de Clientes
   if (window.location.pathname === '/portal/dashboard') {
     return <ClientDashboard />;
   }
-  // 3. Ruta pública para Suscripciones
+  // 5. Ruta pública para Suscripciones
   if (window.location.pathname === '/suscripcion') {
     return <SubscriptionPage />;
   }
@@ -767,7 +839,7 @@ const App: React.FC = () => {
           <div className="space-y-6">
             {/* Mostrar resumen de ventas solo a administradores de empresa */}
             {currentUser?.role === 'ADMIN' && <SalesSummary documents={documents} />}
-            <Dashboard documents={documents} products={products} setActiveTab={setActiveTab} currentUser={currentUser} businessInfo={businessInfo} />
+            <Dashboard documents={documents} products={products} setActiveTab={setActiveTab} currentUser={currentUser} businessInfo={businessInfo} planHasAudit={currentPlanHasAudit || currentUser?.role === 'SUPERADMIN'} />
           </div>
         );
 
@@ -795,7 +867,13 @@ const App: React.FC = () => {
       case 'kardex': return <Kardex products={products} documents={documents} onNotify={showNotify} />;
       case 'profitability': return <ProfitabilityAnalysis products={products} documents={documents} onNotify={showNotify} />;
       case 'notifications': return <NotificationSettingsComponent settings={notificationSettings} onSave={handleSaveNotificationSettings} onNotify={showNotify} />;
-      case 'reports': return <Reports documents={documents} businessInfo={businessInfo} />; case 'ai-assistant': return <AIAssistant businessInfo={businessInfo} />;
+      case 'reports': return <Reports documents={documents} businessInfo={businessInfo} />; 
+      case 'ai-assistant': 
+        if (!currentPlanHasAI && currentUser?.role !== 'SUPERADMIN') {
+          showNotify('El Asistente IA requiere un plan superior. Actualice su suscripción.', 'warning');
+          return <Dashboard documents={documents} products={products} setActiveTab={setActiveTab} currentUser={currentUser} />;
+        }
+        return <AIAssistant businessInfo={businessInfo} />;
 
       // Panel SaaS - SOLO para SUPERADMIN
       case 'saas-admin':
@@ -882,7 +960,11 @@ const App: React.FC = () => {
         return <Dashboard documents={documents} products={products} setActiveTab={setActiveTab} currentUser={currentUser} />;
 
       case 'clients': return <ClientManager clients={clients} setClients={setClients} onNotify={showNotify} isDemoMode={isDemoMode} currentUser={currentUser} />;
-      case 'products': return <ProductManager products={products} setProducts={setProducts} onNotify={showNotify} isDemoMode={isDemoMode} />;
+      case 'products': return <ProductManager products={products} setProducts={setProducts} onNotify={showNotify} isDemoMode={isDemoMode} businessType={businessInfo?.businessType as any} isProduction={businessInfo?.isProduction || false} />;
+      case 'recipes': return <RecipeManager products={products} onNotify={showNotify} />;
+      case 'production': return <ProductionRecord products={products} setProducts={setProducts} onNotify={showNotify} />;
+      case 'quicksale': return <QuickSaleForm products={products} businessInfo={businessInfo} onNotify={showNotify} onTicketCreated={(ticket) => setQuicksales(prev => [ticket, ...prev])} />;
+      case 'pending-sri': return <PendingTickets tickets={quicksales} setTickets={setQuicksales} products={products} businessInfo={businessInfo} signatureFile={signatureFile} signaturePassword={signaturePassword} onNotify={showNotify} onAuthorize={handleDocumentAuthorized} />;
       case 'integrations': return <Integrations products={products} clients={clients} businessInfo={businessInfo} onOrderAuthorized={handleDocumentAuthorized} onNotify={showNotify} onUpdateProducts={setProducts} />;
       case 'config':
 
@@ -1028,6 +1110,32 @@ const App: React.FC = () => {
                           <button onClick={() => setBusinessInfo({ ...businessInfo, isAccountingObliged: false })} className={`flex-1 rounded-xl text-[10px] font-black uppercase transition-all ${!businessInfo.isAccountingObliged ? 'bg-white dark:bg-slate-700 shadow-sm text-indigo-600 dark:text-indigo-400' : 'text-slate-400'}`}>NO</button>
                         </div>
                       </div>
+                    </div>
+                  </section>
+                )}
+
+                {/* Tipo de Negocio */}
+                {isUserAdmin && (
+                  <section className="bg-white dark:bg-slate-800 p-10 rounded-[3rem] border border-slate-100 dark:border-slate-700/50 shadow-sm dark:shadow-lg dark:shadow-black/10 space-y-8 transition-colors duration-300">
+                    <h3 className="font-black text-slate-800 dark:text-white text-xl uppercase tracking-tighter border-b border-slate-50 dark:border-slate-700/50 pb-4 flex items-center gap-3">
+                      <ShieldCheckIcon className="w-6 h-6 text-indigo-500" /> Tipo de Negocio
+                    </h3>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                      {Object.entries(BUSINESS_TYPES).map(([key, val]) => (
+                        <button
+                          key={key}
+                          onClick={() => setBusinessInfo({ ...businessInfo, businessType: key as BusinessType })}
+                          className={`p-4 rounded-2xl font-bold text-sm transition-all border-2 text-left ${
+                            (businessInfo as any).businessType === key || (!(businessInfo as any).businessType && key === 'GENERAL')
+                              ? 'border-indigo-500 bg-indigo-50 dark:bg-indigo-500/10'
+                              : 'border-slate-200 dark:border-slate-700 hover:border-slate-300'
+                          }`}
+                        >
+                          <span className="text-lg">{val.icon}</span>
+                          <p className="font-black text-slate-800 dark:text-white mt-1">{val.label}</p>
+                          <p className="text-[10px] text-slate-400">{val.description}</p>
+                        </button>
+                      ))}
                     </div>
                   </section>
                 )}
@@ -1237,6 +1345,8 @@ const App: React.FC = () => {
       onRemoveNotif={(id) => setNotifications(prev => prev.filter(n => n.id !== id))}
       currentUser={currentUser}
       subscriptionExpired={subscriptionExpired}
+      pendingActivations={pendingActivationCount}
+      planHasAIAssistant={currentPlanHasAI || currentUser?.role === 'SUPERADMIN'}
     >
       {renderContent()}
 
