@@ -79,7 +79,7 @@ const Reports: React.FC<ReportsProps> = ({ documents, businessInfo }) => {
           <div className="lg:col-span-1 space-y-6">
             <div className="bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-sm">
               <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Total IVA Generado</p>
-              <h4 className="text-4xl font-black text-indigo-600 tracking-tighter">${fiscalStats.totalIva.toFixed(2)}</h4>
+              <h4 className="text-4xl font-black text-indigo-700 tracking-tighter">${fiscalStats.totalIva.toFixed(2)}</h4>
             </div>
             <div className="bg-slate-900 p-8 rounded-[2.5rem] text-white">
               <h5 className="font-black text-sm uppercase tracking-widest mb-4 text-indigo-400 flex items-center gap-2"><LightBulbIcon className="w-4 h-4" /> Tip Fiscal</h5>

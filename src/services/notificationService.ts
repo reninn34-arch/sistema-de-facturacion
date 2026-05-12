@@ -56,7 +56,7 @@ export async function sendRideEmail(
   };
 
   try {
-    const response = await fetch('http://localhost:3001/api/notifications/send-email', {
+    const response = await fetch('/api/notifications/send-email', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email, settings })
@@ -76,7 +76,7 @@ export async function sendSMS(
   if (!settings.smsEnabled) return false;
 
   try {
-    const response = await fetch('http://localhost:3001/api/notifications/send-sms', {
+    const response = await fetch('/api/notifications/send-sms', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ sms: data, settings })
@@ -96,7 +96,7 @@ export async function sendWhatsApp(
   if (!settings.whatsappEnabled) return false;
 
   try {
-    const response = await fetch('http://localhost:3001/api/notifications/send-whatsapp', {
+    const response = await fetch('/api/notifications/send-whatsapp', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ whatsapp: data, settings })

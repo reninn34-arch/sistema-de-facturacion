@@ -167,7 +167,7 @@ const RideViewer: React.FC<RideViewerProps> = ({ document, businessInfo, items, 
               </button>
               <button 
                 onClick={handlePrint}
-                className="flex items-center gap-2 bg-indigo-600 text-white px-6 py-3 rounded-xl font-bold text-sm uppercase tracking-wide shadow-lg shadow-indigo-200 hover:bg-indigo-700 hover:scale-105 transition-all"
+                className="flex items-center gap-2 bg-indigo-700 text-white px-6 py-3 rounded-xl font-bold text-sm uppercase tracking-wide shadow-lg shadow-indigo-200 hover:bg-indigo-800 hover:scale-105 transition-all"
               >
                 <PrinterIcon className="w-5 h-5" /> Imprimir
               </button>

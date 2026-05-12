@@ -62,6 +62,16 @@ const corsOptions = {
       return callback(null, true);
     }
 
+    // Permitir túneles de desarrollo (localhost, devtunnels.ms, ngrok, etc.)
+    if (origin.includes('localhost') || origin.includes('127.0.0.1') || origin.includes('devtunnels.ms') || origin.includes('ngrok')) {
+      return callback(null, true);
+    }
+
+    // En desarrollo, permitir todos los orígenes
+    if (process.env.NODE_ENV !== 'production') {
+      return callback(null, true);
+    }
+
     logger.warn('🚫 Bloqueado por CORS:', origin);
     callback(new Error('No permitido por CORS'));
   },

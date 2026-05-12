@@ -101,7 +101,7 @@ const NotificationSettingsComponent: React.FC<NotificationSettingsProps> = ({ se
               key={tab.id}
               onClick={() => setActiveTab(tab.id as any)}
               className={`px-6 py-3 font-bold text-sm rounded-t-xl ${
-                activeTab === tab.id ? 'bg-indigo-600 text-white' : 'bg-slate-50 text-slate-600'
+                activeTab === tab.id ? 'bg-indigo-700 text-white' : 'bg-slate-50 text-slate-600'
               }`}
             >
               {tab.icon} {tab.label}
@@ -124,7 +124,7 @@ const NotificationSettingsComponent: React.FC<NotificationSettingsProps> = ({ se
                   onChange={e => setLocalSettings({ ...localSettings, emailEnabled: e.target.checked })}
                   className="sr-only peer"
                 />
-                <div className="w-14 h-7 bg-slate-300 rounded-full peer peer-checked:bg-indigo-600 peer-checked:after:translate-x-full after:absolute after:top-0.5 after:left-1 after:bg-white after:rounded-full after:h-6 after:w-6 after:transition-all"></div>
+                <div className="w-14 h-7 bg-slate-300 rounded-full peer peer-checked:bg-indigo-700 peer-checked:after:translate-x-full after:absolute after:top-0.5 after:left-1 after:bg-white after:rounded-full after:h-6 after:w-6 after:transition-all"></div>
               </label>
             </div>
 
@@ -143,7 +143,7 @@ const NotificationSettingsComponent: React.FC<NotificationSettingsProps> = ({ se
                             <li>Outlook: smtp-mail.outlook.com:587</li>
                             <li>Yahoo: smtp.mail.yahoo.com:587</li>
                           </ul>
-                          <p className="mt-2 text-xs text-indigo-600"><ExclamationTriangleIcon className="w-4 h-4 inline" /> Gmail: necesitas crear contraseña de aplicación</p>
+                          <p className="mt-2 text-xs text-indigo-700"><ExclamationTriangleIcon className="w-4 h-4 inline" /> Gmail: necesitas crear contraseña de aplicación</p>
                         </div>
                         <div className="bg-white/60 p-3 rounded-xl">
                           <p className="font-black mb-1"><RocketLaunchIcon className="w-4 h-4 inline" /> OPCIÓN 2: SendGrid (Profesional)</p>
@@ -210,7 +210,7 @@ const NotificationSettingsComponent: React.FC<NotificationSettingsProps> = ({ se
                           onChange={e => setLocalSettings({ ...localSettings, smtpPassword: e.target.value })}
                           className="w-full p-3 bg-slate-50 border rounded-xl font-mono text-sm"
                         />
-                        <p className="text-xs text-indigo-600 mt-1 font-bold">
+                        <p className="text-xs text-indigo-700 mt-1 font-bold">
                           <InboxArrowDownIcon className="w-4 h-4 inline" /> Gmail: <a href="https://myaccount.google.com/apppasswords" target="_blank" rel="noopener" className="underline">Crear contraseña de aplicación</a>
                         </p>
                       </div>
@@ -228,7 +228,7 @@ const NotificationSettingsComponent: React.FC<NotificationSettingsProps> = ({ se
                           onChange={e => setLocalSettings({ ...localSettings, sendgridApiKey: e.target.value })}
                           className="w-full p-3 bg-slate-50 border rounded-xl font-mono text-sm"
                         />
-                        <p className="text-xs text-indigo-600 mt-1 font-bold">
+                        <p className="text-xs text-indigo-700 mt-1 font-bold">
                           <InboxArrowDownIcon className="w-4 h-4 inline" /> Obtén tu API Key en: <a href="https://app.sendgrid.com/settings/api_keys" target="_blank" rel="noopener" className="underline">SendGrid Dashboard</a>
                         </p>
                       </div>
@@ -275,7 +275,7 @@ const NotificationSettingsComponent: React.FC<NotificationSettingsProps> = ({ se
                 <button
                   onClick={testEmail}
                   disabled={!localSettings.senderEmail}
-                  className="w-full py-3 bg-indigo-600 text-white rounded-xl font-bold hover:bg-indigo-700 disabled:opacity-50"
+                  className="w-full py-3 bg-indigo-700 text-white rounded-xl font-bold hover:bg-indigo-800 disabled:opacity-50"
                 >
                   <BeakerIcon className="w-4 h-4 inline" /> Enviar Email de Prueba
                 </button>
@@ -433,7 +433,7 @@ const NotificationSettingsComponent: React.FC<NotificationSettingsProps> = ({ se
         <div className="mt-8 pt-6 border-t">
           <button
             onClick={handleSave}
-            className="w-full py-4 bg-indigo-600 hover:bg-indigo-700 text-white rounded-2xl font-black uppercase shadow-lg"
+            className="w-full py-4 bg-indigo-700 hover:bg-indigo-800 text-white rounded-2xl font-black uppercase shadow-lg"
           >
             <EnvelopeIcon className="w-4 h-4 inline" /> Guardar Configuración
           </button>

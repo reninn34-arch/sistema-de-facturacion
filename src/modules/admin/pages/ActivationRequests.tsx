@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { ArrowPathIcon, MagnifyingGlassIcon, InboxIcon, DocumentTextIcon, ArrowUpTrayIcon, CheckIcon, XMarkIcon, BuildingOffice2Icon, CheckCircleIcon, NoSymbolIcon, InformationCircleIcon } from '@heroicons/react/24/outline';
 
-const API_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:3001';
+const API_URL = import.meta.env.VITE_BACKEND_URL || '';
 
 interface Business {
   id: string;
@@ -204,7 +204,7 @@ const ActivationRequests: React.FC<ActivationRequestsProps> = ({ onNotify }) => 
           <div className="flex gap-3">
             <button
               onClick={() => loadRequests()}
-              className="flex items-center justify-center gap-2 rounded-lg h-10 px-4 bg-primary text-white text-sm font-bold shadow-lg shadow-primary/20 hover:bg-indigo-600 transition-all"
+              className="flex items-center justify-center gap-2 rounded-lg h-10 px-4 bg-primary text-white text-sm font-bold shadow-lg shadow-primary/20 hover:bg-indigo-800 transition-all"
             >
               <ArrowPathIcon className="w-[18px] h-[18px]" />
               Actualizar
@@ -617,7 +617,7 @@ const ActivationRequests: React.FC<ActivationRequestsProps> = ({ onNotify }) => 
             <div className="flex items-center justify-between p-4 border-b border-slate-100 dark:border-slate-800">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 rounded-full bg-indigo-100 dark:bg-indigo-900/30 flex items-center justify-center">
-                  <DocumentTextIcon className="w-5 h-5 text-indigo-600 dark:text-indigo-500" />
+                  <DocumentTextIcon className="w-5 h-5 text-indigo-700 dark:text-indigo-500" />
                 </div>
                 <div>
                   <h3 className="text-lg font-bold text-slate-900 dark:text-slate-100">Comprobante de Pago</h3>

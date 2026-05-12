@@ -35,14 +35,14 @@ const SalesSummary: React.FC<SalesSummaryProps> = ({ documents }) => {
   const maxTotal = Math.max(...summary.map(s => s.total));
 
   return (
-    <div className="bg-white p-6 rounded-[2rem] shadow-sm border border-slate-100 mb-8">
-      <h3 className="font-black text-slate-800 text-lg mb-6 flex items-center gap-2">
-        <ChartBarIcon className="w-5 h-5 text-indigo-600 inline" /> Rendimiento de Ventas por Vendedor
+    <div className="bg-white dark:bg-slate-800 p-6 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 mb-8">
+      <h3 className="font-bold text-slate-800 dark:text-white text-lg mb-6 flex items-center gap-2">
+        <ChartBarIcon className="w-5 h-5 text-indigo-700 dark:text-indigo-400 inline" /> Rendimiento de Ventas por Vendedor
       </h3>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {summary.map((item, index) => (
-          <div key={index} className="p-4 rounded-2xl bg-slate-50 border border-slate-100 relative overflow-hidden group hover:shadow-md transition-all">
+          <div key={index} className="p-4 rounded-xl bg-slate-50 dark:bg-slate-900/50 border border-slate-100 dark:border-slate-700 relative overflow-hidden group hover:shadow-md transition-all">
             <div className="relative z-10">
               <div className="flex justify-between items-start mb-2">
                 <div className="font-bold text-slate-700 truncate pr-2" title={item.name}>

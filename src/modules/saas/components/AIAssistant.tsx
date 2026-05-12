@@ -98,7 +98,7 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ businessInfo }) => {
           <div key={msg.id} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
             <div className={`max-w-[80%] p-5 rounded-3xl text-sm leading-relaxed shadow-sm ${
               msg.role === 'user' 
-                ? 'bg-indigo-600 text-white rounded-br-none' 
+                ? 'bg-indigo-700 text-white rounded-br-none' 
                 : 'bg-white text-slate-600 border border-slate-100 rounded-bl-none'
             }`}>
               <p className="whitespace-pre-wrap">{msg.text}</p>
@@ -134,7 +134,7 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ businessInfo }) => {
           <button 
             type="submit"
             disabled={!input.trim() || loading}
-            className="bg-indigo-600 hover:bg-indigo-700 disabled:bg-slate-200 disabled:text-slate-400 text-white rounded-2xl px-8 transition-all shadow-lg shadow-indigo-500/20 active:scale-95 flex items-center justify-center font-bold"
+            className="bg-indigo-700 hover:bg-indigo-800 disabled:bg-slate-200 disabled:text-slate-400 text-white rounded-2xl px-8 transition-all shadow-lg shadow-indigo-500/20 active:scale-95 flex items-center justify-center font-bold"
           >
             Enviar
           </button>

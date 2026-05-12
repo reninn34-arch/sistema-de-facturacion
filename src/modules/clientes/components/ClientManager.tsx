@@ -24,7 +24,7 @@ interface ClientManagerProps {
 }
 
 // URL del backend
-const API_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:3001';
+const API_URL = import.meta.env.VITE_BACKEND_URL || '';
 
 const ClientManager: React.FC<ClientManagerProps> = ({ clients, setClients, onNotify, isDemoMode, currentUser }) => {
   const [showModal, setShowModal] = useState(false);
@@ -277,7 +277,7 @@ const ClientManager: React.FC<ClientManagerProps> = ({ clients, setClients, onNo
               <button
                 key={t}
                 onClick={() => setFilterType(t)}
-                className={`px-4 sm:px-6 py-2.5 sm:py-3 text-[10px] font-black uppercase rounded-xl transition-all min-h-[44px] ${filterType === t ? 'bg-white dark:bg-slate-600 shadow-sm text-indigo-600 dark:text-indigo-400' : 'text-slate-400 dark:text-slate-400'}`}
+                className={`px-4 sm:px-6 py-2.5 sm:py-3 text-[10px] font-black uppercase rounded-xl transition-all min-h-[44px] ${filterType === t ? 'bg-white dark:bg-slate-600 shadow-sm text-indigo-700 dark:text-indigo-400' : 'text-slate-400 dark:text-slate-400'}`}
               >
                 {t === 'TODOS' ? 'Todos' : t === 'CLIENTE' ? 'Clientes' : 'Proveedores'}
               </button>
@@ -286,7 +286,7 @@ const ClientManager: React.FC<ClientManagerProps> = ({ clients, setClients, onNo
         </div>
         <button
           onClick={() => handleOpenModal()}
-          className="w-full lg:w-auto bg-slate-900 dark:bg-indigo-600 text-white px-6 sm:px-10 py-4 sm:py-5 rounded-[1.5rem] font-black text-[10px] uppercase tracking-widest hover:scale-105 transition-all shadow-xl shadow-slate-200 dark:shadow-slate-900 min-h-[52px]"
+          className="w-full lg:w-auto bg-slate-900 dark:bg-indigo-700 text-white px-6 sm:px-10 py-4 sm:py-5 rounded-[1.5rem] font-black text-[10px] uppercase tracking-widest hover:scale-105 transition-all shadow-xl shadow-slate-200 dark:shadow-slate-900 min-h-[52px]"
         >
           + Agregar Entidad
         </button>
@@ -302,7 +302,7 @@ const ClientManager: React.FC<ClientManagerProps> = ({ clients, setClients, onNo
                   {client.name.charAt(0)}
                 </div>
                 <div className="flex flex-col items-end">
-                  <span className={`px-3 py-1 rounded-lg text-[8px] font-black uppercase tracking-widest ${client.type === 'CLIENTE' ? 'bg-indigo-50 text-indigo-600' :
+                  <span className={`px-3 py-1 rounded-lg text-[8px] font-black uppercase tracking-widest ${client.type === 'CLIENTE' ? 'bg-indigo-50 text-indigo-700' :
                       client.type === 'PROVEEDOR' ? 'bg-emerald-50 text-emerald-600' : 'bg-purple-50 text-purple-600'
                     }`}>
                     {client.type}
@@ -311,7 +311,7 @@ const ClientManager: React.FC<ClientManagerProps> = ({ clients, setClients, onNo
                 </div>
               </div>
 
-              <h4 className="text-xl font-black text-slate-800 dark:text-white tracking-tight leading-tight mb-2 group-hover:text-indigo-600 transition-colors">
+              <h4 className="text-xl font-black text-slate-800 dark:text-white tracking-tight leading-tight mb-2 group-hover:text-indigo-700 transition-colors">
                 {client.name}
               </h4>
               <div className="space-y-3 mt-6">
@@ -358,7 +358,7 @@ const ClientManager: React.FC<ClientManagerProps> = ({ clients, setClients, onNo
                 )}
               </div>
               <div className="flex gap-4">
-                <button onClick={() => handleOpenModal(client)} className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">Editar</button>
+                <button onClick={() => handleOpenModal(client)} className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest hover:text-indigo-700 dark:hover:text-indigo-400 transition-colors">Editar</button>
                 <button onClick={() => { setResetPasswordClient(client); setShowResetModal(true); }} className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest hover:text-amber-500 transition-colors"><KeyIcon className="w-4 h-4 inline" /> Reset</button>
                 <button onClick={() => handleDelete(client.id, client.ruc)} className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest hover:text-rose-500 transition-colors">Eliminar</button>
               </div>
@@ -375,7 +375,7 @@ const ClientManager: React.FC<ClientManagerProps> = ({ clients, setClients, onNo
                 <h4 className="text-3xl font-black text-slate-900 dark:text-white tracking-tighter">
                   {editingClient ? 'Actualizar Entidad' : 'Nueva Entidad'}
                 </h4>
-                <div className="bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 p-3 rounded-2xl"><UserIcon className="w-6 h-6" /></div>
+                <div className="bg-indigo-50 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-400 p-3 rounded-2xl"><UserIcon className="w-6 h-6" /></div>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -440,7 +440,7 @@ const ClientManager: React.FC<ClientManagerProps> = ({ clients, setClients, onNo
 
               <div className="flex gap-4 pt-6">
                 <button onClick={() => setShowModal(false)} className="flex-1 py-4 sm:py-5 font-black text-slate-400 uppercase text-[10px] tracking-widest hover:text-slate-600 transition-colors min-h-[48px]">Cancelar</button>
-                <button onClick={handleSave} className="flex-[2] py-4 sm:py-5 font-black bg-indigo-600 text-white rounded-[1.5rem] shadow-xl shadow-indigo-100 uppercase text-[10px] tracking-widest hover:scale-[1.02] active:scale-95 transition-all min-h-[52px]">
+                <button onClick={handleSave} className="flex-[2] py-4 sm:py-5 font-black bg-indigo-700 text-white rounded-[1.5rem] shadow-xl shadow-indigo-100 uppercase text-[10px] tracking-widest hover:scale-[1.02] active:scale-95 transition-all min-h-[52px]">
                   {editingClient ? 'Guardar Cambios' : 'Registrar Entidad'}
                 </button>
               </div>

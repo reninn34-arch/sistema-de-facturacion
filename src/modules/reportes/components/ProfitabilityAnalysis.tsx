@@ -116,7 +116,7 @@ export default function ProfitabilityAnalysis({ products, documents, onNotify }:
           <button
             onClick={exportToCSV}
             disabled={profitabilityData.length === 0}
-            className="px-6 py-3 bg-indigo-600 text-white rounded-xl font-bold text-sm hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="px-6 py-3 bg-indigo-700 text-white rounded-xl font-bold text-sm hover:bg-indigo-800 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <ArrowDownTrayIcon className="w-4 h-4 inline" /> Exportar CSV
           </button>
@@ -157,7 +157,7 @@ export default function ProfitabilityAnalysis({ products, documents, onNotify }:
 
         <div className="grid grid-cols-4 gap-4 mb-6">
           <div className="bg-gradient-to-br from-indigo-50 to-indigo-100 p-5 rounded-2xl border border-indigo-200">
-            <p className="text-xs text-indigo-600 font-bold uppercase mb-1">Unidades Vendidas</p>
+            <p className="text-xs text-indigo-700 font-bold uppercase mb-1">Unidades Vendidas</p>
             <p className="text-2xl font-black text-indigo-900">{totals.unitsSold}</p>
           </div>
           <div className="bg-gradient-to-br from-emerald-50 to-emerald-100 p-5 rounded-2xl border border-emerald-200">
@@ -196,7 +196,7 @@ export default function ProfitabilityAnalysis({ products, documents, onNotify }:
                   <td className="p-3 text-right font-bold text-emerald-600">${item.totalRevenue.toFixed(2)}</td>
                   <td className="p-3 text-right font-bold text-red-600">${item.totalCost.toFixed(2)}</td>
                   <td className="p-3 text-right font-black text-purple-600">${item.grossProfit.toFixed(2)}</td>
-                  <td className="p-3 text-right font-black text-indigo-600">{item.profitMargin.toFixed(1)}%</td>
+                  <td className="p-3 text-right font-black text-indigo-700">{item.profitMargin.toFixed(1)}%</td>
                 </tr>
               ))}
             </tbody>

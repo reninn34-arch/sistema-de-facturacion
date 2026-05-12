@@ -16,7 +16,7 @@ interface ProductManagerProps {
 }
 
 // URL del backend
-const API_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:3001';
+const API_URL = import.meta.env.VITE_BACKEND_URL || '';
 
 const ProductManager: React.FC<ProductManagerProps> = ({ products, setProducts, onNotify, isDemoMode, businessType, isProduction }) => {
   const [isDarkMode, setIsDarkMode] = useState(false);
@@ -257,7 +257,7 @@ const ProductManager: React.FC<ProductManagerProps> = ({ products, setProducts, 
             <div className="h-48 relative bg-slate-50 border-b border-slate-50">
               <img src={p.imageUrl || 'https://placehold.co/400x300?text=Producto'} alt="" className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
               <div className="absolute top-4 left-4 flex gap-1.5">
-                 <span className={`px-3 py-1 rounded-lg text-[9px] font-black uppercase tracking-widest ${p.type === 'FISICO' ? 'bg-indigo-600 text-white' : 'bg-amber-500 text-white'}`}>
+                 <span className={`px-3 py-1 rounded-lg text-[9px] font-black uppercase tracking-widest ${p.type === 'FISICO' ? 'bg-indigo-700 text-white' : 'bg-amber-500 text-white'}`}>
                    {p.type}
                  </span>
                  {p.isRawMaterial && (
@@ -351,7 +351,7 @@ const ProductManager: React.FC<ProductManagerProps> = ({ products, setProducts, 
               <div className="flex justify-between items-start mb-10">
                 <h4 className={`text-3xl font-black ${isDarkMode ? 'text-white' : 'text-slate-900'} tracking-tighter`}>Ficha Técnica</h4>
                 <div className="flex gap-2">
-                   <button onClick={() => setFormData({...formData, type: 'FISICO'})} className={`px-4 py-2 rounded-xl text-[10px] font-black uppercase transition-all ${formData.type === 'FISICO' ? 'bg-indigo-600 text-white' : (isDarkMode ? 'bg-slate-600 text-slate-300' : 'bg-slate-100 text-slate-400')}`}>Físico</button>
+                   <button onClick={() => setFormData({...formData, type: 'FISICO'})} className={`px-4 py-2 rounded-xl text-[10px] font-black uppercase transition-all ${formData.type === 'FISICO' ? 'bg-indigo-700 text-white' : (isDarkMode ? 'bg-slate-600 text-slate-300' : 'bg-slate-100 text-slate-400')}`}>Físico</button>
                    <button onClick={() => setFormData({...formData, type: 'SERVICIO'})} className={`px-4 py-2 rounded-xl text-[10px] font-black uppercase transition-all ${formData.type === 'SERVICIO' ? 'bg-amber-500 text-white' : (isDarkMode ? 'bg-slate-600 text-slate-300' : 'bg-slate-100 text-slate-400')}`}>Servicio</button>
                 </div>
               </div>
@@ -417,7 +417,7 @@ const ProductManager: React.FC<ProductManagerProps> = ({ products, setProducts, 
                 )}
 
                 <div className="p-8 bg-indigo-50/50 rounded-[2.5rem] border border-indigo-100">
-                  <p className="text-[10px] font-black text-indigo-600 uppercase tracking-widest mb-6">Configuración Multitarifa ($)</p>
+                  <p className="text-[10px] font-black text-indigo-700 uppercase tracking-widest mb-6">Configuración Multitarifa ($)</p>
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                     <div className="space-y-2">
                       <label className={`text-[9px] font-black ${isDarkMode ? 'text-slate-400' : 'text-slate-400'} uppercase ml-1`}>PVP Público</label>
@@ -436,7 +436,7 @@ const ProductManager: React.FC<ProductManagerProps> = ({ products, setProducts, 
 
                 <div className="flex gap-4 pt-4">
                   <button onClick={() => setShowModal(false)} className={`flex-1 py-5 font-black ${isDarkMode ? 'text-slate-500 hover:text-slate-300' : 'text-slate-400 hover:text-slate-600'} uppercase text-[10px] tracking-widest transition-colors`}>Descartar</button>
-                  <button onClick={handleSave} disabled={loading} className={`flex-[2] py-5 font-black bg-indigo-600 text-white rounded-[1.5rem] shadow-xl shadow-indigo-100 uppercase text-[10px] tracking-widest hover:scale-[1.02] active:scale-95 transition-all ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}>
+                  <button onClick={handleSave} disabled={loading} className={`flex-[2] py-5 font-black bg-indigo-700 text-white rounded-[1.5rem] shadow-xl shadow-indigo-100 uppercase text-[10px] tracking-widest hover:scale-[1.02] active:scale-95 transition-all ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}>
                     {loading ? 'Guardando...' : (editingProd ? 'Actualizar Ficha' : 'Registrar Producto')}
                   </button>
                 </div>

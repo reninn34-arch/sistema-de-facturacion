@@ -290,7 +290,7 @@ export default function ProductionRecord({ products, setProducts, onNotify }: Pr
                       <td className="p-4 text-center font-black text-slate-700">{rec.quantity}</td>
                       <td className="p-4 text-center font-black text-emerald-600">{rec.producedUnits}</td>
                       <td className="p-4 text-right font-black text-amber-600">${rec.totalCost?.toFixed(2) || '0.00'}</td>
-                      <td className="p-4 text-right font-black text-indigo-600">${rec.unitCost?.toFixed(4) || '0.00'}</td>
+                      <td className="p-4 text-right font-black text-indigo-700">${rec.unitCost?.toFixed(4) || '0.00'}</td>
                     </tr>
                   ))}
                 </tbody>

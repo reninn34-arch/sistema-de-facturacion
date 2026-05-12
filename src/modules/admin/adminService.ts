@@ -5,7 +5,7 @@ import toast from 'react-hot-toast'; // Asegúrate de instalar: npm install reac
 // Si VITE_BACKEND_URL está configurado, usar esa URL directamente (producción)
 const useProxy = !import.meta.env.VITE_BACKEND_URL;
 const BASE_URL = useProxy ? '' : import.meta.env.VITE_BACKEND_URL;
-const FALLBACK_BACKEND_URL = 'http://localhost:3001';
+const FALLBACK_BACKEND_URL = '';
 
 async function request<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
   const token = localStorage.getItem('adminToken');

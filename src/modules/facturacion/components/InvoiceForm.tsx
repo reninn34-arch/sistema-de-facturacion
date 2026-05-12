@@ -426,7 +426,7 @@ const InvoiceForm: React.FC<InvoiceFormProps> = ({ clients, products, businessIn
         onNotify('Advertencia: No se pudo generar PDF', 'warning');
       }
 
-      const response = await fetch('http://localhost:3001/api/notifications/send-email', {
+      const response = await fetch('/api/notifications/send-email', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -492,7 +492,7 @@ const InvoiceForm: React.FC<InvoiceFormProps> = ({ clients, products, businessIn
           log('⚠️ No se pudo generar el PDF');
         }
 
-        const emailResponse = await fetch('http://localhost:3001/api/notifications/send-email', {
+        const emailResponse = await fetch('/api/notifications/send-email', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -706,7 +706,7 @@ const InvoiceForm: React.FC<InvoiceFormProps> = ({ clients, products, businessIn
                 <button
                   onClick={handleSendEmail}
                   disabled={sendingEmail}
-                  className={`${isDarkMode ? 'bg-slate-700 text-indigo-400' : 'bg-white text-indigo-600'} px-6 py-3 rounded-xl lg:rounded-2xl font-black text-[10px] uppercase tracking-widest hover:scale-105 transition-all disabled:opacity-50 disabled:cursor-not-allowed`}
+                  className={`${isDarkMode ? 'bg-slate-700 text-indigo-400' : 'bg-white text-indigo-700'} px-6 py-3 rounded-xl lg:rounded-2xl font-black text-[10px] uppercase tracking-widest hover:scale-105 transition-all disabled:opacity-50 disabled:cursor-not-allowed`}
                 >
                   {sendingEmail ? (
                     <div className="flex items-center gap-2">
@@ -783,7 +783,7 @@ const InvoiceForm: React.FC<InvoiceFormProps> = ({ clients, products, businessIn
                                 <p className={`font-bold text-sm ${isDarkMode ? 'text-white' : 'text-slate-800'} truncate`}>{p.description}</p>
                                 <div className="flex items-center gap-3 mt-1">
                                   <span className={`text-xs ${isDarkMode ? 'text-slate-400' : 'text-slate-500'}`}>{p.code}</span>
-                                  <span className={`text-xs font-bold ${isDarkMode ? 'text-indigo-400' : 'text-indigo-600'}`}>${p[priceTier].toFixed(2)}</span>
+                                  <span className={`text-xs font-bold ${isDarkMode ? 'text-indigo-400' : 'text-indigo-700'}`}>${p[priceTier].toFixed(2)}</span>
                                   <span className={`text-xs ${isDarkMode ? 'text-slate-500' : 'text-slate-400'}`}>Stock: {p.stock}</span>
                                 </div>
                               </div>
@@ -862,7 +862,7 @@ const InvoiceForm: React.FC<InvoiceFormProps> = ({ clients, products, businessIn
                             placeholder="0.00"
                           />
                         </td>
-                        <td className="py-4 text-right font-black text-indigo-600 px-4">${item.total.toFixed(2)}</td>
+                        <td className="py-4 text-right font-black text-indigo-700 px-4">${item.total.toFixed(2)}</td>
                         <td className="py-4 px-4 text-right">
                           <button onClick={() => setItems(items.filter(i => i.productId !== item.productId))} className={`${isDarkMode ? 'text-slate-500 hover:text-rose-400' : 'text-slate-300 hover:text-rose-500'} text-lg`}>✕</button>
                         </td>
@@ -893,7 +893,7 @@ const InvoiceForm: React.FC<InvoiceFormProps> = ({ clients, products, businessIn
               {totals.desc > 0 && (
                 <div className="flex justify-between text-xs font-bold text-amber-600"><span>Descuentos</span><span>-${totals.desc.toFixed(2)}</span></div>
               )}
-              <div className="flex justify-between text-xs font-black text-indigo-600"><span>IVA (15%)</span><span>${totals.tax.toFixed(2)}</span></div>
+              <div className="flex justify-between text-xs font-black text-indigo-700"><span>IVA (15%)</span><span>${totals.tax.toFixed(2)}</span></div>
               <div className="pt-4 border-t border-slate-100">
                 <p className={`text-4xl font-black ${isDarkMode ? 'text-white' : 'text-slate-900'} tracking-tighter`}>${totals.total.toFixed(2)}</p>
                 <p className={`text-[9px] ${isDarkMode ? 'text-slate-500' : 'text-slate-400'} font-bold uppercase tracking-widest mt-1`}>Total Comprobante</p>
@@ -903,7 +903,7 @@ const InvoiceForm: React.FC<InvoiceFormProps> = ({ clients, products, businessIn
             <button
               disabled={items.length === 0 || isSubmitting}
               onClick={() => setShowPreview(true)}
-              className="w-full bg-slate-900 text-white font-black py-5 rounded-2xl hover:bg-indigo-600 transition-all disabled:opacity-50 text-[10px] uppercase tracking-widest"
+              className="w-full bg-slate-900 text-white font-black py-5 rounded-2xl hover:bg-indigo-800 transition-all disabled:opacity-50 text-[10px] uppercase tracking-widest"
             >
               Conectar con SRI
             </button>
@@ -956,7 +956,7 @@ const InvoiceForm: React.FC<InvoiceFormProps> = ({ clients, products, businessIn
                 </div>
                 <button
                   onClick={handleProcess}
-                  className="bg-indigo-600 text-white px-10 py-5 rounded-2xl font-black text-xs uppercase tracking-widest shadow-xl shadow-indigo-100 hover:scale-105 transition-all"
+                  className="bg-indigo-700 text-white px-10 py-5 rounded-2xl font-black text-xs uppercase tracking-widest shadow-xl shadow-indigo-100 hover:scale-105 transition-all"
                 >
                   Autorizar con SRI
                 </button>

@@ -61,7 +61,7 @@ const sampleBusinesses: Business[] = [
   { id: '3', name: 'StartUp Ecuador', ruc: '1797777777001', email: 'info@startup.ec', subscriptionEnd: '2026-02-15', isActive: true, plan: 'FREE', subscriptionStart: '2026-01-15', subscriptionStatus: 'ACTIVE' }
 ];
 
-const API_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:3001';
+const API_URL = import.meta.env.VITE_BACKEND_URL || '';
 
 export default function SaasEmission({ businesses, subscriptions, onNotify }: SaasEmissionProps) {
   
@@ -532,19 +532,19 @@ export default function SaasEmission({ businesses, subscriptions, onNotify }: Sa
               <h3 className="font-bold text-indigo-800 dark:text-blue-300 mb-4">Datos del Cliente</h3>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
                 <div>
-                  <span className="text-indigo-600 dark:text-indigo-400 font-medium">Razón Social:</span>
+                  <span className="text-indigo-700 dark:text-indigo-400 font-medium">Razón Social:</span>
                   <p className="font-bold text-slate-800 dark:text-white">{selectedBusiness.name}</p>
                 </div>
                 <div>
-                  <span className="text-indigo-600 dark:text-indigo-400 font-medium">RUC:</span>
+                  <span className="text-indigo-700 dark:text-indigo-400 font-medium">RUC:</span>
                   <p className="font-bold text-slate-800 dark:text-white">{selectedBusiness.ruc}</p>
                 </div>
                 <div>
-                  <span className="text-indigo-600 dark:text-indigo-400 font-medium">Email:</span>
+                  <span className="text-indigo-700 dark:text-indigo-400 font-medium">Email:</span>
                   <p className="font-bold text-slate-800 dark:text-white">{selectedBusiness.email}</p>
                 </div>
                 <div>
-                  <span className="text-indigo-600 dark:text-indigo-400 font-medium">Plan Actual:</span>
+                  <span className="text-indigo-700 dark:text-indigo-400 font-medium">Plan Actual:</span>
                   <p className="font-bold text-slate-800 dark:text-white">{selectedBusiness.plan}</p>
                 </div>
               </div>
@@ -553,7 +553,7 @@ export default function SaasEmission({ businesses, subscriptions, onNotify }: Sa
               <div className="mt-4 pt-4 border-t border-indigo-200 dark:border-indigo-700">
                 <div className="flex flex-wrap gap-4 text-sm">
                   <div className="flex items-center gap-2">
-                    <CalendarDaysIcon className="w-4 h-4 inline text-indigo-600 dark:text-indigo-400" /> Fecha actual:
+                    <CalendarDaysIcon className="w-4 h-4 inline text-indigo-700 dark:text-indigo-400" /> Fecha actual:
                     <span className="font-bold text-slate-800 dark:text-white">
                       {selectedBusiness.subscriptionEnd 
                         ? new Date(selectedBusiness.subscriptionEnd).toLocaleDateString('es-EC')
@@ -561,7 +561,7 @@ export default function SaasEmission({ businesses, subscriptions, onNotify }: Sa
                     </span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <ClockIcon className="w-4 h-4 inline text-indigo-600 dark:text-indigo-400" /> Días restantes:
+                    <ClockIcon className="w-4 h-4 inline text-indigo-700 dark:text-indigo-400" /> Días restantes:
                     <span className={`font-bold ${calculateDaysRemaining(selectedBusiness.subscriptionEnd) > 10 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
                       {calculateDaysRemaining(selectedBusiness.subscriptionEnd)} días
                     </span>
@@ -573,7 +573,7 @@ export default function SaasEmission({ businesses, subscriptions, onNotify }: Sa
               <div className="mt-4 pt-4 border-t border-indigo-200 dark:border-indigo-700">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <BuildingOffice2Icon className="w-4 h-4 inline text-indigo-600 dark:text-indigo-400" /> Facturación SRI:
+                    <BuildingOffice2Icon className="w-4 h-4 inline text-indigo-700 dark:text-indigo-400" /> Facturación SRI:
                     <span className={`px-2 py-1 text-xs font-bold rounded ${
                       (selectedBusiness as any).sriEnabled 
                         ? 'bg-green-100 dark:bg-green-900/50 text-green-600 dark:text-green-400'
@@ -661,7 +661,7 @@ export default function SaasEmission({ businesses, subscriptions, onNotify }: Sa
                   onClick={() => setEmissionMode('SRI')}
                   className={`px-4 py-2 rounded-lg font-medium transition-colors ${
                     emissionMode === 'SRI'
-                      ? 'bg-indigo-600 text-white'
+                      ? 'bg-indigo-700 text-white'
                       : 'bg-slate-200 dark:bg-slate-600 text-slate-600 dark:text-slate-200 hover:bg-slate-300 dark:hover:bg-slate-500'
                   }`}
                 >
@@ -725,7 +725,7 @@ export default function SaasEmission({ businesses, subscriptions, onNotify }: Sa
                   className={`flex-[2] py-4 font-bold rounded-xl shadow-lg transition-all ${
                     loading || !selectedBusiness || !selectedSubscription
                       ? 'bg-slate-300 dark:bg-slate-600 text-slate-500 dark:text-slate-400 cursor-not-allowed'
-                      : 'bg-indigo-600 text-white hover:bg-indigo-700 hover:shadow-xl'
+                      : 'bg-indigo-700 text-white hover:bg-indigo-800 hover:shadow-xl'
                   }`}
                 >
                   {loading ? (

@@ -14,7 +14,7 @@ import {
   HandRaisedIcon,
 } from '@heroicons/react/24/outline';
 
-const API_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:3001';
+const API_URL = import.meta.env.VITE_BACKEND_URL || '';
 
 // Definimos interfaces locales para evitar errores de importación
 interface Business {
@@ -197,7 +197,7 @@ const SubscriptionManager: React.FC<SubscriptionManagerProps> = ({ businessId, o
               }`}
             >
               <div className="flex justify-between items-start mb-1">
-                <h3 className="font-bold text-slate-800 group-hover:text-indigo-600 transition-colors line-clamp-1">{b.name}</h3>
+                <h3 className="font-bold text-slate-800 group-hover:text-indigo-700 transition-colors line-clamp-1">{b.name}</h3>
                 <span className={`text-[10px] font-black uppercase px-2 py-1 rounded-full ${
                   b.isActive ? 'bg-emerald-100 text-emerald-700' : 'bg-red-100 text-red-700'
                 }`}>
@@ -245,19 +245,19 @@ const SubscriptionManager: React.FC<SubscriptionManagerProps> = ({ businessId, o
               <div className="flex gap-4 mt-6 border-b border-slate-100">
                 <button 
                   onClick={() => setActiveTab('manage')}
-                  className={`pb-3 text-sm font-bold transition-colors ${activeTab === 'manage' ? 'text-indigo-600 border-b-2 border-indigo-600' : 'text-slate-400 hover:text-slate-600'}`}
+                  className={`pb-3 text-sm font-bold transition-colors ${activeTab === 'manage' ? 'text-indigo-700 border-b-2 border-indigo-700' : 'text-slate-400 hover:text-slate-600'}`}
                 >
                   <BoltIcon className="w-4 h-4 inline" /> Gestión Ágil
                 </button>
                 <button 
                   onClick={() => setActiveTab('details')}
-                  className={`pb-3 text-sm font-bold transition-colors ${activeTab === 'details' ? 'text-indigo-600 border-b-2 border-indigo-600' : 'text-slate-400 hover:text-slate-600'}`}
+                  className={`pb-3 text-sm font-bold transition-colors ${activeTab === 'details' ? 'text-indigo-700 border-b-2 border-indigo-700' : 'text-slate-400 hover:text-slate-600'}`}
                 >
                   <DocumentTextIcon className="w-4 h-4 inline" /> Detalles
                 </button>
                 <button 
                   onClick={() => setActiveTab('history')}
-                  className={`pb-3 text-sm font-bold transition-colors ${activeTab === 'history' ? 'text-indigo-600 border-b-2 border-indigo-600' : 'text-slate-400 hover:text-slate-600'}`}
+                  className={`pb-3 text-sm font-bold transition-colors ${activeTab === 'history' ? 'text-indigo-700 border-b-2 border-indigo-700' : 'text-slate-400 hover:text-slate-600'}`}
                 >
                   <DocumentIcon className="w-4 h-4 inline" /> Historial
                 </button>
@@ -329,7 +329,7 @@ const SubscriptionManager: React.FC<SubscriptionManagerProps> = ({ businessId, o
               </div>
 
               <div className="mt-auto bg-slate-900 rounded-[2.5rem] p-8 text-white shadow-2xl shadow-slate-200 relative overflow-hidden group">
-                <div className="absolute inset-0 bg-gradient-to-r from-indigo-600 to-purple-600 opacity-0 group-hover:opacity-10 transition-opacity duration-500"></div>
+                <div className="absolute inset-0 bg-gradient-to-r from-indigo-700 to-purple-600 opacity-0 group-hover:opacity-10 transition-opacity duration-500"></div>
                 
                 <h3 className="text-xl font-black mb-6 flex items-center gap-2">
                   <RocketLaunchIcon className="w-5 h-5 inline" /> Acciones Rápidas
@@ -378,7 +378,7 @@ const SubscriptionManager: React.FC<SubscriptionManagerProps> = ({ businessId, o
                         <button
                           onClick={() => handleUpdateSubscription(monthsInput)}
                           disabled={loading}
-                          className="flex-1 sm:flex-none px-6 py-3 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl font-black uppercase tracking-widest transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-indigo-900/50 active:scale-95 text-xs"
+                          className="flex-1 sm:flex-none px-6 py-3 bg-indigo-700 hover:bg-indigo-500 text-white rounded-xl font-black uppercase tracking-widest transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-indigo-900/50 active:scale-95 text-xs"
                         >
                           {loading ? <ClockIcon className="w-4 h-4 inline animate-spin" /> : 'Aplicar'}
                         </button>
@@ -407,7 +407,7 @@ const SubscriptionManager: React.FC<SubscriptionManagerProps> = ({ businessId, o
                       </div>
                       <div>
                         <div className="text-xs font-bold text-slate-400 uppercase tracking-widest">Plan</div>
-                        <div className="font-bold text-indigo-600">{selectedBusiness.plan === 'MONTHLY' ? 'Mensual' : selectedBusiness.plan === 'SEMIANNUAL' ? 'Semestral' : selectedBusiness.plan === 'YEARLY' ? 'Anual' : selectedBusiness.plan === 'PENDING' ? 'Pendiente' : selectedBusiness.plan || 'Mensual'}</div>
+                        <div className="font-bold text-indigo-700">{selectedBusiness.plan === 'MONTHLY' ? 'Mensual' : selectedBusiness.plan === 'SEMIANNUAL' ? 'Semestral' : selectedBusiness.plan === 'YEARLY' ? 'Anual' : selectedBusiness.plan === 'PENDING' ? 'Pendiente' : selectedBusiness.plan || 'Mensual'}</div>
                       </div>
                     </div>
                   </div>
@@ -450,7 +450,7 @@ const SubscriptionManager: React.FC<SubscriptionManagerProps> = ({ businessId, o
                     </h3>
                     <div className="grid grid-cols-3 gap-4">
                       <div className="text-center p-4 bg-white/50 rounded-2xl">
-                        <div className="text-2xl font-black text-indigo-600">
+                        <div className="text-2xl font-black text-indigo-700">
                           {daysRemaining !== null ? Math.max(0, daysRemaining) : '∞'}
                         </div>
                         <div className="text-xs font-bold text-slate-400 uppercase">Días Restantes</div>

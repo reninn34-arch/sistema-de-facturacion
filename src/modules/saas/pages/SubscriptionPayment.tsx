@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { EnvelopeIcon } from '@heroicons/react/24/outline';
 import { PayPalScriptProvider, PayPalButtons } from "@paypal/react-paypal-js";
 
-const API_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:3001';
+const API_URL = import.meta.env.VITE_BACKEND_URL || '';
 
 // Configuración de PayPal
 const PAYPAL_CLIENT_ID = import.meta.env.VITE_PAYPAL_CLIENT_ID || 'sb';
@@ -329,7 +329,7 @@ const PagoInterno: React.FC<PagoInternoProps> = ({ businessInfo, isExpired = fal
       
       <div className={`relative z-50 w-full max-w-4xl bg-white dark:bg-slate-900 rounded-3xl shadow-2xl overflow-hidden ${isExpired ? '' : 'mt-8'}`}>
         {/* Header de alerta */}
-        <div className={`p-6 text-white ${isExpired ? 'bg-gradient-to-r from-red-600 to-red-700' : 'bg-gradient-to-r from-indigo-600 to-indigo-700'}`}>
+        <div className={`p-6 text-white ${isExpired ? 'bg-gradient-to-r from-red-600 to-red-700' : 'bg-gradient-to-r from-indigo-700 to-indigo-700'}`}>
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
               <div className={`w-14 h-14 rounded-full flex items-center justify-center ${isExpired ? 'bg-white/20' : 'bg-white/20'}`}>
@@ -442,7 +442,7 @@ const PagoInterno: React.FC<PagoInternoProps> = ({ businessInfo, isExpired = fal
                   onClick={() => { setPaymentMethod('TRANSFER'); setPaymentData({...paymentData, cardNumber: '', cardName: '', cardExpiry: '', cardCvv: ''}); }}
                   className={`flex-1 py-2 px-4 rounded-xl text-sm font-bold transition-all ${
                     paymentMethod === 'TRANSFER'
-                      ? 'bg-indigo-600 text-white'
+                      ? 'bg-indigo-700 text-white'
                       : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400'
                   }`}
                 >
@@ -454,7 +454,7 @@ const PagoInterno: React.FC<PagoInternoProps> = ({ businessInfo, isExpired = fal
                   onClick={() => { setPaymentMethod('CARD'); setPaymentData({...paymentData, transferReference: ''}); }}
                   className={`flex-1 py-2 px-4 rounded-xl text-sm font-bold transition-all ${
                     paymentMethod === 'CARD'
-                      ? 'bg-indigo-600 text-white'
+                      ? 'bg-indigo-700 text-white'
                       : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400'
                   }`}
                 >
@@ -466,7 +466,7 @@ const PagoInterno: React.FC<PagoInternoProps> = ({ businessInfo, isExpired = fal
                   onClick={() => { setPaymentMethod('PAYPAL'); setPaymentData({...paymentData, transferReference: ''}); }}
                   className={`flex-1 py-2 px-4 rounded-xl text-sm font-bold transition-all ${
                     paymentMethod === 'PAYPAL'
-                      ? 'bg-indigo-600 text-white'
+                      ? 'bg-indigo-700 text-white'
                       : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400'
                   }`}
                 >
@@ -716,7 +716,7 @@ const PagoInterno: React.FC<PagoInternoProps> = ({ businessInfo, isExpired = fal
                 <button
                   onClick={handlePayment}
                   disabled={isProcessing || (paymentMethod === 'TRANSFER' && (!paymentData.transferReference || !paymentProof)) || (paymentMethod === 'CARD' && (!paymentData.cardNumber || !paymentData.cardName || !paymentData.cardExpiry || !paymentData.cardCvv))}
-                  className="w-full mt-6 py-4 bg-gradient-to-r from-indigo-600 to-indigo-700 hover:from-indigo-700 hover:to-indigo-800 text-white font-black uppercase tracking-widest rounded-xl shadow-lg shadow-indigo-500/25 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                  className="w-full mt-6 py-4 bg-gradient-to-r from-indigo-700 to-indigo-700 hover:from-indigo-700 hover:to-indigo-800 text-white font-black uppercase tracking-widest rounded-xl shadow-lg shadow-indigo-500/25 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                 >
                   {isProcessing ? (
                     <>

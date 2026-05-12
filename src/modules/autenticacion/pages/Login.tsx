@@ -90,7 +90,7 @@ const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
         return (
             <div className="h-screen w-full flex items-center justify-center bg-slate-50 dark:bg-slate-900 relative overflow-hidden transition-colors duration-300">
                 <div className="fixed inset-0 overflow-hidden pointer-events-none z-0">
-                    <div className="absolute -top-40 -left-40 w-96 h-96 rounded-full bg-indigo-600/20 blur-3xl mix-blend-multiply dark:mix-blend-lighten opacity-70 animate-blob"></div>
+                    <div className="absolute -top-40 -left-40 w-96 h-96 rounded-full bg-indigo-700/20 blur-3xl mix-blend-multiply dark:mix-blend-lighten opacity-70 animate-blob"></div>
                     <div className="absolute -bottom-40 -right-40 w-96 h-96 rounded-full bg-purple-500/20 blur-3xl mix-blend-multiply dark:mix-blend-lighten opacity-70 animate-blob animation-delay-2000"></div>
                 </div>
 
@@ -138,14 +138,14 @@ const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
                             <button
                                 type="submit"
                                 disabled={loading}
-                                className="w-full flex justify-center py-3 px-4 border border-transparent rounded-xl shadow-lg text-sm font-bold text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all duration-200 disabled:opacity-70"
+                                className="w-full flex justify-center py-3 px-4 border border-transparent rounded-xl shadow-lg text-sm font-bold text-white bg-indigo-700 hover:bg-indigo-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all duration-200 disabled:opacity-70"
                             >
                                 {loading ? 'Enviando...' : 'Enviar Enlace'}
                             </button>
                         </form>
 
                         <div className="mt-6 text-center">
-                            <button onClick={() => setView('login')} className="inline-flex items-center gap-1.5 text-sm text-indigo-600 hover:text-indigo-700 font-medium">
+                            <button onClick={() => setView('login')} className="inline-flex items-center gap-1.5 text-sm text-indigo-700 hover:text-indigo-700 font-medium">
                                 <ArrowLeftIcon className="w-4 h-4" />
                                 Volver al Inicio de Sesión
                             </button>
@@ -160,7 +160,7 @@ const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
         <div className="h-screen w-full flex items-center justify-center bg-slate-50 dark:bg-slate-900 relative overflow-hidden transition-colors duration-300">
 
             <div className="fixed inset-0 overflow-hidden pointer-events-none z-0">
-                <div className="absolute -top-40 -left-40 w-96 h-96 rounded-full bg-indigo-600/20 blur-3xl mix-blend-multiply dark:mix-blend-lighten opacity-70 animate-blob"></div>
+                <div className="absolute -top-40 -left-40 w-96 h-96 rounded-full bg-indigo-700/20 blur-3xl mix-blend-multiply dark:mix-blend-lighten opacity-70 animate-blob"></div>
                 <div className="absolute -bottom-40 -right-40 w-96 h-96 rounded-full bg-purple-500/20 blur-3xl mix-blend-multiply dark:mix-blend-lighten opacity-70 animate-blob animation-delay-2000"></div>
             </div>
 
@@ -170,7 +170,7 @@ const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
                     <div className="pt-10 pb-6 px-8 text-center">
                         <div className="flex flex-col items-center justify-center mb-6">
                             <div className="flex items-baseline tracking-tight">
-                                <span className="text-3xl font-bold text-indigo-600">ECUAFACT</span>
+                                <span className="text-3xl font-bold text-indigo-700">ECUAFACT</span>
                                 <span className="text-3xl font-extrabold text-slate-900 dark:text-white ml-1">PRO</span>
                             </div>
                             <span className="text-[10px] uppercase tracking-[0.2em] font-semibold text-slate-400 dark:text-slate-500 mt-1">Enterprise Edition</span>
@@ -211,7 +211,7 @@ const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
                                     <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300" htmlFor="password">
                                         Contraseña
                                     </label>
-                                    <button type="button" onClick={() => setView('forgot')} className="text-xs font-medium text-indigo-600 hover:text-indigo-700 hover:underline">
+                                    <button type="button" onClick={() => setView('forgot')} className="text-xs font-medium text-indigo-700 hover:text-indigo-700 hover:underline">
                                         ¿Olvidaste tu contraseña?
                                     </button>
                                 </div>
@@ -255,7 +255,7 @@ const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
                                 <button
                                     type="submit"
                                     disabled={loading}
-                                    className={`w-full flex justify-center items-center py-3 px-4 border border-transparent rounded-xl shadow-lg text-sm font-bold text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all duration-200 transform hover:-translate-y-0.5 disabled:opacity-70 disabled:cursor-not-allowed`}
+                                    className={`w-full flex justify-center items-center py-3 px-4 border border-transparent rounded-xl shadow-lg text-sm font-bold text-white bg-indigo-700 hover:bg-indigo-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all duration-200 transform hover:-translate-y-0.5 disabled:opacity-70 disabled:cursor-not-allowed`}
                                 >
                                     {loading ? (
                                         <>
@@ -270,7 +270,7 @@ const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
                                     )}
                                 </button>
                                 <div className="mt-4 text-center">
-                                    <a href="/portal/login" className="text-sm text-slate-500 hover:text-indigo-600 transition-colors font-medium">
+                                    <a href="/portal/login" className="text-sm text-slate-500 hover:text-indigo-700 transition-colors font-medium">
                                         ¿Eres cliente? <span className="underline">Ingresa al Portal aquí</span>
                                     </a>
                                 </div>
@@ -287,11 +287,11 @@ const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
                         </div>
 
                         <div className="mt-6 flex justify-center gap-6 text-xs text-slate-400 dark:text-slate-500">
-                            <span className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors cursor-pointer">Soporte</span>
-                            <span className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors cursor-pointer">Privacidad</span>
+                            <span className="hover:text-indigo-700 dark:hover:text-indigo-400 transition-colors cursor-pointer">Soporte</span>
+                            <span className="hover:text-indigo-700 dark:hover:text-indigo-400 transition-colors cursor-pointer">Privacidad</span>
                         </div>
                     </div>
-                    <div className="h-1.5 w-full bg-gradient-to-r from-indigo-600 to-indigo-400"></div>
+                    <div className="h-1.5 w-full bg-gradient-to-r from-indigo-700 to-indigo-400"></div>
                 </div>
                 <div className="mt-8 text-center">
                     <p className="text-xs text-slate-400 dark:text-slate-600">

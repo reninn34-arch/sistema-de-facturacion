@@ -386,7 +386,7 @@ export default function RetentionForm({ business, clients, onSubmit }: Retention
                           step="0.01"
                           value={tax.taxValue.toFixed(2)}
                           readOnly
-                          className="w-full px-3 py-2 border rounded-lg bg-gray-100 font-bold text-indigo-600"
+                          className="w-full px-3 py-2 border rounded-lg bg-gray-100 font-bold text-indigo-700"
                         />
                       </div>
                     </div>
@@ -400,7 +400,7 @@ export default function RetentionForm({ business, clients, onSubmit }: Retention
           <div className="bg-indigo-50 rounded-lg p-4">
             <div className="flex justify-between items-center">
               <span className="text-lg font-semibold text-gray-700">Total Retenido:</span>
-              <span className="text-2xl font-bold text-indigo-600">
+              <span className="text-2xl font-bold text-indigo-700">
                 ${calculateTotalRetained().toFixed(2)}
               </span>
             </div>
@@ -416,7 +416,7 @@ export default function RetentionForm({ business, clients, onSubmit }: Retention
             </button>
             <button
               type="submit"
-              className="px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition"
+              className="px-6 py-2 bg-indigo-700 text-white rounded-lg hover:bg-indigo-800 transition"
             >
               Emitir Retención
             </button>

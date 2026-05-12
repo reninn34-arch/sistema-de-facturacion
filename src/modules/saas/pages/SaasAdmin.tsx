@@ -2,7 +2,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { ShieldCheckIcon, BuildingOffice2Icon, UserPlusIcon, CheckCircleIcon, CheckBadgeIcon, UsersIcon, MagnifyingGlassIcon, EyeIcon, XMarkIcon, Cog6ToothIcon, ArrowPathIcon, PauseIcon, PlayIcon, TrashIcon, UserIcon, PencilIcon, PlusIcon, EyeSlashIcon, UserMinusIcon } from '@heroicons/react/24/outline';
 import { BUSINESS_TYPES, BusinessType } from '../../../types/types';
 
-const API_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:3001';
+const API_URL = import.meta.env.VITE_BACKEND_URL || '';
 
 interface Business {
   id: string;
@@ -781,14 +781,14 @@ const SaasAdmin: React.FC<SaasAdminProps> = ({ onNotify }) => {
         `}
       </style>
       
-      <div className="bg-[#f6f6f8] dark:bg-[#101622] font-display text-[#0d121b] dark:text-slate-200 min-h-screen">
+      <div className="bg-[#F6F6F7] dark:bg-[#0F172A] font-display text-[#0d121b] dark:text-slate-200 min-h-screen">
         {/* Header */}
         <header className="sticky top-0 z-50 w-full bg-white dark:bg-slate-900 border-b border-solid border-[#e7ebf3] dark:border-slate-800 px-4 py-3">
           <div className="max-w-7xl mx-auto">
             <div className="flex items-center justify-between whitespace-nowrap mb-3">
               <div className="flex items-center gap-6">
-                <div className="flex items-center gap-2 text-[#135bec]">
-                  <div className="size-8 flex items-center justify-center bg-[#135bec] rounded-lg text-white">
+                <div className="flex items-center gap-2 text-indigo-700">
+                  <div className="size-8 flex items-center justify-center bg-indigo-700 rounded-lg text-white">
                     <ShieldCheckIcon className="w-5 h-5" />
                   </div>
                   <h2 className="text-[#0d121b] dark:text-white text-base md:text-lg font-bold leading-tight">Panel SaaS</h2>
@@ -796,25 +796,25 @@ const SaasAdmin: React.FC<SaasAdminProps> = ({ onNotify }) => {
                 {/* Tabs */}
                 <div className="hidden md:flex gap-1">
                   <button 
-                    className={`px-3 py-1 text-sm font-medium transition-colors rounded-lg ${activeTab === 'businesses' ? 'bg-[#135bec]/10 text-[#135bec]' : 'text-[#4c669a] dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'}`}
+                    className={`px-3 py-1 text-sm font-medium transition-colors rounded-lg ${activeTab === 'businesses' ? 'bg-indigo-50 dark:bg-indigo-500/20 text-indigo-700 dark:text-indigo-300' : 'text-[#4c669a] dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'}`}
                     onClick={() => setActiveTab('businesses')}
                   >
                     Empresas
                   </button>
                   <button 
-                    className={`px-3 py-1 text-sm font-medium transition-colors rounded-lg ${activeTab === 'superadmins' ? 'bg-[#135bec]/10 text-[#135bec]' : 'text-[#4c669a] dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'}`}
+                    className={`px-3 py-1 text-sm font-medium transition-colors rounded-lg ${activeTab === 'superadmins' ? 'bg-indigo-50 dark:bg-indigo-500/20 text-indigo-700 dark:text-indigo-300' : 'text-[#4c669a] dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'}`}
                     onClick={() => setActiveTab('superadmins')}
                   >
                     Superadmins
                   </button>
                   <button 
-                    className={`px-3 py-1 text-sm font-medium transition-colors rounded-lg ${activeTab === 'users' ? 'bg-[#135bec]/10 text-[#135bec]' : 'text-[#4c669a] dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'}`}
+                    className={`px-3 py-1 text-sm font-medium transition-colors rounded-lg ${activeTab === 'users' ? 'bg-indigo-50 dark:bg-indigo-500/20 text-indigo-700 dark:text-indigo-300' : 'text-[#4c669a] dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'}`}
                     onClick={() => setActiveTab('users')}
                   >
                     Usuarios
                   </button>
                   <button 
-                    className={`px-3 py-1 text-sm font-medium transition-colors rounded-lg ${activeTab === 'subscription-payments' ? 'bg-[#135bec]/10 text-[#135bec]' : 'text-[#4c669a] dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'}`}
+                    className={`px-3 py-1 text-sm font-medium transition-colors rounded-lg ${activeTab === 'subscription-payments' ? 'bg-indigo-50 dark:bg-indigo-500/20 text-indigo-700 dark:text-indigo-300' : 'text-[#4c669a] dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'}`}
                     onClick={() => setActiveTab('subscription-payments')}
                   >
                     Pagos
@@ -831,7 +831,7 @@ const SaasAdmin: React.FC<SaasAdminProps> = ({ onNotify }) => {
                     )}
                   </button>
                   <button 
-                    className={`px-3 py-1 text-sm font-medium transition-colors rounded-lg ${activeTab === 'config' ? 'bg-[#135bec]/10 text-[#135bec]' : 'text-[#4c669a] dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'}`}
+                    className={`px-3 py-1 text-sm font-medium transition-colors rounded-lg ${activeTab === 'config' ? 'bg-indigo-50 dark:bg-indigo-500/20 text-indigo-700 dark:text-indigo-300' : 'text-[#4c669a] dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'}`}
                     onClick={() => setActiveTab('config')}
                   >
                     Pagos
@@ -2390,7 +2390,7 @@ const SaasAdmin: React.FC<SaasAdminProps> = ({ onNotify }) => {
                 </div>
 
                 <div className="border-t border-slate-100 dark:border-slate-700 pt-4">
-                  <button onClick={savePaymentConfig} disabled={savingConfig} className="w-full py-3 bg-indigo-600 text-white font-bold rounded-xl hover:bg-indigo-700 transition-colors disabled:opacity-50">
+                  <button onClick={savePaymentConfig} disabled={savingConfig} className="w-full py-3 bg-indigo-700 text-white font-bold rounded-xl hover:bg-indigo-800 transition-colors disabled:opacity-50">
                     {savingConfig ? 'Guardando...' : 'Guardar Configuración'}
                   </button>
                 </div>

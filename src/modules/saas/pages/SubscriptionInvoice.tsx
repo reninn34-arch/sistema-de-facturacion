@@ -8,7 +8,7 @@ import {
   HandRaisedIcon,
 } from '@heroicons/react/24/outline';
 
-const API_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:3001';
+const API_URL = import.meta.env.VITE_BACKEND_URL || '';
 
 interface Business {
   id: string | number;
@@ -193,7 +193,7 @@ const SubscriptionInvoice: React.FC<SubscriptionInvoiceProps> = ({ onNotify }) =
             {/* Header */}
             <div className="flex items-center gap-4 mb-8">
               <div className="w-12 h-12 bg-indigo-100 rounded-2xl flex items-center justify-center">
-                <DocumentTextIcon className="w-6 h-6 text-indigo-600" />
+                <DocumentTextIcon className="w-6 h-6 text-indigo-700" />
               </div>
               <div>
                 <h2 className="text-2xl lg:text-3xl font-black text-slate-800">Factura de Suscripción</h2>
@@ -274,12 +274,12 @@ const SubscriptionInvoice: React.FC<SubscriptionInvoiceProps> = ({ onNotify }) =
                     </div>
                     <div className="flex justify-between">
                       <span className="text-slate-500 font-medium">Plan:</span>
-                      <span className="font-bold text-indigo-600">{selectedBusiness.plan || 'Básico'}</span>
+                      <span className="font-bold text-indigo-700">{selectedBusiness.plan || 'Básico'}</span>
                     </div>
                     <div className="border-t border-slate-200 pt-3 mt-3">
                       <div className="flex justify-between items-center">
                         <span className="text-slate-600 font-bold">Total:</span>
-                        <span className="text-3xl font-black text-indigo-600">${amount.toFixed(2)}</span>
+                        <span className="text-3xl font-black text-indigo-700">${amount.toFixed(2)}</span>
                       </div>
                     </div>
                   </div>
@@ -288,7 +288,7 @@ const SubscriptionInvoice: React.FC<SubscriptionInvoiceProps> = ({ onNotify }) =
                 <button
                   onClick={handleGenerateInvoice}
                   disabled={loading || amount <= 0}
-                  className="w-full py-4 bg-indigo-600 hover:bg-indigo-500 disabled:bg-slate-300 disabled:cursor-not-allowed text-white rounded-xl font-black uppercase tracking-widest transition-all shadow-lg shadow-indigo-900/30"
+                  className="w-full py-4 bg-indigo-700 hover:bg-indigo-500 disabled:bg-slate-300 disabled:cursor-not-allowed text-white rounded-xl font-black uppercase tracking-widest transition-all shadow-lg shadow-indigo-900/30"
                 >
                   {loading ? <><ClockIcon className="w-4 h-4 inline animate-spin" /> Generando...</> : <><RocketLaunchIcon className="w-4 h-4 inline" /> Generar Factura SRI</>}
                 </button>

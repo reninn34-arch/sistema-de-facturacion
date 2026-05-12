@@ -2,7 +2,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { Document } from '../../../types/types';
 import { DocumentTextIcon, ArrowRightOnRectangleIcon, CheckCircleIcon, CreditCardIcon, ClockIcon, DocumentIcon, CodeBracketIcon, LockClosedIcon, QuestionMarkCircleIcon } from '@heroicons/react/24/outline';
 
-const API_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:3001';
+const API_URL = import.meta.env.VITE_BACKEND_URL || '';
 
 const ClientDashboard = () => {
   const [documents, setDocuments] = useState<Document[]>([]);

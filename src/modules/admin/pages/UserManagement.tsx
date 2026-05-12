@@ -21,7 +21,7 @@ import {
   QuestionMarkCircleIcon,
 } from '@heroicons/react/24/outline';
 
-const API_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:3001';
+const API_URL = import.meta.env.VITE_BACKEND_URL || '';
 
 interface User {
   id: string;
@@ -391,7 +391,7 @@ const UserManagement: React.FC<UserManagementProps> = ({ currentUser, onNotify }
           </div>
           <button
             onClick={() => setShowModal(true)}
-            className="px-6 py-3 bg-indigo-600 text-white rounded-2xl font-bold text-sm hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-600/20 flex items-center gap-2"
+            className="px-6 py-3 bg-indigo-700 text-white rounded-2xl font-bold text-sm hover:bg-indigo-800 transition-all shadow-lg shadow-indigo-700/20 flex items-center gap-2"
           >
             <PlusIcon className="w-4 h-4" /> Nuevo Administrador
           </button>
@@ -483,7 +483,7 @@ const UserManagement: React.FC<UserManagementProps> = ({ currentUser, onNotify }
                           <div>
                             <p className="font-bold text-sm text-slate-800 dark:text-white">
                               {user.name || user.email}
-                              {isCurrentUser && <span className="ml-2 text-[9px] bg-indigo-100 dark:bg-indigo-500/20 text-indigo-600 dark:text-indigo-400 px-2 py-0.5 rounded-full font-black">TÚ</span>}
+                              {isCurrentUser && <span className="ml-2 text-[9px] bg-indigo-100 dark:bg-indigo-500/20 text-indigo-700 dark:text-indigo-400 px-2 py-0.5 rounded-full font-black">TÚ</span>}
                             </p>
                             {user.name && <p className="text-xs text-slate-400 dark:text-slate-500">{user.email}</p>}
                           </div>
@@ -712,7 +712,7 @@ const UserManagement: React.FC<UserManagementProps> = ({ currentUser, onNotify }
                 </button>
                 <button
                   type="submit"
-                  className="flex-1 py-3 bg-indigo-600 text-white rounded-xl font-bold text-sm hover:bg-indigo-700 transition-colors shadow-lg shadow-indigo-600/20"
+                  className="flex-1 py-3 bg-indigo-700 text-white rounded-xl font-bold text-sm hover:bg-indigo-800 transition-colors shadow-lg shadow-indigo-700/20"
                 >
                   Crear Usuario
                 </button>
@@ -776,7 +776,7 @@ const UserManagement: React.FC<UserManagementProps> = ({ currentUser, onNotify }
               <button
                 onClick={handleResetPassword}
                 disabled={!tempPassword}
-                className="flex-1 py-3 bg-indigo-600 text-white rounded-xl font-bold text-sm hover:bg-indigo-700 transition-colors shadow-lg shadow-indigo-600/20 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="flex-1 py-3 bg-indigo-700 text-white rounded-xl font-bold text-sm hover:bg-indigo-800 transition-colors shadow-lg shadow-indigo-700/20 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 Restablecer
               </button>
@@ -857,7 +857,7 @@ const UserManagement: React.FC<UserManagementProps> = ({ currentUser, onNotify }
                 </button>
                 <button
                   type="submit"
-                  className="flex-1 py-3 bg-indigo-600 text-white rounded-xl font-bold text-sm hover:bg-indigo-700 transition-colors shadow-lg shadow-indigo-600/20"
+                  className="flex-1 py-3 bg-indigo-700 text-white rounded-xl font-bold text-sm hover:bg-indigo-800 transition-colors shadow-lg shadow-indigo-700/20"
                 >
                   Guardar Cambios
                 </button>

@@ -256,7 +256,7 @@ const QuickSaleForm: React.FC<QuickSaleFormProps> = ({ products, businessInfo, o
         <div className="flex gap-3">
           <button
             onClick={newTicket}
-            className="flex-1 py-4 rounded-2xl font-black text-sm uppercase bg-indigo-600 text-white hover:bg-indigo-500 transition-colors shadow-lg"
+            className="flex-1 py-4 rounded-2xl font-black text-sm uppercase bg-indigo-700 text-white hover:bg-indigo-500 transition-colors shadow-lg"
           >
             Nuevo Ticket
           </button>
@@ -329,7 +329,7 @@ const QuickSaleForm: React.FC<QuickSaleFormProps> = ({ products, businessInfo, o
                       <p className="text-[10px] text-slate-400 font-bold">{product.code} · Stock: {product.stock}</p>
                     </div>
                     <div className="text-right">
-                      <p className="font-black text-sm text-indigo-600 dark:text-indigo-400">${product.price.toFixed(2)}</p>
+                      <p className="font-black text-sm text-indigo-700 dark:text-indigo-400">${product.price.toFixed(2)}</p>
                       <p className="text-[10px] text-slate-400">IVA {product.taxRate}%</p>
                     </div>
                   </button>
@@ -348,11 +348,11 @@ const QuickSaleForm: React.FC<QuickSaleFormProps> = ({ products, businessInfo, o
                   onClick={() => addToCart(product)}
                   className="p-3 bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 hover:border-indigo-500 hover:shadow-md transition-all text-left group"
                 >
-                  <p className="font-bold text-xs text-slate-800 dark:text-white truncate group-hover:text-indigo-600 transition-colors">
+                  <p className="font-bold text-xs text-slate-800 dark:text-white truncate group-hover:text-indigo-700 transition-colors">
                     {product.description}
                   </p>
                   <p className="text-[10px] text-slate-400 font-bold mt-0.5">{product.code}</p>
-                  <p className="font-black text-sm text-indigo-600 dark:text-indigo-400 mt-1">${product.price.toFixed(2)}</p>
+                  <p className="font-black text-sm text-indigo-700 dark:text-indigo-400 mt-1">${product.price.toFixed(2)}</p>
                   {product.stock <= 5 && product.stock > 0 && (
                     <p className="text-[9px] text-amber-500 font-bold">Quedan {product.stock}</p>
                   )}
@@ -388,7 +388,7 @@ const QuickSaleForm: React.FC<QuickSaleFormProps> = ({ products, businessInfo, o
                     </button>
                     <span className="w-8 text-center font-black text-sm">{item.quantity}</span>
                     <button onClick={() => updateQuantity(item.productId, 1)} className="w-7 h-7 rounded-lg bg-indigo-100 dark:bg-indigo-500/20 flex items-center justify-center hover:bg-indigo-200">
-                      <PlusIcon className="w-3 h-3 text-indigo-600 dark:text-indigo-400" />
+                      <PlusIcon className="w-3 h-3 text-indigo-700 dark:text-indigo-400" />
                     </button>
                   </div>
                   <p className="font-black text-sm w-16 text-right">${item.total.toFixed(2)}</p>
@@ -423,7 +423,7 @@ const QuickSaleForm: React.FC<QuickSaleFormProps> = ({ products, businessInfo, o
                   onClick={() => setPaymentMethod(opt.value)}
                   className={`p-2 rounded-xl text-[10px] font-black uppercase transition-all flex flex-col items-center gap-1 ${
                     paymentMethod === opt.value
-                      ? 'bg-indigo-600 text-white shadow-lg'
+                      ? 'bg-indigo-700 text-white shadow-lg'
                       : 'bg-slate-100 dark:bg-slate-700 text-slate-500'
                   }`}
                 >

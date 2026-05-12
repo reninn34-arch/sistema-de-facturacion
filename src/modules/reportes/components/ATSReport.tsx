@@ -134,7 +134,7 @@ export default function ATSReport({ documents, business, onNotify }: ATSReportPr
 
           <button
             onClick={generateATS}
-            className="w-full py-4 bg-indigo-600 hover:bg-indigo-700 text-white rounded-2xl font-black uppercase text-sm tracking-wide shadow-lg shadow-indigo-500/20"
+            className="w-full py-4 bg-indigo-700 hover:bg-indigo-800 text-white rounded-2xl font-black uppercase text-sm tracking-wide shadow-lg shadow-indigo-500/20"
           >
             <ArrowDownTrayIcon className="w-4 h-4 inline" /> Generar ATS (XML)
           </button>

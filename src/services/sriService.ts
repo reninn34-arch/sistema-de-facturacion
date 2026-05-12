@@ -5,7 +5,7 @@ import { SignatureOptions } from './xmlSigner';
  * URL del Backend Proxy para comunicación con SRI
  * El backend maneja SOAP y firma digital usando Node.js
  */
-const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:3001';
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || '';
 
 // API_KEY debe estar configurada en variables de entorno
 const API_KEY = import.meta.env.VITE_API_KEY;

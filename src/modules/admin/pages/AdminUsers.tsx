@@ -23,7 +23,7 @@ interface AdminUsersProps {
   isDemoMode: boolean;
 }
 
-const API_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:3001';
+const API_URL = import.meta.env.VITE_BACKEND_URL || '';
 
 const AdminUsers: React.FC<AdminUsersProps> = ({ onManageSubscription, onNotify, isDemoMode }) => {
   const [users, setUsers] = useState<User[]>([]);
@@ -218,7 +218,7 @@ const AdminUsers: React.FC<AdminUsersProps> = ({ onManageSubscription, onNotify,
             </button>
             <button 
                 onClick={() => setShowBusinessModal(true)}
-                className="bg-indigo-600 text-white px-6 py-3 rounded-xl font-bold hover:bg-indigo-700 transition-transform shadow-lg shadow-indigo-200"
+                className="bg-indigo-700 text-white px-6 py-3 rounded-xl font-bold hover:bg-indigo-800 transition-transform shadow-lg shadow-indigo-200"
             >
                 + Nueva Empresa
             </button>
@@ -249,7 +249,7 @@ const AdminUsers: React.FC<AdminUsersProps> = ({ onManageSubscription, onNotify,
                         <td className="p-6 font-bold text-slate-700 dark:text-slate-200">{user.email}</td>
                         <td className="p-6">
                             <span className={`px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest ${
-                                user.role === 'SUPERADMIN' ? 'bg-purple-100 text-purple-600' : 'bg-indigo-100 text-indigo-600'
+                                user.role === 'SUPERADMIN' ? 'bg-purple-100 text-purple-600' : 'bg-indigo-100 text-indigo-700'
                             }`}>
                                 {user.role}
                             </span>
@@ -261,7 +261,7 @@ const AdminUsers: React.FC<AdminUsersProps> = ({ onManageSubscription, onNotify,
                             {user.business && (
                                 <button 
                                     onClick={() => onManageSubscription(user.business!.id)}
-                                    className="text-indigo-600 font-bold text-xs hover:underline"
+                                    className="text-indigo-700 font-bold text-xs hover:underline"
                                 >
                                     Gestionar Suscripción
                                 </button>
@@ -300,7 +300,7 @@ const AdminUsers: React.FC<AdminUsersProps> = ({ onManageSubscription, onNotify,
                         <td className="p-6 flex gap-3">
                             <button 
                                 onClick={() => onManageSubscription(business.id)}
-                                className="text-indigo-600 font-bold text-xs hover:underline"
+                                className="text-indigo-700 font-bold text-xs hover:underline"
                             >
                                 Suscripción
                             </button>
@@ -372,7 +372,7 @@ const AdminUsers: React.FC<AdminUsersProps> = ({ onManageSubscription, onNotify,
                         </button>
                         <button 
                             type="submit"
-                            className="flex-1 py-3 bg-indigo-600 text-white font-bold rounded-xl hover:bg-indigo-700 shadow-lg shadow-indigo-200"
+                            className="flex-1 py-3 bg-indigo-700 text-white font-bold rounded-xl hover:bg-indigo-800 shadow-lg shadow-indigo-200"
                         >
                             Crear Usuario
                         </button>
@@ -434,7 +434,7 @@ const AdminUsers: React.FC<AdminUsersProps> = ({ onManageSubscription, onNotify,
                             Cancelar
                         </button>
                         <button type="submit"
-                            className="flex-1 py-3 bg-indigo-600 text-white font-bold rounded-xl hover:bg-indigo-700 shadow-lg shadow-indigo-200">
+                            className="flex-1 py-3 bg-indigo-700 text-white font-bold rounded-xl hover:bg-indigo-800 shadow-lg shadow-indigo-200">
                             Registrar Empresa
                         </button>
                     </div>

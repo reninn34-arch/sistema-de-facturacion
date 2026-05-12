@@ -202,7 +202,7 @@ const Integrations: React.FC<IntegrationsProps> = ({ products, clients, business
               />
               <button 
                 onClick={saveConfiguration}
-                className="w-full py-4 bg-slate-900 text-white rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-indigo-600 transition-all"
+                className="w-full py-4 bg-slate-900 text-white rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-indigo-800 transition-all"
               >
                 Conectar ahora
               </button>
@@ -211,7 +211,7 @@ const Integrations: React.FC<IntegrationsProps> = ({ products, clients, business
                <button 
                 onClick={syncInventory}
                 disabled={isSyncing || !isConfigured}
-                className="w-full py-4 bg-indigo-600 text-white rounded-2xl font-black text-[10px] uppercase tracking-widest shadow-lg shadow-indigo-100 disabled:opacity-30"
+                className="w-full py-4 bg-indigo-700 text-white rounded-2xl font-black text-[10px] uppercase tracking-widest shadow-lg shadow-indigo-100 disabled:opacity-30"
                >
                  {isSyncing ? 'Sincronizando...' : 'Sincronizar Inventario'}
                </button>
@@ -256,7 +256,7 @@ const Integrations: React.FC<IntegrationsProps> = ({ products, clients, business
                    <div className="flex flex-col md:flex-row justify-between gap-8">
                      <div className="flex-1 space-y-4">
                        <div className="flex flex-wrap items-center gap-4">
-                          <span className={`px-4 py-1.5 rounded-full text-[9px] font-black uppercase tracking-widest inline-flex items-center gap-1.5 ${order.paymentMethod === 'CARD' ? 'bg-indigo-600 text-white' : 'bg-amber-500 text-white'}`}>
+                          <span className={`px-4 py-1.5 rounded-full text-[9px] font-black uppercase tracking-widest inline-flex items-center gap-1.5 ${order.paymentMethod === 'CARD' ? 'bg-indigo-700 text-white' : 'bg-amber-500 text-white'}`}>
                             {order.paymentMethod === 'CARD' ? <><CreditCardIcon className="w-3 h-3" /> Tarjeta</> : <><BuildingLibraryIcon className="w-3 h-3" /> Transferencia</>}
                           </span>
                           {order.transactionId && (
@@ -443,7 +443,7 @@ const Integrations: React.FC<IntegrationsProps> = ({ products, clients, business
                   <button onClick={() => setEditingOrder(null)} className="px-8 py-4 font-black text-[10px] uppercase text-slate-400 hover:text-white transition-colors">Cancelar</button>
                   <button 
                     onClick={saveEditedOrder}
-                    className="px-10 py-4 bg-indigo-600 text-white rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-indigo-500 transition-all shadow-xl shadow-indigo-900/40"
+                    className="px-10 py-4 bg-indigo-700 text-white rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-indigo-500 transition-all shadow-xl shadow-indigo-900/40"
                   >
                     Guardar Cambios
                   </button>

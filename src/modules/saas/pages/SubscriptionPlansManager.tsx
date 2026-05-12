@@ -109,7 +109,7 @@ const defaultPlans: SubscriptionPlan[] = [
   }
 ];
 
-const API_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:3001';
+const API_URL = import.meta.env.VITE_BACKEND_URL || '';
 
 const SubscriptionPlansManager: React.FC<SubscriptionPlansManagerProps> = ({ onNotify }) => {
   const [plans, setPlans] = useState<SubscriptionPlan[]>(defaultPlans);
@@ -338,7 +338,7 @@ const SubscriptionPlansManager: React.FC<SubscriptionPlansManagerProps> = ({ onN
           </div>
           <button
             onClick={() => handleOpenModal()}
-            className="px-6 py-3 bg-indigo-600 text-white font-bold rounded-xl hover:bg-indigo-700 transition-colors shadow-lg"
+            className="px-6 py-3 bg-indigo-700 text-white font-bold rounded-xl hover:bg-indigo-800 transition-colors shadow-lg"
           >
             + Nuevo Plan
           </button>
@@ -360,7 +360,7 @@ const SubscriptionPlansManager: React.FC<SubscriptionPlansManagerProps> = ({ onN
                 }`}
               >
                 {/* Header del Plan */}
-                <div className={`p-6 ${plan.isActive ? 'bg-gradient-to-r from-indigo-600 to-indigo-700' : 'bg-red-400'}`}>
+                <div className={`p-6 ${plan.isActive ? 'bg-gradient-to-r from-indigo-700 to-indigo-700' : 'bg-red-400'}`}>
                   <div className="flex justify-between items-start">
                     <div>
                       <h3 className="text-xl font-black text-white">{plan.name}</h3>
@@ -588,7 +588,7 @@ const SubscriptionPlansManager: React.FC<SubscriptionPlansManagerProps> = ({ onN
                       type="checkbox"
                       checked={formData.hasAIAssistant || false}
                       onChange={e => setFormData({ ...formData, hasAIAssistant: e.target.checked })}
-                      className="w-5 h-5 text-indigo-600 rounded focus:ring-blue-500"
+                      className="w-5 h-5 text-indigo-700 rounded focus:ring-blue-500"
                     />
                     <span className="font-medium text-slate-700 dark:text-slate-300">Asistente IA</span>
                     <CpuChipIcon className="w-4 h-4 text-xs text-slate-400 ml-1 inline" />
@@ -598,7 +598,7 @@ const SubscriptionPlansManager: React.FC<SubscriptionPlansManagerProps> = ({ onN
                       type="checkbox"
                       checked={formData.hasAudit || false}
                       onChange={e => setFormData({ ...formData, hasAudit: e.target.checked })}
-                      className="w-5 h-5 text-indigo-600 rounded focus:ring-blue-500"
+                      className="w-5 h-5 text-indigo-700 rounded focus:ring-blue-500"
                     />
                     <span className="font-medium text-slate-700 dark:text-slate-300">Auditoría en Tiempo Real</span>
                     <MegaphoneIcon className="w-4 h-4 text-xs text-slate-400 ml-1 inline" />
@@ -608,7 +608,7 @@ const SubscriptionPlansManager: React.FC<SubscriptionPlansManagerProps> = ({ onN
                       type="checkbox"
                       checked={formData.hasPrioritySupport || false}
                       onChange={e => setFormData({ ...formData, hasPrioritySupport: e.target.checked })}
-                      className="w-5 h-5 text-indigo-600 rounded focus:ring-blue-500"
+                      className="w-5 h-5 text-indigo-700 rounded focus:ring-blue-500"
                     />
                     <span className="font-medium text-slate-700 dark:text-slate-300">Soporte Prioritario</span>
                     <MegaphoneIcon className="w-4 h-4 text-xs text-slate-400 ml-1 inline" />
@@ -618,7 +618,7 @@ const SubscriptionPlansManager: React.FC<SubscriptionPlansManagerProps> = ({ onN
                       type="checkbox"
                       checked={formData.isActive !== false}
                       onChange={e => setFormData({ ...formData, isActive: e.target.checked })}
-                      className="w-5 h-5 text-indigo-600 rounded focus:ring-blue-500"
+                      className="w-5 h-5 text-indigo-700 rounded focus:ring-blue-500"
                     />
                     <span className="font-medium text-slate-700 dark:text-slate-300">Activo</span>
                   </label>
@@ -635,7 +635,7 @@ const SubscriptionPlansManager: React.FC<SubscriptionPlansManagerProps> = ({ onN
                 </button>
                 <button
                   onClick={handleSave}
-                  className="flex-[2] py-3 bg-indigo-600 text-white font-bold rounded-xl hover:bg-indigo-700 transition-colors"
+                  className="flex-[2] py-3 bg-indigo-700 text-white font-bold rounded-xl hover:bg-indigo-800 transition-colors"
                 >
                   {editingPlan ? 'Guardar Cambios' : 'Crear Plan'}
                 </button>

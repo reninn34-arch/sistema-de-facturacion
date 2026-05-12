@@ -147,7 +147,7 @@ IVA a Pagar / Crédito Tributario: $${form104Data.ivaToPayOrCredit.toFixed(2)}
               </div>
               <div className="flex justify-between items-center pt-3 border-t-2 border-blue-300">
                 <span className="text-sm font-bold text-indigo-700">IVA Generado (15%)</span>
-                <span className="text-2xl font-black text-indigo-600">${form104Data.generatedIva.toFixed(2)}</span>
+                <span className="text-2xl font-black text-indigo-700">${form104Data.generatedIva.toFixed(2)}</span>
               </div>
             </div>
           </div>
@@ -177,7 +177,7 @@ IVA a Pagar / Crédito Tributario: $${form104Data.ivaToPayOrCredit.toFixed(2)}
         <button
           onClick={exportReport}
           disabled={!month || !year}
-          className="w-full mt-6 py-4 bg-indigo-600 hover:bg-indigo-700 text-white rounded-2xl font-black uppercase text-sm tracking-wide shadow-lg shadow-indigo-500/20 disabled:opacity-50 disabled:cursor-not-allowed"
+          className="w-full mt-6 py-4 bg-indigo-700 hover:bg-indigo-800 text-white rounded-2xl font-black uppercase text-sm tracking-wide shadow-lg shadow-indigo-500/20 disabled:opacity-50 disabled:cursor-not-allowed"
         >
           <ArrowDownTrayIcon className="w-4 h-4 inline" /> Exportar Declaración
         </button>

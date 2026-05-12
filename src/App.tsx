@@ -81,7 +81,7 @@ const App: React.FC = () => {
 
   // Estado para verificar suscripción vencida
   const [subscriptionExpired, setSubscriptionExpired] = useState(false);
-  
+
   // Estado para verificar suscripción pendiente de aprobación
   const [subscriptionPending, setSubscriptionPending] = useState(false);
 
@@ -109,7 +109,7 @@ const App: React.FC = () => {
     regime: 'GENERAL',
     isAccountingObliged: false,
     isProduction: false,
-    themeColor: '#3B82F6',
+    themeColor: '#4338CA',
     establishmentCode: '001',
     emissionPointCode: '001',
     taxpayerType: 'PERSONA_NATURAL',
@@ -194,7 +194,7 @@ const App: React.FC = () => {
       if (!plan) return;
 
       try {
-        const API_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:3001';
+        const API_URL = import.meta.env.VITE_BACKEND_URL || '';
         const response = await fetch(`${API_URL}/api/subscription-plans`);
         if (response.ok) {
           const data = await response.json();
@@ -348,7 +348,7 @@ const App: React.FC = () => {
             const isExpired = subscriptionEnd && subscriptionEnd < now;
             const isNotActive = (empresa as any).isActive === false;
             const isPending = (empresa as any).subscriptionStatus === 'PENDING';
-            
+
             // Guardar el estado de suscripción pendiente
             setSubscriptionPending(isPending);
 
@@ -869,8 +869,8 @@ const App: React.FC = () => {
       case 'kardex': return <Kardex products={products} documents={documents} onNotify={showNotify} />;
       case 'profitability': return <ProfitabilityAnalysis products={products} documents={documents} onNotify={showNotify} />;
       case 'notifications': return <NotificationSettingsComponent settings={notificationSettings} onSave={handleSaveNotificationSettings} onNotify={showNotify} />;
-      case 'reports': return <Reports documents={documents} businessInfo={businessInfo} />; 
-      case 'ai-assistant': 
+      case 'reports': return <Reports documents={documents} businessInfo={businessInfo} />;
+      case 'ai-assistant':
         if (!currentPlanHasAI && currentUser?.role !== 'SUPERADMIN') {
           showNotify('El Asistente IA requiere un plan superior. Actualice su suscripción.', 'warning');
           return <Dashboard documents={documents} products={products} setActiveTab={setActiveTab} currentUser={currentUser} />;
@@ -982,7 +982,7 @@ const App: React.FC = () => {
                   onClick={() => isUserAdmin && logoInputRef.current?.click()}
                 >
                   {businessInfo.logo ? <img src={businessInfo.logo} className="w-full h-full object-cover" /> : <CameraIcon className="w-8 h-8 text-slate-300 dark:text-slate-600" />}
-                  {isUserAdmin && <div className="absolute inset-0 bg-indigo-600/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-[10px] font-black text-white uppercase">Editar</div>}
+                  {isUserAdmin && <div className="absolute inset-0 bg-indigo-700/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-[10px] font-black text-white uppercase">Editar</div>}
                   <input type="file" ref={logoInputRef} className="hidden" accept="image/*" onChange={(e) => {
                     const file = e.target.files?.[0];
                     if (file && file instanceof File) {
@@ -1019,7 +1019,7 @@ const App: React.FC = () => {
                       setBusinessInfo(prev => ({ ...prev, taxpayerType: newType }));
                       showNotify(`Cambiado a ${newType === 'EMPRESA' ? 'Empresa' : 'Persona Natural'}`);
                     }}
-                    className={`px-8 py-5 rounded-2xl font-black text-[10px] uppercase tracking-widest transition-all shadow-xl ${businessInfo.taxpayerType === 'EMPRESA' ? 'bg-indigo-600 text-white shadow-indigo-600/20' : 'bg-purple-600 text-white shadow-purple-600/20'
+                    className={`px-8 py-5 rounded-2xl font-black text-[10px] uppercase tracking-widest transition-all shadow-xl ${businessInfo.taxpayerType === 'EMPRESA' ? 'bg-indigo-700 text-white shadow-indigo-700/20' : 'bg-purple-600 text-white shadow-purple-600/20'
                       }`}
                   >
                     {businessInfo.taxpayerType === 'EMPRESA' ? 'Empresa' : 'Persona Natural'}
@@ -1108,8 +1108,8 @@ const App: React.FC = () => {
                       <div className="md:col-span-2 space-y-2">
                         <label className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest">Obligado Contabilidad</label>
                         <div className="flex bg-slate-50 dark:bg-slate-800/50 p-1 rounded-2xl h-[52px]">
-                          <button onClick={() => setBusinessInfo({ ...businessInfo, isAccountingObliged: true })} className={`flex-1 rounded-xl text-[10px] font-black uppercase transition-all ${businessInfo.isAccountingObliged ? 'bg-white dark:bg-slate-700 shadow-sm text-indigo-600 dark:text-indigo-400' : 'text-slate-400'}`}>SÍ</button>
-                          <button onClick={() => setBusinessInfo({ ...businessInfo, isAccountingObliged: false })} className={`flex-1 rounded-xl text-[10px] font-black uppercase transition-all ${!businessInfo.isAccountingObliged ? 'bg-white dark:bg-slate-700 shadow-sm text-indigo-600 dark:text-indigo-400' : 'text-slate-400'}`}>NO</button>
+                          <button onClick={() => setBusinessInfo({ ...businessInfo, isAccountingObliged: true })} className={`flex-1 rounded-xl text-[10px] font-black uppercase transition-all ${businessInfo.isAccountingObliged ? 'bg-white dark:bg-slate-700 shadow-sm text-indigo-700 dark:text-indigo-400' : 'text-slate-400'}`}>SÍ</button>
+                          <button onClick={() => setBusinessInfo({ ...businessInfo, isAccountingObliged: false })} className={`flex-1 rounded-xl text-[10px] font-black uppercase transition-all ${!businessInfo.isAccountingObliged ? 'bg-white dark:bg-slate-700 shadow-sm text-indigo-700 dark:text-indigo-400' : 'text-slate-400'}`}>NO</button>
                         </div>
                       </div>
                     </div>
@@ -1127,11 +1127,10 @@ const App: React.FC = () => {
                         <button
                           key={key}
                           onClick={() => setBusinessInfo({ ...businessInfo, businessType: key as BusinessType })}
-                          className={`p-4 rounded-2xl font-bold text-sm transition-all border-2 text-left ${
-                            (businessInfo as any).businessType === key || (!(businessInfo as any).businessType && key === 'GENERAL')
+                          className={`p-4 rounded-2xl font-bold text-sm transition-all border-2 text-left ${(businessInfo as any).businessType === key || (!(businessInfo as any).businessType && key === 'GENERAL')
                               ? 'border-indigo-500 bg-indigo-50 dark:bg-indigo-500/10'
                               : 'border-slate-200 dark:border-slate-700 hover:border-slate-300'
-                          }`}
+                            }`}
                         >
                           <span className="text-lg">{val.icon}</span>
                           <p className="font-black text-slate-800 dark:text-white mt-1">{val.label}</p>
@@ -1202,31 +1201,31 @@ const App: React.FC = () => {
                             placeholder="Contraseña Actual"
                             value={passwordData.current}
                             onChange={(e) => setPasswordData({ ...passwordData, current: e.target.value })}
-                          className="w-full p-4 bg-slate-50 dark:bg-slate-800/50 dark:text-white rounded-2xl font-bold text-sm outline-none border-2 border-transparent focus:border-purple-500 transition-colors pr-10"
-                        />
-                        <button
-                          type="button"
-                          onClick={() => setShowProfilePassword(!showProfilePassword)}
-                          className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300"
-                        >
-                          {showProfilePassword ? <EyeSlashIcon className="w-5 h-5" /> : <EyeIcon className="w-5 h-5" />}
-                        </button>
-                      </div>
-                      <div className="relative">
-                        <input
-                          type={showProfilePassword ? "text" : "password"}
-                          placeholder="Nueva Contraseña"
-                          value={passwordData.new}
-                          onChange={(e) => setPasswordData({ ...passwordData, new: e.target.value })}
-                          className="w-full p-4 bg-slate-50 dark:bg-slate-800/50 dark:text-white rounded-2xl font-bold text-sm outline-none border-2 border-transparent focus:border-purple-500 transition-colors pr-10"
-                        />
-                        <button
-                          type="button"
-                          onClick={() => setShowProfilePassword(!showProfilePassword)}
-                          className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300"
-                        >
-                          {showProfilePassword ? <EyeSlashIcon className="w-5 h-5" /> : <EyeIcon className="w-5 h-5" />}
-                        </button>
+                            className="w-full p-4 bg-slate-50 dark:bg-slate-800/50 dark:text-white rounded-2xl font-bold text-sm outline-none border-2 border-transparent focus:border-purple-500 transition-colors pr-10"
+                          />
+                          <button
+                            type="button"
+                            onClick={() => setShowProfilePassword(!showProfilePassword)}
+                            className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300"
+                          >
+                            {showProfilePassword ? <EyeSlashIcon className="w-5 h-5" /> : <EyeIcon className="w-5 h-5" />}
+                          </button>
+                        </div>
+                        <div className="relative">
+                          <input
+                            type={showProfilePassword ? "text" : "password"}
+                            placeholder="Nueva Contraseña"
+                            value={passwordData.new}
+                            onChange={(e) => setPasswordData({ ...passwordData, new: e.target.value })}
+                            className="w-full p-4 bg-slate-50 dark:bg-slate-800/50 dark:text-white rounded-2xl font-bold text-sm outline-none border-2 border-transparent focus:border-purple-500 transition-colors pr-10"
+                          />
+                          <button
+                            type="button"
+                            onClick={() => setShowProfilePassword(!showProfilePassword)}
+                            className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300"
+                          >
+                            {showProfilePassword ? <EyeSlashIcon className="w-5 h-5" /> : <EyeIcon className="w-5 h-5" />}
+                          </button>
                         </div>
                         <div className="relative">
                           <input
@@ -1323,7 +1322,7 @@ const App: React.FC = () => {
 
                   <button
                     onClick={saveBusinessConfig}
-                    className="w-full py-6 bg-indigo-600 hover:bg-indigo-700 text-white rounded-[2.5rem] font-black uppercase text-xs tracking-widest shadow-2xl shadow-indigo-500/20 transition-all hover:scale-[1.02] active:scale-95"
+                    className="w-full py-6 bg-indigo-700 hover:bg-indigo-800 text-white rounded-[2.5rem] font-black uppercase text-xs tracking-widest shadow-2xl shadow-indigo-500/20 transition-all hover:scale-[1.02] active:scale-95"
                   >
                     Guardar Cambios Legales
                   </button>
@@ -1357,7 +1356,7 @@ const App: React.FC = () => {
         <div className="fixed top-5 right-24 z-[9999] flex items-center gap-3 bg-white/90 dark:bg-slate-800/90 backdrop-blur-sm px-4 py-2 rounded-full shadow-sm border border-slate-200 dark:border-slate-600/50 transition-colors duration-300">
           <button
             onClick={toggleDarkMode}
-            className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-slate-500 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors"
+            className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-slate-500 dark:text-slate-400 hover:text-indigo-700 dark:hover:text-indigo-400 transition-colors"
           >
             {((businessInfo as any).features?.isDarkMode ?? false) ? (
               <><SunIcon className="w-4 h-4" /> Claro</>
@@ -1370,12 +1369,12 @@ const App: React.FC = () => {
       {/* --- TOASTS DE NOTIFICACIONES --- */}
       <div className="fixed bottom-6 right-6 z-[999] flex flex-col gap-3 pointer-events-none">
         {toasts.map((toast) => (
-          <div 
-            key={toast.id} 
-            className="pointer-events-auto min-w-[320px] p-6 rounded-[2.5rem] shadow-2xl backdrop-blur-xl border animate-in slide-in-from-right-10 flex items-start gap-4 text-slate-950 dark:text-white" 
-            style={{ 
-              backgroundColor: `${businessInfo.themeColor}EE`, 
-              borderColor: `${businessInfo.themeColor}44` 
+          <div
+            key={toast.id}
+            className="pointer-events-auto min-w-[320px] p-6 rounded-[2.5rem] shadow-2xl backdrop-blur-xl border animate-in slide-in-from-right-10 flex items-start gap-4 text-slate-950 dark:text-white"
+            style={{
+              backgroundColor: `${businessInfo.themeColor}EE`,
+              borderColor: `${businessInfo.themeColor}44`
             }}
           >
             <span className="text-2xl">{toast.type === 'success' ? '✅' : 'ℹ️'}</span>

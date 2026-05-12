@@ -3,7 +3,7 @@ import { PayPalScriptProvider, PayPalButtons } from "@paypal/react-paypal-js";
 import { CheckCircleIcon, LockClosedIcon, ShieldCheckIcon, ArrowLeftIcon, EyeIcon, EyeSlashIcon, CreditCardIcon, BuildingLibraryIcon, SunIcon, MoonIcon } from '@heroicons/react/24/outline';
 import { BUSINESS_TYPES, BusinessType } from '../../../types/types';
 
-const API_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:3001';
+const API_URL = import.meta.env.VITE_BACKEND_URL || '';
 
 const BankDetails: React.FC = () => {
   const [bank, setBank] = useState<any>(null);
@@ -120,7 +120,7 @@ const SubscriptionPage: React.FC = () => {
   const reloadPlans = async () => {
     // Siempre cargar desde el API para obtener precios actualizados
     try {
-      const API_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:3001';
+      const API_URL = import.meta.env.VITE_BACKEND_URL || '';
       const response = await fetch(`${API_URL}/api/subscription-plans`);
       if (response.ok) {
         const data = await response.json();
@@ -183,7 +183,7 @@ const SubscriptionPage: React.FC = () => {
     const loadPlans = async () => {
       // Siempre cargar desde el API para obtener precios actualizados
       try {
-        const API_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:3001';
+        const API_URL = import.meta.env.VITE_BACKEND_URL || '';
         const response = await fetch(`${API_URL}/api/subscription-plans`);
         if (response.ok) {
           const data = await response.json();
@@ -267,7 +267,7 @@ const SubscriptionPage: React.FC = () => {
     setLoading(true);
     try {
 
-      const API_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:3001';
+      const API_URL = import.meta.env.VITE_BACKEND_URL || '';
       const response = await fetch(`${API_URL}/api/register`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -329,7 +329,7 @@ const SubscriptionPage: React.FC = () => {
         });
 
         const base64 = await base64Promise;
-        const API_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:3001';
+        const API_URL = import.meta.env.VITE_BACKEND_URL || '';
         const token = localStorage.getItem('adminToken');
 
         await fetch(`${API_URL}/api/activation-requests/${activationId}/upload-proof`, {

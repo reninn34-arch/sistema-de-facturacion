@@ -155,29 +155,29 @@ const LandingPage: React.FC = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16 lg:h-20">
             <div className="flex items-center gap-2">
-              <div className="w-9 h-9 bg-indigo-600 rounded-xl flex items-center justify-center">
+              <div className="w-9 h-9 bg-indigo-700 rounded-xl flex items-center justify-center">
                 <DocumentTextIcon className="w-5 h-5 text-white" />
               </div>
               <span className="text-xl font-black text-slate-900">
-                ECUAFACT <span className="text-indigo-600">PRO</span>
+                ECUAFACT <span className="text-indigo-700">PRO</span>
               </span>
             </div>
 
             {/* Desktop nav */}
             <div className="hidden lg:flex items-center gap-8">
-              <a href="#features" className="text-sm font-semibold text-slate-600 hover:text-indigo-600 transition-colors">Funcionalidades</a>
-              <a href="#business-types" className="text-sm font-semibold text-slate-600 hover:text-indigo-600 transition-colors">Negocios</a>
-              <a href="#pricing" className="text-sm font-semibold text-slate-600 hover:text-indigo-600 transition-colors">Planes</a>
-              <a href="#testimonials" className="text-sm font-semibold text-slate-600 hover:text-indigo-600 transition-colors">Testimonios</a>
+              <a href="#features" className="text-sm font-semibold text-slate-600 hover:text-indigo-700 transition-colors">Funcionalidades</a>
+              <a href="#business-types" className="text-sm font-semibold text-slate-600 hover:text-indigo-700 transition-colors">Negocios</a>
+              <a href="#pricing" className="text-sm font-semibold text-slate-600 hover:text-indigo-700 transition-colors">Planes</a>
+              <a href="#testimonials" className="text-sm font-semibold text-slate-600 hover:text-indigo-700 transition-colors">Testimonios</a>
               <a
                 href="/login"
-                className="text-sm font-bold text-slate-700 hover:text-indigo-600 transition-colors px-4 py-2"
+                className="text-sm font-bold text-slate-700 hover:text-indigo-700 transition-colors px-4 py-2"
               >
                 Iniciar Sesión
               </a>
               <a
                 href="/suscripcion"
-                className="text-sm font-bold bg-indigo-600 text-white px-6 py-2.5 rounded-xl hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-600/25 hover:shadow-indigo-600/40"
+                className="text-sm font-bold bg-indigo-700 text-white px-6 py-2.5 rounded-xl hover:bg-indigo-800 transition-all shadow-lg shadow-indigo-700/25 hover:shadow-indigo-700/40"
               >
                 Comenzar Gratis
               </a>
@@ -198,7 +198,7 @@ const LandingPage: React.FC = () => {
               <a href="#business-types" className="block py-3 px-4 text-sm font-semibold text-slate-700 hover:bg-slate-50 rounded-xl" onClick={() => setMobileMenuOpen(false)}>Negocios</a>
               <a href="#pricing" className="block py-3 px-4 text-sm font-semibold text-slate-700 hover:bg-slate-50 rounded-xl" onClick={() => setMobileMenuOpen(false)}>Planes</a>
               <a href="/login" className="block py-3 px-4 text-sm font-bold text-slate-700 hover:bg-slate-50 rounded-xl">Iniciar Sesión</a>
-              <a href="/suscripcion" className="block py-3 px-4 text-sm font-bold bg-indigo-600 text-white text-center rounded-xl">Comenzar Gratis</a>
+              <a href="/suscripcion" className="block py-3 px-4 text-sm font-bold bg-indigo-700 text-white text-center rounded-xl">Comenzar Gratis</a>
             </div>
           </div>
         )}
@@ -219,7 +219,7 @@ const LandingPage: React.FC = () => {
               </div>
               <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black text-slate-900 leading-[1.1] tracking-tight">
                 Factura, produce y crece —{' '}
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-violet-600">todo en un solo lugar</span>
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-700 to-violet-600">todo en un solo lugar</span>
               </h1>
               <p className="mt-6 text-lg sm:text-xl text-slate-500 leading-relaxed max-w-lg mx-auto lg:mx-0">
                 El sistema de facturación electrónica que se adapta a tu negocio. Panadería, restaurante, tienda o servicios — activa solo lo que necesitas.
@@ -227,7 +227,7 @@ const LandingPage: React.FC = () => {
               <div className="mt-8 flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
                 <a
                   href="/suscripcion"
-                  className="inline-flex items-center justify-center gap-2 bg-indigo-600 text-white px-8 py-4 rounded-2xl font-bold text-base hover:bg-indigo-700 transition-all shadow-xl shadow-indigo-600/30 hover:shadow-indigo-600/40 hover:-translate-y-0.5"
+                  className="inline-flex items-center justify-center gap-2 bg-indigo-700 text-white px-8 py-4 rounded-2xl font-bold text-base hover:bg-indigo-800 transition-all shadow-xl shadow-indigo-700/30 hover:shadow-indigo-700/40 hover:-translate-y-0.5"
                 >
                   Comenzar Gratis
                   <ArrowRightIcon className="w-5 h-5" />
@@ -356,10 +356,10 @@ const LandingPage: React.FC = () => {
               <span className="text-sm font-bold text-slate-600 ml-1">4.9/5</span>
             </div>
             <div className="flex items-center gap-2">
-              <span className="text-sm font-bold text-slate-600"><span className="text-indigo-600 text-lg font-black">+450</span> negocios activos</span>
+              <span className="text-sm font-bold text-slate-600"><span className="text-indigo-700 text-lg font-black">+450</span> negocios activos</span>
             </div>
             <div className="flex items-center gap-2">
-              <span className="text-sm font-bold text-slate-600"><span className="text-indigo-600 text-lg font-black">+50,000</span> facturas emitidas</span>
+              <span className="text-sm font-bold text-slate-600"><span className="text-indigo-700 text-lg font-black">+50,000</span> facturas emitidas</span>
             </div>
           </div>
         </div>
@@ -415,7 +415,7 @@ const LandingPage: React.FC = () => {
                 className="group relative bg-white rounded-3xl p-6 border-2 border-slate-100 hover:border-indigo-300 hover:shadow-2xl hover:shadow-indigo-100/50 transition-all duration-300 text-center hover:-translate-y-1"
               >
                 <div className="text-4xl mb-4">{bt.icon}</div>
-                <h3 className="text-lg font-black text-slate-800 group-hover:text-indigo-600 transition-colors">{bt.label}</h3>
+                <h3 className="text-lg font-black text-slate-800 group-hover:text-indigo-700 transition-colors">{bt.label}</h3>
                 <p className="text-sm text-slate-500 mt-2 leading-relaxed">{bt.description}</p>
               </a>
             ))}
@@ -438,8 +438,8 @@ const LandingPage: React.FC = () => {
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
             {features.map((feature, idx) => (
               <div key={idx} className="bg-white rounded-3xl p-8 border border-slate-100 hover:shadow-xl hover:shadow-slate-200/50 transition-all duration-300 group">
-                <div className="w-14 h-14 bg-indigo-100 rounded-2xl flex items-center justify-center mb-6 group-hover:bg-indigo-600 transition-colors">
-                  <feature.icon className="w-7 h-7 text-indigo-600 group-hover:text-white transition-colors" />
+                <div className="w-14 h-14 bg-indigo-100 rounded-2xl flex items-center justify-center mb-6 group-hover:bg-indigo-800 transition-colors">
+                  <feature.icon className="w-7 h-7 text-indigo-700 group-hover:text-white transition-colors" />
                 </div>
                 <h3 className="text-xl font-black text-slate-800 mb-3">{feature.title}</h3>
                 <p className="text-slate-500 leading-relaxed">{feature.description}</p>
@@ -500,12 +500,12 @@ const LandingPage: React.FC = () => {
                 key={idx}
                 className={`relative bg-white rounded-3xl p-8 border-2 transition-all duration-300 hover:-translate-y-1 ${
                   plan.highlighted
-                    ? 'border-indigo-600 shadow-2xl shadow-indigo-200/50 scale-[1.02]'
+                    ? 'border-indigo-700 shadow-2xl shadow-indigo-200/50 scale-[1.02]'
                     : 'border-slate-100 hover:border-slate-300 hover:shadow-xl'
                 }`}
               >
                 {plan.highlighted && (
-                  <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-indigo-600 text-white text-xs font-bold px-4 py-1.5 rounded-full">
+                  <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-indigo-700 text-white text-xs font-bold px-4 py-1.5 rounded-full">
                     Más Popular
                   </div>
                 )}
@@ -529,7 +529,7 @@ const LandingPage: React.FC = () => {
                   href={`/suscripcion?plan=${plan.code}`}
                   className={`mt-8 block text-center py-3.5 rounded-2xl font-bold text-sm transition-all ${
                     plan.highlighted
-                      ? 'bg-indigo-600 text-white hover:bg-indigo-700 shadow-lg shadow-indigo-600/25'
+                      ? 'bg-indigo-700 text-white hover:bg-indigo-800 shadow-lg shadow-indigo-700/25'
                       : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
                   }`}
                 >
@@ -563,7 +563,7 @@ const LandingPage: React.FC = () => {
                 </div>
                 <p className="text-slate-600 leading-relaxed italic mb-6">"{t.quote}"</p>
                 <div className="flex items-center gap-3 pt-4 border-t border-slate-100">
-                  <div className="w-10 h-10 bg-indigo-100 rounded-xl flex items-center justify-center font-black text-indigo-600">
+                  <div className="w-10 h-10 bg-indigo-100 rounded-xl flex items-center justify-center font-black text-indigo-700">
                     {t.name.charAt(0)}
                   </div>
                   <div>
@@ -612,7 +612,7 @@ const LandingPage: React.FC = () => {
       {/* FINAL CTA */}
       <section ref={ctaSectionRef} className="py-20 lg:py-28">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <div className="bg-gradient-to-br from-indigo-600 to-violet-700 rounded-[3rem] p-10 sm:p-16 shadow-2xl shadow-indigo-500/30">
+          <div className="bg-gradient-to-br from-indigo-700 to-violet-700 rounded-[3rem] p-10 sm:p-16 shadow-2xl shadow-indigo-500/30">
             <h2 className="text-3xl sm:text-4xl font-black text-white tracking-tight">
               ¿Listo para transformar tu negocio?
             </h2>
@@ -644,7 +644,7 @@ const LandingPage: React.FC = () => {
           <div className="grid md:grid-cols-4 gap-8 mb-12">
             <div>
               <div className="flex items-center gap-2 mb-4">
-                <div className="w-9 h-9 bg-indigo-600 rounded-xl flex items-center justify-center">
+                <div className="w-9 h-9 bg-indigo-700 rounded-xl flex items-center justify-center">
                   <DocumentTextIcon className="w-5 h-5 text-white" />
                 </div>
                 <span className="text-xl font-black text-white">
@@ -689,7 +689,7 @@ const LandingPage: React.FC = () => {
       <div className={`lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-lg border-t border-slate-200 px-4 py-3 shadow-2xl shadow-slate-300/50 transition-all duration-300 ${ctaVisible ? 'translate-y-full opacity-0 pointer-events-none' : 'translate-y-0 opacity-100'}`}>
         <a
           href="/suscripcion"
-          className="flex items-center justify-center gap-2 bg-indigo-600 text-white px-6 py-3.5 rounded-2xl font-bold text-sm w-full hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-600/25 active:scale-[0.98]"
+          className="flex items-center justify-center gap-2 bg-indigo-700 text-white px-6 py-3.5 rounded-2xl font-bold text-sm w-full hover:bg-indigo-800 transition-all shadow-lg shadow-indigo-700/25 active:scale-[0.98]"
         >
           Comenzar Gratis
           <ArrowRightIcon className="w-4 h-4" />

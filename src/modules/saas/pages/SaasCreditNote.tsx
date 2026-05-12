@@ -51,7 +51,7 @@ interface CreditNoteRecord {
   estado: string;
 }
 
-const API_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:3001';
+const API_URL = import.meta.env.VITE_BACKEND_URL || '';
 
 export default function SaasCreditNote({ businesses, documents, onNotify }: SaasCreditNoteProps) {
   // Estado para mostrar facturas o notas de crédito
@@ -613,7 +613,7 @@ export default function SaasCreditNote({ businesses, documents, onNotify }: Saas
                   
                   {/* Información según la razón */}
                   {reason === '04' && (
-                    <p className="text-xs text-indigo-600 dark:text-indigo-400 mt-2">
+                    <p className="text-xs text-indigo-700 dark:text-indigo-400 mt-2">
                       <PencilIcon className="w-4 h-4 inline" /> Modificación/Corrección: Puede editar la descripción, precio y cantidad de los items.
                     </p>
                   )}
@@ -760,7 +760,7 @@ export default function SaasCreditNote({ businesses, documents, onNotify }: Saas
                                   total: 0,
                                   type: 'FISICO'
                                 }])}
-                                className="text-sm text-indigo-600 hover:text-indigo-800 dark:text-indigo-400 dark:hover:text-blue-300"
+                                className="text-sm text-indigo-700 hover:text-indigo-800 dark:text-indigo-400 dark:hover:text-blue-300"
                               >
                                 + Agregar otro item
                               </button>

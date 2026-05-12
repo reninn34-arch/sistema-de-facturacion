@@ -14,7 +14,7 @@ const ClientLogin = () => {
     setLoading(true);
 
     try {
-      const API_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:3001';
+      const API_URL = import.meta.env.VITE_BACKEND_URL || '';
       const response = await fetch(`${API_URL}/api/auth/client/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -44,15 +44,15 @@ const ClientLogin = () => {
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-br from-indigo-50 to-slate-100 dark:from-slate-900 dark:to-slate-800 transition-colors duration-300">
       <header className="flex items-center justify-between border-b border-indigo-100 dark:border-slate-700 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md px-10 py-3 sticky top-0 z-50">
-        <div className="flex items-center gap-3 text-indigo-600 dark:text-indigo-400">
-          <div className="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center">
+        <div className="flex items-center gap-3 text-indigo-700 dark:text-indigo-400">
+          <div className="w-8 h-8 bg-indigo-700 rounded-lg flex items-center justify-center">
             <DocumentTextIcon className="w-5 h-5 text-white" />
           </div>
           <h2 className="text-slate-900 dark:text-white text-lg font-bold tracking-tight">Portal de Facturación</h2>
         </div>
         <div className="flex gap-8">
-          <a className="text-slate-500 dark:text-slate-400 text-sm font-medium hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors" href="/">Inicio</a>
-          <a className="text-slate-500 dark:text-slate-400 text-sm font-medium hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors" href="#">Ayuda</a>
+          <a className="text-slate-500 dark:text-slate-400 text-sm font-medium hover:text-indigo-700 dark:hover:text-indigo-400 transition-colors" href="/">Inicio</a>
+          <a className="text-slate-500 dark:text-slate-400 text-sm font-medium hover:text-indigo-700 dark:hover:text-indigo-400 transition-colors" href="#">Ayuda</a>
         </div>
       </header>
 
@@ -120,7 +120,7 @@ const ClientLogin = () => {
               </div>
 
               <button
-                className="w-full flex items-center justify-center rounded-lg h-12 px-5 bg-indigo-600 text-white text-base font-bold shadow-lg shadow-indigo-600/20 hover:bg-indigo-700 transition-all active:scale-[0.98] disabled:opacity-70 disabled:cursor-not-allowed"
+                className="w-full flex items-center justify-center rounded-lg h-12 px-5 bg-indigo-700 text-white text-base font-bold shadow-lg shadow-indigo-700/20 hover:bg-indigo-800 transition-all active:scale-[0.98] disabled:opacity-70 disabled:cursor-not-allowed"
                 type="submit"
                 disabled={loading}
               >
@@ -131,7 +131,7 @@ const ClientLogin = () => {
             <div className="mt-8 pt-6 border-t border-slate-200 dark:border-slate-700 flex flex-col items-center gap-4">
               <p className="text-slate-500 dark:text-slate-400 text-sm">
                 ¿Problemas para ingresar?
-                <a className="text-indigo-600 dark:text-indigo-400 font-bold hover:underline ml-1" href="#">Contactar Soporte</a>
+                <a className="text-indigo-700 dark:text-indigo-400 font-bold hover:underline ml-1" href="#">Contactar Soporte</a>
               </p>
               <div className="flex items-center gap-2 text-slate-400 dark:text-slate-500 px-3 py-1 bg-slate-50 dark:bg-slate-700/50 rounded-full border border-slate-200 dark:border-slate-600">
                 <ShieldCheckIcon className="w-4 h-4" />

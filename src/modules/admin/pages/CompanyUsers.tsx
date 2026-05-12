@@ -22,7 +22,7 @@ import {
   BriefcaseIcon,
 } from '@heroicons/react/24/outline';
 
-const API_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:3001';
+const API_URL = import.meta.env.VITE_BACKEND_URL || '';
 
 interface User {
   id: string;
@@ -287,7 +287,7 @@ const CompanyUsers: React.FC<CompanyUsersProps> = ({ onNotify, businessId }) => 
             </h2>
             <button 
               onClick={() => setShowModal(true)}
-              className="bg-indigo-600 text-white w-8 h-8 rounded-full flex items-center justify-center hover:scale-110 transition-transform shadow-lg"
+              className="bg-indigo-700 text-white w-8 h-8 rounded-full flex items-center justify-center hover:scale-110 transition-transform shadow-lg"
               title="Nuevo Usuario"
             >
               <PlusIcon className="w-4 h-4" />
@@ -534,7 +534,7 @@ const CompanyUsers: React.FC<CompanyUsersProps> = ({ onNotify, businessId }) => 
                   </button>
                   <button
                     type="submit"
-                    className="px-6 py-3 bg-indigo-600 text-white rounded-xl font-bold hover:bg-indigo-700 transition-colors shadow-lg shadow-indigo-600/30"
+                    className="px-6 py-3 bg-indigo-700 text-white rounded-xl font-bold hover:bg-indigo-800 transition-colors shadow-lg shadow-indigo-700/30"
                   >
                     Crear Usuario
                   </button>
@@ -617,7 +617,7 @@ const CompanyUsers: React.FC<CompanyUsersProps> = ({ onNotify, businessId }) => 
                   </button>
                   <button
                     type="submit"
-                    className="px-6 py-3 bg-indigo-600 text-white rounded-xl font-bold hover:bg-indigo-700 transition-colors shadow-lg shadow-indigo-600/30"
+                    className="px-6 py-3 bg-indigo-700 text-white rounded-xl font-bold hover:bg-indigo-800 transition-colors shadow-lg shadow-indigo-700/30"
                   >
                     Restablecer
                   </button>
