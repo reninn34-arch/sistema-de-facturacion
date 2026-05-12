@@ -33,7 +33,7 @@ router.post('/api/auth/client/login', authController.clientLogin);
 router.post('/api/auth/client/forgot-password', authController.clientForgotPassword);
 
 // Cambio de contraseña de clientes (requiere token)
-router.post('/api/auth/client/change-password', authController.changeClientPassword);
+router.post('/api/auth/client/change-password', verifyToken, authController.changeClientPassword);
 
 // Obtener documentos del cliente (portal de clientes)
 router.get('/api/client/documents', verifyToken, authController.getClientDocuments);

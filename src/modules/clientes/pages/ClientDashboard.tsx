@@ -105,7 +105,7 @@ const ClientDashboard = () => {
     setIsSubmittingPassword(true);
     try {
       const token = localStorage.getItem('clientToken');
-      const response = await fetch(`${API_URL}/api/client/change-password`, {
+      const response = await fetch(`${API_URL}/api/auth/client/change-password`, {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json',

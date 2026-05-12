@@ -465,7 +465,7 @@ const authController = {
   changeClientPassword: catchAsync(async (req, res) => {
     // Ahora require autenticaci�n via verifyClientToken middleware
     // El clientId viene del token autenticado, no del body
-    const clientId = req.client?.id;
+    const clientId = req.user?.id;
     const { newPassword } = req.body;
     
     if (!clientId) {
