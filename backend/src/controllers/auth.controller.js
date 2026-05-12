@@ -404,24 +404,30 @@ const authController = {
       return res.status(401).json({ message: 'Credenciales inv�lidas' });
     }
     
-    // Verificar contrase�a
+    // Verificar contrasena
     let isValidPassword = false;
+    let isFirstLogin = false;
     if (client.password) {
-      // Si tiene contrase�a, verificarla normalmente
+      // Si tiene contrasena, verificarla normalmente
       isValidPassword = await bcrypt.compare(password, client.password);
     } else {
-      // Si NO tiene contrase�a, el cliente debe establecer una contrase�a
-      // Se rechaza el login hasta que establezca su contrase�a
-      console.log('?? [CLIENT_LOGIN] Cliente sin contrase�a establecida:', identification);
-      return res.status(401).json({ 
-        message: 'Debe establecer su contrase�a para acceder al portal',
-        requirePasswordSetup: true 
-      });
+      // Primer acceso: el cliente debe ingresar su RUC/cedula como contrasena temporal
+      if (password === identification) {
+        isValidPassword = true;
+        isFirstLogin = true;
+        console.log('? [CLIENT_LOGIN] Primer acceso detectado para:', identification);
+      } else {
+        console.log('?? [CLIENT_LOGIN] Primer acceso: contrasena temporal incorrecta para:', identification);
+        return res.status(401).json({ 
+          message: 'Para su primer acceso, ingrese su numero de Cedula o RUC como contrasena',
+          requirePasswordSetup: true 
+        });
+      }
     }
     
     if (!isValidPassword) {
-      console.log('?? [CLIENT_LOGIN] Contrase�a incorrecta para:', identification);
-      return res.status(401).json({ message: 'Credenciales inv�lidas' });
+      console.log('?? [CLIENT_LOGIN] Contrasena incorrecta para:', identification);
+      return res.status(401).json({ message: 'Credenciales invalidas' });
     }
     
     console.log('? [CLIENT_LOGIN] Login exitoso para:', identification);
@@ -433,8 +439,8 @@ const authController = {
       { expiresIn: '1h' } // Sesi�n de 1 hora para clientes
     );
     
-    // Verificar si necesita cambiar contrase�a
-    const requirePasswordChange = !client.password;
+    // Verificar si necesita cambiar contraseña (primer acceso o sin contraseña)
+    const requirePasswordChange = isFirstLogin || !client.password;
     
     // Exponer requirePasswordChange para que el frontend muestre la pantalla de cambio de contrase�a
     res.json({

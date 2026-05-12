@@ -93,7 +93,7 @@ const ClientLogin = () => {
               <div className="flex flex-col gap-2">
                 <div className="flex justify-between items-center">
                   <label className="text-slate-700 dark:text-slate-200 text-sm font-semibold">Contraseña</label>
-                  <span className="text-slate-400 text-xs">(Ingrese su identificación)</span>
+                  <span className="text-slate-400 text-xs">Primer acceso: use su Cédula/RUC</span>
                 </div>
                 <div className="flex w-full items-stretch rounded-lg group">
                   <div className="text-slate-400 flex border border-r-0 border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-700 items-center justify-center px-3 rounded-l-lg">
@@ -102,7 +102,7 @@ const ClientLogin = () => {
                   <div className="relative flex-1">
                     <input
                       className="w-full rounded-r-lg text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/20 border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 focus:border-indigo-500 h-12 placeholder:text-slate-400 p-3 text-base pr-10"
-                      placeholder="••••••••"
+                      placeholder="Primer acceso: ingrese su Cédula o RUC"
                       type={showPassword ? "text" : "password"}
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
