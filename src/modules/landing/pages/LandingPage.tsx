@@ -18,10 +18,27 @@ import {
 } from '@heroicons/react/24/outline';
 import { BUSINESS_TYPES, BusinessType } from '../../../types/types';
 
+const API_URL = import.meta.env.VITE_BACKEND_URL || '';
+
+interface ApiPlan {
+  id: string;
+  code: string;
+  name: string;
+  description: string;
+  price: number;
+  period: string;
+  durationDays: number;
+  features: string[];
+  isActive: boolean;
+  highlighted?: boolean;
+}
+
 const LandingPage: React.FC = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [ctaVisible, setCtaVisible] = useState(false);
+  const [plans, setPlans] = useState<ApiPlan[]>([]);
+  const [loadingPlans, setLoadingPlans] = useState(true);
   const ctaSectionRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -36,58 +53,33 @@ const LandingPage: React.FC = () => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  const plans = [
-    {
-      name: 'Básico',
-      price: '$29.99',
-      period: '/mes',
-      features: [
-        'Hasta 100 facturas/mes',
-        'Facturación electrónica SRI',
-        '1 usuario',
-        'Clientes ilimitados',
-        'Soporte por email',
-      ],
-      highlighted: false,
-      code: 'MONTHLY',
-    },
-    {
-      name: 'Pro',
-      price: '$149.99',
-      period: '/semestre',
-      features: [
-        'Hasta 500 facturas/mes',
-        'Facturación electrónica SRI',
-        '5 usuarios',
-        'Inventario y Kardex',
-        'Recetas y producción',
-        'Reportes tributarios',
-        'Soporte prioritario',
-        'Asistente IA',
-      ],
-      highlighted: true,
-      code: 'SEMIANNUAL',
-    },
-    {
-      name: 'Enterprise',
-      price: '$249.99',
-      period: '/año',
-      features: [
-        'Facturas ilimitadas',
-        'Facturación electrónica SRI',
-        'Usuarios ilimitados',
-        'Inventario y Kardex',
-        'Recetas y producción',
-        'Reportes tributarios ATS/104',
-        'Portal de clientes',
-        'Soporte 24/7',
-        'Asistente IA avanzado',
-        'API de integración',
-      ],
-      highlighted: false,
-      code: 'YEARLY',
-    },
-  ];
+  // Cargar planes reales desde la API del Superadmin
+  useEffect(() => {
+    fetch(`${API_URL}/api/subscription-plans`)
+      .then(r => r.json())
+      .then(data => {
+        const rawPlans: ApiPlan[] = data.plans || data || [];
+        // Filtrar solo activos y excluir FREE, UNLIMITED, PENDING
+        const filtered = rawPlans.filter(
+          (p) => p.isActive && p.code !== 'FREE' && p.code !== 'UNLIMITED' && p.code !== 'PENDING'
+        );
+        // Marcar el plan del medio como destacado
+        const withHighlight = filtered.map((p, i) => ({
+          ...p,
+          highlighted: filtered.length > 1 ? i === Math.floor(filtered.length / 2) : true
+        }));
+        setPlans(withHighlight);
+      })
+      .catch(() => {
+        // Fallback si la API falla
+        setPlans([
+          { id: '1', code: 'BASIC', name: 'Básico', description: 'Para pequeñas empresas', price: 34.49, period: 'mes', durationDays: 30, features: ['100 facturas/mes', 'Facturación SRI', '1 usuario', 'Soporte por email'], isActive: true, highlighted: false },
+          { id: '2', code: 'PRO', name: 'Profesional', description: 'Para negocios en crecimiento', price: 172.49, period: 'mes', durationDays: 30, features: ['500 facturas/mes', 'Facturación SRI', '5 usuarios', 'Inventario y Kardex', 'Recetas y producción', 'Reportes tributarios', 'Soporte prioritario', 'Asistente IA'], isActive: true, highlighted: true },
+          { id: '3', code: 'ENTERPRISE', name: 'Empresarial', description: 'Para grandes organizaciones', price: 287.49, period: 'mes', durationDays: 30, features: ['Facturas ilimitadas', 'Facturación SRI', 'Usuarios ilimitados', 'Inventario y Kardex', 'Recetas y producción', 'Reportes ATS/104', 'Soporte 24/7', 'Asistente IA avanzado', 'API de integración'], isActive: true, highlighted: false },
+        ]);
+      })
+      .finally(() => setLoadingPlans(false));
+  }, []);
 
   const businessTypeCards = Object.entries(BUSINESS_TYPES).map(([key, value]) => ({
     id: key as BusinessType,
@@ -494,52 +486,78 @@ const LandingPage: React.FC = () => {
             </p>
           </div>
 
-          <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
-            {plans.map((plan, idx) => (
-              <div
-                key={idx}
-                className={`relative bg-white rounded-3xl p-8 border-2 transition-all duration-300 hover:-translate-y-1 ${
-                  plan.highlighted
-                    ? 'border-indigo-700 shadow-2xl shadow-indigo-200/50 scale-[1.02]'
-                    : 'border-slate-100 hover:border-slate-300 hover:shadow-xl'
-                }`}
-              >
-                {plan.highlighted && (
-                  <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-indigo-700 text-white text-xs font-bold px-4 py-1.5 rounded-full">
-                    Más Popular
+          <div className={`grid gap-8 max-w-5xl mx-auto ${plans.length === 2 ? 'md:grid-cols-2' : plans.length >= 3 ? 'md:grid-cols-3' : 'md:grid-cols-1'}`}>
+            {loadingPlans ? (
+              // Skeleton de carga mientras se traen los planes
+              [...Array(3)].map((_, i) => (
+                <div key={i} className="bg-white rounded-3xl p-8 border-2 border-slate-100 animate-pulse">
+                  <div className="h-5 bg-slate-200 rounded-full w-1/3 mb-4" />
+                  <div className="h-10 bg-slate-200 rounded-full w-2/3 mb-8" />
+                  <div className="space-y-3">
+                    {[...Array(5)].map((_, j) => <div key={j} className="h-4 bg-slate-100 rounded-full" />)}
                   </div>
-                )}
-
-                <h3 className="text-lg font-black text-slate-900">{plan.name}</h3>
-                <div className="mt-4 flex items-baseline gap-1">
-                  <span className="text-4xl font-black text-slate-900">{plan.price}</span>
-                  <span className="text-slate-400 font-semibold">{plan.period}</span>
+                  <div className="h-12 bg-slate-200 rounded-2xl mt-8" />
                 </div>
-
-                <ul className="mt-8 space-y-3">
-                  {plan.features.map((feat, fi) => (
-                    <li key={fi} className="flex items-start gap-3">
-                      <CheckCircleIcon className="w-5 h-5 text-emerald-500 flex-shrink-0 mt-0.5" />
-                      <span className="text-sm text-slate-600 font-medium">{feat}</span>
-                    </li>
-                  ))}
-                </ul>
-
-                <a
-                  href={`/suscripcion?plan=${plan.code}`}
-                  className={`mt-8 block text-center py-3.5 rounded-2xl font-bold text-sm transition-all ${
+              ))
+            ) : plans.length === 0 ? (
+              <div className="col-span-3 text-center py-12 text-slate-400">
+                <p className="text-lg font-semibold">No hay planes disponibles en este momento.</p>
+                <p className="text-sm mt-2">Contacte al administrador para más información.</p>
+              </div>
+            ) : (
+              plans.map((plan, idx) => (
+                <div
+                  key={plan.id}
+                  className={`relative bg-white rounded-3xl p-8 border-2 transition-all duration-300 hover:-translate-y-1 ${
                     plan.highlighted
-                      ? 'bg-indigo-700 text-white hover:bg-indigo-800 shadow-lg shadow-indigo-700/25'
-                      : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+                      ? 'border-indigo-700 shadow-2xl shadow-indigo-200/50 scale-[1.02]'
+                      : 'border-slate-100 hover:border-slate-300 hover:shadow-xl'
                   }`}
                 >
-                  Elegir {plan.name}
-                </a>
-              </div>
-            ))}
+                  {plan.highlighted && (
+                    <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-indigo-700 text-white text-xs font-bold px-4 py-1.5 rounded-full">
+                      Más Popular
+                    </div>
+                  )}
+
+                  <h3 className="text-lg font-black text-slate-900">{plan.name}</h3>
+                  {plan.description && (
+                    <p className="text-xs text-slate-500 mt-1">{plan.description}</p>
+                  )}
+                  <div className="mt-4 flex items-baseline gap-1">
+                    <span className="text-4xl font-black text-slate-900">${plan.price.toFixed(2)}</span>
+                    <span className="text-slate-400 font-semibold">/{plan.period}</span>
+                  </div>
+
+                  <ul className="mt-8 space-y-3">
+                    {plan.features.slice(0, 8).map((feat, fi) => (
+                      <li key={fi} className="flex items-start gap-3">
+                        <CheckCircleIcon className="w-5 h-5 text-emerald-500 flex-shrink-0 mt-0.5" />
+                        <span className="text-sm text-slate-600 font-medium">{feat}</span>
+                      </li>
+                    ))}
+                    {plan.features.length > 8 && (
+                      <li className="text-xs text-slate-400 pl-8">+{plan.features.length - 8} características más</li>
+                    )}
+                  </ul>
+
+                  <a
+                    href={`/suscripcion?plan=${plan.code}`}
+                    className={`mt-8 block text-center py-3.5 rounded-2xl font-bold text-sm transition-all ${
+                      plan.highlighted
+                        ? 'bg-indigo-700 text-white hover:bg-indigo-800 shadow-lg shadow-indigo-700/25'
+                        : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+                    }`}
+                  >
+                    Elegir {plan.name}
+                  </a>
+                </div>
+              ))
+            )}
           </div>
         </div>
       </section>
+
 
       {/* TESTIMONIALS */}
       <section id="testimonials" className="py-20 lg:py-28">

@@ -81,9 +81,14 @@ interface Toast {
 }
 
 const SubscriptionPage: React.FC = () => {
-  const [selectedPlan, setSelectedPlan] = useState<string | null>(null);
+  // Leer parámetro ?plan= de la URL para preseleccionar plan desde la landing
+  const urlParams = new URLSearchParams(window.location.search);
+  const planFromUrl = urlParams.get('plan');
+
+  const [selectedPlan, setSelectedPlan] = useState<string | null>(planFromUrl);
   const [selectedBusinessType, setSelectedBusinessType] = useState<BusinessType>('GENERAL');
-  const [step, setStep] = useState<'plans' | 'businessType' | 'register'>('plans');
+  // Si viene un plan preseleccionado, saltar al paso de tipo de negocio
+  const [step, setStep] = useState<'plans' | 'businessType' | 'register'>(planFromUrl ? 'businessType' : 'plans');
   const [paymentMethod, setPaymentMethod] = useState<'PAYPAL' | 'TRANSFER'>('PAYPAL');
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
