@@ -1353,7 +1353,7 @@ const App: React.FC = () => {
 
       {/* --- EL BOTÓN SECRETO DEL SUPERADMIN --- */}
       {currentUser?.role === 'SUPERADMIN' && (
-        <div className="fixed top-5 right-24 z-[9999] flex items-center gap-3 bg-white/90 dark:bg-slate-800/90 backdrop-blur-sm px-4 py-2 rounded-full shadow-sm border border-slate-200 dark:border-slate-600/50 transition-colors duration-300">
+        <div className="fixed top-5 right-24 z-[90] flex items-center gap-3 bg-white/90 dark:bg-slate-800/90 backdrop-blur-sm px-4 py-2 rounded-full shadow-sm border border-slate-200 dark:border-slate-600/50 transition-colors duration-300">
           <button
             onClick={toggleDarkMode}
             className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-slate-500 dark:text-slate-400 hover:text-indigo-700 dark:hover:text-indigo-400 transition-colors"

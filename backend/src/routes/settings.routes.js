@@ -8,19 +8,45 @@ const prisma = require('../../prisma/client');
 async function ensureSettings() {
   const existing = await prisma.appSettings.findUnique({ where: { id: 'global' } });
   if (!existing) {
+    const defaultAccount = {
+      id: Math.random().toString(36).substring(7),
+      bankName: 'Banco Pichincha',
+      bankAccount: '1234567890',
+      bankAccountType: 'Cuenta Corriente',
+      bankHolderName: 'ECUAFACT S.A.',
+      bankHolderRuc: '0953443769'
+    };
+
     await prisma.appSettings.create({
       data: {
         id: 'global',
-        bankName: 'Banco Pichincha',
-        bankAccount: '1234567890',
-        bankAccountType: 'Cuenta Corriente',
-        bankHolderName: 'ECUAFACT S.A.',
-        bankHolderRuc: '0953443769',
+        bankName: defaultAccount.bankName,
+        bankAccount: defaultAccount.bankAccount,
+        bankAccountType: defaultAccount.bankAccountType,
+        bankHolderName: defaultAccount.bankHolderName,
+        bankHolderRuc: defaultAccount.bankHolderRuc,
+        bankAccounts: [defaultAccount],
         paypalEnabled: true,
         transferEnabled: true,
         cardEnabled: false
       }
     });
+  } else if (!existing.bankAccounts || existing.bankAccounts.length === 0) {
+    // Si ya existe pero no tiene bankAccounts, migramos el existente
+    if (existing.bankName) {
+      const migratedAccount = {
+        id: Math.random().toString(36).substring(7),
+        bankName: existing.bankName,
+        bankAccount: existing.bankAccount,
+        bankAccountType: existing.bankAccountType,
+        bankHolderName: existing.bankHolderName,
+        bankHolderRuc: existing.bankHolderRuc
+      };
+      await prisma.appSettings.update({
+        where: { id: 'global' },
+        data: { bankAccounts: [migratedAccount] }
+      });
+    }
   }
 }
 ensureSettings();
@@ -38,7 +64,7 @@ router.get('/api/admin/settings', async (req, res) => {
 // PUT /api/admin/settings - Actualizar configuración (solo SUPERADMIN)
 router.put('/api/admin/settings', jwtMiddleware, roleMiddleware(['SUPERADMIN']), async (req, res) => {
   try {
-    const { bankName, bankAccount, bankAccountType, bankHolderName, bankHolderRuc, paypalEnabled, transferEnabled, cardEnabled } = req.body;
+    const { bankName, bankAccount, bankAccountType, bankHolderName, bankHolderRuc, bankAccounts, paypalEnabled, transferEnabled, cardEnabled } = req.body;
 
     const settings = await prisma.appSettings.upsert({
       where: { id: 'global' },
@@ -48,6 +74,7 @@ router.put('/api/admin/settings', jwtMiddleware, roleMiddleware(['SUPERADMIN']),
         ...(bankAccountType !== undefined && { bankAccountType }),
         ...(bankHolderName !== undefined && { bankHolderName }),
         ...(bankHolderRuc !== undefined && { bankHolderRuc }),
+        ...(bankAccounts !== undefined && { bankAccounts }),
         ...(paypalEnabled !== undefined && { paypalEnabled }),
         ...(transferEnabled !== undefined && { transferEnabled }),
         ...(cardEnabled !== undefined && { cardEnabled })
@@ -59,6 +86,7 @@ router.put('/api/admin/settings', jwtMiddleware, roleMiddleware(['SUPERADMIN']),
         bankAccountType: bankAccountType || 'Cuenta Corriente',
         bankHolderName: bankHolderName || '',
         bankHolderRuc: bankHolderRuc || '',
+        bankAccounts: bankAccounts || [],
         paypalEnabled: paypalEnabled !== false,
         transferEnabled: transferEnabled !== false,
         cardEnabled: cardEnabled || false

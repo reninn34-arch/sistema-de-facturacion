@@ -10,26 +10,33 @@ const IS_SANDBOX = import.meta.env.VITE_PAYPAL_SANDBOX === 'true';
 
 // Componente para mostrar datos bancarios desde API
 const BankDetailsDisplay: React.FC = () => {
-  const [bank, setBank] = useState<any>(null);
+  const [bankSettings, setBankSettings] = useState<any>(null);
   useEffect(() => {
     fetch(`${API_URL}/api/admin/settings`)
       .then(r => r.json())
-      .then(d => setBank(d))
+      .then(d => setBankSettings(d))
       .catch(() => {});
   }, []);
-  if (!bank || !bank.bankName) {
+  
+  const accounts = bankSettings?.bankAccounts || [];
+
+  if (accounts.length === 0) {
     return <div className="text-xs text-indigo-700 dark:text-indigo-400 space-y-1">
       <p>Banco Pichincha</p>
       <p>Cuenta: 1234567890</p>
     </div>;
   }
   return (
-    <div className="text-xs text-indigo-700 dark:text-indigo-400 space-y-1">
-      <p><strong>Banco:</strong> {bank.bankName}</p>
-      <p><strong>Cuenta:</strong> {bank.bankAccount}</p>
-      <p><strong>Tipo:</strong> {bank.bankAccountType}</p>
-      <p><strong>Titular:</strong> {bank.bankHolderName}</p>
-      <p><strong>RUC:</strong> {bank.bankHolderRuc}</p>
+    <div className="space-y-3">
+      {accounts.map((bank: any) => (
+        <div key={bank.id} className="text-xs text-indigo-700 dark:text-indigo-400 space-y-1 p-3 bg-white/50 dark:bg-slate-800/50 rounded-lg border border-indigo-100 dark:border-indigo-900/50 shadow-sm">
+          <p><strong>Banco:</strong> {bank.bankName}</p>
+          <p><strong>Cuenta:</strong> {bank.bankAccount}</p>
+          <p><strong>Tipo:</strong> {bank.bankAccountType}</p>
+          <p><strong>Titular:</strong> {bank.bankHolderName}</p>
+          <p><strong>RUC:</strong> {bank.bankHolderRuc}</p>
+        </div>
+      ))}
     </div>
   );
 };
@@ -77,11 +84,20 @@ const PagoInterno: React.FC<PagoInternoProps> = ({ businessInfo, isExpired = fal
     fetch(`${API_URL}/api/admin/settings`)
       .then(r => r.json())
       .then(d => {
-        if (d) setPaymentSettings({
-          paypalEnabled: d.paypalEnabled !== false,
-          transferEnabled: d.transferEnabled !== false,
-          cardEnabled: d.cardEnabled || false
-        });
+        if (d) {
+          const settings = {
+            paypalEnabled: d.paypalEnabled !== false,
+            transferEnabled: d.transferEnabled !== false,
+            cardEnabled: d.cardEnabled || false
+          };
+          setPaymentSettings(settings);
+          setPaymentMethod(current => {
+            if (current === 'TRANSFER' && !settings.transferEnabled) return settings.cardEnabled ? 'CARD' : (settings.paypalEnabled ? 'PAYPAL' : 'TRANSFER');
+            if (current === 'CARD' && !settings.cardEnabled) return settings.transferEnabled ? 'TRANSFER' : (settings.paypalEnabled ? 'PAYPAL' : 'CARD');
+            if (current === 'PAYPAL' && !settings.paypalEnabled) return settings.transferEnabled ? 'TRANSFER' : (settings.cardEnabled ? 'CARD' : 'PAYPAL');
+            return current;
+          });
+        }
       })
       .catch(() => {});
   }, []);

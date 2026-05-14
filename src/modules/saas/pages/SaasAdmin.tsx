@@ -148,11 +148,14 @@ const SaasAdmin: React.FC<SaasAdminProps> = ({ onNotify }) => {
 
   // Estado para configuración de pagos
   const [paymentConfig, setPaymentConfig] = useState({
-    bankName: '',
-    bankAccount: '',
-    bankAccountType: 'Cuenta Corriente',
-    bankHolderName: '',
-    bankHolderRuc: '',
+    bankAccounts: [] as Array<{
+      id: string;
+      bankName: string;
+      bankAccount: string;
+      bankAccountType: string;
+      bankHolderName: string;
+      bankHolderRuc: string;
+    }>,
     paypalEnabled: true,
     transferEnabled: true,
     cardEnabled: false
@@ -168,13 +171,9 @@ const SaasAdmin: React.FC<SaasAdminProps> = ({ onNotify }) => {
       });
       if (response.ok) {
         const data = await response.json();
-        if (data && data.bankName !== undefined) {
+        if (data) {
           setPaymentConfig({
-            bankName: data.bankName || '',
-            bankAccount: data.bankAccount || '',
-            bankAccountType: data.bankAccountType || 'Cuenta Corriente',
-            bankHolderName: data.bankHolderName || '',
-            bankHolderRuc: data.bankHolderRuc || '',
+            bankAccounts: data.bankAccounts || [],
             paypalEnabled: data.paypalEnabled !== false,
             transferEnabled: data.transferEnabled !== false,
             cardEnabled: data.cardEnabled || false
@@ -834,7 +833,7 @@ const SaasAdmin: React.FC<SaasAdminProps> = ({ onNotify }) => {
                     className={`px-3 py-1 text-sm font-medium transition-colors rounded-lg ${activeTab === 'config' ? 'bg-indigo-50 dark:bg-indigo-500/20 text-indigo-700 dark:text-indigo-300' : 'text-[#4c669a] dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'}`}
                     onClick={() => setActiveTab('config')}
                   >
-                    Pagos
+                    Métodos de Pago
                   </button>
                 </div>
               </div>
@@ -856,33 +855,33 @@ const SaasAdmin: React.FC<SaasAdminProps> = ({ onNotify }) => {
               </div>
             </div>
             {/* Mobile Tabs */}
-            <div className="flex md:hidden gap-1 overflow-x-auto -mx-4 px-4">
+            <div className="flex md:hidden gap-2 overflow-x-auto -mx-4 px-4 pb-2" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
               <button 
-                className={`px-3 py-1 text-sm font-medium transition-colors rounded-lg whitespace-nowrap ${activeTab === 'businesses' ? 'bg-[#135bec]/10 text-[#135bec]' : 'text-[#4c669a] dark:text-slate-400'}`}
+                className={`flex-shrink-0 px-3 py-1 text-sm font-medium transition-colors rounded-lg whitespace-nowrap ${activeTab === 'businesses' ? 'bg-[#135bec]/10 text-[#135bec]' : 'text-[#4c669a] dark:text-slate-400'}`}
                 onClick={() => setActiveTab('businesses')}
               >
                 Empresas
               </button>
               <button 
-                className={`px-3 py-1 text-sm font-medium transition-colors rounded-lg whitespace-nowrap ${activeTab === 'superadmins' ? 'bg-[#135bec]/10 text-[#135bec]' : 'text-[#4c669a] dark:text-slate-400'}`}
+                className={`flex-shrink-0 px-3 py-1 text-sm font-medium transition-colors rounded-lg whitespace-nowrap ${activeTab === 'superadmins' ? 'bg-[#135bec]/10 text-[#135bec]' : 'text-[#4c669a] dark:text-slate-400'}`}
                 onClick={() => setActiveTab('superadmins')}
               >
                 Superadmins
               </button>
               <button 
-                className={`px-3 py-1 text-sm font-medium transition-colors rounded-lg whitespace-nowrap ${activeTab === 'users' ? 'bg-[#135bec]/10 text-[#135bec]' : 'text-[#4c669a] dark:text-slate-400'}`}
+                className={`flex-shrink-0 px-3 py-1 text-sm font-medium transition-colors rounded-lg whitespace-nowrap ${activeTab === 'users' ? 'bg-[#135bec]/10 text-[#135bec]' : 'text-[#4c669a] dark:text-slate-400'}`}
                 onClick={() => setActiveTab('users')}
               >
                 Usuarios
               </button>
               <button 
-                className={`px-3 py-1 text-sm font-medium transition-colors rounded-lg whitespace-nowrap ${activeTab === 'subscription-payments' ? 'bg-[#135bec]/10 text-[#135bec]' : 'text-[#4c669a] dark:text-slate-400'}`}
+                className={`flex-shrink-0 px-3 py-1 text-sm font-medium transition-colors rounded-lg whitespace-nowrap ${activeTab === 'subscription-payments' ? 'bg-[#135bec]/10 text-[#135bec]' : 'text-[#4c669a] dark:text-slate-400'}`}
                 onClick={() => setActiveTab('subscription-payments')}
               >
                 Pagos
               </button>
               <button 
-                className={`px-3 py-1 text-sm font-medium transition-colors rounded-lg whitespace-nowrap inline-flex items-center gap-1 ${activeTab === 'expiring' ? 'bg-amber-100 dark:bg-amber-500/20 text-amber-700 dark:text-amber-400' : 'text-[#4c669a] dark:text-slate-400'}`}
+                className={`flex-shrink-0 px-3 py-1 text-sm font-medium transition-colors rounded-lg whitespace-nowrap inline-flex items-center gap-1 ${activeTab === 'expiring' ? 'bg-amber-100 dark:bg-amber-500/20 text-amber-700 dark:text-amber-400' : 'text-[#4c669a] dark:text-slate-400'}`}
                 onClick={() => setActiveTab('expiring')}
               >
                 Por Vencer
@@ -893,10 +892,10 @@ const SaasAdmin: React.FC<SaasAdminProps> = ({ onNotify }) => {
                 )}
               </button>
               <button 
-                className={`px-3 py-1 text-sm font-medium transition-colors rounded-lg whitespace-nowrap ${activeTab === 'config' ? 'bg-[#135bec]/10 text-[#135bec]' : 'text-[#4c669a] dark:text-slate-400'}`}
+                className={`flex-shrink-0 px-3 py-1 text-sm font-medium transition-colors rounded-lg whitespace-nowrap ${activeTab === 'config' ? 'bg-[#135bec]/10 text-[#135bec]' : 'text-[#4c669a] dark:text-slate-400'}`}
                 onClick={() => setActiveTab('config')}
               >
-                Pagos
+                Métodos de Pago
               </button>
             </div>
           </div>
@@ -2361,31 +2360,92 @@ const SaasAdmin: React.FC<SaasAdminProps> = ({ onNotify }) => {
 
                 {/* Datos bancarios */}
                 <div className="border-t border-slate-100 dark:border-slate-700 pt-6">
-                  <h3 className="font-bold text-slate-700 dark:text-slate-300 mb-4 text-sm uppercase tracking-wider">Datos Bancarios para Transferencia</h3>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <label className="text-xs font-bold text-slate-400 uppercase mb-1 block">Banco</label>
-                      <input type="text" value={paymentConfig.bankName} onChange={e => setPaymentConfig({...paymentConfig, bankName: e.target.value})} className="w-full p-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl font-medium text-sm outline-none focus:border-indigo-500" placeholder="Ej: Banco Pichincha" />
-                    </div>
-                    <div>
-                      <label className="text-xs font-bold text-slate-400 uppercase mb-1 block">N° de Cuenta</label>
-                      <input type="text" value={paymentConfig.bankAccount} onChange={e => setPaymentConfig({...paymentConfig, bankAccount: e.target.value})} className="w-full p-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl font-medium text-sm outline-none focus:border-indigo-500" placeholder="Ej: 1234567890" />
-                    </div>
-                    <div>
-                      <label className="text-xs font-bold text-slate-400 uppercase mb-1 block">Tipo de Cuenta</label>
-                      <select value={paymentConfig.bankAccountType} onChange={e => setPaymentConfig({...paymentConfig, bankAccountType: e.target.value})} className="w-full p-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl font-medium text-sm outline-none focus:border-indigo-500">
-                        <option>Cuenta Corriente</option>
-                        <option>Cuenta de Ahorros</option>
-                      </select>
-                    </div>
-                    <div>
-                      <label className="text-xs font-bold text-slate-400 uppercase mb-1 block">Titular</label>
-                      <input type="text" value={paymentConfig.bankHolderName} onChange={e => setPaymentConfig({...paymentConfig, bankHolderName: e.target.value})} className="w-full p-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl font-medium text-sm outline-none focus:border-indigo-500" placeholder="Ej: ECUAFACT S.A." />
-                    </div>
-                    <div className="md:col-span-2">
-                      <label className="text-xs font-bold text-slate-400 uppercase mb-1 block">RUC del Titular</label>
-                      <input type="text" value={paymentConfig.bankHolderRuc} onChange={e => setPaymentConfig({...paymentConfig, bankHolderRuc: e.target.value})} className="w-full p-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl font-medium text-sm outline-none focus:border-indigo-500" placeholder="Ej: 0953443769" />
-                    </div>
+                  <div className="flex justify-between items-center mb-4">
+                    <h3 className="font-bold text-slate-700 dark:text-slate-300 text-sm uppercase tracking-wider">Cuentas Bancarias</h3>
+                    <button onClick={() => {
+                      setPaymentConfig({
+                        ...paymentConfig,
+                        bankAccounts: [
+                          ...paymentConfig.bankAccounts,
+                          {
+                            id: Math.random().toString(36).substring(7),
+                            bankName: '',
+                            bankAccount: '',
+                            bankAccountType: 'Cuenta Corriente',
+                            bankHolderName: '',
+                            bankHolderRuc: ''
+                          }
+                        ]
+                      });
+                    }} className="flex items-center gap-1 text-xs bg-indigo-100 text-indigo-700 px-3 py-1.5 rounded-lg hover:bg-indigo-200 transition-colors">
+                      <PlusIcon className="w-4 h-4" /> Agregar Cuenta
+                    </button>
+                  </div>
+                  
+                  <div className="space-y-4">
+                    {paymentConfig.bankAccounts.length === 0 && (
+                      <p className="text-sm text-slate-500 text-center py-4 bg-slate-50 dark:bg-slate-800/50 rounded-xl">No hay cuentas bancarias configuradas.</p>
+                    )}
+                    {paymentConfig.bankAccounts.map((acc, index) => (
+                      <div key={acc.id} className="p-4 border border-slate-200 dark:border-slate-700 rounded-xl relative bg-slate-50 dark:bg-slate-800/30">
+                        <div className="absolute top-4 right-4">
+                          <button onClick={() => {
+                            setPaymentConfig({
+                              ...paymentConfig,
+                              bankAccounts: paymentConfig.bankAccounts.filter(a => a.id !== acc.id)
+                            });
+                          }} className="text-red-500 hover:text-red-700 p-1 bg-red-50 hover:bg-red-100 rounded-lg transition-colors" title="Eliminar cuenta">
+                            <TrashIcon className="w-4 h-4" />
+                          </button>
+                        </div>
+                        <h4 className="text-xs font-bold text-indigo-600 mb-3">Cuenta #{index + 1}</h4>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <div>
+                            <label className="text-xs font-bold text-slate-400 uppercase mb-1 block">Banco</label>
+                            <input type="text" value={acc.bankName} onChange={e => {
+                              const newAccounts = [...paymentConfig.bankAccounts];
+                              newAccounts[index].bankName = e.target.value;
+                              setPaymentConfig({...paymentConfig, bankAccounts: newAccounts});
+                            }} className="w-full p-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl font-medium text-sm outline-none focus:border-indigo-500" placeholder="Ej: Banco Pichincha" />
+                          </div>
+                          <div>
+                            <label className="text-xs font-bold text-slate-400 uppercase mb-1 block">N° de Cuenta</label>
+                            <input type="text" value={acc.bankAccount} onChange={e => {
+                              const newAccounts = [...paymentConfig.bankAccounts];
+                              newAccounts[index].bankAccount = e.target.value;
+                              setPaymentConfig({...paymentConfig, bankAccounts: newAccounts});
+                            }} className="w-full p-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl font-medium text-sm outline-none focus:border-indigo-500" placeholder="Ej: 1234567890" />
+                          </div>
+                          <div>
+                            <label className="text-xs font-bold text-slate-400 uppercase mb-1 block">Tipo de Cuenta</label>
+                            <select value={acc.bankAccountType} onChange={e => {
+                              const newAccounts = [...paymentConfig.bankAccounts];
+                              newAccounts[index].bankAccountType = e.target.value;
+                              setPaymentConfig({...paymentConfig, bankAccounts: newAccounts});
+                            }} className="w-full p-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl font-medium text-sm outline-none focus:border-indigo-500">
+                              <option>Cuenta Corriente</option>
+                              <option>Cuenta de Ahorros</option>
+                            </select>
+                          </div>
+                          <div>
+                            <label className="text-xs font-bold text-slate-400 uppercase mb-1 block">Titular</label>
+                            <input type="text" value={acc.bankHolderName} onChange={e => {
+                              const newAccounts = [...paymentConfig.bankAccounts];
+                              newAccounts[index].bankHolderName = e.target.value;
+                              setPaymentConfig({...paymentConfig, bankAccounts: newAccounts});
+                            }} className="w-full p-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl font-medium text-sm outline-none focus:border-indigo-500" placeholder="Ej: ECUAFACT S.A." />
+                          </div>
+                          <div className="md:col-span-2">
+                            <label className="text-xs font-bold text-slate-400 uppercase mb-1 block">RUC del Titular</label>
+                            <input type="text" value={acc.bankHolderRuc} onChange={e => {
+                              const newAccounts = [...paymentConfig.bankAccounts];
+                              newAccounts[index].bankHolderRuc = e.target.value;
+                              setPaymentConfig({...paymentConfig, bankAccounts: newAccounts});
+                            }} className="w-full p-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl font-medium text-sm outline-none focus:border-indigo-500" placeholder="Ej: 0953443769" />
+                          </div>
+                        </div>
+                      </div>
+                    ))}
                   </div>
                 </div>
 

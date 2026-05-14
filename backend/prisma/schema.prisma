@@ -479,6 +479,7 @@ model AppSettings {
   bankAccountType String @default("Cuenta Corriente")
   bankHolderName String  @default("")
   bankHolderRuc String  @default("")
+  bankAccounts Json     @default("[]") // Array de { bankName, bankAccount, bankAccountType, bankHolderName, bankHolderRuc }
   paypalEnabled Boolean  @default(true)
   transferEnabled Boolean @default(true)
   cardEnabled   Boolean  @default(false)

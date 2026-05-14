@@ -6,25 +6,33 @@ import { BUSINESS_TYPES, BusinessType } from '../../../types/types';
 const API_URL = import.meta.env.VITE_BACKEND_URL || '';
 
 const BankDetails: React.FC = () => {
-  const [bank, setBank] = useState<any>(null);
+  const [bankSettings, setBankSettings] = useState<any>(null);
   useEffect(() => {
     fetch(`${API_URL}/api/admin/settings`)
       .then(r => r.json())
-      .then(d => setBank(d))
+      .then(d => setBankSettings(d))
       .catch(() => {});
   }, []);
-  if (!bank || !bank.bankName) {
+
+  const accounts = bankSettings?.bankAccounts || [];
+
+  if (accounts.length === 0) {
     return <div className="text-xs text-slate-600 dark:text-slate-400 space-y-1">
       <p><strong>Banco:</strong> Banco Pichincha</p>
       <p><strong>Cuenta:</strong> 1234567890</p>
     </div>;
   }
   return (
-    <div className="text-xs text-slate-600 dark:text-slate-400 space-y-1">
-      <p><strong>Banco:</strong> {bank.bankName}</p>
-      <p><strong>Cuenta:</strong> {bank.bankAccount}</p>
-      <p><strong>Titular:</strong> {bank.bankHolderName}</p>
-      <p><strong>RUC:</strong> {bank.bankHolderRuc}</p>
+    <div className="space-y-3">
+      {accounts.map((bank: any) => (
+        <div key={bank.id} className="text-xs text-slate-600 dark:text-slate-400 space-y-1 p-3 bg-slate-100 dark:bg-slate-800/50 rounded-lg border border-slate-200 dark:border-slate-700">
+          <p><strong>Banco:</strong> {bank.bankName}</p>
+          <p><strong>Cuenta:</strong> {bank.bankAccount}</p>
+          <p><strong>Tipo:</strong> {bank.bankAccountType}</p>
+          <p><strong>Titular:</strong> {bank.bankHolderName}</p>
+          <p><strong>RUC:</strong> {bank.bankHolderRuc}</p>
+        </div>
+      ))}
     </div>
   );
 };
@@ -88,11 +96,19 @@ const SubscriptionPage: React.FC = () => {
     fetch(`${API_URL}/api/admin/settings`)
       .then(r => r.json())
       .then(d => {
-        if (d) setPaymentSettings({
-          paypalEnabled: d.paypalEnabled !== false,
-          transferEnabled: d.transferEnabled !== false,
-          cardEnabled: d.cardEnabled || false
-        });
+        if (d) {
+          const settings = {
+            paypalEnabled: d.paypalEnabled !== false,
+            transferEnabled: d.transferEnabled !== false,
+            cardEnabled: d.cardEnabled || false
+          };
+          setPaymentSettings(settings);
+          setPaymentMethod(current => {
+             if (current === 'PAYPAL' && !settings.paypalEnabled) return settings.transferEnabled ? 'TRANSFER' : 'PAYPAL';
+             if (current === 'TRANSFER' && !settings.transferEnabled) return settings.paypalEnabled ? 'PAYPAL' : 'TRANSFER';
+             return current;
+          });
+        }
       })
       .catch(() => {});
   }, []);
