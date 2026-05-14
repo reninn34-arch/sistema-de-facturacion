@@ -17,7 +17,7 @@ const quickSaleController = {
     // Crear una venta rápida (ticket)
     createQuickSale: catchAsync(async (req, res) => {
         const { businessId } = req.user;
-        const { items, subtotal, iva, total, paymentMethod, notes, number } = req.body;
+        const { items, subtotal, iva, total, paymentMethod, notes, number, clientId, clientName, clientIdentification } = req.body;
 
         // Obtener el siguiente secuencial
         const lastSale = await prisma.quickSale.findFirst({
@@ -36,6 +36,9 @@ const quickSaleController = {
                 paymentMethod: paymentMethod || 'EFECTIVO',
                 status: 'PENDIENTE',
                 notes: notes || null,
+                clientId: clientId || null,
+                clientName: clientName || null,
+                clientIdentification: clientIdentification || null,
                 businessId,
             },
         });

@@ -965,7 +965,7 @@ const App: React.FC = () => {
       case 'products': return <ProductManager products={products} setProducts={setProducts} onNotify={showNotify} isDemoMode={isDemoMode} businessType={businessInfo?.businessType as any} isProduction={businessInfo?.isProduction || false} />;
       case 'recipes': return <RecipeManager products={products} onNotify={showNotify} />;
       case 'production': return <ProductionRecord products={products} setProducts={setProducts} onNotify={showNotify} />;
-      case 'quicksale': return <QuickSaleForm products={products} businessInfo={businessInfo} onNotify={showNotify} onTicketCreated={(ticket) => setQuicksales(prev => [ticket, ...prev])} />;
+      case 'quicksale': return <QuickSaleForm products={products} clients={clients} setClients={setClients} businessInfo={businessInfo} onNotify={showNotify} onTicketCreated={(ticket) => setQuicksales(prev => [ticket, ...prev])} />;
       case 'pending-sri': return <PendingTickets tickets={quicksales} setTickets={setQuicksales} products={products} businessInfo={businessInfo} signatureFile={signatureFile} signaturePassword={signaturePassword} onNotify={showNotify} onAuthorize={handleDocumentAuthorized} />;
       case 'integrations': return <Integrations products={products} clients={clients} businessInfo={businessInfo} onOrderAuthorized={handleDocumentAuthorized} onNotify={showNotify} onUpdateProducts={setProducts} />;
       case 'config':

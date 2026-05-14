@@ -50,6 +50,34 @@ const businessController = {
                 return res.status(400).json({ message: 'La contraseña debe tener al menos 6 caracteres' });
             }
 
+            if (req.user.role !== 'SUPERADMIN') {
+                const business = await prisma.business.findUnique({
+                    where: { id: req.user.businessId },
+                    select: { plan: true }
+                });
+
+                if (business) {
+                    const plan = await prisma.subscriptionPlan.findUnique({
+                        where: { code: business.plan },
+                        select: { maxUsers: true, code: true }
+                    });
+
+                    const limit = plan?.maxUsers ?? 1;
+
+                    if (limit >= 0) {
+                        const userCount = await prisma.user.count({
+                            where: { businessId: req.user.businessId }
+                        });
+
+                        if (userCount >= limit) {
+                            return res.status(403).json({
+                                message: `Has alcanzado el límite de ${limit} usuarios de tu plan ${plan.code}. Actualiza tu plan para crear más usuarios.`
+                            });
+                        }
+                    }
+                }
+            }
+
             const existing = await prisma.user.findUnique({ where: { email } });
             if (existing) return res.status(400).json({ message: 'El usuario ya existe' });
 

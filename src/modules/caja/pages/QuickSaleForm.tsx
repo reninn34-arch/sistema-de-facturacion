@@ -6,6 +6,8 @@ const API_URL = import.meta.env.VITE_BACKEND_URL || '';
 
 interface QuickSaleFormProps {
   products: Product[];
+  clients?: any[];
+  setClients?: (clients: any) => void;
   businessInfo: BusinessInfo;
   onNotify: (msg: string, type?: any) => void;
   onTicketCreated?: (ticket: any) => void;
@@ -21,9 +23,10 @@ interface CartItem {
   taxRate: number;
   total: number;
   stock: number;
+  imageUrl?: string | null;
 }
 
-const QuickSaleForm: React.FC<QuickSaleFormProps> = ({ products, businessInfo, onNotify, onTicketCreated }) => {
+const QuickSaleForm: React.FC<QuickSaleFormProps> = ({ products, clients = [], setClients, businessInfo, onNotify, onTicketCreated }) => {
   const [cart, setCart] = useState<CartItem[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [paymentMethod, setPaymentMethod] = useState('EFECTIVO');
@@ -31,7 +34,37 @@ const QuickSaleForm: React.FC<QuickSaleFormProps> = ({ products, businessInfo, o
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [lastTicket, setLastTicket] = useState<any>(null);
   const [showTicket, setShowTicket] = useState(false);
+  const [amountReceived, setAmountReceived] = useState<number | ''>('');
+  
+  // Productos recientes (como Emojis recientes)
+  const [recentProductIds, setRecentProductIds] = useState<string[]>(() => {
+    try {
+      return JSON.parse(localStorage.getItem('recentCajaProducts') || '[]');
+    } catch {
+      return [];
+    }
+  });
+
+  // Cliente states
+  const [selectedClient, setSelectedClient] = useState<any>(null);
+  const [showClientModal, setShowClientModal] = useState(false);
+  const [clientSearchTerm, setClientSearchTerm] = useState('');
+  const [isCreatingClient, setIsCreatingClient] = useState(false);
+  const [newClientData, setNewClientData] = useState({ ruc: '', name: '', email: '', phone: '', address: '' });
+
   const searchRef = useRef<HTMLDivElement>(null);
+  const clientSearchRef = useRef<HTMLDivElement>(null);
+
+  // Cerrar dropdown de cliente al hacer click afuera
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (clientSearchRef.current && !clientSearchRef.current.contains(e.target as Node)) {
+        setClientSearchTerm('');
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   // Solo productos terminados (no materia prima) para venta en caja
   const sellableProducts = products.filter(p => !p.isRawMaterial);
@@ -51,6 +84,14 @@ const QuickSaleForm: React.FC<QuickSaleFormProps> = ({ products, businessInfo, o
 
   // Agregar al carrito
   const addToCart = (product: Product) => {
+    // Actualizar productos recientes
+    setRecentProductIds(prev => {
+      const filtered = prev.filter(id => id !== product.id);
+      const updated = [product.id, ...filtered].slice(0, 12);
+      localStorage.setItem('recentCajaProducts', JSON.stringify(updated));
+      return updated;
+    });
+
     setCart(prev => {
       const existing = prev.find(p => p.productId === product.id);
       if (existing) {
@@ -74,6 +115,7 @@ const QuickSaleForm: React.FC<QuickSaleFormProps> = ({ products, businessInfo, o
         taxRate: product.taxRate,
         total: product.price,
         stock: product.stock,
+        imageUrl: product.imageUrl,
       }];
     });
     setSearchTerm('');
@@ -97,8 +139,8 @@ const QuickSaleForm: React.FC<QuickSaleFormProps> = ({ products, businessInfo, o
   // Generar número de ticket secuencial (basado en fecha + contador local)
   const generateTicketNumber = () => {
     const now = new Date();
-    const dateStr = `${now.getFullYear()}${String(now.getMonth()+1).padStart(2,'0')}${String(now.getDate()).padStart(2,'0')}`;
-    const timeStr = `${String(now.getHours()).padStart(2,'0')}${String(now.getMinutes()).padStart(2,'0')}${String(now.getSeconds()).padStart(2,'0')}`;
+    const dateStr = `${now.getFullYear()}${String(now.getMonth() + 1).padStart(2, '0')}${String(now.getDate()).padStart(2, '0')}`;
+    const timeStr = `${String(now.getHours()).padStart(2, '0')}${String(now.getMinutes()).padStart(2, '0')}${String(now.getSeconds()).padStart(2, '0')}`;
     return `TKT-${dateStr}-${timeStr}`;
   };
 
@@ -128,6 +170,9 @@ const QuickSaleForm: React.FC<QuickSaleFormProps> = ({ products, businessInfo, o
         paymentMethod,
         status: 'PENDIENTE',
         notes: `Ticket generado en caja - ${new Date().toLocaleString('es-EC')}`,
+        clientId: selectedClient?.id || null,
+        clientName: selectedClient?.name || null,
+        clientIdentification: selectedClient?.ruc || null,
       };
 
       // Intentar guardar en backend
@@ -171,6 +216,8 @@ const QuickSaleForm: React.FC<QuickSaleFormProps> = ({ products, businessInfo, o
     setLastTicket(null);
     setShowTicket(false);
     setPaymentMethod('EFECTIVO');
+    setAmountReceived('');
+    setSelectedClient(null);
   };
 
   // Cerrar sesión de caja al click fuera del buscador
@@ -183,6 +230,47 @@ const QuickSaleForm: React.FC<QuickSaleFormProps> = ({ products, businessInfo, o
     document.addEventListener('mousedown', handler);
     return () => document.removeEventListener('mousedown', handler);
   }, []);
+
+  const handleCreateClient = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newClientData.ruc || !newClientData.name) {
+      onNotify('RUC y Nombre son obligatorios', 'error');
+      return;
+    }
+    
+    setIsCreatingClient(true);
+    try {
+      const token = localStorage.getItem('adminToken');
+      const res = await fetch(`${API_URL}/api/business/clients`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+        body: JSON.stringify({ ...newClientData, type: 'CLIENTE' })
+      });
+      
+      const data = await res.json();
+      if (res.ok) {
+        onNotify('Cliente creado exitosamente');
+        if (setClients) {
+          setClients([...clients, data]);
+        }
+        setSelectedClient(data);
+        setShowClientModal(false);
+        setNewClientData({ ruc: '', name: '', email: '', phone: '', address: '' });
+      } else {
+        onNotify(data.message || 'Error al crear cliente', 'error');
+      }
+    } catch (err) {
+      onNotify('Error de conexión', 'error');
+    } finally {
+      setIsCreatingClient(false);
+    }
+  };
+
+  const filteredClients = clients.filter(c => 
+    !clientSearchTerm || 
+    c.name.toLowerCase().includes(clientSearchTerm.toLowerCase()) || 
+    c.ruc.includes(clientSearchTerm)
+  ).slice(0, 5);
 
   const getPaymentIcon = (method: string) => {
     switch (method) {
@@ -292,9 +380,9 @@ const QuickSaleForm: React.FC<QuickSaleFormProps> = ({ products, businessInfo, o
         )}
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
         {/* Columna izquierda: productos */}
-        <div className="lg:col-span-2 space-y-4">
+        <div className="lg:col-span-7 space-y-4">
           {/* Buscador */}
           <div ref={searchRef} className="relative">
             <div className="relative">
@@ -338,35 +426,111 @@ const QuickSaleForm: React.FC<QuickSaleFormProps> = ({ products, businessInfo, o
             )}
           </div>
 
-          {/* Productos frecuentes */}
-          <div>
-            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">Productos disponibles</p>
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2">
-              {sellableProducts.filter(p => p.stock > 0 || p.type === 'SERVICIO').slice(0, 12).map(product => (
-                <button
-                  key={product.id}
-                  onClick={() => addToCart(product)}
-                  className="p-3 bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 hover:border-indigo-500 hover:shadow-md transition-all text-left group"
-                >
-                  <p className="font-bold text-xs text-slate-800 dark:text-white truncate group-hover:text-indigo-700 transition-colors">
-                    {product.description}
-                  </p>
-                  <p className="text-[10px] text-slate-400 font-bold mt-0.5">{product.code}</p>
-                  <p className="font-black text-sm text-indigo-700 dark:text-indigo-400 mt-1">${product.price.toFixed(2)}</p>
-                  {product.stock <= 5 && product.stock > 0 && (
-                    <p className="text-[9px] text-amber-500 font-bold">Quedan {product.stock}</p>
-                  )}
-                </button>
-              ))}
+          {/* Productos frecuentes / disponibles */}
+          {!searchTerm && (
+            <div className="mt-2 border-t border-slate-100 dark:border-slate-700 pt-6">
+              <div className="flex justify-between items-center mb-4">
+                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Recientes</p>
+                <p className="text-[10px] text-slate-400">{recentProductIds.length > 0 ? `${recentProductIds.length} productos` : 'Usa el buscador'}</p>
+              </div>
+              
+              {recentProductIds.length === 0 ? (
+                <div className="py-12 flex flex-col items-center justify-center text-slate-400 dark:text-slate-500 border-2 border-dashed border-slate-200 dark:border-slate-700 rounded-[2rem] bg-slate-50 dark:bg-slate-800/50">
+                  <MagnifyingGlassIcon className="w-8 h-8 mb-2 text-slate-300 dark:text-slate-600" />
+                  <p className="text-sm font-bold text-slate-500 dark:text-slate-400">Sin productos recientes</p>
+                  <p className="text-[10px]">Busca un producto y añádelo para que aparezca aquí</p>
+                </div>
+              ) : (
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 overflow-y-auto max-h-[500px] pr-2 custom-scrollbar pb-10">
+                  {recentProductIds
+                    .map(id => sellableProducts.find(p => p.id === id))
+                    .filter(p => p && (p.stock > 0 || p.type === 'SERVICIO'))
+                    .map(product => product!)
+                    .map(product => (
+                    <button
+                      key={product.id}
+                      onClick={() => addToCart(product)}
+                      className="bg-white dark:bg-slate-800 rounded-[1.5rem] p-3 border border-slate-200 dark:border-slate-700 hover:border-indigo-500 hover:shadow-lg hover:shadow-indigo-500/10 transition-all text-left flex flex-col items-center group relative overflow-hidden"
+                    >
+                      <div className="w-full aspect-square rounded-xl overflow-hidden bg-slate-50 dark:bg-slate-700/50 mb-3 relative flex items-center justify-center">
+                        {product.imageUrl ? (
+                          <img src={product.imageUrl} alt={product.description} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
+                        ) : (
+                          <TicketIcon className="w-8 h-8 text-slate-300 dark:text-slate-500" />
+                        )}
+                        
+                        {/* Badge de stock bajo */}
+                        {product.stock <= 5 && product.stock > 0 && product.type !== 'SERVICIO' && (
+                          <div className="absolute bottom-2 right-2 bg-amber-500 text-white text-[9px] font-black px-2 py-0.5 rounded-md shadow-md">
+                            Últimos {product.stock}
+                          </div>
+                        )}
+                      </div>
+                      
+                      <p className="font-bold text-xs text-slate-800 dark:text-white text-center line-clamp-2 w-full group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">
+                        {product.description}
+                      </p>
+                      <p className="text-[9px] text-slate-400 font-bold mt-1">{product.code}</p>
+                      <p className="font-black text-sm text-indigo-700 dark:text-indigo-400 mt-1">${product.price.toFixed(2)}</p>
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
-          </div>
+          )}
         </div>
 
         {/* Columna derecha: carrito y cobro */}
-        <div className="bg-white dark:bg-slate-800 rounded-[2.5rem] border border-slate-100 dark:border-slate-700 shadow-sm p-6 flex flex-col h-fit">
-          <h3 className="font-black text-slate-800 dark:text-white text-lg uppercase tracking-tighter mb-4">
-            Ticket actual
-          </h3>
+        <div className="lg:col-span-5 bg-white dark:bg-slate-800 rounded-[2.5rem] border border-slate-100 dark:border-slate-700 shadow-sm p-6 flex flex-col h-fit">
+          <div className="flex items-center justify-between mb-4 shrink-0">
+            <h3 className="font-black text-slate-800 dark:text-white text-lg uppercase tracking-tighter">
+              Ticket actual
+            </h3>
+            
+            {/* Selector de Cliente Compacto */}
+            <div className="relative w-48" ref={clientSearchRef}>
+              {selectedClient ? (
+                <div className="flex items-center justify-between bg-indigo-50 dark:bg-indigo-500/10 px-3 py-1.5 rounded-xl border border-indigo-100 dark:border-indigo-500/20">
+                  <div className="min-w-0">
+                    <p className="text-[10px] font-black text-indigo-700 dark:text-indigo-400 truncate">{selectedClient.name}</p>
+                    <p className="text-[9px] text-indigo-500/70 font-bold">{selectedClient.ruc}</p>
+                  </div>
+                  <button onClick={() => setSelectedClient(null)} className="ml-2 text-indigo-400 hover:text-indigo-600">
+                    <XMarkIcon className="w-4 h-4" />
+                  </button>
+                </div>
+              ) : (
+                <div>
+                  <div className="relative">
+                    <MagnifyingGlassIcon className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400" />
+                    <input 
+                      type="text" 
+                      placeholder="Cliente (Cons. Final)" 
+                      value={clientSearchTerm}
+                      onChange={e => setClientSearchTerm(e.target.value)}
+                      className="w-full pl-8 pr-2 py-1.5 bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-xl text-[10px] font-bold outline-none focus:border-indigo-500 transition-colors dark:text-white"
+                    />
+                  </div>
+                  {clientSearchTerm && (
+                    <div className="absolute z-50 mt-1 w-64 right-0 bg-white dark:bg-slate-800 rounded-xl shadow-xl border border-slate-200 dark:border-slate-700 overflow-hidden">
+                      {filteredClients.map(c => (
+                        <button key={c.id} onClick={() => { setSelectedClient(c); setClientSearchTerm(''); }} className="w-full px-3 py-2 text-left hover:bg-slate-50 dark:hover:bg-slate-700/50 border-b border-slate-100 dark:border-slate-700/50 last:border-0">
+                          <p className="text-xs font-bold text-slate-800 dark:text-white truncate">{c.name}</p>
+                          <p className="text-[10px] text-slate-500">{c.ruc}</p>
+                        </button>
+                      ))}
+                      <button 
+                        onClick={() => { setShowClientModal(true); setClientSearchTerm(''); }}
+                        className="w-full px-3 py-2 text-left bg-indigo-50 dark:bg-indigo-500/10 hover:bg-indigo-100 text-indigo-700 dark:text-indigo-400 text-xs font-black flex items-center gap-2"
+                      >
+                        <PlusIcon className="w-3.5 h-3.5" /> Nuevo Cliente
+                      </button>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+          </div>
 
           {cart.length === 0 ? (
             <div className="flex-1 flex flex-col items-center justify-center py-12 text-center">
@@ -375,12 +539,22 @@ const QuickSaleForm: React.FC<QuickSaleFormProps> = ({ products, businessInfo, o
               <p className="text-xs text-slate-300">Busque y seleccione productos</p>
             </div>
           ) : (
-            <div className="space-y-3 flex-1 overflow-y-auto max-h-96">
+            <div className="space-y-3 flex-1 overflow-y-auto max-h-96 pr-2 custom-scrollbar">
               {cart.map(item => (
-                <div key={item.productId} className="flex items-center gap-2 p-2 rounded-xl bg-slate-50 dark:bg-slate-700/50">
+                <div key={item.productId} className="flex items-center gap-3 p-2 rounded-xl bg-slate-50 dark:bg-slate-700/50 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors">
+                  
+                  {/* Imagen en el carrito */}
+                  <div className="w-10 h-10 rounded-lg overflow-hidden bg-slate-200 dark:bg-slate-600 flex-shrink-0 flex items-center justify-center border border-slate-200 dark:border-slate-600/50 shadow-inner">
+                    {item.imageUrl ? (
+                      <img src={item.imageUrl} alt={item.description} className="w-full h-full object-cover" />
+                    ) : (
+                      <TicketIcon className="w-5 h-5 text-slate-400" />
+                    )}
+                  </div>
+
                   <div className="flex-1 min-w-0">
                     <p className="font-bold text-xs text-slate-800 dark:text-white truncate">{item.description}</p>
-                    <p className="text-[9px] text-slate-400">${item.unitPrice.toFixed(2)} c/u · IVA {item.taxRate}%</p>
+                    <p className="text-[9px] text-slate-400 font-bold">${item.unitPrice.toFixed(2)} c/u · IVA {item.taxRate}%</p>
                   </div>
                   <div className="flex items-center gap-1">
                     <button onClick={() => updateQuantity(item.productId, -1)} className="w-7 h-7 rounded-lg bg-slate-200 dark:bg-slate-600 flex items-center justify-center hover:bg-slate-300 dark:hover:bg-slate-500">
@@ -409,7 +583,6 @@ const QuickSaleForm: React.FC<QuickSaleFormProps> = ({ products, businessInfo, o
             </div>
           </div>
 
-          {/* Método de pago */}
           <div className="mt-4">
             <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Forma de pago</p>
             <div className="grid grid-cols-3 gap-1">
@@ -421,11 +594,10 @@ const QuickSaleForm: React.FC<QuickSaleFormProps> = ({ products, businessInfo, o
                 <button
                   key={opt.value}
                   onClick={() => setPaymentMethod(opt.value)}
-                  className={`p-2 rounded-xl text-[10px] font-black uppercase transition-all flex flex-col items-center gap-1 ${
-                    paymentMethod === opt.value
+                  className={`p-2 rounded-xl text-[10px] font-black uppercase transition-all flex flex-col items-center gap-1 ${paymentMethod === opt.value
                       ? 'bg-indigo-700 text-white shadow-lg'
                       : 'bg-slate-100 dark:bg-slate-700 text-slate-500'
-                  }`}
+                    }`}
                 >
                   <opt.icon className="w-4 h-4" />
                   {opt.label}
@@ -434,10 +606,74 @@ const QuickSaleForm: React.FC<QuickSaleFormProps> = ({ products, businessInfo, o
             </div>
           </div>
 
+          {/* Calculadora de Cambio Compacta */}
+          {paymentMethod === 'EFECTIVO' && cart.length > 0 && (
+            <div className="mt-4 p-4 bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-700/50 dark:to-slate-700/30 rounded-2xl border border-slate-200 dark:border-slate-600 shadow-inner">
+              <div className="flex justify-between items-center mb-3">
+                <p className="text-[10px] font-black text-slate-400 dark:text-slate-400 uppercase tracking-widest flex items-center gap-1">
+                  <BanknotesIcon className="w-4 h-4" />
+                  Efectivo Recibido
+                </p>
+                <div className="flex gap-1 flex-wrap justify-end">
+                  <button 
+                    onClick={() => setAmountReceived(total)} 
+                    className="px-2 py-1 bg-emerald-100 dark:bg-emerald-500/20 text-emerald-700 dark:text-emerald-400 rounded-lg text-[10px] font-black hover:bg-emerald-200 dark:hover:bg-emerald-500/30 transition-colors"
+                  >
+                    Exacto
+                  </button>
+                  {[5, 10, 20, 50, 100].map(amt => (
+                    total <= amt && (
+                      <button 
+                        key={amt} 
+                        onClick={() => setAmountReceived(amt)} 
+                        className="px-2 py-1 bg-white dark:bg-slate-600 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-500 rounded-lg text-[10px] font-bold hover:bg-slate-50 dark:hover:bg-slate-500 transition-colors shadow-sm"
+                      >
+                        ${amt}
+                      </button>
+                    )
+                  ))}
+                </div>
+              </div>
+              
+              <div className="flex gap-4 items-center">
+                <div className="relative flex-[2]">
+                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 font-black text-lg">$</span>
+                  <input 
+                    type="number" 
+                    min="0"
+                    step="0.01"
+                    value={amountReceived}
+                    onChange={(e) => setAmountReceived(e.target.value ? parseFloat(e.target.value) : '')}
+                    className="w-full pl-8 pr-3 py-2 bg-white dark:bg-slate-800 rounded-xl font-black text-xl outline-none border-2 border-slate-200 dark:border-slate-600 focus:border-emerald-500 text-slate-800 dark:text-white transition-colors shadow-sm"
+                    placeholder="0.00"
+                  />
+                </div>
+
+                <div className="flex-[3] text-right">
+                  {amountReceived !== '' && (amountReceived as number) >= total ? (
+                    <div>
+                      <span className="text-[10px] font-black text-slate-400 block mb-0.5">CAMBIO A ENTREGAR</span>
+                      <span className="text-2xl font-black text-emerald-600 dark:text-emerald-400 leading-none block">
+                        ${((amountReceived as number) - total).toFixed(2)}
+                      </span>
+                    </div>
+                  ) : amountReceived !== '' ? (
+                    <div>
+                      <span className="text-[10px] font-black text-red-400 block mb-0.5">FALTA</span>
+                      <span className="text-xl font-black text-red-500 dark:text-red-400 leading-none block">
+                        ${(total - (amountReceived as number)).toFixed(2)}
+                      </span>
+                    </div>
+                  ) : null}
+                </div>
+              </div>
+            </div>
+          )}
+
           {/* Botón cobrar */}
           <button
             onClick={handleCharge}
-            disabled={cart.length === 0 || isSubmitting}
+            disabled={cart.length === 0 || isSubmitting || (paymentMethod === 'EFECTIVO' && amountReceived !== '' && amountReceived < total)}
             className="mt-4 w-full py-4 rounded-2xl font-black text-sm uppercase bg-emerald-600 text-white hover:bg-emerald-500 disabled:bg-slate-300 dark:disabled:bg-slate-700 disabled:text-slate-500 transition-colors shadow-lg flex items-center justify-center gap-2"
           >
             {isSubmitting ? (
@@ -448,6 +684,89 @@ const QuickSaleForm: React.FC<QuickSaleFormProps> = ({ products, businessInfo, o
           </button>
         </div>
       </div>
+
+      {/* Modal de Nuevo Cliente */}
+      {showClientModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm">
+          <div className="bg-white dark:bg-slate-800 rounded-3xl shadow-2xl w-full max-w-md overflow-hidden animate-in zoom-in-95 duration-200">
+            <div className="p-6 border-b border-slate-100 dark:border-slate-700 flex justify-between items-center">
+              <h3 className="text-lg font-black text-slate-800 dark:text-white uppercase">Nuevo Cliente</h3>
+              <button onClick={() => setShowClientModal(false)} className="p-2 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-full transition-colors">
+                <XMarkIcon className="w-5 h-5 text-slate-400" />
+              </button>
+            </div>
+            
+            <form onSubmit={handleCreateClient} className="p-6 space-y-4">
+              <div className="space-y-1">
+                <label className="text-xs font-bold text-slate-500 uppercase">Cédula / RUC *</label>
+                <input 
+                  type="text" 
+                  value={newClientData.ruc}
+                  onChange={e => setNewClientData({...newClientData, ruc: e.target.value})}
+                  className="w-full p-3 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl outline-none focus:border-indigo-500 text-sm font-bold dark:text-white"
+                  required
+                />
+              </div>
+              <div className="space-y-1">
+                <label className="text-xs font-bold text-slate-500 uppercase">Razón Social / Nombre *</label>
+                <input 
+                  type="text" 
+                  value={newClientData.name}
+                  onChange={e => setNewClientData({...newClientData, name: e.target.value})}
+                  className="w-full p-3 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl outline-none focus:border-indigo-500 text-sm font-bold dark:text-white"
+                  required
+                />
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-1">
+                  <label className="text-xs font-bold text-slate-500 uppercase">Email</label>
+                  <input 
+                    type="email" 
+                    value={newClientData.email}
+                    onChange={e => setNewClientData({...newClientData, email: e.target.value})}
+                    className="w-full p-3 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl outline-none focus:border-indigo-500 text-sm dark:text-white"
+                  />
+                </div>
+                <div className="space-y-1">
+                  <label className="text-xs font-bold text-slate-500 uppercase">Teléfono</label>
+                  <input 
+                    type="text" 
+                    value={newClientData.phone}
+                    onChange={e => setNewClientData({...newClientData, phone: e.target.value})}
+                    className="w-full p-3 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl outline-none focus:border-indigo-500 text-sm dark:text-white"
+                  />
+                </div>
+              </div>
+              <div className="space-y-1">
+                <label className="text-xs font-bold text-slate-500 uppercase">Dirección</label>
+                <input 
+                  type="text" 
+                  value={newClientData.address}
+                  onChange={e => setNewClientData({...newClientData, address: e.target.value})}
+                  className="w-full p-3 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl outline-none focus:border-indigo-500 text-sm dark:text-white"
+                />
+              </div>
+              
+              <div className="pt-4 flex gap-3">
+                <button 
+                  type="button" 
+                  onClick={() => setShowClientModal(false)}
+                  className="flex-1 py-3 bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 font-bold rounded-xl text-sm hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors"
+                >
+                  Cancelar
+                </button>
+                <button 
+                  type="submit" 
+                  disabled={isCreatingClient}
+                  className="flex-1 py-3 bg-indigo-600 text-white font-bold rounded-xl text-sm hover:bg-indigo-700 transition-colors disabled:opacity-50"
+                >
+                  {isCreatingClient ? 'Guardando...' : 'Guardar Cliente'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

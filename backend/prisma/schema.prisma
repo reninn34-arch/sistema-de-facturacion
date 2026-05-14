@@ -114,6 +114,7 @@ model Client {
   // SAAS: Pertenece a una empresa
   businessId String
   business   Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  quickSales QuickSale[]
 
   // IMPORTANTE: El RUC ya no es @unique global.
   // Es único SOLO dentro de la misma empresa.
@@ -367,6 +368,7 @@ model SubscriptionPlan {
   features            String[] // Array de características
   maxBusinesses       Int      @default(1)
   maxInvoicesPerMonth Int      @default(10)
+  maxUsers            Int      @default(1)
   hasAIAssistant      Boolean  @default(false)
   hasPrioritySupport  Boolean  @default(false)
   hasAudit            Boolean  @default(false)
@@ -453,6 +455,13 @@ model QuickSale {
   batchId        String?               // ID del lote cuando se envía al SRI
   documentId     String?               // FK al Document luego de emitir al SRI
   notes          String?
+  
+  // Cliente (Opcional, si no hay se asume Consumidor Final)
+  clientId       String?
+  client         Client?  @relation(fields: [clientId], references: [id], onDelete: SetNull)
+  clientName     String?
+  clientIdentification String?
+
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
 

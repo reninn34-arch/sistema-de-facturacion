@@ -13,6 +13,7 @@ interface SubscriptionPlan {
   features: string[];
   maxBusinesses: number;
   maxInvoicesPerMonth: number;
+  maxUsers: number;
   hasAIAssistant: boolean;
   hasPrioritySupport: boolean;
   hasAudit: boolean;
@@ -38,6 +39,7 @@ const defaultPlans: SubscriptionPlan[] = [
     features: ['1 empresa', '10 facturas/mes', 'Soporte por email'],
     maxBusinesses: 1,
     maxInvoicesPerMonth: 10,
+    maxUsers: 1,
     hasAIAssistant: false,
     hasPrioritySupport: false,
     hasAudit: false,
@@ -54,6 +56,7 @@ const defaultPlans: SubscriptionPlan[] = [
     features: ['1 empresa', '100 facturas/mes', 'Reportes básicos', 'Soporte por email'],
     maxBusinesses: 1,
     maxInvoicesPerMonth: 100,
+    maxUsers: 3,
     hasAIAssistant: false,
     hasPrioritySupport: false,
     hasAudit: false,
@@ -70,6 +73,7 @@ const defaultPlans: SubscriptionPlan[] = [
     features: ['1 empresa', '300 facturas/mes', 'Caja POS', 'Recetas y Producción', 'Asistente IA', 'Soporte prioritario'],
     maxBusinesses: 1,
     maxInvoicesPerMonth: 300,
+    maxUsers: 5,
     hasAIAssistant: true,
     hasPrioritySupport: true,
     hasAudit: true,
@@ -86,6 +90,7 @@ const defaultPlans: SubscriptionPlan[] = [
     features: ['3 empresas', '500 facturas/mes', 'Asistente IA', 'Soporte prioritario'],
     maxBusinesses: 3,
     maxInvoicesPerMonth: 500,
+    maxUsers: 10,
     hasAIAssistant: true,
     hasPrioritySupport: true,
     hasAudit: true,
@@ -102,6 +107,7 @@ const defaultPlans: SubscriptionPlan[] = [
     features: ['10 empresas', '2000 facturas/mes', 'API Access', 'Multi-usuarios', 'Soporte 24/7'],
     maxBusinesses: 10,
     maxInvoicesPerMonth: 2000,
+    maxUsers: 50,
     hasAIAssistant: true,
     hasPrioritySupport: true,
     hasAudit: true,
@@ -121,6 +127,7 @@ const SubscriptionPlansManager: React.FC<SubscriptionPlansManagerProps> = ({ onN
     durationDays: 30,
     maxBusinesses: 1,
     maxInvoicesPerMonth: 10,
+    maxUsers: 1,
     hasAIAssistant: false,
     hasPrioritySupport: false,
     hasAudit: false,
@@ -177,6 +184,7 @@ const SubscriptionPlansManager: React.FC<SubscriptionPlansManagerProps> = ({ onN
         features: [],
         maxBusinesses: 1,
         maxInvoicesPerMonth: 10,
+        maxUsers: 1,
         hasAIAssistant: false,
         hasPrioritySupport: false,
         hasAudit: false,
@@ -212,6 +220,7 @@ const SubscriptionPlansManager: React.FC<SubscriptionPlansManagerProps> = ({ onN
       features,
       maxBusinesses: Number(formData.maxBusinesses) || 1,
       maxInvoicesPerMonth: Number(formData.maxInvoicesPerMonth) || 10,
+      maxUsers: Number(formData.maxUsers) || 1,
       hasAIAssistant: formData.hasAIAssistant || false,
       hasPrioritySupport: formData.hasPrioritySupport || false,
       hasAudit: formData.hasAudit || false,
@@ -406,6 +415,12 @@ const SubscriptionPlansManager: React.FC<SubscriptionPlansManagerProps> = ({ onN
                           {plan.maxInvoicesPerMonth === -1 ? '∞' : plan.maxInvoicesPerMonth}
                         </span>
                       </div>
+                      <div className="mt-2 col-span-2">
+                        <span className="text-slate-400 dark:text-slate-500">Usuarios (Vendedores/Contadores):</span>
+                        <span className="font-bold text-slate-700 dark:text-slate-200 ml-1">
+                          {plan.maxUsers === -1 || plan.maxUsers === 999999 ? '∞' : plan.maxUsers}
+                        </span>
+                      </div>
                     </div>
                   </div>
 
@@ -542,7 +557,7 @@ const SubscriptionPlansManager: React.FC<SubscriptionPlansManagerProps> = ({ onN
                 </div>
 
                 {/* Límites */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <div>
                     <label className="block text-sm font-bold text-slate-600 dark:text-slate-300 mb-1">Máx. Empresas</label>
                     <input
@@ -564,6 +579,17 @@ const SubscriptionPlansManager: React.FC<SubscriptionPlansManagerProps> = ({ onN
                       min="-1"
                     />
                     <p className="text-xs text-slate-400 dark:text-slate-500 mt-1">Usa -1 para ilimitadas</p>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-bold text-slate-600 dark:text-slate-300 mb-1">Máx. Usuarios</label>
+                    <input
+                      type="number"
+                      value={formData.maxUsers || 1}
+                      onChange={e => setFormData({ ...formData, maxUsers: parseInt(e.target.value) })}
+                      className="w-full p-3 border-2 border-slate-200 dark:border-slate-600 rounded-lg font-medium focus:border-indigo-500 focus:outline-none bg-white dark:bg-slate-700 text-slate-800 dark:text-white"
+                      min="-1"
+                    />
+                    <p className="text-xs text-slate-400 dark:text-slate-500 mt-1">Usa -1 para ilimitados</p>
                   </div>
                 </div>
 
