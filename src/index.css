@@ -213,6 +213,46 @@ body {
 }
 
 /* ============================================= */
+/* HERO WAVE ANIMATIONS                          */
+/* ============================================= */
+@keyframes wave-slow {
+  0%   { transform: translateX(0); }
+  50%  { transform: translateX(-120px); }
+  100% { transform: translateX(0); }
+}
+
+@keyframes wave-medium {
+  0%   { transform: translateX(0); }
+  50%  { transform: translateX(100px); }
+  100% { transform: translateX(0); }
+}
+
+@keyframes wave-fast {
+  0%   { transform: translateX(0); }
+  50%  { transform: translateX(-80px); }
+  100% { transform: translateX(0); }
+}
+
+.hero-waves {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  overflow: hidden;
+  line-height: 0;
+}
+
+.hero-waves svg {
+  display: block;
+  width: calc(100% + 240px);
+  margin-left: -120px;
+}
+
+.wave-1 { animation: wave-slow 10s ease-in-out infinite; }
+.wave-2 { animation: wave-medium 7s ease-in-out infinite; }
+.wave-3 { animation: wave-fast 5s ease-in-out infinite; }
+
+/* ============================================= */
 /* MÓVIL                                        */
 /* ============================================= */
 button,

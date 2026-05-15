@@ -414,7 +414,7 @@ const LandingPage: React.FC = () => {
       </nav>
 
       {/* ===== HERO ===== */}
-      <section className="relative pt-28 lg:pt-44 pb-16 lg:pb-24 overflow-hidden bg-gradient-to-br from-[#003ACC] via-[#003ACC] to-[#0057FF]">
+      <section className="relative overflow-hidden bg-gradient-to-br from-[#003ACC] via-[#003ACC] to-[#0057FF]" style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', justifyContent: 'center', paddingTop: '80px', paddingBottom: '120px' }}>
         <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiNmZmYiIGZpbGwtb3BhY2l0eT0iMC4wMyI+PGNpcmNsZSBjeD0iMzAiIGN5PSIzMCIgcj0iMiIvPjwvZz48L2c+PC9zdmc+')] opacity-50" />
         <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-[#0057FF]/20 rounded-full blur-3xl -translate-y-1/2 translate-x-1/4" />
         <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-[#003ACC]/40 rounded-full blur-3xl translate-y-1/2 -translate-x-1/4" />
@@ -422,127 +422,117 @@ const LandingPage: React.FC = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           <div className="grid lg:grid-cols-2 gap-10 lg:gap-16 items-center">
             <div className="text-center lg:text-left">
-              <div className="inline-flex items-center gap-2 bg-white/15 backdrop-blur-sm text-white text-xs font-bold px-4 py-2 rounded-full mb-6 border border-white/10">
+              {/* Badge */}
+              <div className="inline-flex items-center gap-2 bg-white/15 backdrop-blur-sm text-white text-xs font-bold px-4 py-2 rounded-full mb-5 border border-white/10">
                 <SparklesIcon className="w-4 h-4" />
                 <span className="flex items-center gap-1">
                   <span className="bg-[#FF6B35] text-white text-[10px] font-black px-1.5 py-0.5 rounded-full">NUEVO</span>
                   {landingContent.hero.badge}
                 </span>
               </div>
-              <h1 className="text-4xl sm:text-5xl lg:text-6xl xl:text-[68px] font-extrabold text-white leading-[1.08] tracking-tight" dangerouslySetInnerHTML={{ __html: landingContent.hero.headline.replace(/\n/g, '<br/>') }} />
-              <p className="mt-6 text-lg sm:text-xl text-white/80 leading-relaxed max-w-lg mx-auto lg:mx-0 font-medium">
-                {landingContent.hero.subheadline}
+
+              {/* Headline — directo y corto */}
+              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-white leading-[1.08] tracking-tight">
+                Factura electrónico<br />
+                <span className="text-[#FF6B35]">desde el día uno.</span>
+              </h1>
+
+              {/* Subheadline — una línea */}
+              <p className="mt-4 text-base sm:text-lg text-white/75 max-w-md mx-auto lg:mx-0 font-medium leading-snug">
+                Sistema de facturación electrónica para Ecuador. Autorizado por el SRI. Simple, rápido y 100% en la nube.
               </p>
-              <div className="mt-8 flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
+
+              {/* CTAs */}
+              <div className="mt-6 flex flex-col sm:flex-row gap-3 justify-center lg:justify-start">
                 <a
-          href="/suscripcion"
-                  className="inline-flex items-center justify-center gap-2 bg-[#FF6B35] text-white px-8 py-4 rounded-2xl font-bold text-base hover:bg-[#e55a2b] transition-all shadow-2xl shadow-[#FF6B35]/30 hover:-translate-y-0.5"
+                  href="/suscripcion"
+                  className="inline-flex items-center justify-center gap-2 bg-[#FF6B35] text-white px-7 py-3.5 rounded-2xl font-bold text-base hover:bg-[#e55a2b] transition-all shadow-2xl shadow-[#FF6B35]/30 hover:-translate-y-0.5"
                 >
                   {landingContent.hero.primaryCta}
                   <ArrowRightIcon className="w-5 h-5" />
                 </a>
                 <a
                   href="#features"
-                  className="inline-flex items-center justify-center gap-2 bg-white/10 backdrop-blur-sm text-white px-8 py-4 rounded-2xl font-bold text-base hover:bg-white/20 transition-all border border-white/20"
+                  className="inline-flex items-center justify-center gap-2 bg-white/10 backdrop-blur-sm text-white px-7 py-3.5 rounded-2xl font-bold text-base hover:bg-white/20 transition-all border border-white/20"
                 >
                   {landingContent.hero.secondaryCta}
                 </a>
               </div>
-              <div className="mt-8 flex items-center gap-6 justify-center lg:justify-start">
-                <div className="flex items-center gap-1.5">
-                  <div className="flex -space-x-2">
-                    <div className="w-8 h-8 rounded-full bg-emerald-400 border-2 border-[#003ACC] flex items-center justify-center text-[10px] font-black text-white">ME</div>
-                    <div className="w-8 h-8 rounded-full bg-[#FF6B35] border-2 border-[#003ACC] flex items-center justify-center text-[10px] font-black text-white">CR</div>
-                    <div className="w-8 h-8 rounded-full bg-violet-400 border-2 border-[#003ACC] flex items-center justify-center text-[10px] font-black text-white">PM</div>
-                  </div>
-                  <span className="text-sm font-semibold text-white/90">+450 negocios confían en nosotros</span>
-                </div>
+
+              {/* Trust badge — honesto */}
+              <div className="mt-5 inline-flex items-center gap-2 bg-white/10 rounded-full px-4 py-2 border border-white/10">
+                <ShieldCheckIcon className="w-4 h-4 text-emerald-300" />
+                <span className="text-xs font-semibold text-white/80">Autorizado por el SRI · 100% legal en Ecuador</span>
               </div>
             </div>
 
+            {/* Dashboard card — desktop only, rediseñada para empresa nueva */}
             <div className="relative hidden lg:block">
-              <div className="relative z-10 bg-white rounded-3xl shadow-2xl p-6 sm:p-8 border border-slate-100">
-                <div className="flex items-center justify-between mb-6">
-                  <div className="flex items-center gap-3">
-                    <div className="w-12 h-12 bg-emerald-100 rounded-2xl flex items-center justify-center">
-                      <ArrowTrendingUpIcon className="w-6 h-6 text-emerald-600" />
-                    </div>
-                    <div>
-                      <p className="text-sm font-extrabold text-slate-800">Resultado del mes</p>
-                      <p className="text-xs text-slate-400 font-semibold">Panadería Dulce Hogar</p>
-                    </div>
+              <div className="relative z-10 bg-white rounded-3xl shadow-2xl p-6 border border-slate-100">
+                <div className="flex items-center gap-3 mb-5">
+                  <div className="w-10 h-10 bg-[#0057FF] rounded-xl flex items-center justify-center">
+                    <DocumentTextIcon className="w-5 h-5 text-white" />
                   </div>
-                  <div className="flex items-center gap-1 bg-emerald-50 text-emerald-700 text-xs font-bold px-3 py-1.5 rounded-full">
-                    <span className="text-base">+34%</span>
+                  <div>
+                    <p className="text-sm font-extrabold text-slate-800">Panel de Facturación</p>
+                    <p className="text-xs text-slate-400 font-medium">Ecuafact Pro</p>
                   </div>
+                  <span className="ml-auto text-xs bg-emerald-100 text-emerald-700 font-bold px-2 py-1 rounded-full">Autorizado SRI</span>
                 </div>
 
-                <div className="grid grid-cols-2 gap-4 mb-6">
-                  <div className="bg-red-50 rounded-2xl p-4 relative overflow-hidden">
-                    <div className="absolute top-2 right-2 text-[10px] font-bold text-red-400 bg-red-100 px-2 py-0.5 rounded-full">Antes</div>
-                    <div className="space-y-3 mt-3">
-                      <div className="flex items-center gap-2">
-                        <ExclamationTriangleIcon className="w-4 h-4 text-red-400" />
-                        <span className="text-xs text-red-700 font-semibold">Sin control de inventario</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <ClockIcon className="w-4 h-4 text-red-400" />
-                        <span className="text-xs text-red-700 font-semibold">3h/día en papeleo</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <CalculatorIcon className="w-4 h-4 text-red-400" />
-                        <span className="text-xs text-red-700 font-semibold">Costos desconocidos</span>
-                      </div>
+                <div className="grid grid-cols-2 gap-3 mb-4">
+                  <div className="bg-red-50 rounded-2xl p-4">
+                    <p className="text-[10px] font-bold text-red-400 uppercase tracking-wider mb-2">Sin sistema</p>
+                    <div className="space-y-2">
+                      <div className="flex items-center gap-2"><ExclamationTriangleIcon className="w-4 h-4 text-red-400" /><span className="text-xs text-red-700 font-semibold">Facturas manuales</span></div>
+                      <div className="flex items-center gap-2"><ClockIcon className="w-4 h-4 text-red-400" /><span className="text-xs text-red-700 font-semibold">Horas de papeleo</span></div>
+                      <div className="flex items-center gap-2"><CalculatorIcon className="w-4 h-4 text-red-400" /><span className="text-xs text-red-700 font-semibold">Errores frecuentes</span></div>
                     </div>
                   </div>
-                  <div className="bg-emerald-50 rounded-2xl p-4 relative overflow-hidden">
-                    <div className="absolute top-2 right-2 text-[10px] font-bold text-emerald-500 bg-emerald-100 px-2 py-0.5 rounded-full">Ahora</div>
-                    <div className="space-y-3 mt-3">
-                      <div className="flex items-center gap-2">
-                        <CheckCircleIcon className="w-4 h-4 text-emerald-500" />
-                        <span className="text-xs text-emerald-700 font-semibold">Stock en tiempo real</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <CheckCircleIcon className="w-4 h-4 text-emerald-500" />
-                        <span className="text-xs text-emerald-700 font-semibold">10 min/día facturando</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <CheckCircleIcon className="w-4 h-4 text-emerald-500" />
-                        <span className="text-xs text-emerald-700 font-semibold">Rentabilidad por receta</span>
-                      </div>
+                  <div className="bg-emerald-50 rounded-2xl p-4">
+                    <p className="text-[10px] font-bold text-emerald-500 uppercase tracking-wider mb-2">Con Ecuafact</p>
+                    <div className="space-y-2">
+                      <div className="flex items-center gap-2"><CheckCircleIcon className="w-4 h-4 text-emerald-500" /><span className="text-xs text-emerald-700 font-semibold">XML al SRI al instante</span></div>
+                      <div className="flex items-center gap-2"><CheckCircleIcon className="w-4 h-4 text-emerald-500" /><span className="text-xs text-emerald-700 font-semibold">2 min por factura</span></div>
+                      <div className="flex items-center gap-2"><CheckCircleIcon className="w-4 h-4 text-emerald-500" /><span className="text-xs text-emerald-700 font-semibold">100% SRI válido</span></div>
                     </div>
                   </div>
                 </div>
 
-                <div className="grid grid-cols-3 gap-3">
-                  <div className="bg-[#F8F9FC] rounded-2xl p-4 text-center">
-                    <p className="text-2xl font-extrabold text-[#0057FF]">98%</p>
-                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mt-1">menos errores</p>
+                <div className="grid grid-cols-3 gap-2">
+                  <div className="bg-[#F8F9FC] rounded-2xl p-3 text-center">
+                    <p className="text-xl font-extrabold text-[#0057FF]">SRI</p>
+                    <p className="text-[9px] font-bold text-slate-400 uppercase tracking-wider mt-0.5">Autorizado</p>
                   </div>
-                  <div className="bg-amber-50 rounded-2xl p-4 text-center">
-                    <p className="text-2xl font-extrabold text-amber-700">3x</p>
-                    <p className="text-[10px] font-bold text-amber-400 uppercase tracking-wider mt-1">más rápido</p>
+                  <div className="bg-amber-50 rounded-2xl p-3 text-center">
+                    <p className="text-xl font-extrabold text-amber-700">24/7</p>
+                    <p className="text-[9px] font-bold text-amber-400 uppercase tracking-wider mt-0.5">en la nube</p>
                   </div>
-                  <div className="bg-emerald-50 rounded-2xl p-4 text-center">
-                    <p className="text-2xl font-extrabold text-emerald-700">24/7</p>
-                    <p className="text-[10px] font-bold text-emerald-400 uppercase tracking-wider mt-1">en la nube</p>
+                  <div className="bg-emerald-50 rounded-2xl p-3 text-center">
+                    <p className="text-xl font-extrabold text-emerald-700">$0</p>
+                    <p className="text-[9px] font-bold text-emerald-400 uppercase tracking-wider mt-0.5">Para empezar</p>
                   </div>
                 </div>
-              </div>
-
-              <div className="absolute -bottom-4 -right-4 bg-gradient-to-br from-[#0057FF] to-[#003ACC] text-white rounded-2xl px-5 py-3 shadow-xl shadow-[#0057FF]/30">
-                <p className="text-xs font-bold opacity-80">Clientes activos</p>
-                <p className="text-lg font-extrabold">+450 negocios</p>
-                <p className="text-xs opacity-80 mt-0.5">Facturando en Ecuador</p>
               </div>
             </div>
           </div>
         </div>
 
-        {/* Wave divider */}
-        <div className="absolute bottom-0 left-0 right-0">
-          <svg viewBox="0 0 1440 80" fill="none" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none" className="w-full h-auto" style={{ minWidth: '100%' }}>
-            <path d="M0 40C240 80 480 0 720 40C960 80 1200 0 1440 40V80H0V40Z" fill="white" />
+        {/* Animated Wave Divider */}
+        <div className="hero-waves">
+          {/* Ola 3 — más al fondo, azul claro semitransparente, más lenta */}
+          <svg className="wave-3" style={{ position: 'absolute', bottom: 0, opacity: 0.35 }}
+            viewBox="0 0 1440 120" fill="none" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none">
+            <path d="M0 60C180 100 360 20 540 60C720 100 900 20 1080 60C1260 100 1440 40 1440 40V120H0V60Z" fill="white"/>
+          </svg>
+          {/* Ola 2 — capa media, blanco suave, velocidad media */}
+          <svg className="wave-2" style={{ position: 'absolute', bottom: 0, opacity: 0.6 }}
+            viewBox="0 0 1440 100" fill="none" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none">
+            <path d="M0 50C200 90 400 10 600 50C800 90 1000 15 1200 55C1350 80 1440 45 1440 45V100H0V50Z" fill="white"/>
+          </svg>
+          {/* Ola 1 — frente, blanco sólido, rellena la base */}
+          <svg className="wave-1" viewBox="0 0 1440 80" fill="none" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none">
+            <path d="M0 40C240 80 480 0 720 40C960 80 1200 10 1440 40V80H0V40Z" fill="white"/>
           </svg>
         </div>
       </section>
