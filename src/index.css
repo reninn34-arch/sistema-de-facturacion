@@ -240,12 +240,12 @@ body {
   right: 0;
   overflow: hidden;
   line-height: 0;
-  height: 90px;
+  height: 160px;
 }
 
 @media (min-width: 768px) {
   .hero-waves {
-    height: 130px;
+    height: 165px;
   }
 }
 
