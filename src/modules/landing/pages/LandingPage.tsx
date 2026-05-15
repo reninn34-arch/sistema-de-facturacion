@@ -18,6 +18,11 @@ import {
   PhoneIcon,
   EnvelopeIcon,
   LockClosedIcon,
+  FireIcon,
+  BuildingStorefrontIcon,
+  ShoppingBagIcon,
+  WrenchScrewdriverIcon,
+  BuildingOffice2Icon,
 } from '@heroicons/react/24/outline';
 import CookieBanner from '../../../components/CookieBanner';
 import { BUSINESS_TYPES, BusinessType } from '../../../types/types';
@@ -58,6 +63,14 @@ interface LandingContent {
 const featureIcons = [DocumentTextIcon, CubeIcon, SparklesIcon, ChartBarIcon, UserGroupIcon, ShieldCheckIcon];
 const painPointIcons = [ExclamationTriangleIcon, CalculatorIcon, ClockIcon];
 const whyIcons = [ShieldCheckIcon, StarIcon, UserGroupIcon, ChartBarIcon];
+
+const businessTypeIcons: Record<string, { Icon: React.ComponentType<React.SVGProps<SVGSVGElement>>; color: string; bg: string }> = {
+  BAKERY:     { Icon: FireIcon,               color: 'text-amber-600',   bg: 'bg-amber-50 group-hover:bg-amber-100' },
+  RESTAURANT: { Icon: BuildingStorefrontIcon, color: 'text-rose-600',    bg: 'bg-rose-50 group-hover:bg-rose-100' },
+  STORE:      { Icon: ShoppingBagIcon,        color: 'text-violet-600',  bg: 'bg-violet-50 group-hover:bg-violet-100' },
+  SERVICE:    { Icon: WrenchScrewdriverIcon,  color: 'text-sky-600',     bg: 'bg-sky-50 group-hover:bg-sky-100' },
+  GENERAL:    { Icon: BuildingOffice2Icon,    color: 'text-[#0057FF]',   bg: 'bg-blue-50 group-hover:bg-blue-100' },
+};
 
 const getDefaultContent = (): LandingContent => ({
   hero: {
@@ -631,17 +644,23 @@ const LandingPage: React.FC = () => {
           </div>
 
           <div className="grid sm:grid-cols-2 lg:grid-cols-5 gap-4">
-            {businessTypeCards.map((bt) => (
-              <a
-                key={bt.id}
-                href={`/suscripcion?tipo=${bt.id.toLowerCase()}`}
-                className="scroll-fade-up group relative bg-white rounded-3xl p-6 border-2 border-slate-100 hover:border-[#0057FF] hover:shadow-2xl hover:shadow-[#0057FF]/10 transition-all duration-300 text-center hover:-translate-y-1"
-              >
-                <div className="text-4xl mb-4">{bt.icon}</div>
-                <h3 className="text-lg font-extrabold text-slate-800 group-hover:text-[#0057FF] transition-colors">{bt.label}</h3>
-                <p className="text-sm text-slate-500 mt-2 leading-relaxed font-medium">{bt.description}</p>
-              </a>
-            ))}
+            {businessTypeCards.map((bt) => {
+              const btIcon = businessTypeIcons[bt.id] ?? businessTypeIcons['GENERAL'];
+              const { Icon, color, bg } = btIcon;
+              return (
+                <a
+                  key={bt.id}
+                  href={`/suscripcion?tipo=${bt.id.toLowerCase()}`}
+                  className="scroll-fade-up group relative bg-white rounded-3xl p-6 border-2 border-slate-100 hover:border-[#0057FF] hover:shadow-2xl hover:shadow-[#0057FF]/10 transition-all duration-300 text-center hover:-translate-y-1"
+                >
+                  <div className={`w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-5 transition-colors duration-300 ${bg}`}>
+                    <Icon className={`w-8 h-8 ${color} transition-colors duration-300`} />
+                  </div>
+                  <h3 className="text-lg font-extrabold text-slate-800 group-hover:text-[#0057FF] transition-colors">{bt.label}</h3>
+                  <p className="text-sm text-slate-500 mt-2 leading-relaxed font-medium">{bt.description}</p>
+                </a>
+              );
+            })}
           </div>
         </div>
       </section>
