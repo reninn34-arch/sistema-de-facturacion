@@ -332,16 +332,24 @@ const LandingPage: React.FC = () => {
       <nav className={`fixed top-0 lg:top-9 left-0 right-0 z-50 transition-all duration-300 ${
         scrolled
           ? 'bg-white/95 backdrop-blur-md shadow-lg shadow-slate-200/30'
-          : 'bg-white shadow-sm lg:bg-white/80 lg:shadow-none lg:backdrop-blur-sm'
+          : 'bg-transparent lg:bg-white/80 lg:backdrop-blur-sm'
       }`}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16 lg:h-[72px]">
             <div className="flex items-center gap-2.5">
-              <div className="w-10 h-10 bg-[#0057FF] rounded-xl flex items-center justify-center shadow-lg shadow-[#0057FF]/30">
+              <div className={`w-10 h-10 rounded-xl flex items-center justify-center shadow-lg transition-all duration-300 ${
+                scrolled
+                  ? 'bg-[#0057FF] shadow-[#0057FF]/30'
+                  : 'bg-white/20 shadow-white/10 lg:bg-[#0057FF] lg:shadow-[#0057FF]/30'
+              }`}>
                 <DocumentTextIcon className="w-5 h-5 text-white" />
               </div>
-              <span className="text-xl font-extrabold text-slate-900 tracking-tight">
-                ECUAFACT <span className="text-[#0057FF]">PRO</span>
+              <span className={`text-xl font-extrabold tracking-tight transition-colors duration-300 ${
+                scrolled ? 'text-slate-900' : 'text-white lg:text-slate-900'
+              }`}>
+                ECUAFACT <span className={`transition-colors duration-300 ${
+                  scrolled ? 'text-[#0057FF]' : 'text-white/90 lg:text-[#0057FF]'
+                }`}>PRO</span>
               </span>
             </div>
 
@@ -365,7 +373,14 @@ const LandingPage: React.FC = () => {
               </a>
             </div>
 
-            <button onClick={() => setMobileMenuOpen(!mobileMenuOpen)} className="lg:hidden p-2 text-slate-800 hover:bg-slate-100 rounded-xl transition-colors">
+            <button
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              className={`lg:hidden p-2 rounded-xl transition-all duration-300 ${
+                scrolled
+                  ? 'text-slate-800 hover:bg-slate-100'
+                  : 'text-white hover:bg-white/15'
+              }`}
+            >
               {mobileMenuOpen ? <XMarkIcon className="w-6 h-6" /> : <Bars3Icon className="w-6 h-6" />}
             </button>
           </div>
