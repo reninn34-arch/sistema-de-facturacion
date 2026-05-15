@@ -332,7 +332,7 @@ const LandingPage: React.FC = () => {
       <nav className={`fixed top-0 lg:top-9 left-0 right-0 z-50 transition-all duration-300 ${
         scrolled
           ? 'bg-white/95 backdrop-blur-md shadow-lg shadow-slate-200/30'
-          : 'bg-transparent lg:bg-white/80 lg:backdrop-blur-sm'
+          : 'bg-white shadow-sm lg:bg-white/80 lg:shadow-none lg:backdrop-blur-sm'
       }`}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16 lg:h-[72px]">
@@ -365,7 +365,7 @@ const LandingPage: React.FC = () => {
               </a>
             </div>
 
-            <button onClick={() => setMobileMenuOpen(!mobileMenuOpen)} className="lg:hidden p-2 text-slate-700 hover:bg-slate-100 rounded-xl">
+            <button onClick={() => setMobileMenuOpen(!mobileMenuOpen)} className="lg:hidden p-2 text-slate-800 hover:bg-slate-100 rounded-xl transition-colors">
               {mobileMenuOpen ? <XMarkIcon className="w-6 h-6" /> : <Bars3Icon className="w-6 h-6" />}
             </button>
           </div>
