@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+﻿import React, { useState, useEffect, useMemo } from 'react';
 import { Product, BusinessInfo, InvoiceItem, SriStatus, DocumentType, Document, PaymentStatus } from '../../../types/types';
 import { generateAccessKey } from '../../../utils/sri';
 import { buildInvoiceXml, authorizeWithSRI } from '../../../services/sriService';
@@ -448,7 +448,7 @@ const PendingTickets: React.FC<PendingTicketsProps> = ({
             </div>
             <div className="text-right">
               <p className="text-[10px] font-black text-slate-400 uppercase">Total a facturar</p>
-              <p className="text-2xl font-black text-indigo-700 dark:text-indigo-400">${selectedTotal.toFixed(2)}</p>
+              <p className="text-2xl font-black text-sky-500 dark:text-sky-400">${selectedTotal.toFixed(2)}</p>
             </div>
           </div>
         </div>

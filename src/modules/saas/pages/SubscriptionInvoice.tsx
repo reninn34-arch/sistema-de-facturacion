@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+﻿import React, { useState, useMemo } from 'react';
 import {
   BuildingOffice2Icon,
   DocumentTextIcon,
@@ -167,7 +167,7 @@ const SubscriptionInvoice: React.FC<SubscriptionInvoiceProps> = ({ onNotify }) =
                 onClick={() => setSelectedBusinessId(b.id)}
                 className={`p-3 lg:p-4 rounded-xl cursor-pointer transition-all border-2 ${
                   String(selectedBusinessId) === String(b.id)
-                    ? 'border-indigo-500 bg-indigo-50'
+                    ? 'border-sky-500 bg-sky-50'
                     : 'border-transparent hover:bg-slate-50'
                 }`}
               >
@@ -192,8 +192,8 @@ const SubscriptionInvoice: React.FC<SubscriptionInvoiceProps> = ({ onNotify }) =
           <div className="bg-white rounded-xl lg:rounded-2xl shadow-xl border border-slate-100 p-4 lg:p-6">
             {/* Header */}
             <div className="flex items-center gap-4 mb-8">
-              <div className="w-12 h-12 bg-indigo-100 rounded-2xl flex items-center justify-center">
-                <DocumentTextIcon className="w-6 h-6 text-indigo-700" />
+              <div className="w-12 h-12 bg-sky-100 rounded-2xl flex items-center justify-center">
+                <DocumentTextIcon className="w-6 h-6 text-sky-500" />
               </div>
               <div>
                 <h2 className="text-2xl lg:text-3xl font-black text-slate-800">Factura de Suscripción</h2>
@@ -258,7 +258,7 @@ const SubscriptionInvoice: React.FC<SubscriptionInvoiceProps> = ({ onNotify }) =
 
               {/* Right Column - Summary */}
               <div className="space-y-6">
-                <div className="bg-gradient-to-br from-indigo-50 to-indigo-50 rounded-2xl p-6 border border-indigo-100">
+                <div className="bg-gradient-to-br from-sky-50 to-sky-50 rounded-2xl p-6 border border-sky-100">
                   <h3 className="font-black text-slate-800 mb-4">                  <DocumentTextIcon className="w-4 h-4 inline" /> Resumen de Factura</h3>
                   
                   <div className="space-y-3">
@@ -274,12 +274,12 @@ const SubscriptionInvoice: React.FC<SubscriptionInvoiceProps> = ({ onNotify }) =
                     </div>
                     <div className="flex justify-between">
                       <span className="text-slate-500 font-medium">Plan:</span>
-                      <span className="font-bold text-indigo-700">{selectedBusiness.plan || 'Básico'}</span>
+                      <span className="font-bold text-sky-500">{selectedBusiness.plan || 'Básico'}</span>
                     </div>
                     <div className="border-t border-slate-200 pt-3 mt-3">
                       <div className="flex justify-between items-center">
                         <span className="text-slate-600 font-bold">Total:</span>
-                        <span className="text-3xl font-black text-indigo-700">${amount.toFixed(2)}</span>
+                        <span className="text-3xl font-black text-sky-500">${amount.toFixed(2)}</span>
                       </div>
                     </div>
                   </div>
@@ -288,7 +288,7 @@ const SubscriptionInvoice: React.FC<SubscriptionInvoiceProps> = ({ onNotify }) =
                 <button
                   onClick={handleGenerateInvoice}
                   disabled={loading || amount <= 0}
-                  className="w-full py-4 bg-indigo-700 hover:bg-indigo-500 disabled:bg-slate-300 disabled:cursor-not-allowed text-white rounded-xl font-black uppercase tracking-widest transition-all shadow-lg shadow-indigo-900/30"
+                  className="w-full py-4 bg-sky-500 hover:bg-sky-600 disabled:bg-slate-300 disabled:cursor-not-allowed text-white rounded-xl font-black uppercase tracking-widest transition-all shadow-lg shadow-indigo-900/30"
                 >
                   {loading ? <><ClockIcon className="w-4 h-4 inline animate-spin" /> Generando...</> : <><RocketLaunchIcon className="w-4 h-4 inline" /> Generar Factura SRI</>}
                 </button>

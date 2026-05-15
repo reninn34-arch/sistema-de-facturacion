@@ -1,4 +1,4 @@
-
+﻿
 import React, { useEffect, useState } from 'react';
 import { Document, BusinessInfo, InvoiceItem } from '../../../types/types';
 import QRCode from 'qrcode';
@@ -167,7 +167,7 @@ const RideViewer: React.FC<RideViewerProps> = ({ document, businessInfo, items, 
               </button>
               <button 
                 onClick={handlePrint}
-                className="flex items-center gap-2 bg-indigo-700 text-white px-6 py-3 rounded-xl font-bold text-sm uppercase tracking-wide shadow-lg shadow-indigo-200 hover:bg-indigo-800 hover:scale-105 transition-all"
+                className="flex items-center gap-2 bg-sky-500 text-white px-6 py-3 rounded-xl font-bold text-sm uppercase tracking-wide shadow-lg shadow-sky-200 hover:bg-sky-600 hover:scale-105 transition-all"
               >
                 <PrinterIcon className="w-5 h-5" /> Imprimir
               </button>
@@ -281,7 +281,7 @@ const RideViewer: React.FC<RideViewerProps> = ({ document, businessInfo, items, 
                   <tr><td className="p-1 font-bold">SUBTOTAL 0%</td><td className="p-1 text-right">${subtotal0.toFixed(2)}</td></tr>
                   <tr><td className="p-1 font-bold">SUBTOTAL SIN IMPUESTOS</td><td className="p-1 text-right">${(subtotal15 + subtotal0).toFixed(2)}</td></tr>
                   <tr><td className="p-1 font-bold">DESCUENTO</td><td className="p-1 text-right">${totalDiscount.toFixed(2)}</td></tr>
-                  <tr><td className="p-1 font-bold text-indigo-700">IVA 15%</td><td className="p-1 text-right">${totalIva.toFixed(2)}</td></tr>
+                  <tr><td className="p-1 font-bold text-sky-500">IVA 15%</td><td className="p-1 text-right">${totalIva.toFixed(2)}</td></tr>
                   <tr className="bg-slate-100 font-bold text-[9px]"><td className="p-1.5">VALOR TOTAL</td><td className="p-1.5 text-right">${finalTotal.toFixed(2)}</td></tr>
                 </tbody>
               </table>

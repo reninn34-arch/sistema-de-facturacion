@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect } from 'react';
 import { getAuditReport, AuditResult, AuditIssue } from '../../../services/geminiService';
 import { Document, Product, DocumentType, SriStatus } from '../../../types/types';
 import { client } from '../../../api/client';
@@ -58,11 +58,11 @@ interface DashboardProps {
 const planColors: Record<string, string> = {
   FREE: 'slate',
   BASIC: 'indigo',
-  GASTRONOMICO: 'orange',
+  GASTRONOMICO: 'sky',
   PRO: 'purple',
   ENTERPRISE: 'emerald',
   MONTHLY: 'cyan',
-  SEMIANNUAL: 'orange',
+  SEMIANNUAL: 'sky',
   YEARLY: 'indigo',
   UNLIMITED: 'rose',
   PENDING: 'gray'
@@ -206,7 +206,7 @@ const Dashboard: React.FC<DashboardProps> = ({ documents, products, setActiveTab
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           <Card padding="lg" className="lg:col-span-2">
             <h3 className="font-bold text-slate-800 dark:text-white mb-6 uppercase tracking-tight flex items-center gap-2">
-              <CubeIcon className="w-5 h-5 text-indigo-500" />
+              <CubeIcon className="w-5 h-5 text-sky-500" />
               Distribución de Suscripciones
             </h3>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
@@ -255,7 +255,7 @@ const Dashboard: React.FC<DashboardProps> = ({ documents, products, setActiveTab
           </Card>
 
           <Card padding="lg" className="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700/50 text-slate-800 dark:text-white flex flex-col transition-colors duration-300">
-            <h3 className="font-bold mb-6 uppercase tracking-tight text-indigo-700 dark:text-indigo-400 flex items-center gap-2">
+            <h3 className="font-bold mb-6 uppercase tracking-tight text-sky-500 dark:text-sky-400 flex items-center gap-2">
               <BuildingOffice2Icon className="w-5 h-5" />
               Empresas Recientes
             </h3>
@@ -263,7 +263,7 @@ const Dashboard: React.FC<DashboardProps> = ({ documents, products, setActiveTab
               {(subscriptionStats?.recentBusinesses || []).map((b, i) => (
                 <div key={b.id || i} className="p-4 bg-slate-50 dark:bg-white/5 rounded-2xl transition-all hover:bg-slate-100 group">
                   <div className="flex justify-between items-start mb-2">
-                    <h4 className="font-bold text-sm truncate pr-2 text-slate-800 dark:text-white group-hover:text-indigo-700 transition-colors">{b.name}</h4>
+                    <h4 className="font-bold text-sm truncate pr-2 text-slate-800 dark:text-white group-hover:text-sky-500 transition-colors">{b.name}</h4>
                     <Badge variant={b.isActive ? 'success' : 'danger'}>
                       {b.isActive ? 'ACTIVO' : 'INACTIVO'}
                     </Badge>
@@ -271,7 +271,7 @@ const Dashboard: React.FC<DashboardProps> = ({ documents, products, setActiveTab
                   <div className="flex items-center gap-2 text-[10px] text-slate-500 dark:text-slate-400">
                     <span>RUC: {b.ruc}</span>
                     <span className="text-slate-200 dark:text-slate-600">•</span>
-                    <span className="text-indigo-700 dark:text-indigo-400 font-bold">{b.plan}</span>
+                    <span className="text-sky-500 dark:text-sky-400 font-bold">{b.plan}</span>
                     <span className="text-slate-200 dark:text-slate-600">•</span>
                     <span>{b._count?.users || 0} usuarios</span>
                   </div>
@@ -341,7 +341,7 @@ const Dashboard: React.FC<DashboardProps> = ({ documents, products, setActiveTab
                   ? <SparklesIcon className="w-7 h-7 text-emerald-400" />
                   : subscriptionDaysRemaining < 0
                     ? <ExclamationTriangleIcon className="w-7 h-7 text-red-400" />
-                    : <CalendarDaysIcon className="w-7 h-7 text-indigo-400" />
+                    : <CalendarDaysIcon className="w-7 h-7 text-sky-400" />
                 }
               </div>
               <div>
@@ -378,7 +378,7 @@ const Dashboard: React.FC<DashboardProps> = ({ documents, products, setActiveTab
                     ? 'bg-red-500 hover:bg-red-400 text-white shadow-red-500/30' :
                     subscriptionStatusColor === 'amber'
                       ? 'bg-amber-500 hover:bg-amber-400 text-white shadow-amber-500/30'
-                      : 'bg-indigo-700 hover:bg-indigo-500 text-white shadow-indigo-700/30'
+                      : 'bg-sky-500 hover:bg-sky-600 text-white shadow-sky-500/30'
                   }`}
               >
                 {subscriptionDaysRemaining !== null && subscriptionDaysRemaining <= Math.max(Math.ceil(planDurationDays * 0.20), 3) ? 'Renovar' : 'Gestionar'}
@@ -398,7 +398,7 @@ const Dashboard: React.FC<DashboardProps> = ({ documents, products, setActiveTab
               <div className="text-[10px] font-black text-emerald-200 uppercase tracking-[0.2em] mb-1">Estatus Premium</div>
               <div className="text-2xl font-black text-white uppercase tracking-tighter">Plan Ilimitado Activo</div>
               <div className="text-sm text-emerald-50/70 mt-1 font-medium italic">
-                "Tu empresa no tiene límites de crecimiento con Ecuafact Pro"
+                "Tu empresa no tiene límites de crecimiento con Azul"
               </div>
             </div>
           </div>
@@ -450,15 +450,15 @@ const Dashboard: React.FC<DashboardProps> = ({ documents, products, setActiveTab
           </h3>
 
           {!planHasAudit ? (
-            <div className="bg-gradient-to-br from-indigo-50 to-purple-50 dark:from-indigo-900/20 dark:to-purple-900/20 border border-indigo-100 dark:border-indigo-800 rounded-2xl p-8 text-center">
-              <SparklesIcon className="w-12 h-12 text-indigo-400 mx-auto mb-3" />
-              <p className="text-indigo-700 dark:text-indigo-300 font-bold text-lg">Auditoría en Tiempo Real</p>
-              <p className="text-indigo-700 dark:text-indigo-400 text-sm mt-2">
+            <div className="bg-gradient-to-br from-sky-50 to-purple-50 dark:from-sky-900/20 dark:to-purple-900/20 border border-sky-100 dark:border-sky-800 rounded-2xl p-8 text-center">
+              <SparklesIcon className="w-12 h-12 text-sky-400 mx-auto mb-3" />
+              <p className="text-sky-500 dark:text-sky-300 font-bold text-lg">Auditoría en Tiempo Real</p>
+              <p className="text-sky-500 dark:text-sky-400 text-sm mt-2">
                 Detecta facturas rechazadas, inventario bajo, duplicados y más automáticamente.
               </p>
               <button
                 onClick={() => setActiveTab('pago-interno')}
-                className="mt-4 px-6 py-3 bg-indigo-700 text-white font-bold rounded-xl hover:bg-indigo-800 transition-colors shadow-lg shadow-indigo-500/20 text-sm"
+                className="mt-4 px-6 py-3 bg-sky-500 text-white font-bold rounded-xl hover:bg-sky-600 transition-colors shadow-lg shadow-sky-500/20 text-sm"
               >
                 Actualizar Plan para Desbloquear
               </button>
@@ -536,7 +536,7 @@ const Dashboard: React.FC<DashboardProps> = ({ documents, products, setActiveTab
                           </div>
                           <button
                             onClick={() => setActiveTab(issue.actionTab)}
-                            className="flex-shrink-0 flex items-center gap-1 px-3 py-1.5 bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl text-xs font-bold text-indigo-700 dark:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-900/30 transition-colors"
+                            className="flex-shrink-0 flex items-center gap-1 px-3 py-1.5 bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl text-xs font-bold text-sky-500 dark:text-sky-400 hover:bg-sky-50 dark:hover:bg-sky-900/30 transition-colors"
                           >
                             {issue.action} <ArrowRightIcon className="w-3 h-3" />
                           </button>
@@ -554,7 +554,7 @@ const Dashboard: React.FC<DashboardProps> = ({ documents, products, setActiveTab
                   <div className="space-y-1">
                     {auditResult.recommendations.map((rec, i) => (
                       <p key={i} className="text-xs text-slate-600 dark:text-slate-300 flex items-start gap-2">
-                        <SparklesIcon className="w-3 h-3 text-indigo-400 flex-shrink-0 mt-0.5" />
+                        <SparklesIcon className="w-3 h-3 text-sky-400 flex-shrink-0 mt-0.5" />
                         {rec}
                       </p>
                     ))}
@@ -566,7 +566,7 @@ const Dashboard: React.FC<DashboardProps> = ({ documents, products, setActiveTab
         </Card>
 
         <Card padding="lg" className="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700/50 text-slate-800 dark:text-white flex flex-col transition-colors duration-300">
-          <h3 className="font-bold mb-6 uppercase tracking-tight text-indigo-400 text-sm sm:text-base">Estado de Inventario</h3>
+          <h3 className="font-bold mb-6 uppercase tracking-tight text-sky-400 text-sm sm:text-base">Estado de Inventario</h3>
           <div className="space-y-6 flex-1 overflow-y-auto pr-2">
             {safeProducts.length === 0 ? (
               <div className="text-center py-8 text-slate-500">
@@ -574,7 +574,7 @@ const Dashboard: React.FC<DashboardProps> = ({ documents, products, setActiveTab
                 <p className="text-sm">No hay productos registrados</p>
                 <button
                   onClick={() => setActiveTab('products')}
-                  className="mt-4 px-4 py-2 bg-indigo-700 hover:bg-indigo-800 rounded-lg text-xs font-bold transition-colors"
+                  className="mt-4 px-4 py-2 bg-sky-500 hover:bg-sky-600 rounded-lg text-xs font-bold transition-colors"
                 >
                   Agregar Productos
                 </button>
@@ -584,11 +584,11 @@ const Dashboard: React.FC<DashboardProps> = ({ documents, products, setActiveTab
                 <div key={p.id} className="flex flex-col gap-2">
                   <div className="flex justify-between text-xs font-bold uppercase tracking-wider gap-2">
                     <span className="truncate w-20 sm:w-40">{p.description}</span>
-                    <span className={p.stock < p.minStock ? 'text-rose-400' : 'text-indigo-400'}>{p.stock} un.</span>
+                    <span className={p.stock < p.minStock ? 'text-rose-400' : 'text-sky-400'}>{p.stock} un.</span>
                   </div>
                   <div className="h-2 bg-slate-200 dark:bg-slate-800 rounded-full overflow-hidden">
                     <div
-                      className={`h-full transition-all duration-1000 ${p.stock < p.minStock ? 'bg-rose-500 shadow-[0_0_8px_rgba(244,63,94,0.4)]' : 'bg-indigo-500 shadow-[0_0_8px_rgba(99,102,241,0.4)]'}`}
+                      className={`h-full transition-all duration-1000 ${p.stock < p.minStock ? 'bg-rose-500 shadow-[0_0_8px_rgba(244,63,94,0.4)]' : 'bg-sky-500 shadow-[0_0_8px_rgba(99,102,241,0.4)]'}`}
                       style={{ width: `${Math.min((p.stock / 100) * 100, 100)}%` }}
                     />
                   </div>

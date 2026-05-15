@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect } from 'react';
 import { Document, DocumentType, SriStatus, InvoiceItem } from '../../../types/types';
 import {
   MagnifyingGlassIcon,
@@ -472,7 +472,7 @@ export default function SaasCreditNote({ businesses, documents, onNotify }: Saas
   const { subtotal0, subtotal12, tax12, total } = calculateTotals();
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-orange-50 dark:from-slate-900 dark:to-orange-900/20 p-4 md:p-8">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-sky-50 dark:from-slate-900 dark:to-sky-900/20 p-4 md:p-8">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="mb-8">
@@ -488,7 +488,7 @@ export default function SaasCreditNote({ businesses, documents, onNotify }: Saas
                 onClick={() => setActiveTab('invoices')}
                 className={`px-4 py-2 rounded-md font-medium transition-all ${
                   activeTab === 'invoices'
-                    ? 'bg-orange-500 text-white'
+                    ? 'bg-sky-500 text-white'
                     : 'text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700'
                 }`}
               >
@@ -498,7 +498,7 @@ export default function SaasCreditNote({ businesses, documents, onNotify }: Saas
                 onClick={() => setActiveTab('credit-notes')}
                 className={`px-4 py-2 rounded-md font-medium transition-all ${
                   activeTab === 'credit-notes'
-                    ? 'bg-orange-500 text-white'
+                    ? 'bg-sky-500 text-white'
                     : 'text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700'
                 }`}
               >
@@ -523,7 +523,7 @@ export default function SaasCreditNote({ businesses, documents, onNotify }: Saas
                   value={searchInvoice}
                   onChange={(e) => setSearchInvoice(e.target.value)}
                   placeholder="Buscar por número, cliente o clave de acceso..."
-                  className="w-full p-3 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-800 dark:text-white focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                  className="w-full p-3 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-800 dark:text-white focus:ring-2 focus:ring-sky-500 focus:border-transparent"
                 />
               </div>
 
@@ -548,14 +548,14 @@ export default function SaasCreditNote({ businesses, documents, onNotify }: Saas
                       onClick={() => setSelectedInvoice(invoice)}
                       className={`p-4 border-2 rounded-lg cursor-pointer transition-all ${
                         selectedInvoice?.id === invoice.id
-                          ? 'border-orange-500 bg-orange-50 dark:bg-orange-900/30'
-                          : 'border-slate-200 dark:border-slate-600 hover:border-orange-300'
+                          ? 'border-sky-500 bg-sky-50 dark:bg-sky-900/30'
+                          : 'border-slate-200 dark:border-slate-600 hover:border-sky-300'
                       }`}
                     >
                       <div className="font-semibold text-slate-800 dark:text-white">{invoice.number}</div>
                       <div className="text-sm text-slate-600 dark:text-slate-300">{invoice.entityName}</div>
                       <div className="text-sm text-slate-500 dark:text-slate-400">{invoice.issueDate}</div>
-                      <div className="text-lg font-bold text-orange-600 mt-2">
+                      <div className="text-lg font-bold text-sky-600 mt-2">
                         ${invoice.total.toFixed(2)}
                       </div>
                     </div>
@@ -613,7 +613,7 @@ export default function SaasCreditNote({ businesses, documents, onNotify }: Saas
                   
                   {/* Información según la razón */}
                   {reason === '04' && (
-                    <p className="text-xs text-indigo-700 dark:text-indigo-400 mt-2">
+                    <p className="text-xs text-sky-500 dark:text-sky-400 mt-2">
                       <PencilIcon className="w-4 h-4 inline" /> Modificación/Corrección: Puede editar la descripción, precio y cantidad de los items.
                     </p>
                   )}
@@ -628,7 +628,7 @@ export default function SaasCreditNote({ businesses, documents, onNotify }: Saas
                       onChange={(e) => setPriceIncludesIva(e.target.checked)}
                       className="sr-only peer"
                     />
-                    <div className="w-11 h-6 bg-slate-300 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-orange-300 dark:peer-focus:ring-orange-800 rounded-full peer dark:bg-slate-600 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-slate-600 peer-checked:bg-orange-500"></div>
+                    <div className="w-11 h-6 bg-slate-300 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-sky-300 dark:peer-focus:ring-sky-800 rounded-full peer dark:bg-slate-600 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-slate-600 peer-checked:bg-sky-500"></div>
                     <span className="ml-3 text-sm font-medium text-slate-600 dark:text-slate-300">
                       Precio incluye IVA
                     </span>
@@ -760,7 +760,7 @@ export default function SaasCreditNote({ businesses, documents, onNotify }: Saas
                                   total: 0,
                                   type: 'FISICO'
                                 }])}
-                                className="text-sm text-indigo-700 hover:text-indigo-800 dark:text-indigo-400 dark:hover:text-blue-300"
+                                className="text-sm text-sky-500 hover:text-sky-800 dark:text-sky-400 dark:hover:text-blue-300"
                               >
                                 + Agregar otro item
                               </button>
@@ -788,7 +788,7 @@ export default function SaasCreditNote({ businesses, documents, onNotify }: Saas
                   </div>
                   <div className="flex justify-between text-lg font-bold border-t border-slate-300 dark:border-slate-500 pt-2 mt-2">
                     <span className="text-slate-800 dark:text-white">Total:</span>
-                    <span className="text-orange-600">${total.toFixed(2)}</span>
+                    <span className="text-sky-600">${total.toFixed(2)}</span>
                   </div>
                 </div>
 
@@ -814,7 +814,7 @@ export default function SaasCreditNote({ businesses, documents, onNotify }: Saas
                     className={`flex-1 py-3 px-6 rounded-lg font-bold text-white transition-all ${
                       isProcessing || validItemsCount() === 0
                         ? 'bg-slate-400 cursor-not-allowed'
-                        : 'bg-orange-500 hover:bg-orange-600 shadow-lg'
+                        : 'bg-sky-500 hover:bg-sky-600 shadow-lg'
                     }`}
                   >
                     {isProcessing ? (

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+﻿import React, { useState } from 'react';
 import { ChartBarIcon, InformationCircleIcon, ArrowDownTrayIcon } from '@heroicons/react/24/outline';
 import { Document, BusinessInfo, ATSPurchase, ATSSale } from '../../../types/types';
 import { generateATSXML } from '../../../services/atsService';
@@ -122,9 +122,9 @@ export default function ATSReport({ documents, business, onNotify }: ATSReportPr
             </div>
           </div>
 
-          <div className="bg-indigo-50 p-6 rounded-2xl border border-indigo-100">
-            <h3 className="font-black text-indigo-900 text-sm mb-2"><InformationCircleIcon className="w-4 h-4 inline" /> Información</h3>
-            <ul className="text-xs text-indigo-700 space-y-1 font-bold">
+          <div className="bg-sky-50 p-6 rounded-2xl border border-sky-100">
+            <h3 className="font-black text-sky-900 text-sm mb-2"><InformationCircleIcon className="w-4 h-4 inline" /> Información</h3>
+            <ul className="text-xs text-sky-500 space-y-1 font-bold">
               <li>• El ATS debe presentarse hasta el día 28 del mes siguiente</li>
               <li>• Incluye todas las transacciones autorizadas del período</li>
               <li>• El archivo XML debe subirse al portal del SRI</li>
@@ -134,7 +134,7 @@ export default function ATSReport({ documents, business, onNotify }: ATSReportPr
 
           <button
             onClick={generateATS}
-            className="w-full py-4 bg-indigo-700 hover:bg-indigo-800 text-white rounded-2xl font-black uppercase text-sm tracking-wide shadow-lg shadow-indigo-500/20"
+            className="w-full py-4 bg-sky-500 hover:bg-sky-600 text-white rounded-2xl font-black uppercase text-sm tracking-wide shadow-lg shadow-sky-500/20"
           >
             <ArrowDownTrayIcon className="w-4 h-4 inline" /> Generar ATS (XML)
           </button>

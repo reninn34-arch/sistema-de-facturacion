@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect } from 'react';
 import { ArrowPathIcon, EyeIcon, EyeSlashIcon, TrashIcon, ExclamationTriangleIcon } from '@heroicons/react/24/outline';
 
 interface User {
@@ -218,13 +218,13 @@ const AdminUsers: React.FC<AdminUsersProps> = ({ onManageSubscription, onNotify,
             </button>
             <button 
                 onClick={() => setShowBusinessModal(true)}
-                className="bg-indigo-700 text-white px-6 py-3 rounded-xl font-bold hover:bg-indigo-800 transition-transform shadow-lg shadow-indigo-200"
+                className="bg-sky-500 text-white px-6 py-3 rounded-xl font-bold hover:bg-sky-600 transition-transform shadow-lg shadow-sky-200"
             >
                 + Nueva Empresa
             </button>
             <button 
                 onClick={() => setShowModal(true)}
-                className="bg-slate-900 text-white px-6 py-3 rounded-xl font-bold hover:scale-105 transition-transform"
+                className="bg-sky-500 text-white px-6 py-3 rounded-xl font-bold hover:bg-sky-600 hover:scale-105 transition-transform"
             >
                 + Nuevo Usuario
             </button>
@@ -249,7 +249,7 @@ const AdminUsers: React.FC<AdminUsersProps> = ({ onManageSubscription, onNotify,
                         <td className="p-6 font-bold text-slate-700 dark:text-slate-200">{user.email}</td>
                         <td className="p-6">
                             <span className={`px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest ${
-                                user.role === 'SUPERADMIN' ? 'bg-purple-100 text-purple-600' : 'bg-indigo-100 text-indigo-700'
+                                user.role === 'SUPERADMIN' ? 'bg-purple-100 text-purple-600' : 'bg-sky-100 text-sky-500'
                             }`}>
                                 {user.role}
                             </span>
@@ -261,7 +261,7 @@ const AdminUsers: React.FC<AdminUsersProps> = ({ onManageSubscription, onNotify,
                             {user.business && (
                                 <button 
                                     onClick={() => onManageSubscription(user.business!.id)}
-                                    className="text-indigo-700 font-bold text-xs hover:underline"
+                                    className="text-sky-500 font-bold text-xs hover:underline"
                                 >
                                     Gestionar Suscripción
                                 </button>
@@ -300,7 +300,7 @@ const AdminUsers: React.FC<AdminUsersProps> = ({ onManageSubscription, onNotify,
                         <td className="p-6 flex gap-3">
                             <button 
                                 onClick={() => onManageSubscription(business.id)}
-                                className="text-indigo-700 font-bold text-xs hover:underline"
+                                className="text-sky-500 font-bold text-xs hover:underline"
                             >
                                 Suscripción
                             </button>
@@ -329,7 +329,7 @@ const AdminUsers: React.FC<AdminUsersProps> = ({ onManageSubscription, onNotify,
                         <input 
                             type="email" 
                             required
-                            className="w-full p-3 bg-slate-50 dark:bg-slate-900 dark:text-white rounded-xl border border-slate-200 dark:border-slate-700 outline-none focus:border-indigo-500"
+                            className="w-full p-3 bg-slate-50 dark:bg-slate-900 dark:text-white rounded-xl border border-slate-200 dark:border-slate-700 outline-none focus:border-sky-500"
                             value={formData.email}
                             onChange={e => setFormData({...formData, email: e.target.value})}
                         />
@@ -339,7 +339,7 @@ const AdminUsers: React.FC<AdminUsersProps> = ({ onManageSubscription, onNotify,
                         <input 
                             type={showPassword ? "text" : "password"}
                             required
-                            className="w-full p-3 bg-slate-50 dark:bg-slate-900 dark:text-white rounded-xl border border-slate-200 dark:border-slate-700 outline-none focus:border-indigo-500"
+                            className="w-full p-3 bg-slate-50 dark:bg-slate-900 dark:text-white rounded-xl border border-slate-200 dark:border-slate-700 outline-none focus:border-sky-500"
                             value={formData.password}
                             onChange={e => setFormData({...formData, password: e.target.value})}
                         />
@@ -356,7 +356,7 @@ const AdminUsers: React.FC<AdminUsersProps> = ({ onManageSubscription, onNotify,
                         <input 
                             type={showPassword ? "text" : "password"}
                             required
-                            className="w-full p-3 bg-slate-50 dark:bg-slate-900 dark:text-white rounded-xl border border-slate-200 dark:border-slate-700 outline-none focus:border-indigo-500"
+                            className="w-full p-3 bg-slate-50 dark:bg-slate-900 dark:text-white rounded-xl border border-slate-200 dark:border-slate-700 outline-none focus:border-sky-500"
                             value={formData.confirmPassword}
                             onChange={e => setFormData({...formData, confirmPassword: e.target.value})}
                         />
@@ -372,7 +372,7 @@ const AdminUsers: React.FC<AdminUsersProps> = ({ onManageSubscription, onNotify,
                         </button>
                         <button 
                             type="submit"
-                            className="flex-1 py-3 bg-indigo-700 text-white font-bold rounded-xl hover:bg-indigo-800 shadow-lg shadow-indigo-200"
+                            className="flex-1 py-3 bg-sky-500 text-white font-bold rounded-xl hover:bg-sky-600 shadow-lg shadow-sky-200"
                         >
                             Crear Usuario
                         </button>
@@ -390,32 +390,32 @@ const AdminUsers: React.FC<AdminUsersProps> = ({ onManageSubscription, onNotify,
                 <form onSubmit={handleCreateBusiness} className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="md:col-span-2">
                         <label className="block text-xs font-bold text-slate-500 mb-1">Razón Social</label>
-                        <input required className="w-full p-3 bg-slate-50 dark:bg-slate-900 dark:text-white rounded-xl border border-slate-200 dark:border-slate-700 outline-none focus:border-indigo-500"
+                        <input required className="w-full p-3 bg-slate-50 dark:bg-slate-900 dark:text-white rounded-xl border border-slate-200 dark:border-slate-700 outline-none focus:border-sky-500"
                             value={businessFormData.name} onChange={e => setBusinessFormData({...businessFormData, name: e.target.value})} />
                     </div>
                     <div>
                         <label className="block text-xs font-bold text-slate-500 mb-1">RUC</label>
-                        <input required className="w-full p-3 bg-slate-50 dark:bg-slate-900 dark:text-white rounded-xl border border-slate-200 dark:border-slate-700 outline-none focus:border-indigo-500"
+                        <input required className="w-full p-3 bg-slate-50 dark:bg-slate-900 dark:text-white rounded-xl border border-slate-200 dark:border-slate-700 outline-none focus:border-sky-500"
                             value={businessFormData.ruc} onChange={e => setBusinessFormData({...businessFormData, ruc: e.target.value})} />
                     </div>
                     <div>
                         <label className="block text-xs font-bold text-slate-500 mb-1">Email Contacto</label>
-                        <input type="email" required className="w-full p-3 bg-slate-50 dark:bg-slate-900 dark:text-white rounded-xl border border-slate-200 dark:border-slate-700 outline-none focus:border-indigo-500"
+                        <input type="email" required className="w-full p-3 bg-slate-50 dark:bg-slate-900 dark:text-white rounded-xl border border-slate-200 dark:border-slate-700 outline-none focus:border-sky-500"
                             value={businessFormData.email} onChange={e => setBusinessFormData({...businessFormData, email: e.target.value})} />
                     </div>
                     <div>
                         <label className="block text-xs font-bold text-slate-500 mb-1">Contraseña Admin</label>
-                        <input type="password" required className="w-full p-3 bg-slate-50 dark:bg-slate-900 dark:text-white rounded-xl border border-slate-200 dark:border-slate-700 outline-none focus:border-indigo-500"
+                        <input type="password" required className="w-full p-3 bg-slate-50 dark:bg-slate-900 dark:text-white rounded-xl border border-slate-200 dark:border-slate-700 outline-none focus:border-sky-500"
                             value={businessFormData.password} onChange={e => setBusinessFormData({...businessFormData, password: e.target.value})} placeholder="Para el usuario admin" />
                     </div>
                     <div>
                         <label className="block text-xs font-bold text-slate-500 mb-1">Teléfono</label>
-                        <input className="w-full p-3 bg-slate-50 dark:bg-slate-900 dark:text-white rounded-xl border border-slate-200 dark:border-slate-700 outline-none focus:border-indigo-500"
+                        <input className="w-full p-3 bg-slate-50 dark:bg-slate-900 dark:text-white rounded-xl border border-slate-200 dark:border-slate-700 outline-none focus:border-sky-500"
                             value={businessFormData.phone} onChange={e => setBusinessFormData({...businessFormData, phone: e.target.value})} />
                     </div>
                     <div>
                         <label className="block text-xs font-bold text-slate-500 mb-1">Plan Inicial</label>
-                        <select className="w-full p-3 bg-slate-50 dark:bg-slate-900 dark:text-white rounded-xl border border-slate-200 dark:border-slate-700 outline-none focus:border-indigo-500"
+                        <select className="w-full p-3 bg-slate-50 dark:bg-slate-900 dark:text-white rounded-xl border border-slate-200 dark:border-slate-700 outline-none focus:border-sky-500"
                             value={businessFormData.plan} onChange={e => setBusinessFormData({...businessFormData, plan: e.target.value})}>
                             <option value="MONTHLY">Mensual</option>
                             <option value="SEMIANNUAL">Semestral</option>
@@ -424,7 +424,7 @@ const AdminUsers: React.FC<AdminUsersProps> = ({ onManageSubscription, onNotify,
                     </div>
                     <div className="md:col-span-2">
                         <label className="block text-xs font-bold text-slate-500 mb-1">Dirección</label>
-                        <input className="w-full p-3 bg-slate-50 dark:bg-slate-900 dark:text-white rounded-xl border border-slate-200 dark:border-slate-700 outline-none focus:border-indigo-500"
+                        <input className="w-full p-3 bg-slate-50 dark:bg-slate-900 dark:text-white rounded-xl border border-slate-200 dark:border-slate-700 outline-none focus:border-sky-500"
                             value={businessFormData.address} onChange={e => setBusinessFormData({...businessFormData, address: e.target.value})} />
                     </div>
 
@@ -434,7 +434,7 @@ const AdminUsers: React.FC<AdminUsersProps> = ({ onManageSubscription, onNotify,
                             Cancelar
                         </button>
                         <button type="submit"
-                            className="flex-1 py-3 bg-indigo-700 text-white font-bold rounded-xl hover:bg-indigo-800 shadow-lg shadow-indigo-200">
+                            className="flex-1 py-3 bg-sky-500 text-white font-bold rounded-xl hover:bg-sky-600 shadow-lg shadow-sky-200">
                             Registrar Empresa
                         </button>
                     </div>

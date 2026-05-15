@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+﻿import React, { useState } from 'react';
 import {
   EnvelopeIcon,
   LockClosedIcon,
@@ -98,18 +98,18 @@ const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
     };
 
     const BrandPanel = () => (
-        <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-[#003ACC] via-[#003ACC] to-[#0057FF] text-white relative overflow-hidden flex-col justify-between p-12 xl:p-16">
+        <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-[#0369A1] via-[#0369A1] to-[#0EA5E9] text-white relative overflow-hidden flex-col justify-between p-12 xl:p-16">
             <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiNmZmYiIGZpbGwtb3BhY2l0eT0iMC4wNCI+PGNpcmNsZSBjeD0iMzAiIGN5PSIzMCIgcj0iMiIvPjwvZz48L2c+PC9zdmc+')] opacity-50" />
-            <div className="absolute -top-40 -right-40 w-96 h-96 bg-[#0057FF]/30 rounded-full blur-3xl" />
-            <div className="absolute -bottom-20 -left-20 w-80 h-80 bg-[#003ACC]/50 rounded-full blur-3xl" />
+            <div className="absolute -top-40 -right-40 w-96 h-96 bg-[#0EA5E9]/30 rounded-full blur-3xl" />
+            <div className="absolute -bottom-20 -left-20 w-80 h-80 bg-[#0369A1]/50 rounded-full blur-3xl" />
 
             <div className="relative z-10">
                 <div className="flex items-center gap-2.5 mb-8">
                     <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center shadow-lg">
-                        <DocumentTextIcon className="w-6 h-6 text-[#0057FF]" />
+                        <DocumentTextIcon className="w-6 h-6 text-[#0EA5E9]" />
                     </div>
                     <span className="text-2xl font-extrabold tracking-tight">
-                        ECUAFACT <span className="text-[#FF6B35]">PRO</span>
+                        Azul <span className="text-[#06B6D4]">PRO</span>
                     </span>
                 </div>
 
@@ -167,16 +167,16 @@ const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
                     <div className="w-full max-w-md animate-fade-in">
                         <div className="lg:hidden mb-10 text-center">
                             <div className="flex items-center justify-center gap-2 mb-4">
-                                <div className="w-10 h-10 bg-[#0057FF] rounded-xl flex items-center justify-center">
+                                <div className="w-10 h-10 bg-[#0EA5E9] rounded-xl flex items-center justify-center">
                                     <DocumentTextIcon className="w-6 h-6 text-white" />
                                 </div>
                                 <span className="text-2xl font-extrabold text-slate-900 tracking-tight">
-                                    ECUAFACT <span className="text-[#0057FF]">PRO</span>
+                                    Azul <span className="text-[#0EA5E9]">PRO</span>
                                 </span>
                             </div>
                         </div>
 
-                        <div className="bg-white rounded-3xl border border-slate-200 shadow-xl shadow-slate-200/50 p-8">
+                        <div className="bg-white rounded-3xl border border-slate-200 shadow-xl shadow-sky-100/50 p-8">
                             <div className="text-center mb-6">
                                 <h2 className="text-2xl font-extrabold text-slate-900">Recuperar Contraseña</h2>
                                 <p className="text-sm text-slate-500 mt-2 font-medium">
@@ -211,7 +211,7 @@ const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
                                             required
                                             value={resetEmail}
                                             onChange={(e) => setResetEmail(e.target.value)}
-                                            className="block w-full pl-10 pr-3 py-3 border border-slate-300 rounded-xl bg-slate-50 text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#0057FF] focus:border-[#0057FF] text-sm font-medium transition duration-150"
+                                            className="block w-full pl-10 pr-3 py-3 border border-slate-300 rounded-xl bg-slate-50 text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#0EA5E9] focus:border-[#0EA5E9] text-sm font-medium transition duration-150"
                                             placeholder="usuario@empresa.com"
                                         />
                                     </div>
@@ -219,14 +219,14 @@ const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
                                 <button
                                     type="submit"
                                     disabled={loading}
-                                    className="w-full flex justify-center py-3.5 px-4 border border-transparent rounded-xl shadow-lg text-sm font-bold text-white bg-[#0057FF] hover:bg-[#003ACC] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#0057FF] transition-all duration-200 disabled:opacity-70 hover:-translate-y-0.5"
+                                    className="w-full flex justify-center py-3.5 px-4 border border-transparent rounded-xl shadow-lg text-sm font-bold text-white bg-[#0EA5E9] hover:bg-[#0369A1] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#0EA5E9] transition-all duration-200 disabled:opacity-70 hover:-translate-y-0.5"
                                 >
                                     {loading ? 'Enviando...' : 'Enviar Enlace'}
                                 </button>
                             </form>
 
                             <div className="mt-6 text-center">
-                                <button onClick={() => setView('login')} className="inline-flex items-center gap-1.5 text-sm font-bold text-[#0057FF] hover:text-[#003ACC]">
+                                <button onClick={() => setView('login')} className="inline-flex items-center gap-1.5 text-sm font-bold text-[#0EA5E9] hover:text-[#0369A1]">
                                     <ArrowLeftIcon className="w-4 h-4" />
                                     Volver al Inicio de Sesión
                                 </button>
@@ -234,7 +234,7 @@ const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
                         </div>
 
                         <p className="mt-8 text-center text-xs text-slate-400 font-medium">
-                            &copy; {new Date().getFullYear()} Corporación EcuaFact. Todos los derechos reservados.
+                            &copy; {new Date().getFullYear()} Azul. Todos los derechos reservados.
                         </p>
                     </div>
                 </div>
@@ -250,17 +250,17 @@ const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
                 <div className="w-full max-w-md animate-fade-in">
                     <div className="lg:hidden mb-10 text-center">
                         <div className="flex items-center justify-center gap-2 mb-3">
-                            <div className="w-10 h-10 bg-[#0057FF] rounded-xl flex items-center justify-center">
+                            <div className="w-10 h-10 bg-[#0EA5E9] rounded-xl flex items-center justify-center">
                                 <DocumentTextIcon className="w-6 h-6 text-white" />
                             </div>
                             <span className="text-2xl font-extrabold text-slate-900 tracking-tight">
-                                ECUAFACT <span className="text-[#0057FF]">PRO</span>
+                                Azul <span className="text-[#0EA5E9]">PRO</span>
                             </span>
                         </div>
                         <p className="text-sm text-slate-500 font-medium">Sistema de Facturación Electrónica</p>
                     </div>
 
-                    <div className="bg-white rounded-3xl border border-slate-200 shadow-xl shadow-slate-200/50 overflow-hidden">
+                    <div className="bg-white rounded-3xl border border-slate-200 shadow-xl shadow-sky-100/50 overflow-hidden">
                         <div className="pt-10 pb-6 px-8 text-center">
                             <h2 className="text-2xl font-extrabold text-slate-900">Iniciar Sesión</h2>
                             <p className="text-sm text-slate-500 mt-2 font-medium">
@@ -286,7 +286,7 @@ const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
                                             required
                                             value={email}
                                             onChange={(e) => setEmail(e.target.value)}
-                                            className="block w-full pl-10 pr-3 py-3 border border-slate-300 rounded-xl bg-slate-50 text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#0057FF] focus:border-[#0057FF] text-sm font-medium transition duration-150"
+                                            className="block w-full pl-10 pr-3 py-3 border border-slate-300 rounded-xl bg-slate-50 text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#0EA5E9] focus:border-[#0EA5E9] text-sm font-medium transition duration-150"
                                             placeholder="usuario@empresa.com"
                                         />
                                     </div>
@@ -297,7 +297,7 @@ const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
                                         <label className="block text-sm font-bold text-slate-700" htmlFor="password">
                                             Contraseña
                                         </label>
-                                        <button type="button" onClick={() => setView('forgot')} className="text-xs font-bold text-[#0057FF] hover:text-[#003ACC] hover:underline">
+                                        <button type="button" onClick={() => setView('forgot')} className="text-xs font-bold text-[#0EA5E9] hover:text-[#0369A1] hover:underline">
                                             Olvidaste tu contraseña?
                                         </button>
                                     </div>
@@ -313,7 +313,7 @@ const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
                                             required
                                             value={password}
                                             onChange={(e) => setPassword(e.target.value)}
-                                            className="block w-full pl-10 pr-10 py-3 border border-slate-300 rounded-xl bg-slate-50 text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#0057FF] focus:border-[#0057FF] text-sm font-medium transition duration-150"
+                                            className="block w-full pl-10 pr-10 py-3 border border-slate-300 rounded-xl bg-slate-50 text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#0EA5E9] focus:border-[#0EA5E9] text-sm font-medium transition duration-150"
                                             placeholder="••••••••"
                                         />
                                         <button
@@ -341,7 +341,7 @@ const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
                                     <button
                                         type="submit"
                                         disabled={loading}
-                                        className={`w-full flex justify-center items-center py-3.5 px-4 border border-transparent rounded-xl shadow-lg text-sm font-bold text-white bg-[#0057FF] hover:bg-[#003ACC] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#0057FF] transition-all duration-200 hover:-translate-y-0.5 disabled:opacity-70 disabled:cursor-not-allowed shadow-[#0057FF]/25`}
+                                        className={`w-full flex justify-center items-center py-3.5 px-4 border border-transparent rounded-xl shadow-lg text-sm font-bold text-white bg-[#0EA5E9] hover:bg-[#0369A1] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#0EA5E9] transition-all duration-200 hover:-translate-y-0.5 disabled:opacity-70 disabled:cursor-not-allowed shadow-[#0EA5E9]/25`}
                                     >
                                         {loading ? (
                                             <>
@@ -356,7 +356,7 @@ const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
                                         )}
                                     </button>
                                     <div className="mt-4 text-center">
-                                        <a href="/portal/login" className="text-sm text-slate-500 hover:text-[#0057FF] transition-colors font-semibold">
+                                        <a href="/portal/login" className="text-sm text-slate-500 hover:text-[#0EA5E9] transition-colors font-semibold">
                                             Eres cliente? <span className="underline">Ingresa al Portal aquí</span>
                                         </a>
                                     </div>
@@ -373,16 +373,16 @@ const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
                             </div>
 
                             <div className="mt-6 flex justify-center gap-6 text-xs text-slate-400">
-                                <span className="hover:text-[#0057FF] transition-colors cursor-pointer font-semibold">Soporte</span>
-                                <span className="hover:text-[#0057FF] transition-colors cursor-pointer font-semibold">Privacidad</span>
-                                <span className="hover:text-[#0057FF] transition-colors cursor-pointer font-semibold">Términos</span>
+                                <span className="hover:text-[#0EA5E9] transition-colors cursor-pointer font-semibold">Soporte</span>
+                                <span className="hover:text-[#0EA5E9] transition-colors cursor-pointer font-semibold">Privacidad</span>
+                                <span className="hover:text-[#0EA5E9] transition-colors cursor-pointer font-semibold">Términos</span>
                             </div>
                         </div>
-                        <div className="h-1.5 w-full bg-gradient-to-r from-[#003ACC] to-[#0057FF]"></div>
+                        <div className="h-1.5 w-full bg-gradient-to-r from-[#0369A1] to-[#0EA5E9]"></div>
                     </div>
 
                     <p className="mt-8 text-center text-xs text-slate-400 font-medium">
-                        &copy; {new Date().getFullYear()} Corporación EcuaFact. Todos los derechos reservados.
+                        &copy; {new Date().getFullYear()} Azul. Todos los derechos reservados.
                     </p>
                 </div>
             </div>

@@ -1,4 +1,4 @@
-import React, { useRef, useEffect, useCallback } from 'react';
+﻿import React, { useRef, useEffect, useCallback } from 'react';
 
 interface RichTextEditorProps {
   value: string;
@@ -59,7 +59,7 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({ value, onChange, placeh
         onInput={handleInput}
         onBlur={handleInput}
         data-placeholder={placeholder || ''}
-        className="p-3 min-h-[200px] text-sm text-slate-700 outline-none focus:ring-2 focus:ring-[#0057FF] focus:ring-inset rounded-b-xl empty:before:content-[attr(data-placeholder)] empty:before:text-slate-400 prose prose-sm max-w-none"
+        className="p-3 min-h-[200px] text-sm text-slate-700 outline-none focus:ring-2 focus:ring-[#0EA5E9] focus:ring-inset rounded-b-xl empty:before:content-[attr(data-placeholder)] empty:before:text-slate-400 prose prose-sm max-w-none"
         style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}
       />
     </div>

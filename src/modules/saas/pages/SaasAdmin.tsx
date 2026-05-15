@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+﻿import React, { useState, useEffect, useMemo } from 'react';
 import { ShieldCheckIcon, BuildingOffice2Icon, UserPlusIcon, CheckCircleIcon, CheckBadgeIcon, UsersIcon, MagnifyingGlassIcon, EyeIcon, XMarkIcon, Cog6ToothIcon, ArrowPathIcon, PauseIcon, PlayIcon, TrashIcon, UserIcon, PencilIcon, PlusIcon, EyeSlashIcon, UserMinusIcon } from '@heroicons/react/24/outline';
 import { BUSINESS_TYPES, BusinessType } from '../../../types/types';
 
@@ -786,8 +786,8 @@ const SaasAdmin: React.FC<SaasAdminProps> = ({ onNotify }) => {
           <div className="max-w-7xl mx-auto">
             <div className="flex items-center justify-between whitespace-nowrap mb-3">
               <div className="flex items-center gap-6">
-                <div className="flex items-center gap-2 text-indigo-700">
-                  <div className="size-8 flex items-center justify-center bg-indigo-700 rounded-lg text-white">
+                <div className="flex items-center gap-2 text-sky-500">
+                  <div className="size-8 flex items-center justify-center bg-sky-500 rounded-lg text-white">
                     <ShieldCheckIcon className="w-5 h-5" />
                   </div>
                   <h2 className="text-[#0d121b] dark:text-white text-base md:text-lg font-bold leading-tight">Panel SaaS</h2>
@@ -795,25 +795,25 @@ const SaasAdmin: React.FC<SaasAdminProps> = ({ onNotify }) => {
                 {/* Tabs */}
                 <div className="hidden md:flex gap-1">
                   <button 
-                    className={`px-3 py-1 text-sm font-medium transition-colors rounded-lg ${activeTab === 'businesses' ? 'bg-indigo-50 dark:bg-indigo-500/20 text-indigo-700 dark:text-indigo-300' : 'text-[#4c669a] dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'}`}
+                    className={`px-3 py-1 text-sm font-medium transition-colors rounded-lg ${activeTab === 'businesses' ? 'bg-sky-50 dark:bg-sky-500/20 text-sky-500 dark:text-sky-300' : 'text-[#4c669a] dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'}`}
                     onClick={() => setActiveTab('businesses')}
                   >
                     Empresas
                   </button>
                   <button 
-                    className={`px-3 py-1 text-sm font-medium transition-colors rounded-lg ${activeTab === 'superadmins' ? 'bg-indigo-50 dark:bg-indigo-500/20 text-indigo-700 dark:text-indigo-300' : 'text-[#4c669a] dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'}`}
+                    className={`px-3 py-1 text-sm font-medium transition-colors rounded-lg ${activeTab === 'superadmins' ? 'bg-sky-50 dark:bg-sky-500/20 text-sky-500 dark:text-sky-300' : 'text-[#4c669a] dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'}`}
                     onClick={() => setActiveTab('superadmins')}
                   >
                     Superadmins
                   </button>
                   <button 
-                    className={`px-3 py-1 text-sm font-medium transition-colors rounded-lg ${activeTab === 'users' ? 'bg-indigo-50 dark:bg-indigo-500/20 text-indigo-700 dark:text-indigo-300' : 'text-[#4c669a] dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'}`}
+                    className={`px-3 py-1 text-sm font-medium transition-colors rounded-lg ${activeTab === 'users' ? 'bg-sky-50 dark:bg-sky-500/20 text-sky-500 dark:text-sky-300' : 'text-[#4c669a] dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'}`}
                     onClick={() => setActiveTab('users')}
                   >
                     Usuarios
                   </button>
                   <button 
-                    className={`px-3 py-1 text-sm font-medium transition-colors rounded-lg ${activeTab === 'subscription-payments' ? 'bg-indigo-50 dark:bg-indigo-500/20 text-indigo-700 dark:text-indigo-300' : 'text-[#4c669a] dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'}`}
+                    className={`px-3 py-1 text-sm font-medium transition-colors rounded-lg ${activeTab === 'subscription-payments' ? 'bg-sky-50 dark:bg-sky-500/20 text-sky-500 dark:text-sky-300' : 'text-[#4c669a] dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'}`}
                     onClick={() => setActiveTab('subscription-payments')}
                   >
                     Pagos
@@ -830,7 +830,7 @@ const SaasAdmin: React.FC<SaasAdminProps> = ({ onNotify }) => {
                     )}
                   </button>
                   <button 
-                    className={`px-3 py-1 text-sm font-medium transition-colors rounded-lg ${activeTab === 'config' ? 'bg-indigo-50 dark:bg-indigo-500/20 text-indigo-700 dark:text-indigo-300' : 'text-[#4c669a] dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'}`}
+                    className={`px-3 py-1 text-sm font-medium transition-colors rounded-lg ${activeTab === 'config' ? 'bg-sky-50 dark:bg-sky-500/20 text-sky-500 dark:text-sky-300' : 'text-[#4c669a] dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'}`}
                     onClick={() => setActiveTab('config')}
                   >
                     Métodos de Pago
@@ -840,7 +840,7 @@ const SaasAdmin: React.FC<SaasAdminProps> = ({ onNotify }) => {
               <div className="flex items-center gap-2">
                 <button 
                   onClick={() => setShowBusinessModal(true)}
-                  className="flex items-center gap-1 md:gap-2 px-2 md:px-4 py-2 bg-[#135bec] text-white text-xs md:text-sm font-medium rounded-lg hover:opacity-90 transition-opacity"
+                  className="flex items-center gap-1 md:gap-2 px-2 md:px-4 py-2 bg-[#0ea5e9] text-white text-xs md:text-sm font-medium rounded-lg hover:opacity-90 transition-opacity"
                 >
                   <BuildingOffice2Icon className="w-[18px] h-[18px] md:w-5 md:h-5" />
                   <span className="hidden sm:inline">Nueva Empresa</span>
@@ -857,25 +857,25 @@ const SaasAdmin: React.FC<SaasAdminProps> = ({ onNotify }) => {
             {/* Mobile Tabs */}
             <div className="flex md:hidden gap-2 overflow-x-auto -mx-4 px-4 pb-2" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
               <button 
-                className={`flex-shrink-0 px-3 py-1 text-sm font-medium transition-colors rounded-lg whitespace-nowrap ${activeTab === 'businesses' ? 'bg-[#135bec]/10 text-[#135bec]' : 'text-[#4c669a] dark:text-slate-400'}`}
+                className={`flex-shrink-0 px-3 py-1 text-sm font-medium transition-colors rounded-lg whitespace-nowrap ${activeTab === 'businesses' ? 'bg-[#0ea5e9]/10 text-[#0ea5e9]' : 'text-[#4c669a] dark:text-slate-400'}`}
                 onClick={() => setActiveTab('businesses')}
               >
                 Empresas
               </button>
               <button 
-                className={`flex-shrink-0 px-3 py-1 text-sm font-medium transition-colors rounded-lg whitespace-nowrap ${activeTab === 'superadmins' ? 'bg-[#135bec]/10 text-[#135bec]' : 'text-[#4c669a] dark:text-slate-400'}`}
+                className={`flex-shrink-0 px-3 py-1 text-sm font-medium transition-colors rounded-lg whitespace-nowrap ${activeTab === 'superadmins' ? 'bg-[#0ea5e9]/10 text-[#0ea5e9]' : 'text-[#4c669a] dark:text-slate-400'}`}
                 onClick={() => setActiveTab('superadmins')}
               >
                 Superadmins
               </button>
               <button 
-                className={`flex-shrink-0 px-3 py-1 text-sm font-medium transition-colors rounded-lg whitespace-nowrap ${activeTab === 'users' ? 'bg-[#135bec]/10 text-[#135bec]' : 'text-[#4c669a] dark:text-slate-400'}`}
+                className={`flex-shrink-0 px-3 py-1 text-sm font-medium transition-colors rounded-lg whitespace-nowrap ${activeTab === 'users' ? 'bg-[#0ea5e9]/10 text-[#0ea5e9]' : 'text-[#4c669a] dark:text-slate-400'}`}
                 onClick={() => setActiveTab('users')}
               >
                 Usuarios
               </button>
               <button 
-                className={`flex-shrink-0 px-3 py-1 text-sm font-medium transition-colors rounded-lg whitespace-nowrap ${activeTab === 'subscription-payments' ? 'bg-[#135bec]/10 text-[#135bec]' : 'text-[#4c669a] dark:text-slate-400'}`}
+                className={`flex-shrink-0 px-3 py-1 text-sm font-medium transition-colors rounded-lg whitespace-nowrap ${activeTab === 'subscription-payments' ? 'bg-[#0ea5e9]/10 text-[#0ea5e9]' : 'text-[#4c669a] dark:text-slate-400'}`}
                 onClick={() => setActiveTab('subscription-payments')}
               >
                 Pagos
@@ -892,7 +892,7 @@ const SaasAdmin: React.FC<SaasAdminProps> = ({ onNotify }) => {
                 )}
               </button>
               <button 
-                className={`flex-shrink-0 px-3 py-1 text-sm font-medium transition-colors rounded-lg whitespace-nowrap ${activeTab === 'config' ? 'bg-[#135bec]/10 text-[#135bec]' : 'text-[#4c669a] dark:text-slate-400'}`}
+                className={`flex-shrink-0 px-3 py-1 text-sm font-medium transition-colors rounded-lg whitespace-nowrap ${activeTab === 'config' ? 'bg-[#0ea5e9]/10 text-[#0ea5e9]' : 'text-[#4c669a] dark:text-slate-400'}`}
                 onClick={() => setActiveTab('config')}
               >
                 Métodos de Pago
@@ -908,7 +908,7 @@ const SaasAdmin: React.FC<SaasAdminProps> = ({ onNotify }) => {
             <div className="flex flex-col gap-2 rounded-xl p-4 md:p-6 bg-white dark:bg-slate-900 border border-[#cfd7e7] dark:border-slate-800 shadow-sm">
               <div className="flex items-center justify-between">
                 <p className="text-[#4c669a] dark:text-slate-400 text-xs md:text-sm font-medium">Total Empresas</p>
-                <BuildingOffice2Icon className="w-[18px] h-[18px] md:w-5 md:h-5 text-[#135bec] bg-[#135bec]/10 p-1.5 md:p-2 rounded-lg" />
+                <BuildingOffice2Icon className="w-[18px] h-[18px] md:w-5 md:h-5 text-[#0ea5e9] bg-[#0ea5e9]/10 p-1.5 md:p-2 rounded-lg" />
               </div>
               <p className="text-[#0d121b] dark:text-white text-2xl md:text-3xl font-bold">{businesses.length}</p>
               <p className="text-[#07883b] text-xs md:text-sm font-medium flex items-center gap-1">
@@ -930,7 +930,7 @@ const SaasAdmin: React.FC<SaasAdminProps> = ({ onNotify }) => {
             <div className="flex flex-col gap-2 rounded-xl p-4 md:p-6 bg-white dark:bg-slate-900 border border-[#cfd7e7] dark:border-slate-800 shadow-sm sm:col-span-2 lg:col-span-1">
               <div className="flex items-center justify-between">
                 <p className="text-[#4c669a] dark:text-slate-400 text-xs md:text-sm font-medium">Usuarios Totales</p>
-                <UsersIcon className="w-[18px] h-[18px] md:w-5 md:h-5 text-[#135bec] bg-[#135bec]/10 p-1.5 md:p-2 rounded-lg" />
+                <UsersIcon className="w-[18px] h-[18px] md:w-5 md:h-5 text-[#0ea5e9] bg-[#0ea5e9]/10 p-1.5 md:p-2 rounded-lg" />
               </div>
               <p className="text-[#0d121b] dark:text-white text-2xl md:text-3xl font-bold">{users.length}</p>
               <p className="text-[#4c669a] dark:text-slate-400 text-xs md:text-sm font-medium">Registrados</p>
@@ -947,7 +947,7 @@ const SaasAdmin: React.FC<SaasAdminProps> = ({ onNotify }) => {
                   <input 
                     type="text" 
                     placeholder="Buscar..." 
-                    className="w-full sm:w-64 pl-9 pr-3 py-2 bg-white dark:bg-slate-900 border border-[#cfd7e7] dark:border-slate-700 rounded-lg text-sm focus:outline-none focus:border-[#135bec]"
+                    className="w-full sm:w-64 pl-9 pr-3 py-2 bg-white dark:bg-slate-900 border border-[#cfd7e7] dark:border-slate-700 rounded-lg text-sm focus:outline-none focus:border-[#0ea5e9]"
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                   />
@@ -977,11 +977,11 @@ const SaasAdmin: React.FC<SaasAdminProps> = ({ onNotify }) => {
                         filteredBusinesses.map(b => (
                           <tr 
                             key={b.id} 
-                            className="hover:bg-[#135bec]/5 transition-colors"
+                            className="hover:bg-[#0ea5e9]/5 transition-colors"
                           >
                             <td className="px-4 py-3">
                               <div className="flex items-center gap-3">
-                                <div className="h-8 w-8 rounded-lg bg-[#135bec]/10 flex items-center justify-center text-[#135bec]">
+                                <div className="h-8 w-8 rounded-lg bg-[#0ea5e9]/10 flex items-center justify-center text-[#0ea5e9]">
                                   <BuildingOffice2Icon className="w-[18px] h-[18px]" />
                                 </div>
                                 <div>
@@ -1007,7 +1007,7 @@ const SaasAdmin: React.FC<SaasAdminProps> = ({ onNotify }) => {
                             <td className="px-4 py-3 text-right">
                               <button 
                                 onClick={() => setSelectedBusiness(b)}
-                                className="p-1.5 rounded-lg bg-[#135bec]/10 text-[#135bec] hover:bg-[#135bec] hover:text-white transition-all" 
+                                className="p-1.5 rounded-lg bg-[#0ea5e9]/10 text-[#0ea5e9] hover:bg-[#0ea5e9] hover:text-white transition-all" 
                                 title="Ver detalles"
                               >
                                 <EyeIcon className="w-[18px] h-[18px]" />
@@ -1031,7 +1031,7 @@ const SaasAdmin: React.FC<SaasAdminProps> = ({ onNotify }) => {
                       <div key={b.id} className="p-3 flex flex-col gap-2">
                         <div className="flex justify-between items-start">
                           <div className="flex items-center gap-3">
-                            <div className="h-8 w-8 rounded-lg bg-[#135bec]/10 flex items-center justify-center text-[#135bec]">
+                            <div className="h-8 w-8 rounded-lg bg-[#0ea5e9]/10 flex items-center justify-center text-[#0ea5e9]">
                               <BuildingOffice2Icon className="w-[18px] h-[18px]" />
                             </div>
                             <div>
@@ -1048,7 +1048,7 @@ const SaasAdmin: React.FC<SaasAdminProps> = ({ onNotify }) => {
                           <span className="text-xs text-[#4c669a] dark:text-slate-400">
                             {b.plan || 'Básico'} • {b.subscriptionEnd ? new Date(b.subscriptionEnd).toLocaleDateString() : 'Sin fecha'}
                           </span>
-                          <button onClick={() => setSelectedBusiness(b)} className="p-1 rounded bg-[#135bec]/10 text-[#135bec]">
+                          <button onClick={() => setSelectedBusiness(b)} className="p-1 rounded bg-[#0ea5e9]/10 text-[#0ea5e9]">
                             <EyeIcon className="w-4 h-4" />
                           </button>
                         </div>
@@ -1120,10 +1120,10 @@ const SaasAdmin: React.FC<SaasAdminProps> = ({ onNotify }) => {
                           const daysBg = isExpired ? 'bg-red-100 text-red-700' : isUrgent ? 'bg-amber-100 text-amber-700' : 'bg-yellow-100 text-yellow-700';
                           const dateColor = isExpired ? 'text-red-600 font-bold' : isUrgent ? 'text-amber-600 font-bold' : '';
                           return (
-                            <tr key={b.id} className={`hover:bg-[#135bec]/5 transition-colors ${isExpired ? 'bg-red-50/30 dark:bg-red-500/5' : isUrgent ? 'bg-amber-50/30 dark:bg-amber-500/5' : ''}`}>
+                            <tr key={b.id} className={`hover:bg-[#0ea5e9]/5 transition-colors ${isExpired ? 'bg-red-50/30 dark:bg-red-500/5' : isUrgent ? 'bg-amber-50/30 dark:bg-amber-500/5' : ''}`}>
                               <td className="px-4 py-3">
                                 <div className="flex items-center gap-3">
-                                  <div className="h-8 w-8 rounded-lg bg-[#135bec]/10 flex items-center justify-center text-[#135bec]">
+                                  <div className="h-8 w-8 rounded-lg bg-[#0ea5e9]/10 flex items-center justify-center text-[#0ea5e9]">
                                     <BuildingOffice2Icon className="w-[18px] h-[18px]" />
                                   </div>
                                   <div>
@@ -1149,7 +1149,7 @@ const SaasAdmin: React.FC<SaasAdminProps> = ({ onNotify }) => {
                               <td className="px-4 py-3 text-right">
                                 <button
                                   onClick={() => setSelectedBusiness(b)}
-                                  className="p-1.5 rounded-lg bg-[#135bec]/10 text-[#135bec] hover:bg-[#135bec] hover:text-white transition-all"
+                                  className="p-1.5 rounded-lg bg-[#0ea5e9]/10 text-[#0ea5e9] hover:bg-[#0ea5e9] hover:text-white transition-all"
                                   title="Ver detalles"
                                 >
                                   <EyeIcon className="w-[18px] h-[18px]" />
@@ -1229,7 +1229,7 @@ const SaasAdmin: React.FC<SaasAdminProps> = ({ onNotify }) => {
                           users
                             .filter(u => u.role === 'SUPERADMIN')
                             .map(user => (
-                              <tr key={user.id} className={`hover:bg-[#135bec]/5 transition-colors ${selectedUser?.id === user.id ? 'bg-[#135bec]/10' : ''}`}>
+                              <tr key={user.id} className={`hover:bg-[#0ea5e9]/5 transition-colors ${selectedUser?.id === user.id ? 'bg-[#0ea5e9]/10' : ''}`}>
                                 <td className="px-4 py-3">
                                   <div className="flex items-center gap-3">
                                     <div className="h-8 w-8 rounded-full bg-red-100 flex items-center justify-center text-red-600 font-bold text-sm">
@@ -1247,7 +1247,7 @@ const SaasAdmin: React.FC<SaasAdminProps> = ({ onNotify }) => {
                                 <td className="px-4 py-3 text-right">
                                   <button 
                                     onClick={() => setSelectedUser(user)}
-                                    className="p-1.5 rounded-lg bg-[#135bec]/10 text-[#135bec] hover:bg-[#135bec] hover:text-white transition-all"
+                                    className="p-1.5 rounded-lg bg-[#0ea5e9]/10 text-[#0ea5e9] hover:bg-[#0ea5e9] hover:text-white transition-all"
                                   >
                                     <EyeIcon className="w-[18px] h-[18px]" />
                                   </button>
@@ -1264,7 +1264,7 @@ const SaasAdmin: React.FC<SaasAdminProps> = ({ onNotify }) => {
                     {users
                       .filter(u => u.role === 'SUPERADMIN')
                       .map(user => (
-                        <div key={user.id} className={`p-3 flex flex-col gap-2 ${selectedUser?.id === user.id ? 'bg-[#135bec]/10' : ''}`}>
+                        <div key={user.id} className={`p-3 flex flex-col gap-2 ${selectedUser?.id === user.id ? 'bg-[#0ea5e9]/10' : ''}`}>
                           <div className="flex justify-between items-start">
                             <div className="flex items-center gap-3">
                               <div className="h-8 w-8 rounded-full bg-red-100 flex items-center justify-center text-red-600">
@@ -1280,7 +1280,7 @@ const SaasAdmin: React.FC<SaasAdminProps> = ({ onNotify }) => {
                             </span>
                           </div>
                           <div className="flex justify-end">
-                            <button onClick={() => setSelectedUser(user)} className="p-1 rounded bg-[#135bec]/10 text-[#135bec]">
+                            <button onClick={() => setSelectedUser(user)} className="p-1 rounded bg-[#0ea5e9]/10 text-[#0ea5e9]">
                               <EyeIcon className="w-4 h-4" />
                             </button>
                           </div>
@@ -1295,7 +1295,7 @@ const SaasAdmin: React.FC<SaasAdminProps> = ({ onNotify }) => {
                 <div className="mt-6">
                   <div className="flex items-center justify-between mb-4">
                     <h2 className="text-[#0d121b] dark:text-white text-lg md:text-xl font-bold">Detalles del Superadmin</h2>
-                    <button onClick={() => setSelectedUser(null)} className="text-[#4c669a] hover:text-[#135bec]">
+                    <button onClick={() => setSelectedUser(null)} className="text-[#4c669a] hover:text-[#0ea5e9]">
                       <XMarkIcon className="w-5 h-5" />
                     </button>
                   </div>
@@ -1328,13 +1328,13 @@ const SaasAdmin: React.FC<SaasAdminProps> = ({ onNotify }) => {
                     {/* Actions */}
                     <div className="bg-white dark:bg-slate-900 rounded-xl border border-[#cfd7e7] dark:border-slate-800 p-4 shadow-sm">
                       <h3 className="font-bold text-[#0d121b] dark:text-white mb-3 flex items-center gap-2">
-                        <Cog6ToothIcon className="w-5 h-5 text-[#135bec]" />
+                        <Cog6ToothIcon className="w-5 h-5 text-[#0ea5e9]" />
                         Acciones
                       </h3>
                       <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
                         <button
                           onClick={() => { setSelectedUserToReset(selectedUser); setTempPassword(''); setShowResetUserModal(true); }}
-                          className="flex items-center justify-center gap-2 py-2 px-3 bg-slate-100 dark:bg-slate-800 text-[#0d121b] dark:text-white rounded-lg text-sm font-medium hover:bg-[#135bec] hover:text-white transition-all"
+                          className="flex items-center justify-center gap-2 py-2 px-3 bg-slate-100 dark:bg-slate-800 text-[#0d121b] dark:text-white rounded-lg text-sm font-medium hover:bg-[#0ea5e9] hover:text-white transition-all"
                         >
                           <ArrowPathIcon className="w-[18px] h-[18px]" />
                           Password
@@ -1387,10 +1387,10 @@ const SaasAdmin: React.FC<SaasAdminProps> = ({ onNotify }) => {
                           <tr><td colSpan={5} className="p-8 text-center text-slate-400">No se encontraron usuarios de empresas</td></tr>
                         ) : (
                           users.filter(u => u.role !== 'SUPERADMIN').map(user => (
-                            <tr key={user.id} className={`hover:bg-[#135bec]/5 transition-colors ${selectedUser?.id === user.id ? 'bg-[#135bec]/10' : ''}`}>
+                            <tr key={user.id} className={`hover:bg-[#0ea5e9]/5 transition-colors ${selectedUser?.id === user.id ? 'bg-[#0ea5e9]/10' : ''}`}>
                               <td className="px-4 py-3">
                                 <div className="flex items-center gap-3">
-                                  <div className="h-8 w-8 rounded-full bg-[#135bec]/10 flex items-center justify-center text-[#135bec] font-bold text-sm">
+                                  <div className="h-8 w-8 rounded-full bg-[#0ea5e9]/10 flex items-center justify-center text-[#0ea5e9] font-bold text-sm">
                                     {user.email.charAt(0).toUpperCase()}
                                   </div>
                                   <div>
@@ -1415,7 +1415,7 @@ const SaasAdmin: React.FC<SaasAdminProps> = ({ onNotify }) => {
                               <td className="px-4 py-3 text-right">
                                 <button 
                                   onClick={() => setSelectedUser(user)}
-                                  className="p-1.5 rounded-lg bg-[#135bec]/10 text-[#135bec] hover:bg-[#135bec] hover:text-white transition-all"
+                                  className="p-1.5 rounded-lg bg-[#0ea5e9]/10 text-[#0ea5e9] hover:bg-[#0ea5e9] hover:text-white transition-all"
                                 >
                                   <EyeIcon className="w-[18px] h-[18px]" />
                                 </button>
@@ -1435,10 +1435,10 @@ const SaasAdmin: React.FC<SaasAdminProps> = ({ onNotify }) => {
                       <div className="p-6 text-center text-slate-400">No se encontraron usuarios de empresas</div>
                     ) : (
                       users.filter(u => u.role !== 'SUPERADMIN').map(user => (
-                        <div key={user.id} className={`p-3 flex flex-col gap-2 ${selectedUser?.id === user.id ? 'bg-[#135bec]/10' : ''}`}>
+                        <div key={user.id} className={`p-3 flex flex-col gap-2 ${selectedUser?.id === user.id ? 'bg-[#0ea5e9]/10' : ''}`}>
                           <div className="flex justify-between items-start">
                             <div className="flex items-center gap-3">
-                              <div className="h-8 w-8 rounded-full bg-[#135bec]/10 flex items-center justify-center text-[#135bec] font-bold text-sm">
+                              <div className="h-8 w-8 rounded-full bg-[#0ea5e9]/10 flex items-center justify-center text-[#0ea5e9] font-bold text-sm">
                                 {user.email.charAt(0).toUpperCase()}
                               </div>
                               <div>
@@ -1452,7 +1452,7 @@ const SaasAdmin: React.FC<SaasAdminProps> = ({ onNotify }) => {
                           </div>
                           <div className="flex justify-between items-center">
                             <span className="text-xs text-[#4c669a] dark:text-slate-400">{user.role}</span>
-                            <button onClick={() => setSelectedUser(user)} className="p-1 rounded bg-[#135bec]/10 text-[#135bec]">
+                            <button onClick={() => setSelectedUser(user)} className="p-1 rounded bg-[#0ea5e9]/10 text-[#0ea5e9]">
                               <EyeIcon className="w-4 h-4" />
                             </button>
                           </div>
@@ -1468,7 +1468,7 @@ const SaasAdmin: React.FC<SaasAdminProps> = ({ onNotify }) => {
                 <div className="mt-6">
                   <div className="flex items-center justify-between mb-4">
                     <h2 className="text-[#0d121b] dark:text-white text-lg md:text-xl font-bold">Detalles del Usuario</h2>
-                    <button onClick={() => setSelectedUser(null)} className="text-[#4c669a] hover:text-[#135bec]">
+                    <button onClick={() => setSelectedUser(null)} className="text-[#4c669a] hover:text-[#0ea5e9]">
                       <XMarkIcon className="w-5 h-5" />
                     </button>
                   </div>
@@ -1477,7 +1477,7 @@ const SaasAdmin: React.FC<SaasAdminProps> = ({ onNotify }) => {
                     {/* User Info */}
                     <div className="bg-white dark:bg-slate-900 rounded-xl border border-[#cfd7e7] dark:border-slate-800 p-4 shadow-sm">
                       <h3 className="font-bold text-[#0d121b] dark:text-white mb-3 flex items-center gap-2">
-                        <UserIcon className="w-5 h-5 text-[#135bec]" />
+                        <UserIcon className="w-5 h-5 text-[#0ea5e9]" />
                         Información
                       </h3>
                       <div className="space-y-2 text-sm">
@@ -1509,7 +1509,7 @@ const SaasAdmin: React.FC<SaasAdminProps> = ({ onNotify }) => {
                     {/* Actions */}
                     <div className="bg-white dark:bg-slate-900 rounded-xl border border-[#cfd7e7] dark:border-slate-800 p-4 shadow-sm">
                       <h3 className="font-bold text-[#0d121b] dark:text-white mb-3 flex items-center gap-2">
-                        <Cog6ToothIcon className="w-5 h-5 text-[#135bec]" />
+                        <Cog6ToothIcon className="w-5 h-5 text-[#0ea5e9]" />
                         Acciones
                       </h3>
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
@@ -1522,7 +1522,7 @@ const SaasAdmin: React.FC<SaasAdminProps> = ({ onNotify }) => {
                         </button>
                         <button
                           onClick={() => { setSelectedUserToReset(selectedUser); setTempPassword(''); setShowResetUserModal(true); }}
-                          className="flex items-center justify-center gap-2 py-2 px-3 bg-slate-100 dark:bg-slate-800 text-[#0d121b] dark:text-white rounded-lg text-sm font-medium hover:bg-[#135bec] hover:text-white transition-all"
+                          className="flex items-center justify-center gap-2 py-2 px-3 bg-slate-100 dark:bg-slate-800 text-[#0d121b] dark:text-white rounded-lg text-sm font-medium hover:bg-[#0ea5e9] hover:text-white transition-all"
                         >
                           <ArrowPathIcon className="w-[18px] h-[18px]" />
                           Password
@@ -1691,7 +1691,7 @@ const SaasAdmin: React.FC<SaasAdminProps> = ({ onNotify }) => {
             <div className="mt-6">
               <div className="flex items-center justify-between mb-4">
                 <h2 className="text-[#0d121b] dark:text-white text-lg md:text-xl font-bold">Detalles de {selectedBusiness.name}</h2>
-                <button onClick={() => setSelectedBusiness(null)} className="text-[#4c669a] hover:text-[#135bec]">
+                <button onClick={() => setSelectedBusiness(null)} className="text-[#4c669a] hover:text-[#0ea5e9]">
                   <XMarkIcon className="w-5 h-5" />
                 </button>
               </div>
@@ -1700,7 +1700,7 @@ const SaasAdmin: React.FC<SaasAdminProps> = ({ onNotify }) => {
                 {/* Business Info */}
                 <div className="bg-white dark:bg-slate-900 rounded-xl border border-[#cfd7e7] dark:border-slate-800 p-4 shadow-sm">
                   <h3 className="font-bold text-[#0d121b] dark:text-white mb-3 flex items-center gap-2">
-                    <BuildingOffice2Icon className="w-5 h-5 text-[#135bec]" />
+                    <BuildingOffice2Icon className="w-5 h-5 text-[#0ea5e9]" />
                     Información
                   </h3>
                   <div className="space-y-2 text-sm">
@@ -1737,12 +1737,12 @@ const SaasAdmin: React.FC<SaasAdminProps> = ({ onNotify }) => {
                 <div className="bg-white dark:bg-slate-900 rounded-xl border border-[#cfd7e7] dark:border-slate-800 p-4 shadow-sm">
                   <div className="flex items-center justify-between mb-3">
                     <h3 className="font-bold text-[#0d121b] dark:text-white flex items-center gap-2">
-                      <UsersIcon className="w-5 h-5 text-[#135bec]" />
+                      <UsersIcon className="w-5 h-5 text-[#0ea5e9]" />
                       Usuarios ({businessUsers.length})
                     </h3>
                     <button
                       onClick={() => setShowNewUserModal(true)}
-                      className="text-xs flex items-center gap-1 px-2 py-1 bg-[#135bec] text-white rounded-lg"
+                      className="text-xs flex items-center gap-1 px-2 py-1 bg-[#0ea5e9] text-white rounded-lg"
                     >
                       <PlusIcon className="w-3.5 h-3.5" />
                       Agregar
@@ -1756,7 +1756,7 @@ const SaasAdmin: React.FC<SaasAdminProps> = ({ onNotify }) => {
                       {businessUsers.map(user => (
                         <div key={user.id} className="flex items-center justify-between p-2 bg-[#f8f9fc] dark:bg-slate-800/50 rounded-lg">
                           <div className="flex items-center gap-2">
-                            <div className="h-6 w-6 rounded-full bg-[#135bec]/10 flex items-center justify-center text-[#135bec] font-bold text-xs">
+                            <div className="h-6 w-6 rounded-full bg-[#0ea5e9]/10 flex items-center justify-center text-[#0ea5e9] font-bold text-xs">
                               {user.email.charAt(0).toUpperCase()}
                             </div>
                             <span className="text-xs font-medium text-[#0d121b] dark:text-white">{user.email}</span>
@@ -1773,7 +1773,7 @@ const SaasAdmin: React.FC<SaasAdminProps> = ({ onNotify }) => {
                 {/* Actions */}
                 <div className="bg-white dark:bg-slate-900 rounded-xl border border-[#cfd7e7] dark:border-slate-800 p-4 shadow-sm md:col-span-2">
                   <h3 className="font-bold text-[#0d121b] dark:text-white mb-3 flex items-center gap-2">
-                    <Cog6ToothIcon className="w-5 h-5 text-[#135bec]" />
+                    <Cog6ToothIcon className="w-5 h-5 text-[#0ea5e9]" />
                     Acciones
                   </h3>
                   <div className="grid grid-cols-1 sm:grid-cols-4 gap-2">
@@ -1798,7 +1798,7 @@ const SaasAdmin: React.FC<SaasAdminProps> = ({ onNotify }) => {
                     </button>
                     <button
                       onClick={() => handleResetAdminPassword()}
-                      className="flex items-center justify-center gap-2 py-2 px-3 bg-[#135bec]/10 text-[#135bec] rounded-lg text-sm font-medium hover:bg-[#135bec] hover:text-white transition-all"
+                      className="flex items-center justify-center gap-2 py-2 px-3 bg-[#0ea5e9]/10 text-[#0ea5e9] rounded-lg text-sm font-medium hover:bg-[#0ea5e9] hover:text-white transition-all"
                     >
                       <ArrowPathIcon className="w-[18px] h-[18px]" />
                       Resetear Password
@@ -1833,8 +1833,8 @@ const SaasAdmin: React.FC<SaasAdminProps> = ({ onNotify }) => {
           <div className="border-t border-[#cfd7e7] dark:border-slate-800 pt-4 flex flex-col sm:flex-row justify-between items-center gap-2">
             <p className="text-xs text-[#4c669a] dark:text-slate-500">© 2024 Panel SaaS Admin</p>
             <div className="flex gap-4">
-              <a className="text-xs text-[#4c669a] dark:text-slate-500 hover:text-[#135bec]" href="#">Términos</a>
-              <a className="text-xs text-[#4c669a] dark:text-slate-500 hover:text-[#135bec]" href="#">Privacidad</a>
+              <a className="text-xs text-[#4c669a] dark:text-slate-500 hover:text-[#0ea5e9]" href="#">Términos</a>
+              <a className="text-xs text-[#4c669a] dark:text-slate-500 hover:text-[#0ea5e9]" href="#">Privacidad</a>
             </div>
           </div>
         </footer>
@@ -1850,7 +1850,7 @@ const SaasAdmin: React.FC<SaasAdminProps> = ({ onNotify }) => {
                           <input 
                               type="email" 
                               required
-                              className="mt-1 w-full p-2.5 border border-[#cfd7e7] dark:border-slate-700 dark:bg-slate-800 dark:text-white rounded-lg text-sm focus:border-[#135bec] outline-none"
+                              className="mt-1 w-full p-2.5 border border-[#cfd7e7] dark:border-slate-700 dark:bg-slate-800 dark:text-white rounded-lg text-sm focus:border-[#0ea5e9] outline-none"
                               value={userFormData.email}
                               onChange={e => setUserFormData({...userFormData, email: e.target.value})}
                           />
@@ -1860,7 +1860,7 @@ const SaasAdmin: React.FC<SaasAdminProps> = ({ onNotify }) => {
                           <input 
                               type={showPassword ? "text" : "password"}
                               required
-                              className="mt-1 w-full p-2.5 border border-[#cfd7e7] dark:border-slate-700 dark:bg-slate-800 dark:text-white rounded-lg text-sm focus:border-[#135bec] outline-none"
+                              className="mt-1 w-full p-2.5 border border-[#cfd7e7] dark:border-slate-700 dark:bg-slate-800 dark:text-white rounded-lg text-sm focus:border-[#0ea5e9] outline-none"
                               value={userFormData.password}
                               onChange={e => setUserFormData({...userFormData, password: e.target.value})}
                           />
@@ -1873,7 +1873,7 @@ const SaasAdmin: React.FC<SaasAdminProps> = ({ onNotify }) => {
                           <input 
                               type={showPassword ? "text" : "password"}
                               required
-                              className="mt-1 w-full p-2.5 pr-10 border border-[#cfd7e7] dark:border-slate-700 dark:bg-slate-800 dark:text-white rounded-lg text-sm focus:border-[#135bec] outline-none"
+                              className="mt-1 w-full p-2.5 pr-10 border border-[#cfd7e7] dark:border-slate-700 dark:bg-slate-800 dark:text-white rounded-lg text-sm focus:border-[#0ea5e9] outline-none"
                               value={userFormData.confirmPassword}
                               onChange={e => setUserFormData({...userFormData, confirmPassword: e.target.value})}
                           />
@@ -1883,7 +1883,7 @@ const SaasAdmin: React.FC<SaasAdminProps> = ({ onNotify }) => {
                       </div>
                       <div className="flex gap-2 pt-2">
                           <button type="button" onClick={() => setShowUserModal(false)} className="flex-1 py-2.5 rounded-lg text-sm font-medium text-[#4c669a] hover:bg-slate-100 dark:hover:bg-slate-800">Cancelar</button>
-                          <button type="submit" className="flex-1 py-2.5 bg-[#135bec] text-white rounded-lg text-sm font-medium hover:opacity-90">Crear</button>
+                          <button type="submit" className="flex-1 py-2.5 bg-[#0ea5e9] text-white rounded-lg text-sm font-medium hover:opacity-90">Crear</button>
                       </div>
                   </form>
               </div>
@@ -1898,24 +1898,24 @@ const SaasAdmin: React.FC<SaasAdminProps> = ({ onNotify }) => {
                   <form onSubmit={handleCreateBusiness} className="space-y-3">
                       <div>
                           <label className="text-xs font-semibold text-[#4c669a] dark:text-slate-400">Razón Social</label>
-                          <input required className="mt-1 w-full p-2.5 border border-[#cfd7e7] dark:border-slate-700 dark:bg-slate-800 dark:text-white rounded-lg text-sm focus:border-[#135bec] outline-none"
+                          <input required className="mt-1 w-full p-2.5 border border-[#cfd7e7] dark:border-slate-700 dark:bg-slate-800 dark:text-white rounded-lg text-sm focus:border-[#0ea5e9] outline-none"
                               value={businessFormData.name} onChange={e => setBusinessFormData({...businessFormData, name: e.target.value})} />
                       </div>
                       <div className="grid grid-cols-2 gap-3">
                         <div>
                             <label className="text-xs font-semibold text-[#4c669a] dark:text-slate-400">RUC</label>
-                            <input required className="mt-1 w-full p-2.5 border border-[#cfd7e7] dark:border-slate-700 dark:bg-slate-800 dark:text-white rounded-lg text-sm focus:border-[#135bec] outline-none"
+                            <input required className="mt-1 w-full p-2.5 border border-[#cfd7e7] dark:border-slate-700 dark:bg-slate-800 dark:text-white rounded-lg text-sm focus:border-[#0ea5e9] outline-none"
                                 value={businessFormData.ruc} onChange={e => setBusinessFormData({...businessFormData, ruc: e.target.value})} />
                         </div>
                         <div>
                             <label className="text-xs font-semibold text-[#4c669a] dark:text-slate-400">Email</label>
-                            <input type="email" required className="mt-1 w-full p-2.5 border border-[#cfd7e7] dark:border-slate-700 dark:bg-slate-800 dark:text-white rounded-lg text-sm focus:border-[#135bec] outline-none"
+                            <input type="email" required className="mt-1 w-full p-2.5 border border-[#cfd7e7] dark:border-slate-700 dark:bg-slate-800 dark:text-white rounded-lg text-sm focus:border-[#0ea5e9] outline-none"
                                 value={businessFormData.email} onChange={e => setBusinessFormData({...businessFormData, email: e.target.value})} />
                         </div>
                       </div>
                       <div className="relative">
                           <label className="text-xs font-semibold text-[#4c669a] dark:text-slate-400">Password Admin</label>
-                          <input type={showPassword ? "text" : "password"} required className="mt-1 w-full p-2.5 pr-10 border border-[#cfd7e7] dark:border-slate-700 dark:bg-slate-800 dark:text-white rounded-lg text-sm focus:border-[#135bec] outline-none"
+                          <input type={showPassword ? "text" : "password"} required className="mt-1 w-full p-2.5 pr-10 border border-[#cfd7e7] dark:border-slate-700 dark:bg-slate-800 dark:text-white rounded-lg text-sm focus:border-[#0ea5e9] outline-none"
                               value={businessFormData.password} onChange={e => setBusinessFormData({...businessFormData, password: e.target.value})} />
                           <button type="button" className="absolute right-2 top-8 text-slate-400 hover:text-slate-600" onClick={() => setShowPassword(!showPassword)}>
                               {showPassword ? <EyeSlashIcon className="w-[18px] h-[18px]" /> : <EyeIcon className="w-[18px] h-[18px]" />}
@@ -1924,18 +1924,18 @@ const SaasAdmin: React.FC<SaasAdminProps> = ({ onNotify }) => {
                       <div className="grid grid-cols-2 gap-3">
                         <div>
                             <label className="text-xs font-semibold text-[#4c669a] dark:text-slate-400">Teléfono</label>
-                            <input className="mt-1 w-full p-2.5 border border-[#cfd7e7] dark:border-slate-700 dark:bg-slate-800 dark:text-white rounded-lg text-sm focus:border-[#135bec] outline-none"
+                            <input className="mt-1 w-full p-2.5 border border-[#cfd7e7] dark:border-slate-700 dark:bg-slate-800 dark:text-white rounded-lg text-sm focus:border-[#0ea5e9] outline-none"
                                 value={businessFormData.phone} onChange={e => setBusinessFormData({...businessFormData, phone: e.target.value})} />
                         </div>
                         <div>
                             <label className="text-xs font-semibold text-[#4c669a] dark:text-slate-400">Dirección</label>
-                            <input className="mt-1 w-full p-2.5 border border-[#cfd7e7] dark:border-slate-700 dark:bg-slate-800 dark:text-white rounded-lg text-sm focus:border-[#135bec] outline-none"
+                            <input className="mt-1 w-full p-2.5 border border-[#cfd7e7] dark:border-slate-700 dark:bg-slate-800 dark:text-white rounded-lg text-sm focus:border-[#0ea5e9] outline-none"
                                 value={businessFormData.address} onChange={e => setBusinessFormData({...businessFormData, address: e.target.value})} />
                         </div>
                       </div>
                       <div>
                           <label className="text-xs font-semibold text-[#4c669a] dark:text-slate-400">Tipo de Negocio</label>
-                          <select className="mt-1 w-full p-2.5 border border-[#cfd7e7] dark:border-slate-700 dark:bg-slate-800 dark:text-white rounded-lg text-sm focus:border-[#135bec] outline-none"
+                          <select className="mt-1 w-full p-2.5 border border-[#cfd7e7] dark:border-slate-700 dark:bg-slate-800 dark:text-white rounded-lg text-sm focus:border-[#0ea5e9] outline-none"
                               value={businessFormData.businessType} onChange={e => setBusinessFormData({...businessFormData, businessType: e.target.value})}>
                               {Object.entries(BUSINESS_TYPES).map(([key, val]) => (
                                   <option key={key} value={key}>{val.icon} {val.label}</option>
@@ -1944,7 +1944,7 @@ const SaasAdmin: React.FC<SaasAdminProps> = ({ onNotify }) => {
                       </div>
                       <div className="flex gap-2 pt-2">
                           <button type="button" onClick={() => setShowBusinessModal(false)} className="flex-1 py-2.5 rounded-lg text-sm font-medium text-[#4c669a] hover:bg-slate-100 dark:hover:bg-slate-800">Cancelar</button>
-                          <button type="submit" className="flex-1 py-2.5 bg-[#135bec] text-white rounded-lg text-sm font-medium hover:opacity-90">Registrar</button>
+                          <button type="submit" className="flex-1 py-2.5 bg-[#0ea5e9] text-white rounded-lg text-sm font-medium hover:opacity-90">Registrar</button>
                       </div>
                   </form>
               </div>
@@ -1959,13 +1959,13 @@ const SaasAdmin: React.FC<SaasAdminProps> = ({ onNotify }) => {
                   <form onSubmit={handleUpdateBusiness} className="space-y-3">
                       <div>
                           <label className="text-xs font-semibold text-[#4c669a] dark:text-slate-400">Razón Social</label>
-                          <input required className="mt-1 w-full p-2.5 border border-[#cfd7e7] dark:border-slate-700 dark:bg-slate-800 dark:text-white rounded-lg text-sm focus:border-[#135bec] outline-none"
+                          <input required className="mt-1 w-full p-2.5 border border-[#cfd7e7] dark:border-slate-700 dark:bg-slate-800 dark:text-white rounded-lg text-sm focus:border-[#0ea5e9] outline-none"
                               value={editBusinessForm.name} onChange={e => setEditBusinessForm({...editBusinessForm, name: e.target.value})} />
                       </div>
                       <div className="grid grid-cols-2 gap-3">
                         <div>
                             <label className="text-xs font-semibold text-[#4c669a] dark:text-slate-400">RUC</label>
-                            <input required className="mt-1 w-full p-2.5 border border-[#cfd7e7] dark:border-slate-700 dark:bg-slate-800 dark:text-white rounded-lg text-sm focus:border-[#135bec] outline-none"
+                            <input required className="mt-1 w-full p-2.5 border border-[#cfd7e7] dark:border-slate-700 dark:bg-slate-800 dark:text-white rounded-lg text-sm focus:border-[#0ea5e9] outline-none"
                                 value={editBusinessForm.ruc} onChange={e => setEditBusinessForm({...editBusinessForm, ruc: e.target.value})} />
                         </div>
                         <div>
@@ -1986,24 +1986,24 @@ const SaasAdmin: React.FC<SaasAdminProps> = ({ onNotify }) => {
                       </div>
                       <div>
                           <label className="text-xs font-semibold text-[#4c669a] dark:text-slate-400">Email</label>
-                          <input type="email" required className="mt-1 w-full p-2.5 border border-[#cfd7e7] dark:border-slate-700 dark:bg-slate-800 dark:text-white rounded-lg text-sm focus:border-[#135bec] outline-none"
+                          <input type="email" required className="mt-1 w-full p-2.5 border border-[#cfd7e7] dark:border-slate-700 dark:bg-slate-800 dark:text-white rounded-lg text-sm focus:border-[#0ea5e9] outline-none"
                               value={editBusinessForm.email} onChange={e => setEditBusinessForm({...editBusinessForm, email: e.target.value})} />
                       </div>
                       <div className="grid grid-cols-2 gap-3">
                         <div>
                             <label className="text-xs font-semibold text-[#4c669a] dark:text-slate-400">Teléfono</label>
-                            <input className="mt-1 w-full p-2.5 border border-[#cfd7e7] dark:border-slate-700 dark:bg-slate-800 dark:text-white rounded-lg text-sm focus:border-[#135bec] outline-none"
+                            <input className="mt-1 w-full p-2.5 border border-[#cfd7e7] dark:border-slate-700 dark:bg-slate-800 dark:text-white rounded-lg text-sm focus:border-[#0ea5e9] outline-none"
                                 value={editBusinessForm.phone} onChange={e => setEditBusinessForm({...editBusinessForm, phone: e.target.value})} />
                         </div>
                         <div>
                             <label className="text-xs font-semibold text-[#4c669a] dark:text-slate-400">Dirección</label>
-                            <input className="mt-1 w-full p-2.5 border border-[#cfd7e7] dark:border-slate-700 dark:bg-slate-800 dark:text-white rounded-lg text-sm focus:border-[#135bec] outline-none"
+                            <input className="mt-1 w-full p-2.5 border border-[#cfd7e7] dark:border-slate-700 dark:bg-slate-800 dark:text-white rounded-lg text-sm focus:border-[#0ea5e9] outline-none"
                                 value={editBusinessForm.address} onChange={e => setEditBusinessForm({...editBusinessForm, address: e.target.value})} />
                         </div>
                       </div>
                       <div>
                           <label className="text-xs font-semibold text-[#4c669a] dark:text-slate-400">Tipo de Negocio</label>
-                          <select className="mt-1 w-full p-2.5 border border-[#cfd7e7] dark:border-slate-700 dark:bg-slate-800 dark:text-white rounded-lg text-sm focus:border-[#135bec] outline-none"
+                          <select className="mt-1 w-full p-2.5 border border-[#cfd7e7] dark:border-slate-700 dark:bg-slate-800 dark:text-white rounded-lg text-sm focus:border-[#0ea5e9] outline-none"
                               value={editBusinessForm.businessType} onChange={e => setEditBusinessForm({...editBusinessForm, businessType: e.target.value})}>
                               {Object.entries(BUSINESS_TYPES).map(([key, val]) => (
                                   <option key={key} value={key}>{val.icon} {val.label}</option>
@@ -2012,7 +2012,7 @@ const SaasAdmin: React.FC<SaasAdminProps> = ({ onNotify }) => {
                       </div>
                       <div className="flex gap-2 pt-2">
                           <button type="button" onClick={() => setShowEditBusinessModal(false)} className="flex-1 py-2.5 rounded-lg text-sm font-medium text-[#4c669a] hover:bg-slate-100 dark:hover:bg-slate-800">Cancelar</button>
-                          <button type="submit" className="flex-1 py-2.5 bg-[#135bec] text-white rounded-lg text-sm font-medium hover:opacity-90">Guardar</button>
+                          <button type="submit" className="flex-1 py-2.5 bg-[#0ea5e9] text-white rounded-lg text-sm font-medium hover:opacity-90">Guardar</button>
                       </div>
                   </form>
               </div>
@@ -2064,12 +2064,12 @@ const SaasAdmin: React.FC<SaasAdminProps> = ({ onNotify }) => {
                   <form onSubmit={handleCreateBusinessUser} className="space-y-3">
                       <div>
                           <label className="text-xs font-semibold text-[#4c669a] dark:text-slate-400">Email</label>
-                          <input type="email" required className="mt-1 w-full p-2.5 border border-[#cfd7e7] dark:border-slate-700 dark:bg-slate-800 dark:text-white rounded-lg text-sm focus:border-[#135bec] outline-none"
+                          <input type="email" required className="mt-1 w-full p-2.5 border border-[#cfd7e7] dark:border-slate-700 dark:bg-slate-800 dark:text-white rounded-lg text-sm focus:border-[#0ea5e9] outline-none"
                               value={newUserFormData.email} onChange={e => setNewUserFormData({...newUserFormData, email: e.target.value})} />
                       </div>
                       <div className="relative">
                           <label className="text-xs font-semibold text-[#4c669a] dark:text-slate-400">Password</label>
-                          <input type={showPassword ? "text" : "password"} required className="mt-1 w-full p-2.5 pr-10 border border-[#cfd7e7] dark:border-slate-700 dark:bg-slate-800 dark:text-white rounded-lg text-sm focus:border-[#135bec] outline-none"
+                          <input type={showPassword ? "text" : "password"} required className="mt-1 w-full p-2.5 pr-10 border border-[#cfd7e7] dark:border-slate-700 dark:bg-slate-800 dark:text-white rounded-lg text-sm focus:border-[#0ea5e9] outline-none"
                               value={newUserFormData.password} onChange={e => setNewUserFormData({...newUserFormData, password: e.target.value})} />
                           <button type="button" className="absolute right-2 top-8 text-slate-400 hover:text-slate-600" onClick={() => setShowPassword(!showPassword)}>
                               {showPassword ? <EyeSlashIcon className="w-[18px] h-[18px]" /> : <EyeIcon className="w-[18px] h-[18px]" />}
@@ -2077,7 +2077,7 @@ const SaasAdmin: React.FC<SaasAdminProps> = ({ onNotify }) => {
                       </div>
                       <div>
                           <label className="text-xs font-semibold text-[#4c669a] dark:text-slate-400">Rol</label>
-                          <select className="mt-1 w-full p-2.5 border border-[#cfd7e7] dark:border-slate-700 dark:bg-slate-800 dark:text-white rounded-lg text-sm focus:border-[#135bec] outline-none"
+                          <select className="mt-1 w-full p-2.5 border border-[#cfd7e7] dark:border-slate-700 dark:bg-slate-800 dark:text-white rounded-lg text-sm focus:border-[#0ea5e9] outline-none"
                               value={newUserFormData.role} onChange={e => setNewUserFormData({...newUserFormData, role: e.target.value})}>
                               <option value="ADMIN">Admin</option>
                               <option value="USER">Usuario</option>
@@ -2085,7 +2085,7 @@ const SaasAdmin: React.FC<SaasAdminProps> = ({ onNotify }) => {
                       </div>
                       <div className="flex gap-2 pt-2">
                           <button type="button" onClick={() => setShowNewUserModal(false)} className="flex-1 py-2.5 rounded-lg text-sm font-medium text-[#4c669a] hover:bg-slate-100 dark:hover:bg-slate-800">Cancelar</button>
-                          <button type="submit" className="flex-1 py-2.5 bg-[#135bec] text-white rounded-lg text-sm font-medium hover:opacity-90">Crear</button>
+                          <button type="submit" className="flex-1 py-2.5 bg-[#0ea5e9] text-white rounded-lg text-sm font-medium hover:opacity-90">Crear</button>
                       </div>
                   </form>
               </div>
@@ -2118,7 +2118,7 @@ const SaasAdmin: React.FC<SaasAdminProps> = ({ onNotify }) => {
                   <form onSubmit={(e) => { e.preventDefault(); handleResetUserPassword(); }} className="space-y-3">
                       <div className="relative">
                           <label className="text-xs font-semibold text-[#4c669a] dark:text-slate-400">Nueva Password</label>
-                          <input type={showPassword ? "text" : "password"} required className="mt-1 w-full p-2.5 pr-10 border border-[#cfd7e7] dark:border-slate-700 dark:bg-slate-800 dark:text-white rounded-lg text-sm focus:border-[#135bec] outline-none"
+                          <input type={showPassword ? "text" : "password"} required className="mt-1 w-full p-2.5 pr-10 border border-[#cfd7e7] dark:border-slate-700 dark:bg-slate-800 dark:text-white rounded-lg text-sm focus:border-[#0ea5e9] outline-none"
                               value={tempPassword} onChange={e => setTempPassword(e.target.value)} placeholder="Nueva password" />
                           <button type="button" className="absolute right-2 top-8 text-slate-400 hover:text-slate-600" onClick={() => setShowPassword(!showPassword)}>
                               {showPassword ? <EyeSlashIcon className="w-[18px] h-[18px]" /> : <EyeIcon className="w-[18px] h-[18px]" />}
@@ -2126,7 +2126,7 @@ const SaasAdmin: React.FC<SaasAdminProps> = ({ onNotify }) => {
                       </div>
                       <div className="flex gap-2 pt-2">
                           <button type="button" onClick={() => { setShowResetUserModal(false); setTempPassword(''); }} className="flex-1 py-2.5 rounded-lg text-sm font-medium text-[#4c669a] hover:bg-slate-100 dark:hover:bg-slate-800">Cancelar</button>
-                          <button type="submit" className="flex-1 py-2.5 bg-[#135bec] text-white rounded-lg text-sm font-medium hover:opacity-90">Resetear</button>
+                          <button type="submit" className="flex-1 py-2.5 bg-[#0ea5e9] text-white rounded-lg text-sm font-medium hover:opacity-90">Resetear</button>
                       </div>
                   </form>
               </div>
@@ -2142,7 +2142,7 @@ const SaasAdmin: React.FC<SaasAdminProps> = ({ onNotify }) => {
                   <form onSubmit={(e) => { e.preventDefault(); confirmResetAdminPassword(); }} className="space-y-3">
                       <div className="relative">
                           <label className="text-xs font-semibold text-[#4c669a] dark:text-slate-400">Nueva Password</label>
-                          <input type={showPassword ? "text" : "password"} required className="mt-1 w-full p-2.5 pr-10 border border-[#cfd7e7] dark:border-slate-700 dark:bg-slate-800 dark:text-white rounded-lg text-sm focus:border-[#135bec] outline-none"
+                          <input type={showPassword ? "text" : "password"} required className="mt-1 w-full p-2.5 pr-10 border border-[#cfd7e7] dark:border-slate-700 dark:bg-slate-800 dark:text-white rounded-lg text-sm focus:border-[#0ea5e9] outline-none"
                               value={adminPassword} onChange={e => setAdminPassword(e.target.value)} placeholder="Nueva password" />
                           <button type="button" className="absolute right-2 top-8 text-slate-400 hover:text-slate-600" onClick={() => setShowPassword(!showPassword)}>
                               {showPassword ? <EyeSlashIcon className="w-[18px] h-[18px]" /> : <EyeIcon className="w-[18px] h-[18px]" />}
@@ -2150,7 +2150,7 @@ const SaasAdmin: React.FC<SaasAdminProps> = ({ onNotify }) => {
                       </div>
                       <div className="flex gap-2 pt-2">
                           <button type="button" onClick={() => { setShowResetAdminModal(false); setAdminPassword(''); setSelectedAdminUser(null); }} className="flex-1 py-2.5 rounded-lg text-sm font-medium text-[#4c669a] hover:bg-slate-100 dark:hover:bg-slate-800">Cancelar</button>
-                          <button type="submit" className="flex-1 py-2.5 bg-[#135bec] text-white rounded-lg text-sm font-medium hover:opacity-90">Resetear</button>
+                          <button type="submit" className="flex-1 py-2.5 bg-[#0ea5e9] text-white rounded-lg text-sm font-medium hover:opacity-90">Resetear</button>
                       </div>
                   </form>
               </div>
@@ -2344,15 +2344,15 @@ const SaasAdmin: React.FC<SaasAdminProps> = ({ onNotify }) => {
               <div className="space-y-6">
                 {/* Toggles */}
                 <div className="grid grid-cols-3 gap-3 mb-6">
-                  <label className={`flex items-center justify-center gap-2 p-3 rounded-xl border-2 cursor-pointer transition-all ${paymentConfig.paypalEnabled ? 'border-indigo-500 bg-indigo-50 dark:bg-indigo-500/10' : 'border-slate-200 dark:border-slate-700'}`}>
+                  <label className={`flex items-center justify-center gap-2 p-3 rounded-xl border-2 cursor-pointer transition-all ${paymentConfig.paypalEnabled ? 'border-sky-500 bg-sky-50 dark:bg-sky-500/10' : 'border-slate-200 dark:border-slate-700'}`}>
                     <input type="checkbox" checked={paymentConfig.paypalEnabled} onChange={e => setPaymentConfig({...paymentConfig, paypalEnabled: e.target.checked})} className="sr-only" />
                     <span className="text-sm font-bold">PayPal</span>
                   </label>
-                  <label className={`flex items-center justify-center gap-2 p-3 rounded-xl border-2 cursor-pointer transition-all ${paymentConfig.transferEnabled ? 'border-indigo-500 bg-indigo-50 dark:bg-indigo-500/10' : 'border-slate-200 dark:border-slate-700'}`}>
+                  <label className={`flex items-center justify-center gap-2 p-3 rounded-xl border-2 cursor-pointer transition-all ${paymentConfig.transferEnabled ? 'border-sky-500 bg-sky-50 dark:bg-sky-500/10' : 'border-slate-200 dark:border-slate-700'}`}>
                     <input type="checkbox" checked={paymentConfig.transferEnabled} onChange={e => setPaymentConfig({...paymentConfig, transferEnabled: e.target.checked})} className="sr-only" />
                     <span className="text-sm font-bold">Transferencia</span>
                   </label>
-                  <label className={`flex items-center justify-center gap-2 p-3 rounded-xl border-2 cursor-pointer transition-all ${paymentConfig.cardEnabled ? 'border-indigo-500 bg-indigo-50 dark:bg-indigo-500/10' : 'border-slate-200 dark:border-slate-700'}`}>
+                  <label className={`flex items-center justify-center gap-2 p-3 rounded-xl border-2 cursor-pointer transition-all ${paymentConfig.cardEnabled ? 'border-sky-500 bg-sky-50 dark:bg-sky-500/10' : 'border-slate-200 dark:border-slate-700'}`}>
                     <input type="checkbox" checked={paymentConfig.cardEnabled} onChange={e => setPaymentConfig({...paymentConfig, cardEnabled: e.target.checked})} className="sr-only" />
                     <span className="text-sm font-bold">Tarjeta</span>
                   </label>
@@ -2377,7 +2377,7 @@ const SaasAdmin: React.FC<SaasAdminProps> = ({ onNotify }) => {
                           }
                         ]
                       });
-                    }} className="flex items-center gap-1 text-xs bg-indigo-100 text-indigo-700 px-3 py-1.5 rounded-lg hover:bg-indigo-200 transition-colors">
+                    }} className="flex items-center gap-1 text-xs bg-sky-100 text-sky-500 px-3 py-1.5 rounded-lg hover:bg-sky-200 transition-colors">
                       <PlusIcon className="w-4 h-4" /> Agregar Cuenta
                     </button>
                   </div>
@@ -2398,7 +2398,7 @@ const SaasAdmin: React.FC<SaasAdminProps> = ({ onNotify }) => {
                             <TrashIcon className="w-4 h-4" />
                           </button>
                         </div>
-                        <h4 className="text-xs font-bold text-indigo-600 mb-3">Cuenta #{index + 1}</h4>
+                        <h4 className="text-xs font-bold text-sky-600 mb-3">Cuenta #{index + 1}</h4>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                           <div>
                             <label className="text-xs font-bold text-slate-400 uppercase mb-1 block">Banco</label>
@@ -2406,7 +2406,7 @@ const SaasAdmin: React.FC<SaasAdminProps> = ({ onNotify }) => {
                               const newAccounts = [...paymentConfig.bankAccounts];
                               newAccounts[index].bankName = e.target.value;
                               setPaymentConfig({...paymentConfig, bankAccounts: newAccounts});
-                            }} className="w-full p-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl font-medium text-sm outline-none focus:border-indigo-500" placeholder="Ej: Banco Pichincha" />
+                            }} className="w-full p-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl font-medium text-sm outline-none focus:border-sky-500" placeholder="Ej: Banco Pichincha" />
                           </div>
                           <div>
                             <label className="text-xs font-bold text-slate-400 uppercase mb-1 block">N° de Cuenta</label>
@@ -2414,7 +2414,7 @@ const SaasAdmin: React.FC<SaasAdminProps> = ({ onNotify }) => {
                               const newAccounts = [...paymentConfig.bankAccounts];
                               newAccounts[index].bankAccount = e.target.value;
                               setPaymentConfig({...paymentConfig, bankAccounts: newAccounts});
-                            }} className="w-full p-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl font-medium text-sm outline-none focus:border-indigo-500" placeholder="Ej: 1234567890" />
+                            }} className="w-full p-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl font-medium text-sm outline-none focus:border-sky-500" placeholder="Ej: 1234567890" />
                           </div>
                           <div>
                             <label className="text-xs font-bold text-slate-400 uppercase mb-1 block">Tipo de Cuenta</label>
@@ -2422,7 +2422,7 @@ const SaasAdmin: React.FC<SaasAdminProps> = ({ onNotify }) => {
                               const newAccounts = [...paymentConfig.bankAccounts];
                               newAccounts[index].bankAccountType = e.target.value;
                               setPaymentConfig({...paymentConfig, bankAccounts: newAccounts});
-                            }} className="w-full p-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl font-medium text-sm outline-none focus:border-indigo-500">
+                            }} className="w-full p-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl font-medium text-sm outline-none focus:border-sky-500">
                               <option>Cuenta Corriente</option>
                               <option>Cuenta de Ahorros</option>
                             </select>
@@ -2433,7 +2433,7 @@ const SaasAdmin: React.FC<SaasAdminProps> = ({ onNotify }) => {
                               const newAccounts = [...paymentConfig.bankAccounts];
                               newAccounts[index].bankHolderName = e.target.value;
                               setPaymentConfig({...paymentConfig, bankAccounts: newAccounts});
-                            }} className="w-full p-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl font-medium text-sm outline-none focus:border-indigo-500" placeholder="Ej: ECUAFACT S.A." />
+                            }} className="w-full p-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl font-medium text-sm outline-none focus:border-sky-500" placeholder="Ej: Azul S.A." />
                           </div>
                           <div className="md:col-span-2">
                             <label className="text-xs font-bold text-slate-400 uppercase mb-1 block">RUC del Titular</label>
@@ -2441,7 +2441,7 @@ const SaasAdmin: React.FC<SaasAdminProps> = ({ onNotify }) => {
                               const newAccounts = [...paymentConfig.bankAccounts];
                               newAccounts[index].bankHolderRuc = e.target.value;
                               setPaymentConfig({...paymentConfig, bankAccounts: newAccounts});
-                            }} className="w-full p-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl font-medium text-sm outline-none focus:border-indigo-500" placeholder="Ej: 0953443769" />
+                            }} className="w-full p-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl font-medium text-sm outline-none focus:border-sky-500" placeholder="Ej: 0953443769" />
                           </div>
                         </div>
                       </div>
@@ -2450,7 +2450,7 @@ const SaasAdmin: React.FC<SaasAdminProps> = ({ onNotify }) => {
                 </div>
 
                 <div className="border-t border-slate-100 dark:border-slate-700 pt-4">
-                  <button onClick={savePaymentConfig} disabled={savingConfig} className="w-full py-3 bg-indigo-700 text-white font-bold rounded-xl hover:bg-indigo-800 transition-colors disabled:opacity-50">
+                  <button onClick={savePaymentConfig} disabled={savingConfig} className="w-full py-3 bg-sky-500 text-white font-bold rounded-xl hover:bg-sky-600 transition-colors disabled:opacity-50">
                     {savingConfig ? 'Guardando...' : 'Guardar Configuración'}
                   </button>
                 </div>

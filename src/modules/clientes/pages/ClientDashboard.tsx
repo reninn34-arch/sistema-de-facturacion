@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+﻿import React, { useState, useEffect, useMemo } from 'react';
 import { Document } from '../../../types/types';
 import { DocumentTextIcon, ArrowRightOnRectangleIcon, CheckCircleIcon, CreditCardIcon, ClockIcon, DocumentIcon, CodeBracketIcon, LockClosedIcon, QuestionMarkCircleIcon } from '@heroicons/react/24/outline';
 
@@ -160,20 +160,20 @@ const ClientDashboard = () => {
         <header className="sticky top-0 z-50 w-full bg-white dark:bg-slate-900 border-b border-solid border-[#e7ebf3] dark:border-slate-800 px-4 md:px-10 lg:px-40 py-3">
           <div className="max-w-[1280px] mx-auto flex items-center justify-between whitespace-nowrap">
             <div className="flex items-center gap-8">
-              <div className="flex items-center gap-3 text-[#135bec]">
-                <div className="size-8 flex items-center justify-center bg-[#135bec] rounded-lg text-white">
+              <div className="flex items-center gap-3 text-[#0ea5e9]">
+                <div className="size-8 flex items-center justify-center bg-[#0ea5e9] rounded-lg text-white">
                   <DocumentTextIcon className="w-5 h-5" />
                 </div>
                 <h2 className="text-[#0d121b] dark:text-white text-lg font-bold leading-tight tracking-tight">FacturaPortal</h2>
               </div>
               <div className="hidden md:flex items-center gap-6">
                 <button 
-                  className={`text-sm font-medium leading-normal transition-colors ${activeTab === 'dashboard' ? 'text-[#135bec] font-semibold border-b-2 border-[#135bec] pb-1' : 'text-[#4c669a] dark:text-slate-400 hover:text-[#135bec]'}`} 
+                  className={`text-sm font-medium leading-normal transition-colors ${activeTab === 'dashboard' ? 'text-[#0ea5e9] font-semibold border-b-2 border-[#0ea5e9] pb-1' : 'text-[#4c669a] dark:text-slate-400 hover:text-[#0ea5e9]'}`} 
                   onClick={() => setActiveTab('dashboard')}
                 >Dashboard</button>
                 {user?.type !== 'BUSINESS' && (
                   <button 
-                    className={`text-sm font-medium leading-normal transition-colors ${activeTab === 'password' ? 'text-[#135bec] font-semibold border-b-2 border-[#135bec] pb-1' : 'text-[#4c669a] dark:text-slate-400 hover:text-[#135bec]'}`} 
+                    className={`text-sm font-medium leading-normal transition-colors ${activeTab === 'password' ? 'text-[#0ea5e9] font-semibold border-b-2 border-[#0ea5e9] pb-1' : 'text-[#4c669a] dark:text-slate-400 hover:text-[#0ea5e9]'}`} 
                     onClick={() => setActiveTab('password')}
                   >Cambiar Contraseña</button>
                 )}
@@ -189,7 +189,7 @@ const ClientDashboard = () => {
                     {user?.type === 'BUSINESS' ? 'Empresa' : 'Cliente'} - {user?.identification || 'Invitado'}
                   </p>
                 </div>
-                <div className="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-10 border-2 border-[#135bec]/20 flex items-center justify-center bg-slate-100 text-[#135bec] font-bold">
+                <div className="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-10 border-2 border-[#0ea5e9]/20 flex items-center justify-center bg-slate-100 text-[#0ea5e9] font-bold">
                     {user?.type === 'BUSINESS' ? (user?.name?.charAt(0) || 'E') : (user?.name?.charAt(0) || 'C')}
                 </div>
                 <button onClick={handleLogout} className="ml-2 text-slate-400 hover:text-red-500" title="Cerrar Sesión">
@@ -209,7 +209,7 @@ const ClientDashboard = () => {
                 <div className="flex flex-col gap-2 rounded-xl p-6 bg-white dark:bg-slate-900 border border-[#cfd7e7] dark:border-slate-800 shadow-sm">
                   <div className="flex items-center justify-between mb-2">
                     <p className="text-[#4c669a] dark:text-slate-400 text-sm font-medium leading-normal">Total Facturas</p>
-                    <DocumentTextIcon className="w-6 h-6 text-[#135bec] bg-[#135bec]/10 p-2 rounded-lg" />
+                    <DocumentTextIcon className="w-6 h-6 text-[#0ea5e9] bg-[#0ea5e9]/10 p-2 rounded-lg" />
                   </div>
                   <p className="text-[#0d121b] dark:text-white tracking-light text-3xl font-bold leading-tight">{stats.totalDocs}</p>
                   <p className="text-[#07883b] text-sm font-medium flex items-center gap-1">
@@ -219,7 +219,7 @@ const ClientDashboard = () => {
                 <div className="flex flex-col gap-2 rounded-xl p-6 bg-white dark:bg-slate-900 border border-[#cfd7e7] dark:border-slate-800 shadow-sm">
                   <div className="flex items-center justify-between mb-2">
                     <p className="text-[#4c669a] dark:text-slate-400 text-sm font-medium leading-normal">Total Compras</p>
-                    <CreditCardIcon className="w-6 h-6 text-[#135bec] bg-[#135bec]/10 p-2 rounded-lg" />
+                    <CreditCardIcon className="w-6 h-6 text-[#0ea5e9] bg-[#0ea5e9]/10 p-2 rounded-lg" />
                   </div>
                   <p className="text-[#0d121b] dark:text-white tracking-light text-3xl font-bold leading-tight">${stats.totalAmount.toFixed(2)}</p>
                   <p className="text-[#4c669a] text-sm font-medium flex items-center gap-1">
@@ -229,7 +229,7 @@ const ClientDashboard = () => {
                 <div className="flex flex-col gap-2 rounded-xl p-6 bg-white dark:bg-slate-900 border border-[#cfd7e7] dark:border-slate-800 shadow-sm">
                   <div className="flex items-center justify-between mb-2">
                     <p className="text-[#4c669a] dark:text-slate-400 text-sm font-medium leading-normal">Pendientes</p>
-                    <ClockIcon className="w-6 h-6 text-[#135bec] bg-[#135bec]/10 p-2 rounded-lg" />
+                    <ClockIcon className="w-6 h-6 text-[#0ea5e9] bg-[#0ea5e9]/10 p-2 rounded-lg" />
                   </div>
                   <p className="text-[#0d121b] dark:text-white tracking-light text-3xl font-bold leading-tight">{stats.pendingDocs}</p>
                   <p className="text-[#4c669a] dark:text-slate-400 text-sm font-medium">Por procesar o pagar</p>
@@ -243,7 +243,7 @@ const ClientDashboard = () => {
                   {getDashboardTitle()}
                 </h2>
                 {userType === 'BUSINESS' && (
-                  <span className="px-3 py-1 text-xs font-medium bg-indigo-100 text-indigo-700 dark:bg-indigo-900 dark:text-blue-300 rounded-full">
+                  <span className="px-3 py-1 text-xs font-medium bg-sky-100 text-sky-500 dark:bg-sky-900 dark:text-blue-300 rounded-full">
                     Facturas SaaS
                   </span>
                 )}
@@ -269,7 +269,7 @@ const ClientDashboard = () => {
                         <tr><td colSpan={6} className="p-8 text-center text-slate-400">No se encontraron documentos.</td></tr>
                       ) : (
                         filteredDocuments.map((doc: any) => (
-                          <tr key={doc.id} className="hover:bg-[#135bec]/5 transition-colors">
+                          <tr key={doc.id} className="hover:bg-[#0ea5e9]/5 transition-colors">
                             <td className="px-4 py-5 text-[#4c669a] dark:text-slate-400 text-sm">
                                 {doc.business?.name || 'N/A'}
                             </td>
@@ -283,10 +283,10 @@ const ClientDashboard = () => {
                             </td>
                             <td className="px-4 py-5 text-[#0d121b] dark:text-white text-sm font-semibold">${doc.total?.toFixed(2) || '0.00'}</td>
                             <td className="px-4 py-5 text-right space-x-2">
-                              <button className="inline-flex items-center justify-center p-2 rounded-lg bg-[#135bec]/10 text-[#135bec] hover:bg-[#135bec] hover:text-white transition-all" title="Descargar PDF">
+                              <button className="inline-flex items-center justify-center p-2 rounded-lg bg-[#0ea5e9]/10 text-[#0ea5e9] hover:bg-[#0ea5e9] hover:text-white transition-all" title="Descargar PDF">
                                 <DocumentIcon className="w-5 h-5" />
                               </button>
-                              <button className="inline-flex items-center justify-center p-2 rounded-lg bg-[#135bec]/10 text-[#135bec] hover:bg-[#135bec] hover:text-white transition-all" title="Descargar XML">
+                              <button className="inline-flex items-center justify-center p-2 rounded-lg bg-[#0ea5e9]/10 text-[#0ea5e9] hover:bg-[#0ea5e9] hover:text-white transition-all" title="Descargar XML">
                                 <CodeBracketIcon className="w-5 h-5" />
                               </button>
                             </td>
@@ -305,7 +305,7 @@ const ClientDashboard = () => {
                     <div className="p-8 text-center text-slate-400">No se encontraron documentos.</div>
                   ) : (
                     filteredDocuments.map((doc: any) => (
-                      <div key={doc.id} className={`p-4 flex flex-col gap-3 hover:bg-[#135bec]/5 transition-colors ${doc.status === 'CANCELLED' ? 'opacity-60' : ''}`}>
+                      <div key={doc.id} className={`p-4 flex flex-col gap-3 hover:bg-[#0ea5e9]/5 transition-colors ${doc.status === 'CANCELLED' ? 'opacity-60' : ''}`}>
                         <div className="flex justify-between items-start">
                           <div className="flex flex-col">
                             <span className="text-sm font-bold text-[#0d121b] dark:text-white">
@@ -326,10 +326,10 @@ const ClientDashboard = () => {
                             {doc.business?.name || 'N/A'} - {new Date(doc.issueDate).toLocaleDateString()}
                           </span>
                           <div className="flex gap-2">
-                            <button className="inline-flex items-center justify-center p-2 rounded-lg bg-[#135bec]/10 text-[#135bec] hover:bg-[#135bec] hover:text-white transition-all" title="Descargar PDF">
+                            <button className="inline-flex items-center justify-center p-2 rounded-lg bg-[#0ea5e9]/10 text-[#0ea5e9] hover:bg-[#0ea5e9] hover:text-white transition-all" title="Descargar PDF">
                               <DocumentIcon className="w-5 h-5" />
                             </button>
-                            <button className="inline-flex items-center justify-center p-2 rounded-lg bg-[#135bec]/10 text-[#135bec] hover:bg-[#135bec] hover:text-white transition-all" title="Descargar XML">
+                            <button className="inline-flex items-center justify-center p-2 rounded-lg bg-[#0ea5e9]/10 text-[#0ea5e9] hover:bg-[#0ea5e9] hover:text-white transition-all" title="Descargar XML">
                               <CodeBracketIcon className="w-5 h-5" />
                             </button>
                           </div>
@@ -349,7 +349,7 @@ const ClientDashboard = () => {
               </div>
               <div className="bg-white dark:bg-slate-900 rounded-xl border border-[#cfd7e7] dark:border-slate-800 p-6 shadow-sm">
                 <div className="flex items-center gap-3 mb-6">
-                  <LockClosedIcon className="w-6 h-6 text-[#135bec]" />
+                  <LockClosedIcon className="w-6 h-6 text-[#0ea5e9]" />
                   <h3 className="text-lg font-bold text-[#0d121b] dark:text-white">Cambiar Contraseña</h3>
                 </div>
                 
@@ -363,7 +363,7 @@ const ClientDashboard = () => {
                   <div className="flex flex-col gap-1.5">
                     <label className="text-sm font-semibold text-[#4c669a] dark:text-slate-400">Nueva Contraseña</label>
                     <input 
-                        className="rounded-lg border-[#cfd7e7] dark:border-slate-700 dark:bg-slate-800 dark:text-white focus:border-[#135bec] focus:ring-[#135bec] text-sm w-full p-2.5 border" 
+                        className="rounded-lg border-[#cfd7e7] dark:border-slate-700 dark:bg-slate-800 dark:text-white focus:border-[#0ea5e9] focus:ring-[#0ea5e9] text-sm w-full p-2.5 border" 
                         placeholder="mínimo 6 caracteres" 
                         type="password"
                         value={newPassword}
@@ -374,7 +374,7 @@ const ClientDashboard = () => {
                   <div className="flex flex-col gap-1.5">
                     <label className="text-sm font-semibold text-[#4c669a] dark:text-slate-400">Confirmar Nueva Contraseña</label>
                     <input 
-                        className="rounded-lg border-[#cfd7e7] dark:border-slate-700 dark:bg-slate-800 dark:text-white focus:border-[#135bec] focus:ring-[#135bec] text-sm w-full p-2.5 border" 
+                        className="rounded-lg border-[#cfd7e7] dark:border-slate-700 dark:bg-slate-800 dark:text-white focus:border-[#0ea5e9] focus:ring-[#0ea5e9] text-sm w-full p-2.5 border" 
                         placeholder="Repita la contraseña" 
                         type="password"
                         value={confirmPassword}
@@ -383,7 +383,7 @@ const ClientDashboard = () => {
                     />
                   </div>
                   <button 
-                    className="mt-2 flex w-full cursor-pointer items-center justify-center rounded-xl h-11 px-4 bg-[#135bec] text-white text-sm font-bold leading-normal transition-opacity hover:opacity-90 active:scale-[0.98] disabled:opacity-70" 
+                    className="mt-2 flex w-full cursor-pointer items-center justify-center rounded-xl h-11 px-4 bg-[#0ea5e9] text-white text-sm font-bold leading-normal transition-opacity hover:opacity-90 active:scale-[0.98] disabled:opacity-70" 
                     type="submit"
                     disabled={isSubmittingPassword}
                   >
@@ -398,15 +398,15 @@ const ClientDashboard = () => {
               </div>
 
               {/* Quick Help Card */}
-              <div className="bg-[#135bec]/5 dark:bg-[#135bec]/10 rounded-xl p-6 border border-[#135bec]/10">
+              <div className="bg-[#0ea5e9]/5 dark:bg-[#0ea5e9]/10 rounded-xl p-6 border border-[#0ea5e9]/10">
                 <div className="flex items-start gap-3">
-                  <QuestionMarkCircleIcon className="w-6 h-6 text-[#135bec]" />
+                  <QuestionMarkCircleIcon className="w-6 h-6 text-[#0ea5e9]" />
                   <div>
                     <h4 className="text-sm font-bold text-[#0d121b] dark:text-white mb-1">Â¿Necesitas ayuda?</h4>
                     <p className="text-xs text-[#4c669a] dark:text-slate-400 leading-relaxed mb-3">
                       Si tienes problemas para visualizar tus facturas, contacta a nuestro soporte técnico.
                     </p>
-                    <button className="text-xs font-bold text-[#135bec] underline">Contactar Soporte</button>
+                    <button className="text-xs font-bold text-[#0ea5e9] underline">Contactar Soporte</button>
                   </div>
                 </div>
               </div>
@@ -419,9 +419,9 @@ const ClientDashboard = () => {
           <div className="border-t border-[#cfd7e7] dark:border-slate-800 pt-6 flex flex-col md:flex-row justify-between items-center gap-4">
             <p className="text-xs text-[#4c669a] dark:text-slate-500">Â© 2024 FacturaPortal. Todos los derechos reservados.</p>
             <div className="flex gap-6">
-              <a className="text-xs text-[#4c669a] dark:text-slate-500 hover:text-[#135bec]" href="#">Términos</a>
-              <a className="text-xs text-[#4c669a] dark:text-slate-500 hover:text-[#135bec]" href="#">Privacidad</a>
-              <a className="text-xs text-[#4c669a] dark:text-slate-500 hover:text-[#135bec]" href="#">Soporte</a>
+              <a className="text-xs text-[#4c669a] dark:text-slate-500 hover:text-[#0ea5e9]" href="#">Términos</a>
+              <a className="text-xs text-[#4c669a] dark:text-slate-500 hover:text-[#0ea5e9]" href="#">Privacidad</a>
+              <a className="text-xs text-[#4c669a] dark:text-slate-500 hover:text-[#0ea5e9]" href="#">Soporte</a>
             </div>
           </div>
         </footer>

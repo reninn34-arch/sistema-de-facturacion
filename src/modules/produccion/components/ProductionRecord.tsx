@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect } from 'react';
 import { ClipboardDocumentCheckIcon, PlayIcon, ExclamationTriangleIcon } from '@heroicons/react/24/outline';
 import { Recipe, ProductionRecord as ProdRecord, Product, UNITS_OF_MEASURE } from '../../../types/types';
 import { client } from '../../../api/client';
@@ -152,9 +152,9 @@ export default function ProductionRecord({ products, setProducts, onNotify }: Pr
                         <p className="text-[10px] font-bold text-amber-500 uppercase mb-1">Costo estimado total</p>
                         <p className="text-2xl font-black text-amber-700">${totalEstimatedCost.toFixed(2)}</p>
                       </div>
-                      <div className="bg-indigo-50 rounded-xl p-4 text-center">
-                        <p className="text-[10px] font-bold text-indigo-500 uppercase mb-1">Costo por unidad</p>
-                        <p className="text-2xl font-black text-indigo-700">
+                      <div className="bg-sky-50 rounded-xl p-4 text-center">
+                        <p className="text-[10px] font-bold text-sky-500 uppercase mb-1">Costo por unidad</p>
+                        <p className="text-2xl font-black text-sky-500">
                           ${producedUnits > 0 ? (totalEstimatedCost / producedUnits).toFixed(4) : '0.00'}
                         </p>
                       </div>
@@ -290,7 +290,7 @@ export default function ProductionRecord({ products, setProducts, onNotify }: Pr
                       <td className="p-4 text-center font-black text-slate-700">{rec.quantity}</td>
                       <td className="p-4 text-center font-black text-emerald-600">{rec.producedUnits}</td>
                       <td className="p-4 text-right font-black text-amber-600">${rec.totalCost?.toFixed(2) || '0.00'}</td>
-                      <td className="p-4 text-right font-black text-indigo-700">${rec.unitCost?.toFixed(4) || '0.00'}</td>
+                      <td className="p-4 text-right font-black text-sky-500">${rec.unitCost?.toFixed(4) || '0.00'}</td>
                     </tr>
                   ))}
                 </tbody>

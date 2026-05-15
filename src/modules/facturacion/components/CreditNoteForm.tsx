@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect } from 'react';
 import { ArrowPathIcon, MagnifyingGlassIcon, ClockIcon, CheckCircleIcon, XCircleIcon } from '@heroicons/react/24/outline';
 import { Client, Product, Document, DocumentType, SriStatus, PaymentStatus, InvoiceItem, BusinessInfo } from '../../../types/types';
 import { buildCreditNoteXml, authorizeWithSRI } from '../../../services/sriService';
@@ -212,7 +212,7 @@ const CreditNoteForm: React.FC<Props> = ({
               value={searchInvoice}
               onChange={(e) => setSearchInvoice(e.target.value)}
               placeholder="Buscar por número, cliente o clave de acceso..."
-              className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+              className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-transparent"
             />
           </div>
 
@@ -222,14 +222,14 @@ const CreditNoteForm: React.FC<Props> = ({
                 key={invoice.id}
                 onClick={() => handleInvoiceSelect(invoice.id)}
                 className={`p-4 border-2 rounded-lg cursor-pointer transition-all ${selectedInvoice?.id === invoice.id
-                  ? 'border-orange-500 bg-orange-50'
-                  : 'border-gray-200 hover:border-orange-300'
+                  ? 'border-sky-500 bg-sky-50'
+                  : 'border-gray-200 hover:border-sky-300'
                   }`}
               >
                 <div className="font-semibold text-gray-800">{invoice.number}</div>
                 <div className="text-sm text-gray-600">{invoice.entityName}</div>
                 <div className="text-sm text-gray-500">{invoice.issueDate}</div>
-                <div className="text-lg font-bold text-orange-600 mt-2">
+                <div className="text-lg font-bold text-sky-600 mt-2">
                   ${invoice.total.toFixed(2)}
                 </div>
               </div>
@@ -251,7 +251,7 @@ const CreditNoteForm: React.FC<Props> = ({
               <select
                 value={reason}
                 onChange={(e) => setReason(e.target.value)}
-                className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-orange-500 mb-3"
+                className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-sky-500 mb-3"
               >
                 {(Array.isArray(CREDIT_NOTE_REASONS) ? CREDIT_NOTE_REASONS : []).map(r => (
                   <option key={r.code} value={r.code}>
@@ -265,7 +265,7 @@ const CreditNoteForm: React.FC<Props> = ({
                 value={customReason}
                 onChange={(e) => setCustomReason(e.target.value)}
                 placeholder="Descripción adicional del motivo (opcional)"
-                className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-orange-500"
+                className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-sky-500"
               />
             </div>
 
@@ -300,7 +300,7 @@ const CreditNoteForm: React.FC<Props> = ({
                               max={originalItem?.quantity || 0}
                               value={item.quantity}
                               onChange={(e) => handleItemQuantityChange(index, parseFloat(e.target.value) || 0)}
-                              className="w-20 p-2 border rounded text-center focus:ring-2 focus:ring-orange-500"
+                              className="w-20 p-2 border rounded text-center focus:ring-2 focus:ring-sky-500"
                             />
                           </td>
                           <td className="px-4 py-3 text-right text-sm text-gray-800">
@@ -332,7 +332,7 @@ const CreditNoteForm: React.FC<Props> = ({
                   <span>IVA 15%:</span>
                   <span className="font-semibold">${iva.toFixed(2)}</span>
                 </div>
-                <div className="flex justify-between text-xl font-bold text-orange-600 pt-2 border-t-2 border-orange-200">
+                <div className="flex justify-between text-xl font-bold text-sky-600 pt-2 border-t-2 border-sky-200">
                   <span>TOTAL A DEVOLVER:</span>
                   <span>${total.toFixed(2)}</span>
                 </div>
@@ -348,7 +348,7 @@ const CreditNoteForm: React.FC<Props> = ({
                 value={additionalInfo}
                 onChange={(e) => setAdditionalInfo(e.target.value)}
                 rows={3}
-                className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-orange-500"
+                className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-sky-500"
                 placeholder="Observaciones adicionales..."
               />
             </div>
@@ -358,7 +358,7 @@ const CreditNoteForm: React.FC<Props> = ({
               <button
                 onClick={handleAuthorize}
                 disabled={isAuthorizing || items.filter(i => i.quantity > 0).length === 0}
-                className="flex-1 bg-orange-600 hover:bg-orange-700 disabled:bg-gray-400 text-white font-semibold py-3 px-6 rounded-lg transition-colors flex items-center justify-center gap-2"
+                className="flex-1 bg-sky-600 hover:bg-sky-600 disabled:bg-gray-400 text-white font-semibold py-3 px-6 rounded-lg transition-colors flex items-center justify-center gap-2"
               >
                 {isAuthorizing ? (
                   <>
@@ -393,7 +393,7 @@ const CreditNoteForm: React.FC<Props> = ({
           <div className="space-y-2 mb-4">
             {authSteps.map((step, index) => (
               <div key={index} className="flex items-start gap-2 text-sm text-gray-700">
-                <span className="text-orange-600">▸</span>
+                <span className="text-sky-600">▸</span>
                 <span>{step}</span>
               </div>
             ))}
@@ -421,7 +421,7 @@ const CreditNoteForm: React.FC<Props> = ({
 
           {generatedXml && (
             <details className="mt-4">
-              <summary className="cursor-pointer text-sm font-semibold text-gray-700 hover:text-orange-600">
+              <summary className="cursor-pointer text-sm font-semibold text-gray-700 hover:text-sky-600">
                 Ver XML Generado
               </summary>
               <pre className="mt-2 p-4 bg-gray-50 rounded-lg text-xs overflow-x-auto">

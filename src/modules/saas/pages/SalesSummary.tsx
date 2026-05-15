@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+﻿import React, { useMemo } from 'react';
 import { ChartBarIcon } from '@heroicons/react/24/outline';
 import { Document } from '../../../types/types';
 
@@ -37,7 +37,7 @@ const SalesSummary: React.FC<SalesSummaryProps> = ({ documents }) => {
   return (
     <div className="bg-white dark:bg-slate-800 p-6 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 mb-8">
       <h3 className="font-bold text-slate-800 dark:text-white text-lg mb-6 flex items-center gap-2">
-        <ChartBarIcon className="w-5 h-5 text-indigo-700 dark:text-indigo-400 inline" /> Rendimiento de Ventas por Vendedor
+        <ChartBarIcon className="w-5 h-5 text-sky-500 dark:text-sky-400 inline" /> Rendimiento de Ventas por Vendedor
       </h3>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -66,14 +66,14 @@ const SalesSummary: React.FC<SalesSummaryProps> = ({ documents }) => {
               {/* Barra de progreso visual */}
               <div className="w-full h-2 bg-slate-200 rounded-full overflow-hidden">
                 <div
-                  className="h-full bg-indigo-500 rounded-full transition-all duration-1000 ease-out"
+                  className="h-full bg-sky-500 rounded-full transition-all duration-1000 ease-out"
                   style={{ width: `${(item.total / maxTotal) * 100}%` }}
                 />
               </div>
             </div>
 
             {/* Decoración de fondo */}
-            <div className="absolute -bottom-4 -right-4 w-24 h-24 bg-indigo-500/5 rounded-full blur-2xl group-hover:bg-indigo-500/10 transition-colors" />
+            <div className="absolute -bottom-4 -right-4 w-24 h-24 bg-sky-500/5 rounded-full blur-2xl group-hover:bg-sky-500/10 transition-colors" />
           </div>
         ))}
       </div>

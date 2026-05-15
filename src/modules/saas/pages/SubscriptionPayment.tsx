@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect } from 'react';
 import { EnvelopeIcon } from '@heroicons/react/24/outline';
 import { PayPalScriptProvider, PayPalButtons } from "@paypal/react-paypal-js";
 
@@ -21,7 +21,7 @@ const BankDetailsDisplay: React.FC = () => {
   const accounts = bankSettings?.bankAccounts || [];
 
   if (accounts.length === 0) {
-    return <div className="text-xs text-indigo-700 dark:text-indigo-400 space-y-1">
+    return <div className="text-xs text-sky-500 dark:text-sky-400 space-y-1">
       <p>Banco Pichincha</p>
       <p>Cuenta: 1234567890</p>
     </div>;
@@ -29,7 +29,7 @@ const BankDetailsDisplay: React.FC = () => {
   return (
     <div className="space-y-3">
       {accounts.map((bank: any) => (
-        <div key={bank.id} className="text-xs text-indigo-700 dark:text-indigo-400 space-y-1 p-3 bg-white/50 dark:bg-slate-800/50 rounded-lg border border-indigo-100 dark:border-indigo-900/50 shadow-sm">
+        <div key={bank.id} className="text-xs text-sky-500 dark:text-sky-400 space-y-1 p-3 bg-white/50 dark:bg-slate-800/50 rounded-lg border border-sky-100 dark:border-sky-900/50 shadow-sm">
           <p><strong>Banco:</strong> {bank.bankName}</p>
           <p><strong>Cuenta:</strong> {bank.bankAccount}</p>
           <p><strong>Tipo:</strong> {bank.bankAccountType}</p>
@@ -303,7 +303,7 @@ const PagoInterno: React.FC<PagoInternoProps> = ({ businessInfo, isExpired = fal
     // Pantalla de espera de aprobación de transferencia
     <>
     {showPendingApproval && (
-      <div className={`min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-amber-50 to-orange-100 dark:from-slate-900 dark:to-amber-900/20`}>
+      <div className={`min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-sky-50 to-sky-100 dark:from-slate-900 dark:to-sky-900/20`}>
         <div className="relative z-50 w-full max-w-md bg-white dark:bg-slate-900 rounded-3xl shadow-2xl p-8 text-center">
           <div className="w-20 h-20 mx-auto mb-6 rounded-full bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center">
             <svg className="w-10 h-10 text-amber-600 dark:text-amber-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -345,7 +345,7 @@ const PagoInterno: React.FC<PagoInternoProps> = ({ businessInfo, isExpired = fal
       
       <div className={`relative z-50 w-full max-w-4xl bg-white dark:bg-slate-900 rounded-3xl shadow-2xl overflow-hidden ${isExpired ? '' : 'mt-8'}`}>
         {/* Header de alerta */}
-        <div className={`p-6 text-white ${isExpired ? 'bg-gradient-to-r from-red-600 to-red-700' : 'bg-gradient-to-r from-indigo-700 to-indigo-700'}`}>
+        <div className={`p-6 text-white ${isExpired ? 'bg-gradient-to-r from-red-600 to-red-700' : 'bg-gradient-to-r from-sky-700 to-sky-700'}`}>
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
               <div className={`w-14 h-14 rounded-full flex items-center justify-center ${isExpired ? 'bg-white/20' : 'bg-white/20'}`}>
@@ -369,7 +369,7 @@ const PagoInterno: React.FC<PagoInternoProps> = ({ businessInfo, isExpired = fal
                     Debe renovar para continuar usando el sistema.
                   </p>
                 ) : (
-                  <p className="text-indigo-100 text-sm">
+                  <p className="text-sky-100 text-sm">
                     Actualice su plan orene nueva suscripción cuando lo desee.
                   </p>
                 )}
@@ -413,7 +413,7 @@ const PagoInterno: React.FC<PagoInternoProps> = ({ businessInfo, isExpired = fal
                     onClick={() => setSelectedPlan(plan.id)}
                     className={`w-full p-4 rounded-2xl border-2 transition-all text-left ${
                       selectedPlan === plan.id
-                        ? 'border-indigo-500 bg-indigo-50 dark:bg-indigo-900/20'
+                        ? 'border-sky-500 bg-sky-50 dark:bg-sky-900/20'
                         : 'border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600'
                     }`}
                   >
@@ -458,7 +458,7 @@ const PagoInterno: React.FC<PagoInternoProps> = ({ businessInfo, isExpired = fal
                   onClick={() => { setPaymentMethod('TRANSFER'); setPaymentData({...paymentData, cardNumber: '', cardName: '', cardExpiry: '', cardCvv: ''}); }}
                   className={`flex-1 py-2 px-4 rounded-xl text-sm font-bold transition-all ${
                     paymentMethod === 'TRANSFER'
-                      ? 'bg-indigo-700 text-white'
+                      ? 'bg-sky-500 text-white'
                       : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400'
                   }`}
                 >
@@ -470,7 +470,7 @@ const PagoInterno: React.FC<PagoInternoProps> = ({ businessInfo, isExpired = fal
                   onClick={() => { setPaymentMethod('CARD'); setPaymentData({...paymentData, transferReference: ''}); }}
                   className={`flex-1 py-2 px-4 rounded-xl text-sm font-bold transition-all ${
                     paymentMethod === 'CARD'
-                      ? 'bg-indigo-700 text-white'
+                      ? 'bg-sky-500 text-white'
                       : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400'
                   }`}
                 >
@@ -482,7 +482,7 @@ const PagoInterno: React.FC<PagoInternoProps> = ({ businessInfo, isExpired = fal
                   onClick={() => { setPaymentMethod('PAYPAL'); setPaymentData({...paymentData, transferReference: ''}); }}
                   className={`flex-1 py-2 px-4 rounded-xl text-sm font-bold transition-all ${
                     paymentMethod === 'PAYPAL'
-                      ? 'bg-indigo-700 text-white'
+                      ? 'bg-sky-500 text-white'
                       : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400'
                   }`}
                 >
@@ -494,8 +494,8 @@ const PagoInterno: React.FC<PagoInternoProps> = ({ businessInfo, isExpired = fal
               {/* Formulario según método */}
               {paymentMethod === 'TRANSFER' && (
                 <div className="space-y-4">
-                  <div className="p-4 bg-indigo-50 dark:bg-indigo-900/20 rounded-xl border border-indigo-200 dark:border-indigo-800">
-                    <p className="text-sm font-bold text-indigo-800 dark:text-blue-300 mb-2">
+                  <div className="p-4 bg-sky-50 dark:bg-sky-900/20 rounded-xl border border-sky-200 dark:border-sky-800">
+                    <p className="text-sm font-bold text-sky-800 dark:text-blue-300 mb-2">
                       Datos para transferencia:
                     </p>
                     <BankDetailsDisplay />
@@ -508,7 +508,7 @@ const PagoInterno: React.FC<PagoInternoProps> = ({ businessInfo, isExpired = fal
                       type="text"
                       value={paymentData.transferReference}
                       onChange={(e) => setPaymentData({ ...paymentData, transferReference: e.target.value })}
-                      className="w-full p-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl font-bold text-sm focus:border-indigo-500 outline-none"
+                      className="w-full p-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl font-bold text-sm focus:border-sky-500 outline-none"
                       placeholder="Ingrese el número de transferencia"
                     />
                   </div>
@@ -518,7 +518,7 @@ const PagoInterno: React.FC<PagoInternoProps> = ({ businessInfo, isExpired = fal
                     <label className="block text-xs font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider mb-2">
                       Comprobante de Pago (Foto)
                     </label>
-                    <div className="border-2 border-dashed border-slate-300 dark:border-slate-600 rounded-xl p-4 text-center hover:border-indigo-500 transition-colors">
+                    <div className="border-2 border-dashed border-slate-300 dark:border-slate-600 rounded-xl p-4 text-center hover:border-sky-500 transition-colors">
                       {paymentProofPreview ? (
                         <div className="relative">
                           <img 
@@ -581,7 +581,7 @@ const PagoInterno: React.FC<PagoInternoProps> = ({ businessInfo, isExpired = fal
                       type="text"
                       value={paymentData.cardNumber}
                       onChange={(e) => setPaymentData({ ...paymentData, cardNumber: e.target.value.replace(/\D/g, '').slice(0, 16) })}
-                      className="w-full p-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl font-bold text-sm focus:border-indigo-500 outline-none"
+                      className="w-full p-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl font-bold text-sm focus:border-sky-500 outline-none"
                       placeholder="1234 5678 9012 3456"
                     />
                   </div>
@@ -593,7 +593,7 @@ const PagoInterno: React.FC<PagoInternoProps> = ({ businessInfo, isExpired = fal
                       type="text"
                       value={paymentData.cardName}
                       onChange={(e) => setPaymentData({ ...paymentData, cardName: e.target.value })}
-                      className="w-full p-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl font-bold text-sm focus:border-indigo-500 outline-none"
+                      className="w-full p-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl font-bold text-sm focus:border-sky-500 outline-none"
                       placeholder="Como aparece en el plástico"
                     />
                   </div>
@@ -606,7 +606,7 @@ const PagoInterno: React.FC<PagoInternoProps> = ({ businessInfo, isExpired = fal
                         type="text"
                         value={paymentData.cardExpiry}
                         onChange={(e) => setPaymentData({ ...paymentData, cardExpiry: e.target.value })}
-                        className="w-full p-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl font-bold text-sm focus:border-indigo-500 outline-none"
+                        className="w-full p-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl font-bold text-sm focus:border-sky-500 outline-none"
                         placeholder="MM/YY"
                       />
                     </div>
@@ -618,7 +618,7 @@ const PagoInterno: React.FC<PagoInternoProps> = ({ businessInfo, isExpired = fal
                         type="text"
                         value={paymentData.cardCvv}
                         onChange={(e) => setPaymentData({ ...paymentData, cardCvv: e.target.value.replace(/\D/g, '').slice(0, 4) })}
-                        className="w-full p-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl font-bold text-sm focus:border-indigo-500 outline-none"
+                        className="w-full p-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl font-bold text-sm focus:border-sky-500 outline-none"
                         placeholder="123"
                       />
                     </div>
@@ -628,8 +628,8 @@ const PagoInterno: React.FC<PagoInternoProps> = ({ businessInfo, isExpired = fal
 
               {paymentMethod === 'PAYPAL' && (
                 <div className="space-y-4">
-                  <div className="p-4 bg-indigo-50 dark:bg-indigo-900/20 rounded-xl border border-indigo-200 dark:border-indigo-800">
-                    <p className="text-sm text-indigo-800 dark:text-blue-300 mb-2 text-center">
+                  <div className="p-4 bg-sky-50 dark:bg-sky-900/20 rounded-xl border border-sky-200 dark:border-sky-800">
+                    <p className="text-sm text-sky-800 dark:text-blue-300 mb-2 text-center">
                       Subtotal: <strong>${(currentPlan.price / 1.15).toFixed(2)} USD</strong><br />
                       IVA 15%: <strong>${(currentPlan.price - currentPlan.price / 1.15).toFixed(2)} USD</strong><br />
                       Total a pagar: <strong className="text-lg">${currentPlan.price.toFixed(2)} USD</strong>
@@ -650,7 +650,7 @@ const PagoInterno: React.FC<PagoInternoProps> = ({ businessInfo, isExpired = fal
                           intent: "CAPTURE",
                           purchase_units: [{
                             amount: { currency_code: "USD", value: currentPlan.price.toFixed(2) },
-                            description: `Suscripción EcuaFact Pro - ${currentPlan.name}`
+                            description: `Suscripción Azul - ${currentPlan.name}`
                           }]
                         });
                       }}
@@ -722,7 +722,7 @@ const PagoInterno: React.FC<PagoInternoProps> = ({ businessInfo, isExpired = fal
                 <div className="border-t border-slate-700 pt-2 mt-2">
                   <div className="flex justify-between items-center">
                     <span className="font-bold text-white">Total a pagar</span>
-                    <span className="text-2xl font-black text-indigo-400">${currentPlan.price.toFixed(2)}</span>
+                    <span className="text-2xl font-black text-sky-400">${currentPlan.price.toFixed(2)}</span>
                   </div>
                 </div>
               </div>
@@ -732,7 +732,7 @@ const PagoInterno: React.FC<PagoInternoProps> = ({ businessInfo, isExpired = fal
                 <button
                   onClick={handlePayment}
                   disabled={isProcessing || (paymentMethod === 'TRANSFER' && (!paymentData.transferReference || !paymentProof)) || (paymentMethod === 'CARD' && (!paymentData.cardNumber || !paymentData.cardName || !paymentData.cardExpiry || !paymentData.cardCvv))}
-                  className="w-full mt-6 py-4 bg-gradient-to-r from-indigo-700 to-indigo-700 hover:from-indigo-700 hover:to-indigo-800 text-white font-black uppercase tracking-widest rounded-xl shadow-lg shadow-indigo-500/25 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                  className="w-full mt-6 py-4 bg-gradient-to-r from-sky-500 to-sky-600 hover:from-sky-600 hover:to-sky-700 text-white font-black uppercase tracking-widest rounded-xl shadow-lg shadow-sky-500/25 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                 >
                   {isProcessing ? (
                     <>

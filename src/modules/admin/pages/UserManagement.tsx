@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect } from 'react';
 import {
   UserIcon,
   ShieldCheckIcon,
@@ -391,7 +391,7 @@ const UserManagement: React.FC<UserManagementProps> = ({ currentUser, onNotify }
           </div>
           <button
             onClick={() => setShowModal(true)}
-            className="px-6 py-3 bg-indigo-700 text-white rounded-2xl font-bold text-sm hover:bg-indigo-800 transition-all shadow-lg shadow-indigo-700/20 flex items-center gap-2"
+            className="px-6 py-3 bg-sky-500 text-white rounded-2xl font-bold text-sm hover:bg-sky-600 transition-all shadow-lg shadow-sky-500/20 flex items-center gap-2"
           >
             <PlusIcon className="w-4 h-4" /> Nuevo Administrador
           </button>
@@ -474,7 +474,7 @@ const UserManagement: React.FC<UserManagementProps> = ({ currentUser, onNotify }
                   const isCurrentUser = user.id === currentUser?.id;
                   
                   return (
-                    <tr key={user.id} className={`hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors ${isCurrentUser ? 'bg-indigo-50/30 dark:bg-indigo-500/5' : ''}`}>
+                    <tr key={user.id} className={`hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors ${isCurrentUser ? 'bg-sky-50/30 dark:bg-sky-500/5' : ''}`}>
                       <td className="px-6 py-4">
                         <div className="flex items-center gap-3">
                           <div className={`w-10 h-10 rounded-xl flex items-center justify-center bg-${roleInfo.color}-100 dark:bg-${roleInfo.color}-500/10`}>
@@ -483,7 +483,7 @@ const UserManagement: React.FC<UserManagementProps> = ({ currentUser, onNotify }
                           <div>
                             <p className="font-bold text-sm text-slate-800 dark:text-white">
                               {user.name || user.email}
-                              {isCurrentUser && <span className="ml-2 text-[9px] bg-indigo-100 dark:bg-indigo-500/20 text-indigo-700 dark:text-indigo-400 px-2 py-0.5 rounded-full font-black">TÚ</span>}
+                              {isCurrentUser && <span className="ml-2 text-[9px] bg-sky-100 dark:bg-sky-500/20 text-sky-500 dark:text-sky-400 px-2 py-0.5 rounded-full font-black">TÚ</span>}
                             </p>
                             {user.name && <p className="text-xs text-slate-400 dark:text-slate-500">{user.email}</p>}
                           </div>
@@ -561,7 +561,7 @@ const UserManagement: React.FC<UserManagementProps> = ({ currentUser, onNotify }
                           {(isSuperAdmin || isAdmin) && !isCurrentUser && (
                             <button
                               onClick={() => openEditModal(user)}
-                              className="p-2 rounded-lg hover:bg-indigo-50 dark:hover:bg-indigo-500/10 text-slate-400 hover:text-indigo-500 transition-colors"
+                              className="p-2 rounded-lg hover:bg-sky-50 dark:hover:bg-sky-500/10 text-slate-400 hover:text-sky-500 transition-colors"
                               title="Editar administrador"
                             >
                               <PencilIcon className="w-4 h-4" />
@@ -712,7 +712,7 @@ const UserManagement: React.FC<UserManagementProps> = ({ currentUser, onNotify }
                 </button>
                 <button
                   type="submit"
-                  className="flex-1 py-3 bg-indigo-700 text-white rounded-xl font-bold text-sm hover:bg-indigo-800 transition-colors shadow-lg shadow-indigo-700/20"
+                  className="flex-1 py-3 bg-sky-500 text-white rounded-xl font-bold text-sm hover:bg-sky-600 transition-colors shadow-lg shadow-sky-500/20"
                 >
                   Crear Usuario
                 </button>
@@ -776,7 +776,7 @@ const UserManagement: React.FC<UserManagementProps> = ({ currentUser, onNotify }
               <button
                 onClick={handleResetPassword}
                 disabled={!tempPassword}
-                className="flex-1 py-3 bg-indigo-700 text-white rounded-xl font-bold text-sm hover:bg-indigo-800 transition-colors shadow-lg shadow-indigo-700/20 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="flex-1 py-3 bg-sky-500 text-white rounded-xl font-bold text-sm hover:bg-sky-600 transition-colors shadow-lg shadow-sky-500/20 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 Restablecer
               </button>
@@ -857,7 +857,7 @@ const UserManagement: React.FC<UserManagementProps> = ({ currentUser, onNotify }
                 </button>
                 <button
                   type="submit"
-                  className="flex-1 py-3 bg-indigo-700 text-white rounded-xl font-bold text-sm hover:bg-indigo-800 transition-colors shadow-lg shadow-indigo-700/20"
+                  className="flex-1 py-3 bg-sky-500 text-white rounded-xl font-bold text-sm hover:bg-sky-600 transition-colors shadow-lg shadow-sky-500/20"
                 >
                   Guardar Cambios
                 </button>

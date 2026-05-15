@@ -1,4 +1,4 @@
-import React from 'react';
+﻿import React from 'react';
 
 type BadgeVariant = 'success' | 'warning' | 'danger' | 'info' | 'neutral';
 
@@ -12,7 +12,7 @@ const variantClasses: Record<BadgeVariant, string> = {
   success: 'bg-emerald-50 text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-400 border-emerald-200 dark:border-emerald-500/30',
   warning: 'bg-amber-50 text-amber-700 dark:bg-amber-500/15 dark:text-amber-400 border-amber-200 dark:border-amber-500/30',
   danger: 'bg-red-50 text-red-700 dark:bg-red-500/15 dark:text-red-400 border-red-200 dark:border-red-500/30',
-  info: 'bg-indigo-50 text-indigo-700 dark:bg-indigo-500/15 dark:text-indigo-400 border-indigo-200 dark:border-indigo-500/30',
+  info: 'bg-sky-50 text-sky-500 dark:bg-sky-500/15 dark:text-sky-400 border-sky-200 dark:border-sky-500/30',
   neutral: 'bg-slate-100 text-slate-600 dark:bg-slate-700 dark:text-slate-400 border-slate-200 dark:border-slate-600',
 };
 

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+﻿import React, { useState } from 'react';
 import { ChartBarIcon, UserIcon, ShoppingCartIcon, PlusIcon, TrashIcon, BanknotesIcon } from '@heroicons/react/24/outline';
 import { PurchaseSettlement, SettlementPayment, InvoiceItem, BusinessInfo, Client, Product } from '../../../types/types';
 import { generateSettlementXML } from '../../../services/settlementService';
@@ -157,8 +157,8 @@ export default function SettlementForm({ business, clients, products, onSubmit }
           <h2 className="text-2xl font-bold text-gray-800">Nueva Liquidación de Compra</h2>
         </div>
 
-        <div className="bg-indigo-50 border-l-4 border-indigo-500 p-4 mb-6">
-          <p className="text-sm text-indigo-700">
+        <div className="bg-sky-50 border-l-4 border-sky-500 p-4 mb-6">
+          <p className="text-sm text-sky-500">
             <strong>Nota:</strong> Las liquidaciones de compra se emiten cuando compras bienes o servicios
             a personas sin RUC o que no están obligadas a emitir comprobantes de venta.
           </p>

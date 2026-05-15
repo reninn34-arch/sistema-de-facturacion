@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect } from 'react';
 import {
   UserIcon,
   UsersIcon,
@@ -260,7 +260,7 @@ const CompanyUsers: React.FC<CompanyUsersProps> = ({ onNotify, businessId }) => 
   const getRoleColor = (role: string) => {
     switch (role) {
       case 'ADMIN': return 'bg-purple-100 text-purple-700 border-purple-200';
-      case 'VENDEDOR': return 'bg-indigo-100 text-indigo-700 border-indigo-200';
+      case 'VENDEDOR': return 'bg-sky-100 text-sky-500 border-sky-200';
       case 'CONTADOR': return 'bg-emerald-100 text-emerald-700 border-emerald-200';
       default: return 'bg-slate-100 text-slate-700 border-slate-200';
     }
@@ -287,7 +287,7 @@ const CompanyUsers: React.FC<CompanyUsersProps> = ({ onNotify, businessId }) => 
             </h2>
             <button 
               onClick={() => setShowModal(true)}
-              className="bg-indigo-700 text-white w-8 h-8 rounded-full flex items-center justify-center hover:scale-110 transition-transform shadow-lg"
+              className="bg-sky-500 text-white w-8 h-8 rounded-full flex items-center justify-center hover:scale-110 transition-transform shadow-lg"
               title="Nuevo Usuario"
             >
               <PlusIcon className="w-4 h-4" />
@@ -317,7 +317,7 @@ const CompanyUsers: React.FC<CompanyUsersProps> = ({ onNotify, businessId }) => 
                 onClick={() => setSelectedUser(user)}
                 className={`p-4 rounded-2xl cursor-pointer border-2 transition-all hover:shadow-md ${
                   selectedUser?.id === user.id 
-                    ? 'border-indigo-500 bg-indigo-50/50' 
+                    ? 'border-sky-500 bg-sky-50/50' 
                     : 'border-transparent bg-slate-50 hover:bg-white hover:border-slate-200'
                 }`}
               >
@@ -406,7 +406,7 @@ const CompanyUsers: React.FC<CompanyUsersProps> = ({ onNotify, businessId }) => 
                 {/* Reset Password */}
                 <button
                   onClick={handleResetPassword}
-                  className="p-6 rounded-2xl border-2 border-indigo-200 bg-indigo-50 hover:bg-indigo-100 transition-all hover:shadow-lg"
+                  className="p-6 rounded-2xl border-2 border-sky-200 bg-sky-50 hover:bg-sky-100 transition-all hover:shadow-lg"
                 >
                   <div className="text-3xl mb-2"><KeyIcon className="w-8 h-8 mx-auto" /></div>
                   <div className="font-black text-sm">Resetear Contraseña</div>
@@ -467,7 +467,7 @@ const CompanyUsers: React.FC<CompanyUsersProps> = ({ onNotify, businessId }) => 
       {showModal && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50">
           <div className="bg-white rounded-[2rem] p-8 w-full max-w-md shadow-2xl relative overflow-hidden">
-            <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-500/10 rounded-full blur-2xl -mr-16 -mt-16 pointer-events-none"></div>
+            <div className="absolute top-0 right-0 w-32 h-32 bg-sky-500/10 rounded-full blur-2xl -mr-16 -mt-16 pointer-events-none"></div>
             
             <div className="relative z-10">
               <h3 className="text-2xl font-black text-slate-800 mb-6 flex items-center gap-2">
@@ -534,7 +534,7 @@ const CompanyUsers: React.FC<CompanyUsersProps> = ({ onNotify, businessId }) => 
                   </button>
                   <button
                     type="submit"
-                    className="px-6 py-3 bg-indigo-700 text-white rounded-xl font-bold hover:bg-indigo-800 transition-colors shadow-lg shadow-indigo-700/30"
+                    className="px-6 py-3 bg-sky-500 text-white rounded-xl font-bold hover:bg-sky-600 transition-colors shadow-lg shadow-sky-500/30"
                   >
                     Crear Usuario
                   </button>
@@ -580,7 +580,7 @@ const CompanyUsers: React.FC<CompanyUsersProps> = ({ onNotify, businessId }) => 
       {showResetModal && selectedUser && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50">
           <div className="bg-white rounded-[2rem] p-8 w-full max-w-md shadow-2xl relative overflow-hidden">
-            <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-500/10 rounded-full blur-2xl -mr-16 -mt-16 pointer-events-none"></div>
+            <div className="absolute top-0 right-0 w-32 h-32 bg-sky-500/10 rounded-full blur-2xl -mr-16 -mt-16 pointer-events-none"></div>
             
             <div className="relative z-10">
               <h3 className="text-2xl font-black text-slate-800 mb-2 flex items-center gap-2">
@@ -617,7 +617,7 @@ const CompanyUsers: React.FC<CompanyUsersProps> = ({ onNotify, businessId }) => 
                   </button>
                   <button
                     type="submit"
-                    className="px-6 py-3 bg-indigo-700 text-white rounded-xl font-bold hover:bg-indigo-800 transition-colors shadow-lg shadow-indigo-700/30"
+                    className="px-6 py-3 bg-sky-500 text-white rounded-xl font-bold hover:bg-sky-600 transition-colors shadow-lg shadow-sky-500/30"
                   >
                     Restablecer
                   </button>

@@ -1,4 +1,4 @@
-import React, { forwardRef } from 'react';
+﻿import React, { forwardRef } from 'react';
 
 interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
   label?: string;
@@ -32,7 +32,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
               ${icon ? 'pl-10' : ''}
               ${error
                 ? 'border-red-400 focus:border-red-500 focus:ring-2 focus:ring-red-500/20'
-                : 'border-slate-300 dark:border-slate-600 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20'
+                : 'border-slate-300 dark:border-slate-600 focus:border-sky-500 focus:ring-2 focus:ring-sky-500/20'
               }
               ${className}
             `}

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect } from 'react';
 import { PayPalScriptProvider, PayPalButtons } from "@paypal/react-paypal-js";
 import {
   CheckCircleIcon,
@@ -28,7 +28,7 @@ const businessTypeIcons: Record<string, { Icon: React.ComponentType<React.SVGPro
   RESTAURANT: { Icon: BuildingStorefrontIcon, color: 'text-rose-600',   bg: 'bg-rose-50',    activeBg: 'bg-rose-100' },
   STORE:      { Icon: ShoppingBagIcon,        color: 'text-violet-600', bg: 'bg-violet-50',  activeBg: 'bg-violet-100' },
   SERVICE:    { Icon: WrenchScrewdriverIcon,  color: 'text-sky-600',    bg: 'bg-sky-50',     activeBg: 'bg-sky-100' },
-  GENERAL:    { Icon: BuildingOffice2Icon,    color: 'text-[#0057FF]',  bg: 'bg-blue-50',   activeBg: 'bg-blue-100' },
+  GENERAL:    { Icon: BuildingOffice2Icon,    color: 'text-[#0EA5E9]',  bg: 'bg-blue-50',   activeBg: 'bg-blue-100' },
 };
 
 const BankDetails: React.FC = () => {
@@ -357,19 +357,19 @@ const SubscriptionPage: React.FC = () => {
       {/* Header */}
       <header className="flex items-center justify-between whitespace-nowrap border-b border-solid border-slate-200 bg-white px-6 py-4 lg:px-40 sticky top-0 z-50 shadow-sm">
         <div className="flex items-center gap-3 cursor-pointer" onClick={() => setStep('plans')}>
-          <div className="w-10 h-10 bg-[#0057FF] rounded-xl flex items-center justify-center shadow-lg shadow-[#0057FF]/20">
+          <div className="w-10 h-10 bg-[#0EA5E9] rounded-xl flex items-center justify-center shadow-lg shadow-[#0EA5E9]/20">
             <DocumentTextIcon className="w-5 h-5 text-white" />
           </div>
-          <h2 className="text-slate-900 text-xl font-extrabold leading-tight tracking-tight">Ecuafact Pro</h2>
+          <h2 className="text-slate-900 text-xl font-extrabold leading-tight tracking-tight">Azul</h2>
         </div>
         <div className="flex flex-1 justify-end gap-4 lg:gap-8 items-center">
           <nav className="hidden md:flex items-center gap-8">
-            <a className="text-slate-600 text-sm font-semibold hover:text-[#0057FF] transition-colors" href="#" onClick={() => setStep('plans')}>Planes</a>
-            <a className="text-slate-600 text-sm font-semibold hover:text-[#0057FF] transition-colors" href="#">Características</a>
-            <a className="text-slate-600 text-sm font-semibold hover:text-[#0057FF] transition-colors" href="#">Soporte</a>
+            <a className="text-slate-600 text-sm font-semibold hover:text-[#0EA5E9] transition-colors" href="#" onClick={() => setStep('plans')}>Planes</a>
+            <a className="text-slate-600 text-sm font-semibold hover:text-[#0EA5E9] transition-colors" href="#">Características</a>
+            <a className="text-slate-600 text-sm font-semibold hover:text-[#0EA5E9] transition-colors" href="#">Soporte</a>
           </nav>
           <div className="flex gap-2">
-            <button onClick={() => window.location.href = '/'} className="flex min-w-[100px] cursor-pointer items-center justify-center rounded-xl h-10 px-4 bg-[#0057FF] text-white text-sm font-bold tracking-tight hover:bg-[#003ACC] transition-all shadow-md shadow-[#0057FF]/20">
+            <button onClick={() => window.location.href = '/'} className="flex min-w-[100px] cursor-pointer items-center justify-center rounded-xl h-10 px-4 bg-[#0EA5E9] text-white text-sm font-bold tracking-tight hover:bg-[#0369A1] transition-all shadow-md shadow-[#0EA5E9]/20">
               Inicio
             </button>
             <button onClick={() => window.location.href = '/login'} className="flex cursor-pointer items-center justify-center rounded-xl h-10 px-4 border border-slate-200 text-slate-700 text-sm font-bold hover:bg-slate-50 transition-all">
@@ -408,17 +408,17 @@ const SubscriptionPage: React.FC = () => {
                       <div
                         className={`flex flex-col gap-6 rounded-2xl border h-full ${
                           isPopular
-                            ? 'border-[#0057FF] bg-white p-6 md:p-8 shadow-2xl shadow-[#0057FF]/10 transform md:scale-105 z-10 ring-1 ring-[#0057FF]/20'
+                            ? 'border-[#0EA5E9] bg-white p-6 md:p-8 shadow-2xl shadow-[#0EA5E9]/10 transform md:scale-105 z-10 ring-1 ring-[#0EA5E9]/20'
                             : 'border border-slate-200 bg-white p-6 md:p-8 shadow-sm hover:shadow-lg transition-shadow'
                         } ${!plan.isActive ? 'opacity-50' : ''}`}
                       >
                         {isPopular && (
-                          <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-[#FF6B35] text-white text-xs font-extrabold px-4 py-1.5 rounded-full uppercase tracking-widest shadow-lg shadow-[#FF6B35]/25">
+                          <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-[#06B6D4] text-white text-xs font-extrabold px-4 py-1.5 rounded-full uppercase tracking-widest shadow-lg shadow-[#06B6D4]/25">
                             Más Popular
                           </div>
                         )}
                         <div className="flex flex-col gap-2">
-                          <h3 className={`${isPopular ? 'text-[#0057FF]' : 'text-slate-500'} text-sm font-extrabold uppercase tracking-widest`}>
+                          <h3 className={`${isPopular ? 'text-[#0EA5E9]' : 'text-slate-500'} text-sm font-extrabold uppercase tracking-widest`}>
                             {plan.name}
                           </h3>
                           <div className="flex items-baseline gap-1">
@@ -429,7 +429,7 @@ const SubscriptionPage: React.FC = () => {
                               /{plan.period}
                             </span>
                           </div>
-                          <p className={`text-sm mt-2 leading-relaxed font-medium ${isPopular ? 'text-[#0057FF]/80' : 'text-slate-500'}`}>
+                          <p className={`text-sm mt-2 leading-relaxed font-medium ${isPopular ? 'text-[#0EA5E9]/80' : 'text-slate-500'}`}>
                             {plan.description}
                           </p>
                         </div>
@@ -450,7 +450,7 @@ const SubscriptionPage: React.FC = () => {
                           disabled={!plan.isActive}
                           className={`w-full flex items-center justify-center rounded-xl h-12 font-bold transition-all ${
                             isPopular
-                              ? 'bg-[#0057FF] text-white hover:bg-[#003ACC] shadow-lg shadow-[#0057FF]/25 hover:-translate-y-0.5'
+                              ? 'bg-[#0EA5E9] text-white hover:bg-[#0369A1] shadow-lg shadow-[#0EA5E9]/25 hover:-translate-y-0.5'
                               : 'bg-[#F8F9FC] text-slate-700 hover:bg-slate-100'
                           } ${!plan.isActive ? 'opacity-50 cursor-not-allowed' : ''}`}
                         >
@@ -509,14 +509,14 @@ const SubscriptionPage: React.FC = () => {
                       onClick={() => handleBusinessTypeSelect(key)}
                       className={`group relative bg-white rounded-3xl p-6 border-2 transition-all duration-300 text-center hover:-translate-y-1 cursor-pointer ${
                         isSelected
-                          ? 'border-[#0057FF] shadow-2xl shadow-[#0057FF]/10'
-                          : 'border-slate-200 hover:border-[#0057FF]/50 hover:shadow-xl'
+                          ? 'border-[#0EA5E9] shadow-2xl shadow-[#0EA5E9]/10'
+                          : 'border-slate-200 hover:border-[#0EA5E9]/50 hover:shadow-xl'
                       }`}
                     >
                       <div className={`w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-5 transition-colors duration-300 ${isSelected ? activeBg : bg} group-hover:${activeBg}`}>
                         <Icon className={`w-8 h-8 ${color} transition-colors duration-300`} />
                       </div>
-                      <h3 className="text-lg font-extrabold text-slate-800 group-hover:text-[#0057FF] transition-colors">{value.label}</h3>
+                      <h3 className="text-lg font-extrabold text-slate-800 group-hover:text-[#0EA5E9] transition-colors">{value.label}</h3>
                       <p className="text-sm text-slate-500 mt-2 leading-relaxed font-medium">{value.description}</p>
                     </button>
                   );
@@ -526,7 +526,7 @@ const SubscriptionPage: React.FC = () => {
               <div className="text-center mt-4">
                 <button
                   onClick={() => setStep('plans')}
-                  className="text-sm text-slate-500 hover:text-[#0057FF] inline-flex items-center gap-1 font-semibold"
+                  className="text-sm text-slate-500 hover:text-[#0EA5E9] inline-flex items-center gap-1 font-semibold"
                 >
                   <ArrowLeftIcon className="w-4 h-4" /> Volver a planes
                 </button>
@@ -536,7 +536,7 @@ const SubscriptionPage: React.FC = () => {
             <div className="flex flex-col lg:flex-row gap-8">
               <div className="flex-1 bg-white rounded-2xl p-8 border border-slate-200 shadow-sm">
                 <div className="mb-6">
-                  <button onClick={() => setStep('businessType')} className="text-sm text-slate-500 hover:text-[#0057FF] mb-4 flex items-center gap-1 font-semibold">
+                  <button onClick={() => setStep('businessType')} className="text-sm text-slate-500 hover:text-[#0EA5E9] mb-4 flex items-center gap-1 font-semibold">
                     <ArrowLeftIcon className="w-4 h-4" /> Volver a tipo de negocio
                   </button>
                   <h2 className="text-2xl font-extrabold text-slate-900">Crea tu cuenta de Empresa</h2>
@@ -546,26 +546,26 @@ const SubscriptionPage: React.FC = () => {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
                   <div className="col-span-2">
                     <label className="block text-sm font-bold text-slate-700 mb-1">Razón Social / Nombre</label>
-                    <input name="businessName" value={formData.businessName} onChange={handleInputChange} className="w-full rounded-xl border-slate-300 bg-slate-50 p-3 text-sm focus:ring-2 focus:ring-[#0057FF] focus:border-[#0057FF] font-medium" placeholder="Ej. Mi Empresa S.A." />
+                    <input name="businessName" value={formData.businessName} onChange={handleInputChange} className="w-full rounded-xl border-slate-300 bg-slate-50 p-3 text-sm focus:ring-2 focus:ring-[#0EA5E9] focus:border-[#0EA5E9] font-medium" placeholder="Ej. Mi Empresa S.A." />
                   </div>
                   <div>
                     <label className="block text-sm font-bold text-slate-700 mb-1">RUC</label>
                     <input name="ruc" value={formData.ruc} onChange={handleInputChange}
-                      className={`w-full rounded-xl border bg-slate-50 p-3 text-sm focus:ring-2 focus:ring-[#0057FF] font-medium ${formData.ruc && !isValidRuc(formData.ruc) ? 'border-red-500 focus:border-red-500' : 'border-slate-300'}`}
+                      className={`w-full rounded-xl border bg-slate-50 p-3 text-sm focus:ring-2 focus:ring-[#0EA5E9] font-medium ${formData.ruc && !isValidRuc(formData.ruc) ? 'border-red-500 focus:border-red-500' : 'border-slate-300'}`}
                       placeholder="179..." maxLength={13}
                     />
                   </div>
                   <div>
                     <label className="block text-sm font-bold text-slate-700 mb-1">Teléfono</label>
-                    <input name="phone" value={formData.phone} onChange={handleInputChange} className="w-full rounded-xl border-slate-300 bg-slate-50 p-3 text-sm focus:ring-2 focus:ring-[#0057FF] focus:border-[#0057FF] font-medium" placeholder="099..." />
+                    <input name="phone" value={formData.phone} onChange={handleInputChange} className="w-full rounded-xl border-slate-300 bg-slate-50 p-3 text-sm focus:ring-2 focus:ring-[#0EA5E9] focus:border-[#0EA5E9] font-medium" placeholder="099..." />
                   </div>
                   <div className="col-span-2">
                     <label className="block text-sm font-bold text-slate-700 mb-1">Dirección</label>
-                    <input name="address" value={formData.address} onChange={handleInputChange} className="w-full rounded-xl border-slate-300 bg-slate-50 p-3 text-sm focus:ring-2 focus:ring-[#0057FF] focus:border-[#0057FF] font-medium" placeholder="Dirección completa" />
+                    <input name="address" value={formData.address} onChange={handleInputChange} className="w-full rounded-xl border-slate-300 bg-slate-50 p-3 text-sm focus:ring-2 focus:ring-[#0EA5E9] focus:border-[#0EA5E9] font-medium" placeholder="Dirección completa" />
                   </div>
                   <div className="col-span-2">
                     <label className="block text-sm font-bold text-slate-700 mb-1">Correo Electrónico</label>
-                    <input name="email" type="email" value={formData.email} onChange={handleInputChange} className="w-full rounded-xl border-slate-300 bg-slate-50 p-3 text-sm focus:ring-2 focus:ring-[#0057FF] focus:border-[#0057FF] font-medium" placeholder="tu.nombre@email.com" />
+                    <input name="email" type="email" value={formData.email} onChange={handleInputChange} className="w-full rounded-xl border-slate-300 bg-slate-50 p-3 text-sm focus:ring-2 focus:ring-[#0EA5E9] focus:border-[#0EA5E9] font-medium" placeholder="tu.nombre@email.com" />
                   </div>
                   <div className="col-span-2">
                     <label className="block text-sm font-bold text-slate-700 mb-1">Contraseña</label>
@@ -575,7 +575,7 @@ const SubscriptionPage: React.FC = () => {
                         type={showPassword ? "text" : "password"}
                         value={formData.password}
                         onChange={handleInputChange}
-                        className={`w-full rounded-xl border bg-slate-50 p-3 text-sm focus:ring-2 focus:ring-[#0057FF] pr-10 font-medium ${formData.password && !isValidPassword(formData.password) ? 'border-red-500 focus:border-red-500' : 'border-slate-300'}`}
+                        className={`w-full rounded-xl border bg-slate-50 p-3 text-sm focus:ring-2 focus:ring-[#0EA5E9] pr-10 font-medium ${formData.password && !isValidPassword(formData.password) ? 'border-red-500 focus:border-red-500' : 'border-slate-300'}`}
                         placeholder="********"
                       />
                       <button
@@ -627,11 +627,11 @@ const SubscriptionPage: React.FC = () => {
                             onClick={() => setPaymentMethod('PAYPAL')}
                             className={`cursor-pointer flex items-center gap-3 p-4 rounded-xl border transition-all mb-2 ${
                               paymentMethod === 'PAYPAL'
-                                ? 'border-[#0057FF] bg-[#0057FF]/5 ring-1 ring-[#0057FF]/20'
-                                : 'border-slate-200 hover:border-[#0057FF]/30'
+                                ? 'border-[#0EA5E9] bg-[#0EA5E9]/5 ring-1 ring-[#0EA5E9]/20'
+                                : 'border-slate-200 hover:border-[#0EA5E9]/30'
                             }`}
                           >
-                            <CreditCardIcon className="w-5 h-5 text-[#0057FF]" />
+                            <CreditCardIcon className="w-5 h-5 text-[#0EA5E9]" />
                             <div>
                               <p className="font-bold text-sm">PayPal / Tarjeta</p>
                               <p className="text-xs text-slate-500 font-medium">Activación inmediata</p>
@@ -643,11 +643,11 @@ const SubscriptionPage: React.FC = () => {
                             onClick={() => setPaymentMethod('TRANSFER')}
                             className={`cursor-pointer flex items-center gap-3 p-4 rounded-xl border transition-all ${
                               paymentMethod === 'TRANSFER'
-                                ? 'border-[#0057FF] bg-[#0057FF]/5 ring-1 ring-[#0057FF]/20'
-                                : 'border-slate-200 hover:border-[#0057FF]/30'
+                                ? 'border-[#0EA5E9] bg-[#0EA5E9]/5 ring-1 ring-[#0EA5E9]/20'
+                                : 'border-slate-200 hover:border-[#0EA5E9]/30'
                             }`}
                           >
-                            <BuildingLibraryIcon className="w-5 h-5 text-[#0057FF]" />
+                            <BuildingLibraryIcon className="w-5 h-5 text-[#0EA5E9]" />
                             <div>
                               <p className="font-bold text-sm">Transferencia</p>
                               <p className="text-xs text-slate-500 font-medium">Aprobación manual (24-48h)</p>
@@ -690,7 +690,7 @@ const SubscriptionPage: React.FC = () => {
                               application_context: { shipping_preference: "NO_SHIPPING", landing_page: "BILLING" },
                               purchase_units: [{
                                 amount: { currency_code: "USD", value: price },
-                                description: `Suscripción EcuaFact Pro - ${(() => {
+                                description: `Suscripción Azul - ${(() => {
                                   const cp = plans.find(p => p.code === selectedPlan);
                                   return cp ? cp.name : 'Plan';
                                 })()}`
@@ -733,7 +733,7 @@ const SubscriptionPage: React.FC = () => {
                         type="text"
                         value={transferReference}
                         onChange={e => setTransferReference(e.target.value)}
-                        className="w-full rounded-xl border-slate-300 bg-slate-50 p-3 text-sm focus:ring-2 focus:ring-[#0057FF] focus:border-[#0057FF] font-medium"
+                        className="w-full rounded-xl border-slate-300 bg-slate-50 p-3 text-sm focus:ring-2 focus:ring-[#0EA5E9] focus:border-[#0EA5E9] font-medium"
                         placeholder="Ej. 00123456789"
                       />
                     </div>
@@ -752,7 +752,7 @@ const SubscriptionPage: React.FC = () => {
                             reader.readAsDataURL(file);
                           }
                         }}
-                        className="w-full rounded-xl border-slate-300 bg-slate-50 p-3 text-sm focus:ring-2 focus:ring-[#0057FF] file:mr-3 file:py-1 file:px-3 file:rounded-xl file:border-0 file:text-sm file:font-bold file:bg-[#0057FF]/10 file:text-[#0057FF] hover:file:bg-[#0057FF]/20 font-medium"
+                        className="w-full rounded-xl border-slate-300 bg-slate-50 p-3 text-sm focus:ring-2 focus:ring-[#0EA5E9] file:mr-3 file:py-1 file:px-3 file:rounded-xl file:border-0 file:text-sm file:font-bold file:bg-[#0EA5E9]/10 file:text-[#0EA5E9] hover:file:bg-[#0EA5E9]/20 font-medium"
                       />
                       {paymentProofPreview && (
                         <div className="mt-2 relative">
@@ -770,7 +770,7 @@ const SubscriptionPage: React.FC = () => {
                       disabled={loading || uploadingProof || !isFormValid}
                       className={`w-full flex items-center justify-center gap-2 rounded-xl h-12 font-bold transition-colors ${loading || uploadingProof || !isFormValid
                           ? 'bg-slate-200 text-slate-400 cursor-not-allowed'
-                          : 'bg-[#0057FF] text-white hover:bg-[#003ACC] shadow-lg shadow-[#0057FF]/25'
+                          : 'bg-[#0EA5E9] text-white hover:bg-[#0369A1] shadow-lg shadow-[#0EA5E9]/25'
                         }`}
                     >
                       {loading || uploadingProof ? (
@@ -833,7 +833,7 @@ const SubscriptionPage: React.FC = () => {
           {/* Footer */}
           <div className="text-center text-slate-400 text-xs flex flex-col gap-2 font-medium">
             <p>Precios expresados en dólares estadounidenses (USD) e incluyen IVA.</p>
-            <p>{new Date().getFullYear()} EcuaFact Pro - Facturación Electrónica Autorizada por el SRI.</p>
+            <p>{new Date().getFullYear()} Azul - Facturación Electrónica Autorizada por el SRI.</p>
           </div>
         </div>
       </main>
@@ -845,7 +845,7 @@ const SubscriptionPage: React.FC = () => {
             key={toast.id}
             className={`pointer-events-auto min-w-[320px] p-6 rounded-[2rem] shadow-2xl backdrop-blur-xl border flex items-start gap-4 text-white animate-fade-in ${
               toast.type === 'error' ? 'bg-red-500/90 border-red-500/50' :
-              toast.type === 'info' ? 'bg-[#0057FF]/90 border-[#0057FF]/50' :
+              toast.type === 'info' ? 'bg-[#0EA5E9]/90 border-[#0EA5E9]/50' :
               'bg-[#10B981]/90 border-[#10B981]/50'
             }`}
           >

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo, useCallback } from 'react';
+﻿import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import {
   BuildingOffice2Icon,
   CheckCircleIcon,
@@ -192,12 +192,12 @@ const SubscriptionManager: React.FC<SubscriptionManagerProps> = ({ businessId, o
               onClick={() => setSelectedBusinessId(b.id)}
               className={`p-4 rounded-2xl cursor-pointer transition-all border-2 group ${
                 String(selectedBusinessId) === String(b.id)
-                  ? 'border-indigo-500 bg-indigo-50 shadow-md'
+                  ? 'border-sky-500 bg-sky-50 shadow-md'
                   : 'border-transparent hover:bg-slate-50 hover:border-slate-200'
               }`}
             >
               <div className="flex justify-between items-start mb-1">
-                <h3 className="font-bold text-slate-800 group-hover:text-indigo-700 transition-colors line-clamp-1">{b.name}</h3>
+                <h3 className="font-bold text-slate-800 group-hover:text-sky-500 transition-colors line-clamp-1">{b.name}</h3>
                 <span className={`text-[10px] font-black uppercase px-2 py-1 rounded-full ${
                   b.isActive ? 'bg-emerald-100 text-emerald-700' : 'bg-red-100 text-red-700'
                 }`}>
@@ -232,12 +232,12 @@ const SubscriptionManager: React.FC<SubscriptionManagerProps> = ({ businessId, o
         {selectedBusiness ? (
           <div className="bg-white rounded-[3rem] shadow-2xl border border-slate-100 h-full flex flex-col relative overflow-hidden">
             {/* Fondo decorativo */}
-            <div className="absolute top-0 right-0 w-64 h-64 bg-indigo-50 rounded-full blur-3xl -mr-32 -mt-32 opacity-50 pointer-events-none"></div>
+            <div className="absolute top-0 right-0 w-64 h-64 bg-sky-50 rounded-full blur-3xl -mr-32 -mt-32 opacity-50 pointer-events-none"></div>
 
             <div className="p-8 pb-0 relative z-10">
               <h2 className="text-3xl font-black text-slate-800 mb-1">{selectedBusiness.name}</h2>
               <p className="text-slate-400 font-medium flex items-center gap-2">
-                <span className="w-2 h-2 rounded-full bg-indigo-500"></span>
+                <span className="w-2 h-2 rounded-full bg-sky-500"></span>
                 Gestión de Suscripción
               </p>
 
@@ -245,19 +245,19 @@ const SubscriptionManager: React.FC<SubscriptionManagerProps> = ({ businessId, o
               <div className="flex gap-4 mt-6 border-b border-slate-100">
                 <button 
                   onClick={() => setActiveTab('manage')}
-                  className={`pb-3 text-sm font-bold transition-colors ${activeTab === 'manage' ? 'text-indigo-700 border-b-2 border-indigo-700' : 'text-slate-400 hover:text-slate-600'}`}
+                  className={`pb-3 text-sm font-bold transition-colors ${activeTab === 'manage' ? 'text-sky-500 border-b-2 border-sky-700' : 'text-slate-400 hover:text-slate-600'}`}
                 >
                   <BoltIcon className="w-4 h-4 inline" /> Gestión Ágil
                 </button>
                 <button 
                   onClick={() => setActiveTab('details')}
-                  className={`pb-3 text-sm font-bold transition-colors ${activeTab === 'details' ? 'text-indigo-700 border-b-2 border-indigo-700' : 'text-slate-400 hover:text-slate-600'}`}
+                  className={`pb-3 text-sm font-bold transition-colors ${activeTab === 'details' ? 'text-sky-500 border-b-2 border-sky-700' : 'text-slate-400 hover:text-slate-600'}`}
                 >
                   <DocumentTextIcon className="w-4 h-4 inline" /> Detalles
                 </button>
                 <button 
                   onClick={() => setActiveTab('history')}
-                  className={`pb-3 text-sm font-bold transition-colors ${activeTab === 'history' ? 'text-indigo-700 border-b-2 border-indigo-700' : 'text-slate-400 hover:text-slate-600'}`}
+                  className={`pb-3 text-sm font-bold transition-colors ${activeTab === 'history' ? 'text-sky-500 border-b-2 border-sky-700' : 'text-slate-400 hover:text-slate-600'}`}
                 >
                   <DocumentIcon className="w-4 h-4 inline" /> Historial
                 </button>
@@ -328,8 +328,8 @@ const SubscriptionManager: React.FC<SubscriptionManagerProps> = ({ businessId, o
                 </div>
               </div>
 
-              <div className="mt-auto bg-slate-900 rounded-[2.5rem] p-8 text-white shadow-2xl shadow-slate-200 relative overflow-hidden group">
-                <div className="absolute inset-0 bg-gradient-to-r from-indigo-700 to-purple-600 opacity-0 group-hover:opacity-10 transition-opacity duration-500"></div>
+              <div className="mt-auto bg-slate-900 rounded-[2.5rem] p-8 text-white shadow-2xl shadow-sky-100 relative overflow-hidden group">
+                <div className="absolute inset-0 bg-gradient-to-r from-sky-700 to-purple-600 opacity-0 group-hover:opacity-10 transition-opacity duration-500"></div>
                 
                 <h3 className="text-xl font-black mb-6 flex items-center gap-2">
                   <RocketLaunchIcon className="w-5 h-5 inline" /> Acciones Rápidas
@@ -378,7 +378,7 @@ const SubscriptionManager: React.FC<SubscriptionManagerProps> = ({ businessId, o
                         <button
                           onClick={() => handleUpdateSubscription(monthsInput)}
                           disabled={loading}
-                          className="flex-1 sm:flex-none px-6 py-3 bg-indigo-700 hover:bg-indigo-500 text-white rounded-xl font-black uppercase tracking-widest transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-indigo-900/50 active:scale-95 text-xs"
+                          className="flex-1 sm:flex-none px-6 py-3 bg-sky-500 hover:bg-sky-600 text-white rounded-xl font-black uppercase tracking-widest transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-indigo-900/50 active:scale-95 text-xs"
                         >
                           {loading ? <ClockIcon className="w-4 h-4 inline animate-spin" /> : 'Aplicar'}
                         </button>
@@ -392,7 +392,7 @@ const SubscriptionManager: React.FC<SubscriptionManagerProps> = ({ businessId, o
               <div className="p-8 flex-1 overflow-y-auto custom-scrollbar">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   {/* Card: Información de la Empresa */}
-                  <div className="bg-gradient-to-br from-indigo-50 to-indigo-50 rounded-[2rem] p-6 border border-indigo-100">
+                  <div className="bg-gradient-to-br from-sky-50 to-sky-50 rounded-[2rem] p-6 border border-sky-100">
                     <h3 className="text-lg font-black text-slate-800 mb-4 flex items-center gap-2">
                       <BuildingOffice2Icon className="w-5 h-5 inline" /> Información de la Empresa
                     </h3>
@@ -407,7 +407,7 @@ const SubscriptionManager: React.FC<SubscriptionManagerProps> = ({ businessId, o
                       </div>
                       <div>
                         <div className="text-xs font-bold text-slate-400 uppercase tracking-widest">Plan</div>
-                        <div className="font-bold text-indigo-700">{selectedBusiness.plan === 'MONTHLY' ? 'Mensual' : selectedBusiness.plan === 'SEMIANNUAL' ? 'Semestral' : selectedBusiness.plan === 'YEARLY' ? 'Anual' : selectedBusiness.plan === 'PENDING' ? 'Pendiente' : selectedBusiness.plan || 'Mensual'}</div>
+                        <div className="font-bold text-sky-500">{selectedBusiness.plan === 'MONTHLY' ? 'Mensual' : selectedBusiness.plan === 'SEMIANNUAL' ? 'Semestral' : selectedBusiness.plan === 'YEARLY' ? 'Anual' : selectedBusiness.plan === 'PENDING' ? 'Pendiente' : selectedBusiness.plan || 'Mensual'}</div>
                       </div>
                     </div>
                   </div>
@@ -450,7 +450,7 @@ const SubscriptionManager: React.FC<SubscriptionManagerProps> = ({ businessId, o
                     </h3>
                     <div className="grid grid-cols-3 gap-4">
                       <div className="text-center p-4 bg-white/50 rounded-2xl">
-                        <div className="text-2xl font-black text-indigo-700">
+                        <div className="text-2xl font-black text-sky-500">
                           {daysRemaining !== null ? Math.max(0, daysRemaining) : '∞'}
                         </div>
                         <div className="text-xs font-bold text-slate-400 uppercase">Días Restantes</div>

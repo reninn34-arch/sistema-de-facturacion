@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect } from 'react';
 import { ArrowPathIcon, MagnifyingGlassIcon, InboxIcon, DocumentTextIcon, ArrowUpTrayIcon, CheckIcon, XMarkIcon, BuildingOffice2Icon, CheckCircleIcon, NoSymbolIcon, InformationCircleIcon } from '@heroicons/react/24/outline';
 
 const API_URL = import.meta.env.VITE_BACKEND_URL || '';
@@ -204,7 +204,7 @@ const ActivationRequests: React.FC<ActivationRequestsProps> = ({ onNotify }) => 
           <div className="flex gap-3">
             <button
               onClick={() => loadRequests()}
-              className="flex items-center justify-center gap-2 rounded-lg h-10 px-4 bg-primary text-white text-sm font-bold shadow-lg shadow-primary/20 hover:bg-indigo-800 transition-all"
+              className="flex items-center justify-center gap-2 rounded-lg h-10 px-4 bg-sky-500 text-white text-sm font-bold shadow-lg shadow-sky-500/20 hover:bg-sky-400 transition-all"
             >
               <ArrowPathIcon className="w-[18px] h-[18px]" />
               Actualizar
@@ -217,7 +217,7 @@ const ActivationRequests: React.FC<ActivationRequestsProps> = ({ onNotify }) => 
             onClick={() => setActiveTab('PENDING')}
             className={`flex flex-col items-center justify-center border-b-2 pb-3 pt-2 transition-colors ${
               activeTab === 'PENDING' 
-                ? 'border-primary text-primary' 
+                ? 'border-sky-500 text-sky-500' 
                 : 'border-transparent text-slate-500 dark:text-slate-400 hover:text-slate-700'
             }`}
           >
@@ -255,7 +255,7 @@ const ActivationRequests: React.FC<ActivationRequestsProps> = ({ onNotify }) => 
               placeholder="Buscar por empresa o RUC..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="block w-full pl-10 pr-3 py-2 border border-slate-200 dark:border-slate-700 rounded-lg bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-primary/50"
+              className="block w-full pl-10 pr-3 py-2 border border-slate-200 dark:border-slate-700 rounded-lg bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-sky-500/50"
             />
           </div>
         </div>
@@ -263,7 +263,7 @@ const ActivationRequests: React.FC<ActivationRequestsProps> = ({ onNotify }) => 
         <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden flex-1">
           {loading ? (
             <div className="flex items-center justify-center h-64">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-sky-500"></div>
             </div>
           ) : filteredRequests.length === 0 ? (
             <div className="flex flex-col items-center justify-center h-64 text-slate-400">
@@ -289,7 +289,7 @@ const ActivationRequests: React.FC<ActivationRequestsProps> = ({ onNotify }) => 
                   {filteredRequests.map((req) => (
                     <tr 
                       key={req.id} 
-                      className={`hover:bg-slate-50 dark:hover:bg-slate-800/50 cursor-pointer transition-colors ${selectedRequest?.id === req.id ? 'bg-primary/5' : ''}`}
+                      className={`hover:bg-slate-50 dark:hover:bg-slate-800/50 cursor-pointer transition-colors ${selectedRequest?.id === req.id ? 'bg-sky-500/5' : ''}`}
                       onClick={() => setSelectedRequest(req)}
                     >
                       <td className="px-6 py-4 text-sm text-slate-600 dark:text-slate-400">
@@ -302,7 +302,7 @@ const ActivationRequests: React.FC<ActivationRequestsProps> = ({ onNotify }) => 
                         </div>
                       </td>
                       <td className="px-6 py-4">
-                        <span className="px-3 py-1 rounded-full text-xs font-bold bg-primary/10 text-primary">
+                        <span className="px-3 py-1 rounded-full text-xs font-bold bg-sky-500/10 text-sky-500">
                           {getPlanName(req.plan)}
                         </span>
                       </td>
@@ -383,9 +383,9 @@ const ActivationRequests: React.FC<ActivationRequestsProps> = ({ onNotify }) => 
           </div>
           
           <div className="p-6 flex flex-col gap-6">
-            <div className="p-4 bg-primary/5 rounded-xl border border-primary/10">
+            <div className="p-4 bg-sky-500/5 rounded-xl border border-sky-500/10">
               <div className="flex items-center gap-4 mb-4">
-                <div className="size-12 rounded-full bg-primary/20 flex items-center justify-center text-primary">
+                <div className="size-12 rounded-full bg-sky-500/20 flex items-center justify-center text-sky-500">
                   <BuildingOffice2Icon className="w-7 h-7" />
                 </div>
                 <div>
@@ -413,7 +413,7 @@ const ActivationRequests: React.FC<ActivationRequestsProps> = ({ onNotify }) => 
                 </div>
                 <div>
                   <p className="text-xs text-slate-500 mb-0.5">Monto</p>
-                  <p className="font-bold text-primary">${selectedRequest.amount.toFixed(2)}</p>
+                  <p className="font-bold text-sky-500">${selectedRequest.amount.toFixed(2)}</p>
                 </div>
               </div>
             </div>
@@ -457,7 +457,7 @@ const ActivationRequests: React.FC<ActivationRequestsProps> = ({ onNotify }) => 
             <div className="p-4 bg-slate-50 dark:bg-slate-800 rounded-xl">
               <div className="flex items-center justify-between mb-2">
                 <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">Plan Solicitado</span>
-                <span className="px-3 py-1 rounded-full text-xs font-bold bg-primary/10 text-primary">
+                <span className="px-3 py-1 rounded-full text-xs font-bold bg-sky-500/10 text-sky-500">
                   {getPlanName(selectedRequest.plan)}
                 </span>
               </div>
@@ -616,8 +616,8 @@ const ActivationRequests: React.FC<ActivationRequestsProps> = ({ onNotify }) => 
             {/* Header */}
             <div className="flex items-center justify-between p-4 border-b border-slate-100 dark:border-slate-800">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-indigo-100 dark:bg-indigo-900/30 flex items-center justify-center">
-                  <DocumentTextIcon className="w-5 h-5 text-indigo-700 dark:text-indigo-500" />
+                <div className="w-10 h-10 rounded-full bg-sky-100 dark:bg-sky-900/30 flex items-center justify-center">
+                  <DocumentTextIcon className="w-5 h-5 text-sky-500 dark:text-sky-500" />
                 </div>
                 <div>
                   <h3 className="text-lg font-bold text-slate-900 dark:text-slate-100">Comprobante de Pago</h3>

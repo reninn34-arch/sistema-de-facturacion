@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+﻿import React, { useState, useRef, useEffect } from 'react';
 import { SparklesIcon } from '@heroicons/react/24/outline';
 import { client } from '../../../api/client';
 import { BusinessInfo } from '../../../types/types';
@@ -83,7 +83,7 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ businessInfo }) => {
     <div className="flex flex-col h-[calc(100vh-140px)] max-w-4xl mx-auto bg-white rounded-[2.5rem] shadow-xl overflow-hidden border border-slate-100">
       {/* Header */}
       <div className="bg-slate-900 p-6 flex items-center gap-4">
-        <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-indigo-500 to-purple-600 flex items-center justify-center shadow-lg shadow-indigo-500/20">
+        <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-sky-500 to-purple-600 flex items-center justify-center shadow-lg shadow-sky-500/20">
           <SparklesIcon className="w-7 h-7 text-white" />
         </div>
         <div>
@@ -98,11 +98,11 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ businessInfo }) => {
           <div key={msg.id} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
             <div className={`max-w-[80%] p-5 rounded-3xl text-sm leading-relaxed shadow-sm ${
               msg.role === 'user' 
-                ? 'bg-indigo-700 text-white rounded-br-none' 
+                ? 'bg-sky-500 text-white rounded-br-none' 
                 : 'bg-white text-slate-600 border border-slate-100 rounded-bl-none'
             }`}>
               <p className="whitespace-pre-wrap">{msg.text}</p>
-              <span className={`text-[10px] block mt-2 opacity-50 ${msg.role === 'user' ? 'text-indigo-100' : 'text-slate-400'}`}>
+              <span className={`text-[10px] block mt-2 opacity-50 ${msg.role === 'user' ? 'text-sky-100' : 'text-slate-400'}`}>
                 {msg.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
               </span>
             </div>
@@ -111,9 +111,9 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ businessInfo }) => {
         {loading && (
            <div className="flex justify-start">
             <div className="bg-white p-5 rounded-3xl rounded-bl-none border border-slate-100 shadow-sm flex gap-2 items-center">
-              <div className="w-2 h-2 bg-indigo-500 rounded-full animate-bounce" />
-              <div className="w-2 h-2 bg-indigo-500 rounded-full animate-bounce delay-75" />
-              <div className="w-2 h-2 bg-indigo-500 rounded-full animate-bounce delay-150" />
+              <div className="w-2 h-2 bg-sky-500 rounded-full animate-bounce" />
+              <div className="w-2 h-2 bg-sky-500 rounded-full animate-bounce delay-75" />
+              <div className="w-2 h-2 bg-sky-500 rounded-full animate-bounce delay-150" />
             </div>
           </div>
         )}
@@ -128,13 +128,13 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ businessInfo }) => {
             value={input}
             onChange={(e) => setInput(e.target.value)}
             placeholder="Escribe tu consulta sobre impuestos, SRI o el sistema..."
-            className="flex-1 bg-slate-50 hover:bg-slate-100 focus:bg-white border-2 border-transparent focus:border-indigo-500 rounded-2xl px-6 py-4 outline-none transition-all text-sm font-medium text-slate-700 placeholder:text-slate-400"
+            className="flex-1 bg-slate-50 hover:bg-slate-100 focus:bg-white border-2 border-transparent focus:border-sky-500 rounded-2xl px-6 py-4 outline-none transition-all text-sm font-medium text-slate-700 placeholder:text-slate-400"
             disabled={loading}
           />
           <button 
             type="submit"
             disabled={!input.trim() || loading}
-            className="bg-indigo-700 hover:bg-indigo-800 disabled:bg-slate-200 disabled:text-slate-400 text-white rounded-2xl px-8 transition-all shadow-lg shadow-indigo-500/20 active:scale-95 flex items-center justify-center font-bold"
+            className="bg-sky-500 hover:bg-sky-600 disabled:bg-slate-200 disabled:text-slate-400 text-white rounded-2xl px-8 transition-all shadow-lg shadow-sky-500/20 active:scale-95 flex items-center justify-center font-bold"
           >
             Enviar
           </button>

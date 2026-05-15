@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+﻿import React, { useState, useEffect, useRef, useCallback } from 'react';
 import {
   Bars3Icon,
   XMarkIcon,
@@ -69,7 +69,7 @@ const businessTypeIcons: Record<string, { Icon: React.ComponentType<React.SVGPro
   RESTAURANT: { Icon: BuildingStorefrontIcon, color: 'text-rose-600',    bg: 'bg-rose-50 group-hover:bg-rose-100' },
   STORE:      { Icon: ShoppingBagIcon,        color: 'text-violet-600',  bg: 'bg-violet-50 group-hover:bg-violet-100' },
   SERVICE:    { Icon: WrenchScrewdriverIcon,  color: 'text-sky-600',     bg: 'bg-sky-50 group-hover:bg-sky-100' },
-  GENERAL:    { Icon: BuildingOffice2Icon,    color: 'text-[#0057FF]',   bg: 'bg-blue-50 group-hover:bg-blue-100' },
+  GENERAL:    { Icon: BuildingOffice2Icon,    color: 'text-[#0EA5E9]',   bg: 'bg-blue-50 group-hover:bg-blue-100' },
 };
 
 const getDefaultContent = (): LandingContent => ({
@@ -111,27 +111,27 @@ const getDefaultContent = (): LandingContent => ({
     { step: '03', title: 'Empieza a facturar', description: 'Crea productos, recetas y emite tu primera factura electrónica.' },
   ],
   testimonials: [
-    { name: 'Maria Elena G.', business: 'Panadería Dulce Hogar', quote: 'Desde que uso Ecuafact Pro puedo saber exactamente cuánta harina gasto por cada lote de pan. El control de recetas me cambió el negocio.', rating: 5 },
+    { name: 'Maria Elena G.', business: 'Panadería Dulce Hogar', quote: 'Desde que uso Azul puedo saber exactamente cuánta harina gasto por cada lote de pan. El control de recetas me cambió el negocio.', rating: 5 },
     { name: 'Carlos R.', business: 'Restaurante El Sabor', quote: 'Las recetas y el control de producción me permiten calcular el costo real de cada plato. Ahora sé cuánto gano por cada venta.', rating: 5 },
     { name: 'Patricia M.', business: 'Tienda MultiStock', quote: 'El kardex y la facturación electrónica me ahorran horas de trabajo. Mis contadores están felices con los reportes.', rating: 5 },
   ],
   faq: [
     { question: 'Que tipos de negocio soportan?', answer: 'Soportamos panaderías, restaurantes, tiendas, servicios profesionales y cualquier tipo de comercio. Cada tipo activa los módulos que realmente necesita.' },
     { question: 'Como funciona el control de recetas?', answer: 'Puedes crear recetas vinculando productos terminados con sus ingredientes (materia prima). Al registrar una producción, el sistema descuenta automáticamente los insumos del inventario y calcula el costo.' },
-    { question: 'Las facturas son validas para el SRI?', answer: 'Si. Ecuafact Pro genera facturas electrónicas con todas las especificaciones del SRI Ecuador, incluyendo clave de acceso, firma electrónica y envio de XML.' },
+    { question: 'Las facturas son validas para el SRI?', answer: 'Si. Azul genera facturas electrónicas con todas las especificaciones del SRI Ecuador, incluyendo clave de acceso, firma electrónica y envio de XML.' },
     { question: 'Puedo cambiar de plan después?', answer: 'Si, puedes actualizar o cambiar de plan en cualquier momento desde el panel de suscripción. Los cambios se aplican al siguiente ciclo de facturación.' },
     { question: 'Mis datos están seguros?', answer: 'Tus datos se almacenan encriptados en servidores seguros AWS. Nadie más que tú y tus usuarios autorizados tiene acceso a tu información.' },
     { question: 'Ofrecen soporte técnico?', answer: 'Si. El plan Pro incluye soporte prioritario por chat y email. El plan Enterprise tiene soporte 24/7. Todos los planes tienen acceso a nuestra base de conocimiento.' },
   ],
   finalCta: {
     headline: 'Listo para transformar tu negocio?',
-    subheadline: 'Únete a +450 negocios que ya facturan y controlan su producción con Ecuafact Pro. Empieza gratis hoy, sin compromiso.',
+    subheadline: 'Únete a +450 negocios que ya facturan y controlan su producción con Azul. Empieza gratis hoy, sin compromiso.',
     primaryCta: 'Comenzar Gratis Ahora',
     secondaryCta: 'Ya tengo cuenta',
   },
   contact: {
     phone: '+593 99 999 9999',
-    email: 'info@ecuafact.pro',
+    email: 'info@Azul.pro',
     hours: 'Lun - Vie: 08:00 - 18:00',
   },
   footer: {
@@ -143,11 +143,11 @@ const getDefaultContent = (): LandingContent => ({
   },
   ayudaPage: {
     title: 'Centro de Ayuda',
-    subtitle: 'Encuentra respuestas a las preguntas mas frecuentes sobre Ecuafact Pro.',
+    subtitle: 'Encuentra respuestas a las preguntas mas frecuentes sobre Azul.',
     faqs: [
       { question: '¿Qué tipos de negocio soportan?', answer: 'Soportamos panaderías, restaurantes, tiendas, servicios profesionales y cualquier tipo de comercio. Cada tipo activa los módulos que realmente necesita.' },
       { question: '¿Cómo funciona el control de recetas?', answer: 'Puedes crear recetas vinculando productos terminados con sus ingredientes (materia prima). Al registrar una producción, el sistema descuenta automáticamente los insumos del inventario y calcula el costo.' },
-      { question: '¿Las facturas son válidas para el SRI?', answer: 'Sí. Ecuafact Pro genera facturas electrónicas con todas las especificaciones del SRI Ecuador, incluyendo clave de acceso, firma electrónica y envío de XML.' },
+      { question: '¿Las facturas son válidas para el SRI?', answer: 'Sí. Azul genera facturas electrónicas con todas las especificaciones del SRI Ecuador, incluyendo clave de acceso, firma electrónica y envío de XML.' },
       { question: '¿Puedo cambiar de plan después?', answer: 'Sí, puedes actualizar o cambiar de plan en cualquier momento desde el panel de suscripción. Los cambios se aplican al siguiente ciclo de facturación.' },
       { question: '¿Mis datos están seguros?', answer: 'Tus datos se almacenan encriptados en servidores seguros AWS. Nadie más que tú y tus usuarios autorizados tiene acceso a tu información.' },
       { question: '¿Ofrecen soporte técnico?', answer: 'Sí. El plan Pro incluye soporte prioritario por chat y email. El plan Enterprise tiene soporte 24/7. Todos los planes tienen acceso a nuestra base de conocimiento.' },
@@ -163,7 +163,7 @@ const getDefaultContent = (): LandingContent => ({
     title: 'Información Legal',
     terms: {
       title: 'Términos y Condiciones',
-      content: '<h3>1. Aceptación de los Términos</h3><p>Al utilizar Ecuafact Pro, usted acepta estos términos y condiciones. Si no está de acuerdo, no utilice el servicio.</p><h3>2. Descripción del Servicio</h3><p>Ecuafact Pro es un sistema de facturación electrónica autorizado por el SRI Ecuador. Permite emitir facturas, notas de crédito, retenciones, guías de remisión y liquidaciones de compra.</p><h3>3. Obligaciones del Usuario</h3><p>El usuario es responsable de mantener la confidencialidad de sus credenciales y de toda actividad que ocurra bajo su cuenta.</p><h3>4. Facturación y Pagos</h3><p>Los planes se facturan mensualmente. El usuario puede cancelar en cualquier momento, pero no se realizan reembolsos por períodos parciales.</p><h3>5. Limitación de Responsabilidad</h3><p>Ecuafact Pro no se hace responsable por interrupciones del servicio causadas por factores externos, incluyendo fallos del SRI.</p>',
+      content: '<h3>1. Aceptación de los Términos</h3><p>Al utilizar Azul, usted acepta estos términos y condiciones. Si no está de acuerdo, no utilice el servicio.</p><h3>2. Descripción del Servicio</h3><p>Azul es un sistema de facturación electrónica autorizado por el SRI Ecuador. Permite emitir facturas, notas de crédito, retenciones, guías de remisión y liquidaciones de compra.</p><h3>3. Obligaciones del Usuario</h3><p>El usuario es responsable de mantener la confidencialidad de sus credenciales y de toda actividad que ocurra bajo su cuenta.</p><h3>4. Facturación y Pagos</h3><p>Los planes se facturan mensualmente. El usuario puede cancelar en cualquier momento, pero no se realizan reembolsos por períodos parciales.</p><h3>5. Limitación de Responsabilidad</h3><p>Azul no se hace responsable por interrupciones del servicio causadas por factores externos, incluyendo fallos del SRI.</p>',
     },
     privacy: {
       title: 'Política de Privacidad',
@@ -323,7 +323,7 @@ const LandingPage: React.FC = () => {
   return (
     <div className="min-h-screen bg-white overflow-x-hidden" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
       {/* ===== TOP INFO BAR ===== */}
-      <div className="hidden lg:block bg-[#003ACC] text-white text-xs font-medium">
+      <div className="hidden lg:block bg-[#0369A1] text-white text-xs font-medium">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between h-9">
           <div className="flex items-center gap-6">
             <a href={`tel:${landingContent.contact.phone.replace(/\s/g, '')}`} className="flex items-center gap-1.5 hover:text-white/80 transition-colors">
@@ -344,7 +344,7 @@ const LandingPage: React.FC = () => {
       {/* ===== MAIN NAV ===== */}
       <nav className={`fixed top-0 lg:top-9 left-0 right-0 z-50 transition-all duration-300 ${
         scrolled
-          ? 'bg-white/95 backdrop-blur-md shadow-lg shadow-slate-200/30'
+          ? 'bg-white/95 backdrop-blur-md shadow-lg shadow-sky-100/30'
           : 'bg-transparent lg:bg-white/80 lg:backdrop-blur-sm'
       }`}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -352,35 +352,35 @@ const LandingPage: React.FC = () => {
             <div className="flex items-center gap-2.5">
               <div className={`w-10 h-10 rounded-xl flex items-center justify-center shadow-lg transition-all duration-300 ${
                 scrolled
-                  ? 'bg-[#0057FF] shadow-[#0057FF]/30'
-                  : 'bg-white/20 shadow-white/10 lg:bg-[#0057FF] lg:shadow-[#0057FF]/30'
+                  ? 'bg-[#0EA5E9] shadow-[#0EA5E9]/30'
+                  : 'bg-white/20 shadow-white/10 lg:bg-[#0EA5E9] lg:shadow-[#0EA5E9]/30'
               }`}>
                 <DocumentTextIcon className="w-5 h-5 text-white" />
               </div>
               <span className={`text-xl font-extrabold tracking-tight transition-colors duration-300 ${
                 scrolled ? 'text-slate-900' : 'text-white lg:text-slate-900'
               }`}>
-                ECUAFACT <span className={`transition-colors duration-300 ${
-                  scrolled ? 'text-[#0057FF]' : 'text-white/90 lg:text-[#0057FF]'
+                Azul <span className={`transition-colors duration-300 ${
+                  scrolled ? 'text-[#0EA5E9]' : 'text-white/90 lg:text-[#0EA5E9]'
                 }`}>PRO</span>
               </span>
             </div>
 
             <div className="hidden lg:flex items-center gap-8">
-              <a href="#features" className="text-sm font-semibold text-slate-600 hover:text-[#0057FF] transition-colors">Funcionalidades</a>
-              <a href="#why" className="text-sm font-semibold text-slate-600 hover:text-[#0057FF] transition-colors">Por qué Ecuafact</a>
-              <a href="#business-types" className="text-sm font-semibold text-slate-600 hover:text-[#0057FF] transition-colors">Negocios</a>
-              <a href="#pricing" className="text-sm font-semibold text-slate-600 hover:text-[#0057FF] transition-colors">Planes</a>
-              <a href="#testimonials" className="text-sm font-semibold text-slate-600 hover:text-[#0057FF] transition-colors">Testimonios</a>
+              <a href="#features" className="text-sm font-semibold text-slate-600 hover:text-[#0EA5E9] transition-colors">Funcionalidades</a>
+              <a href="#why" className="text-sm font-semibold text-slate-600 hover:text-[#0EA5E9] transition-colors">Por qué Azul</a>
+              <a href="#business-types" className="text-sm font-semibold text-slate-600 hover:text-[#0EA5E9] transition-colors">Negocios</a>
+              <a href="#pricing" className="text-sm font-semibold text-slate-600 hover:text-[#0EA5E9] transition-colors">Planes</a>
+              <a href="#testimonials" className="text-sm font-semibold text-slate-600 hover:text-[#0EA5E9] transition-colors">Testimonios</a>
               <a
                 href="/login"
-                className="text-sm font-bold text-slate-700 hover:text-[#0057FF] transition-colors px-3 py-2"
+                className="text-sm font-bold text-slate-700 hover:text-[#0EA5E9] transition-colors px-3 py-2"
               >
                 Iniciar Sesión
               </a>
               <a
                 href="/suscripcion"
-                className="text-sm font-bold bg-[#0057FF] text-white px-6 py-2.5 rounded-xl hover:bg-[#003ACC] transition-all shadow-lg shadow-[#0057FF]/25 hover:shadow-[#0057FF]/40 hover:-translate-y-0.5"
+                className="text-sm font-bold bg-[#0EA5E9] text-white px-6 py-2.5 rounded-xl hover:bg-[#0369A1] transition-all shadow-lg shadow-[#0EA5E9]/25 hover:shadow-[#0EA5E9]/40 hover:-translate-y-0.5"
               >
                 Comenzar Gratis
               </a>
@@ -403,21 +403,21 @@ const LandingPage: React.FC = () => {
           <div className="lg:hidden bg-white border-t border-slate-100 shadow-2xl">
             <div className="px-4 py-4 space-y-3">
               <a href="#features" className="block py-3 px-4 text-sm font-semibold text-slate-700 hover:bg-slate-50 rounded-xl" onClick={() => setMobileMenuOpen(false)}>Funcionalidades</a>
-              <a href="#why" className="block py-3 px-4 text-sm font-semibold text-slate-700 hover:bg-slate-50 rounded-xl" onClick={() => setMobileMenuOpen(false)}>Por qué Ecuafact</a>
+              <a href="#why" className="block py-3 px-4 text-sm font-semibold text-slate-700 hover:bg-slate-50 rounded-xl" onClick={() => setMobileMenuOpen(false)}>Por qué Azul</a>
               <a href="#business-types" className="block py-3 px-4 text-sm font-semibold text-slate-700 hover:bg-slate-50 rounded-xl" onClick={() => setMobileMenuOpen(false)}>Negocios</a>
               <a href="#pricing" className="block py-3 px-4 text-sm font-semibold text-slate-700 hover:bg-slate-50 rounded-xl" onClick={() => setMobileMenuOpen(false)}>Planes</a>
               <a href="/login" className="block py-3 px-4 text-sm font-bold text-slate-700 hover:bg-slate-50 rounded-xl">Iniciar Sesión</a>
-              <a href="/suscripcion" className="block py-3 px-4 text-sm font-bold bg-[#0057FF] text-white text-center rounded-xl">Comenzar Gratis</a>
+              <a href="/suscripcion" className="block py-3 px-4 text-sm font-bold bg-[#0EA5E9] text-white text-center rounded-xl">Comenzar Gratis</a>
             </div>
           </div>
         )}
       </nav>
 
       {/* ===== HERO ===== */}
-      <section className="relative overflow-hidden bg-gradient-to-br from-[#003ACC] via-[#003ACC] to-[#0057FF]" style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', justifyContent: 'center', paddingTop: '80px', paddingBottom: 'clamp(180px, 22vw, 200px)' }}>
+      <section className="relative overflow-hidden bg-gradient-to-br from-[#0369A1] via-[#0369A1] to-[#0EA5E9]" style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', justifyContent: 'center', paddingTop: '80px', paddingBottom: 'clamp(180px, 22vw, 200px)' }}>
         <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiNmZmYiIGZpbGwtb3BhY2l0eT0iMC4wMyI+PGNpcmNsZSBjeD0iMzAiIGN5PSIzMCIgcj0iMiIvPjwvZz48L2c+PC9zdmc+')] opacity-50" />
-        <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-[#0057FF]/20 rounded-full blur-3xl -translate-y-1/2 translate-x-1/4" />
-        <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-[#003ACC]/40 rounded-full blur-3xl translate-y-1/2 -translate-x-1/4" />
+        <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-[#0EA5E9]/20 rounded-full blur-3xl -translate-y-1/2 translate-x-1/4" />
+        <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-[#0369A1]/40 rounded-full blur-3xl translate-y-1/2 -translate-x-1/4" />
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           <div className="grid lg:grid-cols-2 gap-10 lg:gap-16 items-center">
@@ -426,7 +426,7 @@ const LandingPage: React.FC = () => {
               <div className="inline-flex items-center gap-2 bg-white/15 backdrop-blur-sm text-white text-xs font-bold px-4 py-2 rounded-full mb-5 border border-white/10">
                 <SparklesIcon className="w-4 h-4" />
                 <span className="flex items-center gap-1">
-                  <span className="bg-[#FF6B35] text-white text-[10px] font-black px-1.5 py-0.5 rounded-full">NUEVO</span>
+                  <span className="bg-[#06B6D4] text-white text-[10px] font-black px-1.5 py-0.5 rounded-full">NUEVO</span>
                   {landingContent.hero.badge}
                 </span>
               </div>
@@ -434,7 +434,7 @@ const LandingPage: React.FC = () => {
               {/* Headline — directo y corto */}
               <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-white leading-[1.08] tracking-tight">
                 Factura electrónico<br />
-                <span className="text-[#FF6B35]">desde el día uno.</span>
+                <span className="text-[#06B6D4]">desde el día uno.</span>
               </h1>
 
               {/* Subheadline — una línea */}
@@ -446,7 +446,7 @@ const LandingPage: React.FC = () => {
               <div className="mt-6 flex flex-col sm:flex-row gap-3 justify-center lg:justify-start">
                 <a
                   href="/suscripcion"
-                  className="inline-flex items-center justify-center gap-2 bg-[#FF6B35] text-white px-7 py-3.5 rounded-2xl font-bold text-base hover:bg-[#e55a2b] transition-all shadow-2xl shadow-[#FF6B35]/30 hover:-translate-y-0.5"
+                  className="inline-flex items-center justify-center gap-2 bg-[#06B6D4] text-white px-7 py-3.5 rounded-2xl font-bold text-base hover:bg-[#e55a2b] transition-all shadow-2xl shadow-[#06B6D4]/30 hover:-translate-y-0.5"
                 >
                   {landingContent.hero.primaryCta}
                   <ArrowRightIcon className="w-5 h-5" />
@@ -470,12 +470,12 @@ const LandingPage: React.FC = () => {
             <div className="relative hidden lg:block">
               <div className="relative z-10 bg-white rounded-3xl shadow-2xl p-6 border border-slate-100">
                 <div className="flex items-center gap-3 mb-5">
-                  <div className="w-10 h-10 bg-[#0057FF] rounded-xl flex items-center justify-center">
+                  <div className="w-10 h-10 bg-[#0EA5E9] rounded-xl flex items-center justify-center">
                     <DocumentTextIcon className="w-5 h-5 text-white" />
                   </div>
                   <div>
                     <p className="text-sm font-extrabold text-slate-800">Panel de Facturación</p>
-                    <p className="text-xs text-slate-400 font-medium">Ecuafact Pro</p>
+                    <p className="text-xs text-slate-400 font-medium">Azul</p>
                   </div>
                   <span className="ml-auto text-xs bg-emerald-100 text-emerald-700 font-bold px-2 py-1 rounded-full">Autorizado SRI</span>
                 </div>
@@ -490,7 +490,7 @@ const LandingPage: React.FC = () => {
                     </div>
                   </div>
                   <div className="bg-emerald-50 rounded-2xl p-4">
-                    <p className="text-[10px] font-bold text-emerald-500 uppercase tracking-wider mb-2">Con Ecuafact</p>
+                    <p className="text-[10px] font-bold text-emerald-500 uppercase tracking-wider mb-2">Con Azul</p>
                     <div className="space-y-2">
                       <div className="flex items-center gap-2"><CheckCircleIcon className="w-4 h-4 text-emerald-500" /><span className="text-xs text-emerald-700 font-semibold">XML al SRI al instante</span></div>
                       <div className="flex items-center gap-2"><CheckCircleIcon className="w-4 h-4 text-emerald-500" /><span className="text-xs text-emerald-700 font-semibold">2 min por factura</span></div>
@@ -501,7 +501,7 @@ const LandingPage: React.FC = () => {
 
                 <div className="grid grid-cols-3 gap-2">
                   <div className="bg-[#F8F9FC] rounded-2xl p-3 text-center">
-                    <p className="text-xl font-extrabold text-[#0057FF]">SRI</p>
+                    <p className="text-xl font-extrabold text-[#0EA5E9]">SRI</p>
                     <p className="text-[9px] font-bold text-slate-400 uppercase tracking-wider mt-0.5">Autorizado</p>
                   </div>
                   <div className="bg-amber-50 rounded-2xl p-3 text-center">
@@ -550,8 +550,8 @@ const LandingPage: React.FC = () => {
               ];
               return (
                 <div key={idx} className={`transition-all duration-700 ${statsVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`} style={{ transitionDelay: `${idx * 150}ms` }}>
-                  <p className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-[#0057FF] tracking-tight">
-                    {statValues[idx]}<span className="text-2xl sm:text-3xl lg:text-4xl font-bold text-[#003ACC]">{stat.suffix || ''}</span>
+                  <p className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-[#0EA5E9] tracking-tight">
+                    {statValues[idx]}<span className="text-2xl sm:text-3xl lg:text-4xl font-bold text-[#0369A1]">{stat.suffix || ''}</span>
                   </p>
                   <p className="text-sm font-semibold text-slate-500 mt-2">{stat.label}</p>
                 </div>
@@ -590,12 +590,12 @@ const LandingPage: React.FC = () => {
         </div>
       </section>
 
-      {/* ===== WHY ECUAFACT PRO (Alternating) ===== */}
+      {/* ===== WHY Azul (Alternating) ===== */}
       <section id="why" className="py-20 lg:py-28 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-slate-900 tracking-tight">
-              Por qué elegir Ecuafact Pro
+              Por qué elegir Azul
             </h2>
             <p className="mt-4 text-lg text-slate-500 max-w-2xl mx-auto font-medium">
               El sistema de facturación diseñado para el mercado ecuatoriano. Cumplimiento, soporte local y tecnologia de punta.
@@ -607,7 +607,7 @@ const LandingPage: React.FC = () => {
               const WhyIcon = whyIcons[idx] || ShieldCheckIcon;
               return (
                 <div key={idx} className="scroll-fade-up flex gap-5 bg-[#F8F9FC] rounded-2xl p-6 lg:p-8 border border-slate-100 hover:shadow-lg transition-all duration-300" style={{ transitionDelay: `${idx * 100}ms` }}>
-                  <div className="w-12 h-12 bg-[#0057FF] rounded-2xl flex items-center justify-center flex-shrink-0 shadow-lg shadow-[#0057FF]/20">
+                  <div className="w-12 h-12 bg-[#0EA5E9] rounded-2xl flex items-center justify-center flex-shrink-0 shadow-lg shadow-[#0EA5E9]/20">
                     <WhyIcon className="w-6 h-6 text-white" />
                   </div>
                   <div>
@@ -641,12 +641,12 @@ const LandingPage: React.FC = () => {
                 <a
                   key={bt.id}
                   href={`/suscripcion?tipo=${bt.id.toLowerCase()}`}
-                  className="scroll-fade-up group relative bg-white rounded-3xl p-6 border-2 border-slate-100 hover:border-[#0057FF] hover:shadow-2xl hover:shadow-[#0057FF]/10 transition-all duration-300 text-center hover:-translate-y-1"
+                  className="scroll-fade-up group relative bg-white rounded-3xl p-6 border-2 border-slate-100 hover:border-[#0EA5E9] hover:shadow-2xl hover:shadow-[#0EA5E9]/10 transition-all duration-300 text-center hover:-translate-y-1"
                 >
                   <div className={`w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-5 transition-colors duration-300 ${bg}`}>
                     <Icon className={`w-8 h-8 ${color} transition-colors duration-300`} />
                   </div>
-                  <h3 className="text-lg font-extrabold text-slate-800 group-hover:text-[#0057FF] transition-colors">{bt.label}</h3>
+                  <h3 className="text-lg font-extrabold text-slate-800 group-hover:text-[#0EA5E9] transition-colors">{bt.label}</h3>
                   <p className="text-sm text-slate-500 mt-2 leading-relaxed font-medium">{bt.description}</p>
                 </a>
               );
@@ -671,8 +671,8 @@ const LandingPage: React.FC = () => {
             {landingContent.features.map((feature, idx) => {
               const FeatureIcon = featureIcons[idx] || CubeIcon;
               return (
-                <div key={idx} className="scroll-fade-up bg-[#F8F9FC] rounded-3xl p-8 border border-slate-100 hover:shadow-xl hover:border-[#0057FF]/20 transition-all duration-300 group" style={{ transitionDelay: `${idx * 80}ms` }}>
-                  <div className="w-14 h-14 bg-[#0057FF] rounded-2xl flex items-center justify-center mb-6 group-hover:bg-[#003ACC] transition-colors shadow-lg shadow-[#0057FF]/20">
+                <div key={idx} className="scroll-fade-up bg-[#F8F9FC] rounded-3xl p-8 border border-slate-100 hover:shadow-xl hover:border-[#0EA5E9]/20 transition-all duration-300 group" style={{ transitionDelay: `${idx * 80}ms` }}>
+                  <div className="w-14 h-14 bg-[#0EA5E9] rounded-2xl flex items-center justify-center mb-6 group-hover:bg-[#0369A1] transition-colors shadow-lg shadow-[#0EA5E9]/20">
                     <FeatureIcon className="w-7 h-7 text-white" />
                   </div>
                   <h3 className="text-xl font-extrabold text-slate-800 mb-3">{feature.title}</h3>
@@ -697,10 +697,10 @@ const LandingPage: React.FC = () => {
           </div>
 
           <div className="grid md:grid-cols-3 gap-8 relative">
-            <div className="hidden md:block absolute top-12 left-[25%] right-[25%] h-0.5 bg-gradient-to-r from-[#0057FF]/30 via-[#0057FF]/60 to-[#0057FF]/30" />
+            <div className="hidden md:block absolute top-12 left-[25%] right-[25%] h-0.5 bg-gradient-to-r from-[#0EA5E9]/30 via-[#0EA5E9]/60 to-[#0EA5E9]/30" />
             {landingContent.howItWorks.map((step, idx) => (
               <div key={idx} className="scroll-fade-up text-center relative z-10" style={{ transitionDelay: `${idx * 150}ms` }}>
-                <div className="w-24 h-24 bg-gradient-to-br from-[#0057FF] to-[#003ACC] text-white rounded-3xl flex items-center justify-center text-3xl font-extrabold mx-auto mb-6 shadow-2xl shadow-[#0057FF]/25">
+                <div className="w-24 h-24 bg-gradient-to-br from-[#0EA5E9] to-[#0369A1] text-white rounded-3xl flex items-center justify-center text-3xl font-extrabold mx-auto mb-6 shadow-2xl shadow-[#0EA5E9]/25">
                   {step.step}
                 </div>
                 <h3 className="text-xl font-extrabold text-slate-800 mb-3">{step.title}</h3>
@@ -721,7 +721,7 @@ const LandingPage: React.FC = () => {
               <span className="text-sm font-extrabold text-slate-700">Autorizado SRI</span>
             </div>
             <div className="flex items-center gap-2 px-5 py-3 rounded-xl bg-[#F8F9FC] border border-slate-100">
-              <span className="text-lg font-extrabold text-[#0057FF]">PayPal</span>
+              <span className="text-lg font-extrabold text-[#0EA5E9]">PayPal</span>
             </div>
             <div className="flex items-center gap-2 px-5 py-3 rounded-xl bg-[#F8F9FC] border border-slate-100">
               <span className="text-lg font-extrabold text-slate-700">Visa</span>
@@ -748,7 +748,7 @@ const LandingPage: React.FC = () => {
               Lo que dicen nuestros clientes
             </h2>
             <p className="mt-4 text-lg text-slate-500 max-w-2xl mx-auto font-medium">
-              Negocios reales que ya usan Ecuafact Pro para facturar y controlar su producción.
+              Negocios reales que ya usan Azul para facturar y controlar su producción.
             </p>
           </div>
 
@@ -762,7 +762,7 @@ const LandingPage: React.FC = () => {
                 </div>
                 <p className="text-slate-600 leading-relaxed font-medium mb-6">"{t.quote}"</p>
                 <div className="flex items-center gap-3 pt-4 border-t border-slate-100">
-                  <div className="w-12 h-12 bg-gradient-to-br from-[#0057FF] to-[#003ACC] rounded-full flex items-center justify-center font-extrabold text-white text-lg">
+                  <div className="w-12 h-12 bg-gradient-to-br from-[#0EA5E9] to-[#0369A1] rounded-full flex items-center justify-center font-extrabold text-white text-lg">
                     {t.name.charAt(0)}
                   </div>
                   <div>
@@ -818,12 +818,12 @@ const LandingPage: React.FC = () => {
                   key={plan.id}
                   className={`relative bg-white rounded-3xl p-6 lg:p-8 border-2 transition-all duration-300 hover:-translate-y-1 flex flex-col ${
                     isPopular
-                      ? 'border-[#0057FF] shadow-2xl shadow-[#0057FF]/20 scale-[1.02] z-10'
+                      ? 'border-[#0EA5E9] shadow-2xl shadow-[#0EA5E9]/20 scale-[1.02] z-10'
                       : 'border-slate-100 hover:border-slate-300 hover:shadow-xl'
                   }`}
                 >
                   {isPopular && (
-                    <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-[#FF6B35] text-white text-xs font-extrabold px-4 py-1.5 rounded-full shadow-lg shadow-[#FF6B35]/30 whitespace-nowrap">
+                    <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-[#06B6D4] text-white text-xs font-extrabold px-4 py-1.5 rounded-full shadow-lg shadow-[#06B6D4]/30 whitespace-nowrap">
                       Más Popular
                     </div>
                   )}
@@ -855,7 +855,7 @@ const LandingPage: React.FC = () => {
                     href={`/suscripcion?plan=${plan.code}`}
                     className={`mt-6 block text-center py-3 rounded-2xl font-bold text-sm transition-all ${
                       isPopular
-                        ? 'bg-[#0057FF] text-white hover:bg-[#003ACC] shadow-lg shadow-[#0057FF]/25'
+                        ? 'bg-[#0EA5E9] text-white hover:bg-[#0369A1] shadow-lg shadow-[#0EA5E9]/25'
                         : plan.price === 0
                           ? 'bg-[#10B981] text-white hover:bg-emerald-600 shadow-lg shadow-[#10B981]/25'
                           : 'bg-[#F8F9FC] text-slate-700 hover:bg-slate-100'
@@ -874,7 +874,7 @@ const LandingPage: React.FC = () => {
             <div className="text-center mt-10">
               <a
                 href="/suscripcion"
-                className="inline-flex items-center gap-2 text-sm font-bold text-[#0057FF] hover:text-[#003ACC] transition-colors"
+                className="inline-flex items-center gap-2 text-sm font-bold text-[#0EA5E9] hover:text-[#0369A1] transition-colors"
               >
                 Ver todos los planes y detalles completos
                 <ArrowRightIcon className="w-4 h-4" />
@@ -891,7 +891,7 @@ const LandingPage: React.FC = () => {
             <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-slate-900 tracking-tight">
               Preguntas Frecuentes
             </h2>
-            <p className="mt-4 text-lg text-slate-500 font-medium">Todo lo que necesitas saber sobre Ecuafact Pro</p>
+            <p className="mt-4 text-lg text-slate-500 font-medium">Todo lo que necesitas saber sobre Azul</p>
           </div>
 
           <div className="space-y-3">
@@ -899,7 +899,7 @@ const LandingPage: React.FC = () => {
               <details key={idx} className="scroll-fade-up group bg-white rounded-2xl border border-slate-100 overflow-hidden shadow-sm" style={{ transitionDelay: `${idx * 80}ms` }}>
                 <summary className="flex items-center justify-between p-5 lg:p-6 cursor-pointer hover:bg-slate-50 transition-colors list-none select-none">
                   <span className="text-base font-bold text-slate-800 pr-4">{faq.question}</span>
-                  <span className="flex-shrink-0 w-8 h-8 rounded-full bg-[#F8F9FC] flex items-center justify-center text-[#0057FF] font-extrabold text-lg group-open:rotate-45 transition-transform duration-300">+</span>
+                  <span className="flex-shrink-0 w-8 h-8 rounded-full bg-[#F8F9FC] flex items-center justify-center text-[#0EA5E9] font-extrabold text-lg group-open:rotate-45 transition-transform duration-300">+</span>
                 </summary>
                 <div className="px-6 pb-6">
                   <p className="text-slate-500 leading-relaxed font-medium">{faq.answer}</p>
@@ -913,7 +913,7 @@ const LandingPage: React.FC = () => {
       {/* ===== FINAL CTA ===== */}
       <section ref={ctaSectionRef} className="py-20 lg:py-28 bg-white">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <div className="bg-gradient-to-br from-[#003ACC] via-[#003ACC] to-[#0057FF] rounded-[3rem] p-10 sm:p-16 shadow-2xl shadow-[#003ACC]/30 relative overflow-hidden">
+          <div className="bg-gradient-to-br from-[#0369A1] via-[#0369A1] to-[#0EA5E9] rounded-[3rem] p-10 sm:p-16 shadow-2xl shadow-[#0369A1]/30 relative overflow-hidden">
             <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiNmZmYiIGZpbGwtb3BhY2l0eT0iMC4wNCI+PGNpcmNsZSBjeD0iMzAiIGN5PSIzMCIgcj0iMiIvPjwvZz48L2c+PC9zdmc+')] opacity-50" />
             <div className="relative z-10">
               <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-white tracking-tight">
@@ -925,7 +925,7 @@ const LandingPage: React.FC = () => {
             <div className="mt-8 flex flex-col sm:flex-row gap-4 justify-center">
               <a
                 href="/suscripcion"
-                className="inline-flex items-center justify-center gap-2 bg-[#FF6B35] text-white px-8 py-4 rounded-2xl font-bold text-base hover:bg-[#e55a2b] transition-all shadow-xl shadow-[#FF6B35]/30 hover:-translate-y-0.5"
+                className="inline-flex items-center justify-center gap-2 bg-[#06B6D4] text-white px-8 py-4 rounded-2xl font-bold text-base hover:bg-[#e55a2b] transition-all shadow-xl shadow-[#06B6D4]/30 hover:-translate-y-0.5"
               >
                 {landingContent.finalCta.primaryCta}
                 <ArrowRightIcon className="w-5 h-5" />
@@ -948,11 +948,11 @@ const LandingPage: React.FC = () => {
           <div className="grid md:grid-cols-2 lg:grid-cols-5 gap-8 mb-12">
             <div className="lg:col-span-2">
               <div className="flex items-center gap-2.5 mb-4">
-                <div className="w-10 h-10 bg-[#0057FF] rounded-xl flex items-center justify-center shadow-lg shadow-[#0057FF]/20">
+                <div className="w-10 h-10 bg-[#0EA5E9] rounded-xl flex items-center justify-center shadow-lg shadow-[#0EA5E9]/20">
                   <DocumentTextIcon className="w-5 h-5 text-white" />
                 </div>
                 <span className="text-xl font-extrabold text-white tracking-tight">
-                  ECUAFACT <span className="text-[#0057FF]">PRO</span>
+                  Azul <span className="text-[#0EA5E9]">PRO</span>
                 </span>
               </div>
               <p className="text-sm leading-relaxed max-w-sm mb-6">
@@ -967,7 +967,7 @@ const LandingPage: React.FC = () => {
                 ].map((social) => {
                   const finalUrl = normalizeUrl(social.url);
                   return finalUrl ? (
-                    <a key={social.label} href={finalUrl} target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-xl bg-slate-800 flex items-center justify-center hover:bg-[#0057FF] transition-colors text-slate-400 hover:text-white" aria-label={social.label}>
+                    <a key={social.label} href={finalUrl} target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-xl bg-slate-800 flex items-center justify-center hover:bg-[#0EA5E9] transition-colors text-slate-400 hover:text-white" aria-label={social.label}>
                       <svg className="w-5 h-5" fill="currentColor" viewBox={social.viewBox}><path d={social.path} /></svg>
                     </a>
                   ) : (
@@ -984,7 +984,7 @@ const LandingPage: React.FC = () => {
                 <li><a href="#features" className="hover:text-white transition-colors">Funcionalidades</a></li>
                 <li><a href="#pricing" className="hover:text-white transition-colors">Planes</a></li>
                 <li><a href="#business-types" className="hover:text-white transition-colors">Tipos de Negocio</a></li>
-                <li><a href="#why" className="hover:text-white transition-colors">Por qué Ecuafact</a></li>
+                <li><a href="#why" className="hover:text-white transition-colors">Por qué Azul</a></li>
               </ul>
             </div>
             <div>
@@ -1007,7 +1007,7 @@ const LandingPage: React.FC = () => {
             </div>
           </div>
           <div className="border-t border-slate-800 pt-8 flex flex-col md:flex-row items-center justify-between gap-4 text-sm text-center">
-            <p>{new Date().getFullYear()} Ecuafact Pro. Todos los derechos reservados.</p>
+            <p>{new Date().getFullYear()} Azul. Todos los derechos reservados.</p>
             <a href={`tel:${landingContent.contact.phone.replace(/\s/g, '')}`} className="flex items-center gap-1.5 hover:text-white transition-colors">
               <PhoneIcon className="w-4 h-4" /> {landingContent.contact.phone}
             </a>

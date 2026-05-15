@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect } from 'react';
 import { BeakerIcon, PlusIcon, TrashIcon, PencilIcon, XMarkIcon, ExclamationTriangleIcon } from '@heroicons/react/24/outline';
 import { Recipe, RecipeIngredient, Product, UNITS_OF_MEASURE } from '../../../types/types';
 import { client } from '../../../api/client';
@@ -188,7 +188,7 @@ export default function RecipeManager({ products, onNotify }: RecipeManagerProps
                       <td className="p-4 text-center text-slate-500 font-semibold">{recipe.ingredients?.length || 0}</td>
                       <td className="p-4 text-right">
                         <div className="flex items-center gap-1 justify-end">
-                          <button onClick={() => openEditForm(recipe)} className="p-2 text-slate-400 hover:text-indigo-700 hover:bg-indigo-50 rounded-lg transition-all">
+                          <button onClick={() => openEditForm(recipe)} className="p-2 text-slate-400 hover:text-sky-500 hover:bg-sky-50 rounded-lg transition-all">
                             <PencilIcon className="w-4 h-4" />
                           </button>
                           <button onClick={() => handleDelete(recipe.id)} className="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all">

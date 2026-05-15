@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useRef } from 'react';
+﻿import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { SunIcon, MoonIcon, EyeIcon, EyeSlashIcon, CameraIcon, DocumentTextIcon, ShieldCheckIcon, UserIcon, KeyIcon, TrashIcon } from '@heroicons/react/24/outline';
 import Layout from './layouts/Layout';
 import Dashboard from './modules/saas/components/Dashboard';
@@ -113,7 +113,7 @@ const App: React.FC = () => {
     regime: 'GENERAL',
     isAccountingObliged: false,
     isProduction: false,
-    themeColor: '#4338CA',
+    themeColor: '#0EA5E9',
     establishmentCode: '001',
     emissionPointCode: '001',
     taxpayerType: 'PERSONA_NATURAL',
@@ -138,7 +138,7 @@ const App: React.FC = () => {
   const logoInputRef = useRef<HTMLInputElement>(null);
 
   const [notifications, setNotifications] = useState<AppNotification[]>([
-    { id: '1', text: 'Bienvenido al sistema Ecuafact Pro', type: 'info', time: new Date(), read: false },
+    { id: '1', text: 'Bienvenido al sistema Azul', type: 'info', time: new Date(), read: false },
   ]);
   const [toasts, setToasts] = useState<AppNotification[]>([]);
 
@@ -998,7 +998,7 @@ const App: React.FC = () => {
                   onClick={() => isUserAdmin && logoInputRef.current?.click()}
                 >
                   {businessInfo.logo ? <img src={businessInfo.logo} className="w-full h-full object-cover" /> : <CameraIcon className="w-8 h-8 text-slate-300 dark:text-slate-600" />}
-                  {isUserAdmin && <div className="absolute inset-0 bg-indigo-700/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-[10px] font-black text-white uppercase">Editar</div>}
+                  {isUserAdmin && <div className="absolute inset-0 bg-sky-700/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-[10px] font-black text-white uppercase">Editar</div>}
                   <input type="file" ref={logoInputRef} className="hidden" accept="image/*" onChange={(e) => {
                     const file = e.target.files?.[0];
                     if (file && file instanceof File) {
@@ -1035,7 +1035,7 @@ const App: React.FC = () => {
                       setBusinessInfo(prev => ({ ...prev, taxpayerType: newType }));
                       showNotify(`Cambiado a ${newType === 'EMPRESA' ? 'Empresa' : 'Persona Natural'}`);
                     }}
-                    className={`px-8 py-5 rounded-2xl font-black text-[10px] uppercase tracking-widest transition-all shadow-xl ${businessInfo.taxpayerType === 'EMPRESA' ? 'bg-indigo-700 text-white shadow-indigo-700/20' : 'bg-purple-600 text-white shadow-purple-600/20'
+                    className={`px-8 py-5 rounded-2xl font-black text-[10px] uppercase tracking-widest transition-all shadow-xl ${businessInfo.taxpayerType === 'EMPRESA' ? 'bg-sky-500 text-white shadow-sky-500/20' : 'bg-purple-600 text-white shadow-purple-600/20'
                       }`}
                   >
                     {businessInfo.taxpayerType === 'EMPRESA' ? 'Empresa' : 'Persona Natural'}
@@ -1066,7 +1066,7 @@ const App: React.FC = () => {
                 {isUserAdmin && (
                   <section className="bg-white dark:bg-slate-800 p-10 rounded-[3rem] border border-slate-100 dark:border-slate-700/50 shadow-sm dark:shadow-lg dark:shadow-black/10 space-y-8 transition-colors duration-300">
                     <h3 className="font-black text-slate-800 dark:text-white text-xl uppercase tracking-tighter border-b border-slate-50 dark:border-slate-700/50 pb-4 flex items-center gap-3">
-                      <DocumentTextIcon className="w-6 h-6 text-indigo-500" /> Información Legal (SRI)
+                      <DocumentTextIcon className="w-6 h-6 text-sky-500" /> Información Legal (SRI)
                     </h3>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       <div className="space-y-2">
@@ -1076,7 +1076,7 @@ const App: React.FC = () => {
                           value={businessInfo.ruc || ''}
                           placeholder="1234567890001"
                           maxLength={13}
-                          className="w-full p-4 bg-slate-50 dark:bg-slate-800/50 dark:text-white rounded-2xl font-black text-sm outline-none border-2 border-transparent focus:border-indigo-500 transition-colors"
+                          className="w-full p-4 bg-slate-50 dark:bg-slate-800/50 dark:text-white rounded-2xl font-black text-sm outline-none border-2 border-transparent focus:border-sky-500 transition-colors"
                           onChange={e => setBusinessInfo({ ...businessInfo, ruc: e.target.value })}
                         />
                       </div>
@@ -1088,7 +1088,7 @@ const App: React.FC = () => {
                           type="text"
                           value={businessInfo.name || ''}
                           placeholder={businessInfo.taxpayerType === 'PERSONA_NATURAL' ? 'Ej: Juan Pérez Gómez' : 'Ej: CORPORACION EJEMPLO S.A.'}
-                          className="w-full p-4 bg-slate-50 dark:bg-slate-800/50 dark:text-white rounded-2xl font-bold text-sm outline-none border-2 border-transparent focus:border-indigo-500 transition-colors"
+                          className="w-full p-4 bg-slate-50 dark:bg-slate-800/50 dark:text-white rounded-2xl font-bold text-sm outline-none border-2 border-transparent focus:border-sky-500 transition-colors"
                           onChange={e => setBusinessInfo({ ...businessInfo, name: e.target.value })}
                         />
                       </div>
@@ -1097,18 +1097,18 @@ const App: React.FC = () => {
                         <input
                           type="text"
                           value={businessInfo.tradename || ''}
-                          placeholder={businessInfo.taxpayerType === 'PERSONA_NATURAL' ? 'Ej: Tienda Juan' : 'Ej: ECUAFACT ENTERPRISE'}
-                          className="w-full p-4 bg-slate-50 dark:bg-slate-800/50 dark:text-white rounded-2xl font-bold text-sm outline-none border-2 border-transparent focus:border-indigo-500 transition-colors"
+                          placeholder={businessInfo.taxpayerType === 'PERSONA_NATURAL' ? 'Ej: Tienda Juan' : 'Ej: Azul ENTERPRISE'}
+                          className="w-full p-4 bg-slate-50 dark:bg-slate-800/50 dark:text-white rounded-2xl font-bold text-sm outline-none border-2 border-transparent focus:border-sky-500 transition-colors"
                           onChange={e => setBusinessInfo({ ...businessInfo, tradename: e.target.value })}
                         />
                       </div>
                       <div className="space-y-2">
                         <label className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest ml-1">Dirección Matriz</label>
-                        <input type="text" value={businessInfo.address || ''} className="w-full p-4 bg-slate-50 dark:bg-slate-800/50 dark:text-white rounded-2xl font-bold text-sm outline-none border-2 border-transparent focus:border-indigo-500 transition-colors" onChange={e => setBusinessInfo({ ...businessInfo, address: e.target.value })} />
+                        <input type="text" value={businessInfo.address || ''} className="w-full p-4 bg-slate-50 dark:bg-slate-800/50 dark:text-white rounded-2xl font-bold text-sm outline-none border-2 border-transparent focus:border-sky-500 transition-colors" onChange={e => setBusinessInfo({ ...businessInfo, address: e.target.value })} />
                       </div>
                       <div className="space-y-2">
                         <label className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest ml-1">Dirección Sucursal</label>
-                        <input type="text" value={businessInfo.branchAddress || ''} className="w-full p-4 bg-slate-50 dark:bg-slate-800/50 dark:text-white rounded-2xl font-bold text-sm outline-none border-2 border-transparent focus:border-indigo-500 transition-colors" onChange={e => setBusinessInfo({ ...businessInfo, branchAddress: e.target.value })} />
+                        <input type="text" value={businessInfo.branchAddress || ''} className="w-full p-4 bg-slate-50 dark:bg-slate-800/50 dark:text-white rounded-2xl font-bold text-sm outline-none border-2 border-transparent focus:border-sky-500 transition-colors" onChange={e => setBusinessInfo({ ...businessInfo, branchAddress: e.target.value })} />
                       </div>
                     </div>
 
@@ -1124,8 +1124,8 @@ const App: React.FC = () => {
                       <div className="md:col-span-2 space-y-2">
                         <label className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest">Obligado Contabilidad</label>
                         <div className="flex bg-slate-50 dark:bg-slate-800/50 p-1 rounded-2xl h-[52px]">
-                          <button onClick={() => setBusinessInfo({ ...businessInfo, isAccountingObliged: true })} className={`flex-1 rounded-xl text-[10px] font-black uppercase transition-all ${businessInfo.isAccountingObliged ? 'bg-white dark:bg-slate-700 shadow-sm text-indigo-700 dark:text-indigo-400' : 'text-slate-400'}`}>SÍ</button>
-                          <button onClick={() => setBusinessInfo({ ...businessInfo, isAccountingObliged: false })} className={`flex-1 rounded-xl text-[10px] font-black uppercase transition-all ${!businessInfo.isAccountingObliged ? 'bg-white dark:bg-slate-700 shadow-sm text-indigo-700 dark:text-indigo-400' : 'text-slate-400'}`}>NO</button>
+                          <button onClick={() => setBusinessInfo({ ...businessInfo, isAccountingObliged: true })} className={`flex-1 rounded-xl text-[10px] font-black uppercase transition-all ${businessInfo.isAccountingObliged ? 'bg-white dark:bg-slate-700 shadow-sm text-sky-500 dark:text-sky-400' : 'text-slate-400'}`}>SÍ</button>
+                          <button onClick={() => setBusinessInfo({ ...businessInfo, isAccountingObliged: false })} className={`flex-1 rounded-xl text-[10px] font-black uppercase transition-all ${!businessInfo.isAccountingObliged ? 'bg-white dark:bg-slate-700 shadow-sm text-sky-500 dark:text-sky-400' : 'text-slate-400'}`}>NO</button>
                         </div>
                       </div>
                     </div>
@@ -1136,7 +1136,7 @@ const App: React.FC = () => {
                 {isUserAdmin && (
                   <section className="bg-white dark:bg-slate-800 p-10 rounded-[3rem] border border-slate-100 dark:border-slate-700/50 shadow-sm dark:shadow-lg dark:shadow-black/10 space-y-8 transition-colors duration-300">
                     <h3 className="font-black text-slate-800 dark:text-white text-xl uppercase tracking-tighter border-b border-slate-50 dark:border-slate-700/50 pb-4 flex items-center gap-3">
-                      <ShieldCheckIcon className="w-6 h-6 text-indigo-500" /> Tipo de Negocio
+                      <ShieldCheckIcon className="w-6 h-6 text-sky-500" /> Tipo de Negocio
                     </h3>
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                       {Object.entries(BUSINESS_TYPES).map(([key, val]) => (
@@ -1144,7 +1144,7 @@ const App: React.FC = () => {
                           key={key}
                           onClick={() => setBusinessInfo({ ...businessInfo, businessType: key as BusinessType })}
                           className={`p-4 rounded-2xl font-bold text-sm transition-all border-2 text-left ${(businessInfo as any).businessType === key || (!(businessInfo as any).businessType && key === 'GENERAL')
-                              ? 'border-indigo-500 bg-indigo-50 dark:bg-indigo-500/10'
+                              ? 'border-sky-500 bg-sky-50 dark:bg-sky-500/10'
                               : 'border-slate-200 dark:border-slate-700 hover:border-slate-300'
                             }`}
                         >
@@ -1270,14 +1270,14 @@ const App: React.FC = () => {
                 <div className="space-y-8">
                   <section className="bg-slate-900 dark:bg-slate-900 text-white p-10 rounded-[3rem] space-y-8 shadow-2xl dark:shadow-black/30 border border-transparent dark:border-slate-700/50">
                     <div className="flex items-center justify-between border-b border-white/10 dark:border-slate-700/50 pb-6">
-                      <h3 className="font-black text-indigo-400 text-xs uppercase tracking-widest">Certificado P12</h3>
+                      <h3 className="font-black text-sky-400 text-xs uppercase tracking-widest">Certificado P12</h3>
                       <div className={`w-3 h-3 rounded-full ${signatureFile ? 'bg-emerald-500 animate-pulse' : 'bg-rose-500'}`}></div>
                     </div>
 
                     <div className="space-y-6">
                       <div
                         onClick={() => fileInputRef.current?.click()}
-                        className="w-full py-10 border-2 border-dashed border-white/20 hover:border-indigo-500 hover:bg-white/5 rounded-3xl flex flex-col items-center justify-center cursor-pointer transition-all"
+                        className="w-full py-10 border-2 border-dashed border-white/20 hover:border-sky-500 hover:bg-white/5 rounded-3xl flex flex-col items-center justify-center cursor-pointer transition-all"
                       >
                         <KeyIcon className="w-8 h-8 mb-3 text-white/50" />
                         <p className="text-[10px] font-black uppercase tracking-widest text-white/50">{signatureFile ? signatureFile.name : 'Subir firma .p12'}</p>
@@ -1298,12 +1298,12 @@ const App: React.FC = () => {
                                 features: { ...((prev as any).features || {}), signaturePassword: e.target.value }
                               }));
                             }}
-                            className="w-full p-4 pr-12 bg-white/5 border border-white/10 rounded-2xl font-bold text-sm focus:border-indigo-500 outline-none"
+                            className="w-full p-4 pr-12 bg-white/5 border border-white/10 rounded-2xl font-bold text-sm focus:border-sky-500 outline-none"
                           />
                           <button
                             type="button"
                             onClick={() => setShowSignaturePassword(!showSignaturePassword)}
-                            className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-indigo-400 transition-colors"
+                            className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-sky-400 transition-colors"
                           >
                             {showSignaturePassword ? <EyeSlashIcon className="w-5 h-5" /> : <EyeIcon className="w-5 h-5" />}
                           </button>
@@ -1332,13 +1332,13 @@ const App: React.FC = () => {
                     </div>
 
                     <p className="text-[9px] text-slate-500 leading-relaxed italic">
-                      * Tu firma es procesada localmente. Ecuafact Pro no almacena copias de tu certificado en servidores externos.
+                      * Tu firma es procesada localmente. Azul no almacena copias de tu certificado en servidores externos.
                     </p>
                   </section>
 
                   <button
                     onClick={saveBusinessConfig}
-                    className="w-full py-6 bg-indigo-700 hover:bg-indigo-800 text-white rounded-[2.5rem] font-black uppercase text-xs tracking-widest shadow-2xl shadow-indigo-500/20 transition-all hover:scale-[1.02] active:scale-95"
+                    className="w-full py-6 bg-sky-500 hover:bg-sky-600 text-white rounded-[2.5rem] font-black uppercase text-xs tracking-widest shadow-2xl shadow-sky-500/20 transition-all hover:scale-[1.02] active:scale-95"
                   >
                     Guardar Cambios Legales
                   </button>
@@ -1372,7 +1372,7 @@ const App: React.FC = () => {
         <div className="fixed top-5 right-24 z-[90] flex items-center gap-3 bg-white/90 dark:bg-slate-800/90 backdrop-blur-sm px-4 py-2 rounded-full shadow-sm border border-slate-200 dark:border-slate-600/50 transition-colors duration-300">
           <button
             onClick={toggleDarkMode}
-            className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-slate-500 dark:text-slate-400 hover:text-indigo-700 dark:hover:text-indigo-400 transition-colors"
+            className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-slate-500 dark:text-slate-400 hover:text-sky-500 dark:hover:text-sky-400 transition-colors"
           >
             {((businessInfo as any).features?.isDarkMode ?? false) ? (
               <><SunIcon className="w-4 h-4" /> Claro</>

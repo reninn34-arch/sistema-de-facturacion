@@ -1,4 +1,4 @@
-
+﻿
 import React, { useState, useMemo } from 'react';
 import { Document, DocumentType, SriStatus, PaymentStatus, BusinessInfo } from '../../../types/types';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from 'recharts';
@@ -79,10 +79,10 @@ const Reports: React.FC<ReportsProps> = ({ documents, businessInfo }) => {
           <div className="lg:col-span-1 space-y-6">
             <div className="bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-sm">
               <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Total IVA Generado</p>
-              <h4 className="text-4xl font-black text-indigo-700 tracking-tighter">${fiscalStats.totalIva.toFixed(2)}</h4>
+              <h4 className="text-4xl font-black text-sky-500 tracking-tighter">${fiscalStats.totalIva.toFixed(2)}</h4>
             </div>
             <div className="bg-slate-900 p-8 rounded-[2.5rem] text-white">
-              <h5 className="font-black text-sm uppercase tracking-widest mb-4 text-indigo-400 flex items-center gap-2"><LightBulbIcon className="w-4 h-4" /> Tip Fiscal</h5>
+              <h5 className="font-black text-sm uppercase tracking-widest mb-4 text-sky-400 flex items-center gap-2"><LightBulbIcon className="w-4 h-4" /> Tip Fiscal</h5>
               <p className="text-xs leading-relaxed text-slate-400 font-medium">Recuerda que el IVA se declara mensualmente según tu noveno dígito del RUC.</p>
             </div>
           </div>
@@ -137,7 +137,7 @@ const Reports: React.FC<ReportsProps> = ({ documents, businessInfo }) => {
                       <div className="flex justify-end gap-2">
                          <button 
                           onClick={() => setSelectedDocForRide(doc)}
-                          className="px-4 py-2 bg-slate-900 text-white hover:bg-slate-800 rounded-lg text-[9px] font-black uppercase transition-all"
+                          className="px-4 py-2 bg-sky-500 text-white hover:bg-sky-600 rounded-lg text-[9px] font-black uppercase transition-all"
                          >
                            Ver RIDE
                          </button>

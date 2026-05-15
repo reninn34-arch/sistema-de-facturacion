@@ -199,11 +199,11 @@ const Layout: React.FC<LayoutProps> = ({
         <div className="p-4 sm:p-6 border-b border-slate-200 dark:border-slate-700/50 flex justify-between items-center">
           <div className="min-w-0 flex-1">
             <div className="flex items-center gap-2">
-              <div className="w-8 h-8 bg-indigo-700 rounded-lg flex items-center justify-center">
+              <div className="w-8 h-8 bg-sky-500 rounded-lg flex items-center justify-center shadow-lg shadow-sky-500/20">
                 <DocumentTextIcon className="w-5 h-5 text-white" />
               </div>
               <h1 className="text-lg sm:text-xl font-bold tracking-tight text-slate-800 dark:text-white">
-                ECUAFACT <span className="text-indigo-700 dark:text-indigo-400">PRO</span>
+                Azul <span className="text-sky-500 dark:text-sky-400">PRO</span>
               </h1>
             </div>
             <p className="text-[10px] text-slate-400 dark:text-slate-500 mt-1.5 uppercase font-bold tracking-widest">Enterprise Edition</p>
@@ -223,7 +223,7 @@ const Layout: React.FC<LayoutProps> = ({
               onClick={() => handleTabClick(item.id)}
               className={`w-full flex items-center space-x-3 px-4 py-3.5 sm:py-4 rounded-xl transition-all min-h-[48px] sm:min-h-[52px] text-left ${
                 activeTab === item.id
-                  ? 'bg-indigo-700 text-white font-bold shadow-lg shadow-indigo-700/20'
+                  ? 'bg-sky-500 text-white font-bold shadow-lg shadow-sky-500/20'
                   : item.id === 'logout_btn'
                     ? 'text-red-500 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-500/20 hover:text-red-600 dark:hover:text-red-300 mt-4 font-bold'
                     : 'text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700 hover:text-slate-800 dark:hover:text-white font-semibold'
@@ -242,7 +242,7 @@ const Layout: React.FC<LayoutProps> = ({
 
         <div className="p-4 border-t border-slate-200 dark:border-slate-700/50">
           <div className="flex items-center space-x-3 bg-slate-100 dark:bg-slate-900/50 p-3 rounded-xl transition-colors">
-            <div className="w-9 h-9 rounded-lg bg-indigo-700 dark:bg-indigo-500 flex items-center justify-center font-bold text-white shadow-sm overflow-hidden">
+            <div className="w-9 h-9 rounded-lg bg-sky-500 flex items-center justify-center font-bold text-white shadow-lg shadow-sky-500/20 overflow-hidden">
               {businessInfo.logo ? (
                 <img src={businessInfo.logo} className="w-full h-full object-cover" alt="Logo" />
               ) : (
@@ -277,7 +277,7 @@ const Layout: React.FC<LayoutProps> = ({
                 onClick={() => setShowNotifications(!showNotifications)}
                 className={`relative p-2 rounded-xl transition-all min-w-[44px] min-h-[44px] flex items-center justify-center ${
                   showNotifications
-                    ? 'bg-indigo-100 dark:bg-indigo-500/20 text-indigo-700 dark:text-indigo-400'
+                    ? 'bg-sky-100 dark:bg-sky-500/20 text-sky-500 dark:text-sky-400'
                     : 'text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700'
                 }`}
               >
@@ -293,7 +293,7 @@ const Layout: React.FC<LayoutProps> = ({
                 <div className="absolute right-0 mt-3 w-[280px] sm:w-72 lg:w-80 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-600/50 rounded-2xl shadow-2xl dark:shadow-black/40 z-50 overflow-hidden animate-scale-in origin-top-right max-h-[80vh]">
                   <div className="p-3 sm:p-4 bg-slate-50 dark:bg-slate-800/50 border-b border-slate-100 dark:border-slate-700/50 flex justify-between items-center">
                     <span className="text-xs font-bold uppercase tracking-tighter text-slate-800 dark:text-white">Notificaciones</span>
-                    <button onClick={() => onMarkRead()} className="text-[10px] font-bold text-indigo-700 dark:text-indigo-400 px-2 py-1 min-h-[32px] hover:underline">
+                    <button onClick={() => onMarkRead()} className="text-[10px] font-bold text-sky-500 dark:text-sky-400 px-2 py-1 min-h-[32px] hover:underline">
                       Marcar todas leídas
                     </button>
                   </div>
@@ -302,11 +302,11 @@ const Layout: React.FC<LayoutProps> = ({
                       <div className="p-8 text-center text-slate-300 dark:text-slate-600 italic text-xs">Sin novedades</div>
                     ) : (
                       notifications.map(n => (
-                        <div key={n.id} className={`p-4 flex gap-3 group relative ${!n.read ? 'bg-indigo-50/30 dark:bg-indigo-500/5' : ''}`}>
+                        <div key={n.id} className={`p-4 flex gap-3 group relative ${!n.read ? 'bg-sky-50/30 dark:bg-sky-500/5' : ''}`}>
                           <div className={`w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 ${
                             n.type === 'success'
                               ? 'bg-emerald-100 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400'
-                              : 'bg-indigo-100 dark:bg-indigo-500/10 text-indigo-700 dark:text-indigo-400'
+                              : 'bg-sky-100 dark:bg-sky-500/10 text-sky-500 dark:text-sky-400'
                           }`}>
                             <div className="w-2 h-2 rounded-full bg-current" />
                           </div>

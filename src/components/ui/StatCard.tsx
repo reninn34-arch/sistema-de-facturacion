@@ -1,4 +1,4 @@
-import React from 'react';
+﻿import React from 'react';
 import Card from './Card';
 
 interface StatCardProps {
@@ -12,11 +12,11 @@ interface StatCardProps {
 }
 
 const colorMap = {
-  indigo: { text: 'text-indigo-700 dark:text-indigo-300', bg: 'bg-indigo-50 dark:bg-indigo-500/10' },
+  indigo: { text: 'text-sky-500 dark:text-sky-300', bg: 'bg-sky-50 dark:bg-sky-500/10' },
   emerald: { text: 'text-emerald-700 dark:text-emerald-300', bg: 'bg-emerald-50 dark:bg-emerald-500/10' },
   rose: { text: 'text-rose-700 dark:text-rose-300', bg: 'bg-rose-50 dark:bg-rose-500/10' },
   amber: { text: 'text-amber-700 dark:text-amber-300', bg: 'bg-amber-50 dark:bg-amber-500/10' },
-  blue: { text: 'text-indigo-700 dark:text-indigo-300', bg: 'bg-indigo-50 dark:bg-indigo-500/10' },
+  blue: { text: 'text-sky-500 dark:text-sky-300', bg: 'bg-sky-50 dark:bg-sky-500/10' },
 };
 
 const StatCard: React.FC<StatCardProps> = ({ label, value, subtitle, color = 'indigo', icon, onClick, loading = false }) => {
@@ -25,7 +25,7 @@ const StatCard: React.FC<StatCardProps> = ({ label, value, subtitle, color = 'in
   return (
     <Card hover={!!onClick} onClick={onClick} padding="lg">
       <div className="flex items-center justify-between">
-        <span className="text-[10px] font-bold uppercase text-slate-400 dark:text-slate-500 tracking-wider group-hover:text-indigo-500 dark:group-hover:text-indigo-400 transition-colors">
+        <span className="text-[10px] font-bold uppercase text-slate-400 dark:text-slate-500 tracking-wider group-hover:text-sky-500 dark:group-hover:text-sky-400 transition-colors">
           {label}
         </span>
         {icon && (

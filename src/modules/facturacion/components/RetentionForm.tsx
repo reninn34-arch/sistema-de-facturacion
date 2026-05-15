@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect } from 'react';
 import { DocumentTextIcon, UserIcon, CalendarDaysIcon, BanknotesIcon, PlusIcon, TrashIcon } from '@heroicons/react/24/outline';
 import { Retention, RetentionTax, BusinessInfo, Client } from '../../../types/types';
 import { generateRetentionXML, RETENTION_PERCENTAGES } from '../../../services/retentionService';
@@ -386,7 +386,7 @@ export default function RetentionForm({ business, clients, onSubmit }: Retention
                           step="0.01"
                           value={tax.taxValue.toFixed(2)}
                           readOnly
-                          className="w-full px-3 py-2 border rounded-lg bg-gray-100 font-bold text-indigo-700"
+                          className="w-full px-3 py-2 border rounded-lg bg-gray-100 font-bold text-sky-500"
                         />
                       </div>
                     </div>
@@ -397,10 +397,10 @@ export default function RetentionForm({ business, clients, onSubmit }: Retention
           </div>
 
           {/* Total */}
-          <div className="bg-indigo-50 rounded-lg p-4">
+          <div className="bg-sky-50 rounded-lg p-4">
             <div className="flex justify-between items-center">
               <span className="text-lg font-semibold text-gray-700">Total Retenido:</span>
-              <span className="text-2xl font-bold text-indigo-700">
+              <span className="text-2xl font-bold text-sky-500">
                 ${calculateTotalRetained().toFixed(2)}
               </span>
             </div>
@@ -416,7 +416,7 @@ export default function RetentionForm({ business, clients, onSubmit }: Retention
             </button>
             <button
               type="submit"
-              className="px-6 py-2 bg-indigo-700 text-white rounded-lg hover:bg-indigo-800 transition"
+              className="px-6 py-2 bg-sky-500 text-white rounded-lg hover:bg-sky-600 transition"
             >
               Emitir Retención
             </button>

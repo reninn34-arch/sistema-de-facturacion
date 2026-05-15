@@ -3,23 +3,24 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 /* ============================================= */
-/* DESIGN TOKENS — Tema Indigo Moderno           */
+/* DESIGN TOKENS — Azul (Mar · Cielo · Blanco)  */
 /* ============================================= */
 @theme {
-  --color-primary: #4338CA;
-  --color-primary-50: #F5F7FF;
-  --color-primary-100: #EBEFFF;
-  --color-primary-200: #D9E0FF;
-  --color-primary-300: #B3BFFF;
-  --color-primary-400: #8C9EFF;
-  --color-primary-500: #667EEA;
-  --color-primary-600: #4338CA;
-  --color-primary-700: #3730A3;
-  --color-primary-800: #2E2885;
-  --color-primary-900: #26216A;
+  /* Paleta principal: Azul océano/cielo */
+  --color-primary: #0EA5E9;
+  --color-primary-50:  #F0F9FF;
+  --color-primary-100: #E0F2FE;
+  --color-primary-200: #BAE6FD;
+  --color-primary-300: #7DD3FC;
+  --color-primary-400: #38BDF8;
+  --color-primary-500: #0EA5E9;
+  --color-primary-600: #0284C7;
+  --color-primary-700: #0369A1;
+  --color-primary-800: #075985;
+  --color-primary-900: #0C4A6E;
 
   --color-surface: #FFFFFF;
-  --color-surface-dark: rgb(15 23 42);
+  --color-surface-dark: rgb(8 47 73);
 
   --radius-sm: 0.375rem;
   --radius-md: 0.5rem;
@@ -28,18 +29,20 @@
 
   --font-sans: "Plus Jakarta Sans", "Inter", ui-sans-serif, system-ui, sans-serif;
 
-  /* Landing page palette */
-  --color-brand-blue: #0057FF;
-  --color-brand-dark: #003ACC;
-  --color-brand-accent: #FF6B35;
+  /* Landing page / brand palette — Azul */
+  --color-brand-blue:    #0EA5E9;   /* sky-500  — azul cielo vibrante */
+  --color-brand-dark:    #0369A1;   /* sky-700  — azul profundo */
+  --color-brand-ocean:   #075985;   /* sky-800  — azul océano */
+  --color-brand-accent:  #06B6D4;   /* cyan-500 — acento turquesa */
   --color-brand-success: #10B981;
   --color-brand-neutral: #64748B;
-  --color-brand-dark-text: #1E293B;
-  --color-brand-surface: #F8F9FC;
+  --color-brand-dark-text: #0C4A6E;
+  --color-brand-surface: #F0F9FF;   /* sky-50   — fondo azul muy suave */
+  --color-brand-white:   #FFFFFF;
 
-  --shadow-card: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-  --shadow-card-hover: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-  --shadow-modal: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  --shadow-card: 0 1px 2px 0 rgba(3, 105, 161, 0.06);
+  --shadow-card-hover: 0 10px 15px -3px rgba(3, 105, 161, 0.12), 0 4px 6px -2px rgba(3, 105, 161, 0.07);
+  --shadow-modal: 0 20px 25px -5px rgba(3, 105, 161, 0.12), 0 10px 10px -5px rgba(3, 105, 161, 0.06);
 }
 
 /* ============================================= */
@@ -47,15 +50,15 @@
 /* ============================================= */
 body {
   font-family: var(--font-sans);
-  background-color: #F6F6F7;
-  color: #1A1C1D;
+  background-color: #F0F9FF;   /* sky-50: blanco con toque azul muy suave */
+  color: #0C4A6E;              /* sky-900: texto azul marino oscuro */
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
 .dark body {
-  background-color: #0F172A;
-  color: #F8FAF8;
+  background-color: #082F49;   /* sky-950: azul océano profundo */
+  color: #F0F9FF;
 }
 
 /* ============================================= */
@@ -68,16 +71,16 @@ body {
   }
 
   ::-webkit-scrollbar-track {
-    background: rgb(30 41 59);
+    background: rgb(7 89 133);    /* sky-800 */
   }
 
   ::-webkit-scrollbar-thumb {
-    background: #475569;
+    background: #0EA5E9;           /* sky-500 */
     border-radius: 4px;
   }
 
   ::-webkit-scrollbar-thumb:hover {
-    background: #64748b;
+    background: #38BDF8;           /* sky-400 */
   }
 }
 
@@ -348,77 +351,77 @@ select {
 /* Solo aplica si NO hay dark: explícito en línea */
 @layer base {
   .dark .bg-white {
-    background-color: rgb(30 41 59);
+    background-color: rgb(7 89 133);   /* sky-800 */
   }
 
   .dark .bg-white\/70 {
-    background-color: rgb(30 41 59 / .7);
+    background-color: rgb(7 89 133 / .7);
   }
 
   .dark .bg-white\/80 {
-    background-color: rgb(30 41 59 / .8);
+    background-color: rgb(7 89 133 / .8);
   }
 
   .dark .bg-white\/90 {
-    background-color: rgb(30 41 59 / .9);
+    background-color: rgb(7 89 133 / .9);
   }
 
   .dark .bg-slate-50 {
-    background-color: rgb(30 41 59 / .5);
+    background-color: rgb(8 47 73 / .6);   /* sky-950 */
   }
 
   .dark .bg-gray-50 {
-    background-color: rgb(30 41 59 / .6);
+    background-color: rgb(8 47 73 / .7);
   }
 
   .dark .bg-gray-100 {
-    background-color: rgb(51 65 85 / .6);
+    background-color: rgb(7 89 133 / .5);  /* sky-800 */
   }
 
   .dark .text-slate-800,
   .dark .text-slate-900,
   .dark .text-gray-800,
   .dark .text-gray-900 {
-    color: #f1f5f9;
+    color: #E0F2FE;   /* sky-100 */
   }
 
   .dark .text-slate-700,
   .dark .text-gray-700 {
-    color: #cbd5e1;
+    color: #BAE6FD;   /* sky-200 */
   }
 
   .dark .text-slate-600 {
-    color: #94a3b8;
+    color: #7DD3FC;   /* sky-300 */
   }
 
   .dark .text-slate-500,
   .dark .text-gray-500 {
-    color: #64748b;
+    color: #38BDF8;   /* sky-400 */
   }
 
   .dark .border-slate-50,
   .dark .border-slate-100,
   .dark .border-gray-100,
   .dark .border-gray-200 {
-    border-color: rgb(71 85 105 / .4);
+    border-color: rgb(14 165 233 / .2);   /* sky-500 */
   }
 
   .dark .border-slate-200 {
-    border-color: rgb(71 85 105 / .5);
+    border-color: rgb(14 165 233 / .3);
   }
 
   .dark .shadow-sm {
-    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, .3), 0 1px 2px -1px rgba(0, 0, 0, .3);
+    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, .4), 0 1px 2px -1px rgba(0, 0, 0, .4);
   }
 
   .dark .shadow-md {
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, .4), 0 2px 4px -2px rgba(0, 0, 0, .4);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, .5), 0 2px 4px -2px rgba(0, 0, 0, .5);
   }
 
   .dark input,
   .dark textarea,
   .dark select {
-    color: #e2e8f0;
+    color: #E0F2FE;   /* sky-100 */
   }
 
   .dark input.bg-slate-50,
@@ -427,24 +430,24 @@ select {
   .dark .bg-slate-50 input,
   .dark .bg-slate-50 textarea,
   .dark .bg-slate-50 select {
-    background-color: rgb(30 41 59 / .6);
+    background-color: rgb(8 47 73 / .7);
   }
 
   .dark .hover\:bg-slate-50:hover {
-    background-color: rgb(51 65 85 / .5);
+    background-color: rgb(7 89 133 / .4);
   }
 
   .dark .hover\:bg-slate-100:hover {
-    background-color: rgb(51 65 85 / .6);
+    background-color: rgb(7 89 133 / .5);
   }
 
   .dark .divide-slate-50> :not([hidden])~ :not([hidden]),
   .dark .divide-slate-100> :not([hidden])~ :not([hidden]) {
-    border-color: rgb(71 85 105 / .4);
+    border-color: rgb(14 165 233 / .2);
   }
 
   .dark .bg-blue-50 {
-    background-color: rgb(59 130 246 / .08);
+    background-color: rgb(14 165 233 / .1);
   }
 
   .dark .bg-emerald-50 {
@@ -455,8 +458,8 @@ select {
     background-color: rgb(244 63 94 / .08);
   }
 
-  .dark .bg-indigo-50 {
-    background-color: rgb(99 102 241 / .08);
+  .dark .bg-sky-50 {
+    background-color: rgb(14 165 233 / .1);
   }
 
   .dark .bg-purple-50 {
@@ -472,7 +475,7 @@ select {
   }
 
   .dark .bg-blue-100 {
-    background-color: rgb(59 130 246 / .12);
+    background-color: rgb(14 165 233 / .15);
   }
 
   .dark .bg-emerald-100 {
@@ -480,11 +483,11 @@ select {
   }
 
   .dark .border-blue-100 {
-    border-color: rgb(59 130 246 / .2);
+    border-color: rgb(14 165 233 / .25);
   }
 
-  .dark .border-indigo-100 {
-    border-color: rgb(99 102 241 / .2);
+  .dark .border-sky-100 {
+    border-color: rgb(14 165 233 / .2);
   }
 
   .dark .border-emerald-100 {
@@ -496,24 +499,24 @@ select {
   }
 
   .dark .bg-slate-900\/80 {
-    background-color: rgb(2 6 23 / .85);
+    background-color: rgb(8 47 73 / .9);
   }
 
   .dark .bg-slate-900\/70 {
-    background-color: rgb(2 6 23 / .8);
+    background-color: rgb(8 47 73 / .85);
   }
 
   .dark .border-dashed {
-    border-color: rgb(71 85 105 / .5);
+    border-color: rgb(14 165 233 / .3);
   }
 
   .dark input::placeholder,
   .dark textarea::placeholder {
-    color: #64748b;
+    color: #38BDF8;   /* sky-400 */
   }
 
   .dark select option {
-    background-color: #1e293b;
-    color: #e2e8f0;
+    background-color: #075985;   /* sky-800 */
+    color: #E0F2FE;
   }
 }

@@ -1,4 +1,4 @@
-
+﻿
 /**
  * Validaciones según normativa del SRI Ecuador
  * Basado en: Ficha Técnica Comprobantes Electrónicos v2.21
@@ -134,7 +134,7 @@ export const validateEcuadorianId = (id: string): boolean => {
 };
 
 export const getEntityAvatarColor = (name: string) => {
-  const colors = ['bg-blue-500', 'bg-emerald-500', 'bg-rose-500', 'bg-amber-500', 'bg-indigo-500', 'bg-purple-500', 'bg-slate-700'];
+  const colors = ['bg-blue-500', 'bg-emerald-500', 'bg-rose-500', 'bg-amber-500', 'bg-sky-500', 'bg-purple-500', 'bg-slate-700'];
   const index = name.charCodeAt(0) % colors.length;
   return colors[index];
 };

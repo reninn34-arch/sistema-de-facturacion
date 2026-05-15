@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect } from 'react';
 import {
   ChevronDownIcon,
   ChevronUpIcon,
@@ -148,7 +148,7 @@ function getDefaultContent(): LandingContent {
         name: 'Maria Elena G.',
         business: 'Panadería Dulce Hogar',
         quote:
-          'Desde que uso Ecuafact Pro puedo saber exactamente cuánta harina gasto por cada lote de pan. El control de recetas me cambió el negocio.',
+          'Desde que uso Azul puedo saber exactamente cuánta harina gasto por cada lote de pan. El control de recetas me cambió el negocio.',
         rating: 5,
       },
       {
@@ -180,7 +180,7 @@ function getDefaultContent(): LandingContent {
       {
         question: 'Las facturas son validas para el SRI?',
         answer:
-          'Si. Ecuafact Pro genera facturas electrónicas con todas las especificaciones del SRI Ecuador, incluyendo clave de acceso, firma electrónica y envio de XML.',
+          'Si. Azul genera facturas electrónicas con todas las especificaciones del SRI Ecuador, incluyendo clave de acceso, firma electrónica y envio de XML.',
       },
       {
         question: 'Puedo cambiar de plan después?',
@@ -201,30 +201,30 @@ function getDefaultContent(): LandingContent {
     finalCta: {
       headline: 'Listo para transformar tu negocio?',
       subheadline:
-        'Únete a +450 negocios que ya facturan y controlan su producción con Ecuafact Pro. Empieza gratis hoy, sin compromiso.',
+        'Únete a +450 negocios que ya facturan y controlan su producción con Azul. Empieza gratis hoy, sin compromiso.',
       primaryCta: 'Comenzar Gratis Ahora',
       secondaryCta: 'Ya tengo cuenta',
     },
     contact: {
       phone: '+593 99 999 9999',
-      email: 'info@ecuafact.pro',
+      email: 'info@Azul.pro',
       hours: 'Lun - Vie: 08:00 - 18:00',
     },
     footer: {
       tagline:
         'Sistema de facturación electrónica y control de producción líder en Ecuador. Autorizado por el SRI para facturación electrónica.',
-      facebook: 'https://facebook.com/ecuafactpro',
-      twitter: 'https://twitter.com/ecuafactpro',
-      instagram: 'https://instagram.com/ecuafactpro',
-      linkedin: 'https://linkedin.com/company/ecuafactpro',
+      facebook: 'https://facebook.com/Azulpro',
+      twitter: 'https://twitter.com/Azulpro',
+      instagram: 'https://instagram.com/Azulpro',
+      linkedin: 'https://linkedin.com/company/Azulpro',
     },
     ayudaPage: {
       title: 'Centro de Ayuda',
-      subtitle: 'Encuentra respuestas a las preguntas mas frecuentes sobre Ecuafact Pro.',
+      subtitle: 'Encuentra respuestas a las preguntas mas frecuentes sobre Azul.',
       faqs: [
         { question: '¿Qué tipos de negocio soportan?', answer: 'Soportamos panaderías, restaurantes, tiendas, servicios profesionales y cualquier tipo de comercio. Cada tipo activa los módulos que realmente necesita.' },
         { question: '¿Cómo funciona el control de recetas?', answer: 'Puedes crear recetas vinculando productos terminados con sus ingredientes (materia prima). Al registrar una producción, el sistema descuenta automáticamente los insumos del inventario y calcula el costo.' },
-        { question: '¿Las facturas son válidas para el SRI?', answer: 'Sí. Ecuafact Pro genera facturas electrónicas con todas las especificaciones del SRI Ecuador, incluyendo clave de acceso, firma electrónica y envío de XML.' },
+        { question: '¿Las facturas son válidas para el SRI?', answer: 'Sí. Azul genera facturas electrónicas con todas las especificaciones del SRI Ecuador, incluyendo clave de acceso, firma electrónica y envío de XML.' },
         { question: '¿Puedo cambiar de plan después?', answer: 'Sí, puedes actualizar o cambiar de plan en cualquier momento desde el panel de suscripción. Los cambios se aplican al siguiente ciclo de facturación.' },
         { question: '¿Mis datos están seguros?', answer: 'Tus datos se almacenan encriptados en servidores seguros AWS. Nadie más que tú y tus usuarios autorizados tiene acceso a tu información.' },
         { question: '¿Ofrecen soporte técnico?', answer: 'Sí. El plan Pro incluye soporte prioritario por chat y email. El plan Enterprise tiene soporte 24/7. Todos los planes tienen acceso a nuestra base de conocimiento.' },
@@ -240,7 +240,7 @@ function getDefaultContent(): LandingContent {
       title: 'Información Legal',
       terms: {
         title: 'Términos y Condiciones',
-        content: '<h3>1. Aceptación de los Términos</h3><p>Al utilizar Ecuafact Pro, usted acepta estos términos y condiciones. Si no está de acuerdo, no utilice el servicio.</p><h3>2. Descripción del Servicio</h3><p>Ecuafact Pro es un sistema de facturación electrónica autorizado por el SRI Ecuador. Permite emitir facturas, notas de crédito, retenciones, guías de remisión y liquidaciones de compra.</p><h3>3. Obligaciones del Usuario</h3><p>El usuario es responsable de mantener la confidencialidad de sus credenciales y de toda actividad que ocurra bajo su cuenta.</p><h3>4. Facturación y Pagos</h3><p>Los planes se facturan mensualmente. El usuario puede cancelar en cualquier momento, pero no se realizan reembolsos por períodos parciales.</p><h3>5. Limitación de Responsabilidad</h3><p>Ecuafact Pro no se hace responsable por interrupciones del servicio causadas por factores externos, incluyendo fallos del SRI.</p>',
+        content: '<h3>1. Aceptación de los Términos</h3><p>Al utilizar Azul, usted acepta estos términos y condiciones. Si no está de acuerdo, no utilice el servicio.</p><h3>2. Descripción del Servicio</h3><p>Azul es un sistema de facturación electrónica autorizado por el SRI Ecuador. Permite emitir facturas, notas de crédito, retenciones, guías de remisión y liquidaciones de compra.</p><h3>3. Obligaciones del Usuario</h3><p>El usuario es responsable de mantener la confidencialidad de sus credenciales y de toda actividad que ocurra bajo su cuenta.</p><h3>4. Facturación y Pagos</h3><p>Los planes se facturan mensualmente. El usuario puede cancelar en cualquier momento, pero no se realizan reembolsos por períodos parciales.</p><h3>5. Limitación de Responsabilidad</h3><p>Azul no se hace responsable por interrupciones del servicio causadas por factores externos, incluyendo fallos del SRI.</p>',
       },
       privacy: {
         title: 'Política de Privacidad',
@@ -498,7 +498,7 @@ const LandingPageEditor: React.FC = () => {
     <button
       onClick={handleSave}
       disabled={saving}
-      className={`px-6 py-3 bg-indigo-700 text-white rounded-xl font-bold text-sm hover:bg-indigo-800 transition-all shadow-lg shadow-indigo-700/20 disabled:opacity-60 disabled:cursor-not-allowed flex items-center gap-2 ${className}`}
+      className={`px-6 py-3 bg-sky-500 text-white rounded-xl font-bold text-sm hover:bg-sky-600 transition-all shadow-lg shadow-sky-500/20 disabled:opacity-60 disabled:cursor-not-allowed flex items-center gap-2 ${className}`}
     >
       {saving ? (
         <>
@@ -1001,7 +1001,7 @@ const LandingPageEditor: React.FC = () => {
               <button
                 type="button"
                 onClick={addAyudaFaq}
-                className="px-3 py-1.5 text-xs font-bold bg-indigo-100 text-indigo-700 rounded-lg hover:bg-indigo-200 transition-colors"
+                className="px-3 py-1.5 text-xs font-bold bg-sky-100 text-sky-500 rounded-lg hover:bg-sky-200 transition-colors"
               >
                 + Agregar FAQ
               </button>

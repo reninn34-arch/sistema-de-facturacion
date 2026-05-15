@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect } from 'react';
 import { DocumentTextIcon, ArrowLeftIcon, PhoneIcon, EnvelopeIcon } from '@heroicons/react/24/outline';
 import CookieBanner from '../../../components/CookieBanner';
 
@@ -18,11 +18,11 @@ interface LandingContact {
 
 const defaultAyudaContent: AyudaContent = {
   title: 'Centro de Ayuda',
-  subtitle: 'Encuentra respuestas a las preguntas más comunes sobre Ecuafact Pro.',
+  subtitle: 'Encuentra respuestas a las preguntas más comunes sobre Azul.',
   faqs: [
     { question: '¿Qué tipos de negocio soportan?', answer: 'Soportamos panaderías, restaurantes, tiendas, servicios profesionales, distribuidoras, y cualquier tipo de comercio. Cada tipo activa los módulos que realmente necesita: recetas para gastronomía, inventario para tiendas, caja rápida para retail, entre otros.' },
     { question: '¿Cómo funciona el control de recetas?', answer: 'Puedes crear recetas vinculando productos terminados con sus ingredientes (materia prima). Cada receta define las cantidades exactas de insumos necesarios. Al registrar una producción, el sistema descuenta automáticamente los ingredientes del inventario y calcula el costo unitario de cada producto elaborado.' },
-    { question: '¿Las facturas son válidas para el SRI?', answer: 'Sí. Ecuafact Pro genera facturas electrónicas con todas las especificaciones técnicas exigidas por el Servicio de Rentas Internas del Ecuador: clave de acceso de 49 dígitos, firma electrónica con certificado digital P12, y archivo XML con la estructura oficial. Puedes enviarlas al SRI y entregarlas a tus clientes.' },
+    { question: '¿Las facturas son válidas para el SRI?', answer: 'Sí. Azul genera facturas electrónicas con todas las especificaciones técnicas exigidas por el Servicio de Rentas Internas del Ecuador: clave de acceso de 49 dígitos, firma electrónica con certificado digital P12, y archivo XML con la estructura oficial. Puedes enviarlas al SRI y entregarlas a tus clientes.' },
     { question: '¿Puedo cambiar de plan después?', answer: 'Sí, puedes actualizar o cambiar de plan en cualquier momento desde el panel de suscripción. El upgrade es inmediato y solo pagas la diferencia proporcional. Si bajas de plan, el cambio se aplica al siguiente ciclo de facturación.' },
     { question: '¿Mis datos están seguros?', answer: 'Tus datos se almacenan encriptados en servidores seguros en la nube (AWS). Usamos cifrado SSL/TLS de 256 bits para todas las comunicaciones. Las contraseñas se almacenan con hash y salt. Solo tú y los usuarios que autorices tienen acceso a tu información. Realizamos backups automáticos diarios.' },
     { question: '¿Ofrecen soporte técnico?', answer: 'Sí. El plan Básico incluye acceso a nuestra base de conocimiento y soporte por email en horario laboral. El plan Pro incluye soporte prioritario por chat en vivo y email con respuesta en menos de 2 horas. El plan Enterprise tiene soporte 24/7 con gerente de cuenta asignado.' },
@@ -33,7 +33,7 @@ const defaultAyudaContent: AyudaContent = {
 
 const defaultContact: LandingContact = {
   phone: '+593 99 999 9999',
-  email: 'info@ecuafact.pro',
+  email: 'info@Azul.pro',
   hours: 'Lun - Vie: 08:00 - 18:00',
 };
 
@@ -64,7 +64,7 @@ const AyudaPage: React.FC = () => {
   return (
     <div className="min-h-screen bg-white flex flex-col" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
       {/* ===== TOP INFO BAR ===== */}
-      <div className="bg-[#003ACC] text-white text-xs font-medium">
+      <div className="bg-[#0369A1] text-white text-xs font-medium">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between h-9">
           <div className="flex items-center gap-6">
             <a href={`tel:${contact.phone.replace(/\s/g, '')}`} className="flex items-center gap-1.5 hover:text-white/80 transition-colors">
@@ -84,16 +84,16 @@ const AyudaPage: React.FC = () => {
       <header className="bg-white border-b border-slate-100">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between h-16">
           <div className="flex items-center gap-2.5">
-            <div className="w-10 h-10 bg-[#0057FF] rounded-xl flex items-center justify-center shadow-lg shadow-[#0057FF]/30">
+            <div className="w-10 h-10 bg-[#0EA5E9] rounded-xl flex items-center justify-center shadow-lg shadow-[#0EA5E9]/30">
               <DocumentTextIcon className="w-5 h-5 text-white" />
             </div>
             <span className="text-xl font-extrabold text-slate-900 tracking-tight">
-              ECUAFACT <span className="text-[#0057FF]">PRO</span>
+              Azul <span className="text-[#0EA5E9]">PRO</span>
             </span>
           </div>
           <a
             href="/"
-            className="inline-flex items-center gap-2 text-sm font-semibold text-slate-600 hover:text-[#0057FF] transition-colors"
+            className="inline-flex items-center gap-2 text-sm font-semibold text-slate-600 hover:text-[#0EA5E9] transition-colors"
           >
             <ArrowLeftIcon className="w-4 h-4" />
             Volver al inicio
@@ -102,7 +102,7 @@ const AyudaPage: React.FC = () => {
       </header>
 
       {/* ===== HERO BAR (Blue Gradient) ===== */}
-      <section className="bg-gradient-to-br from-[#003ACC] via-[#003ACC] to-[#0057FF] py-12 lg:py-16 relative overflow-hidden">
+      <section className="bg-gradient-to-br from-[#0369A1] via-[#0369A1] to-[#0EA5E9] py-12 lg:py-16 relative overflow-hidden">
         <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiNmZmYiIGZpbGwtb3BhY2l0eT0iMC4wMyI+PGNpcmNsZSBjeD0iMzAiIGN5PSIzMCIgcj0iMiIvPjwvZz48L2c+PC9zdmc+')] opacity-50" />
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
           <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-white tracking-tight">
@@ -125,7 +125,7 @@ const AyudaPage: React.FC = () => {
                   className="w-full flex items-center justify-between p-5 lg:p-6 hover:bg-slate-50 transition-colors text-left"
                 >
                   <span className="text-base font-bold text-slate-800 pr-4">{faq.question}</span>
-                  <span className={`flex-shrink-0 w-8 h-8 rounded-full bg-[#F8F9FC] flex items-center justify-center text-[#0057FF] font-extrabold text-lg transition-transform duration-300 ${openFaq === idx ? 'rotate-45' : ''}`}>+</span>
+                  <span className={`flex-shrink-0 w-8 h-8 rounded-full bg-[#F8F9FC] flex items-center justify-center text-[#0EA5E9] font-extrabold text-lg transition-transform duration-300 ${openFaq === idx ? 'rotate-45' : ''}`}>+</span>
                 </button>
                 {openFaq === idx && (
                   <div className="px-6 pb-6">
@@ -141,7 +141,7 @@ const AyudaPage: React.FC = () => {
       {/* ===== FOOTER ===== */}
       <footer className="bg-[#1E293B] text-slate-400 py-8">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-sm">
-          <p>{new Date().getFullYear()} Ecuafact Pro. Todos los derechos reservados.</p>
+          <p>{new Date().getFullYear()} Azul. Todos los derechos reservados.</p>
         </div>
       </footer>
       <CookieBanner />

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+﻿import React, { useState, useEffect, useRef } from 'react';
 import { Product, InvoiceItem, BusinessInfo } from '../../../types/types';
 import { MagnifyingGlassIcon, TicketIcon, XMarkIcon, MinusIcon, PlusIcon, BanknotesIcon, CreditCardIcon, ArrowPathIcon } from '@heroicons/react/24/outline';
 
@@ -344,7 +344,7 @@ const QuickSaleForm: React.FC<QuickSaleFormProps> = ({ products, clients = [], s
         <div className="flex gap-3">
           <button
             onClick={newTicket}
-            className="flex-1 py-4 rounded-2xl font-black text-sm uppercase bg-indigo-700 text-white hover:bg-indigo-500 transition-colors shadow-lg"
+            className="flex-1 py-4 rounded-2xl font-black text-sm uppercase bg-sky-500 text-white hover:bg-sky-500 transition-colors shadow-lg"
           >
             Nuevo Ticket
           </button>
@@ -365,7 +365,7 @@ const QuickSaleForm: React.FC<QuickSaleFormProps> = ({ products, clients = [], s
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-3xl font-black text-slate-800 dark:text-white uppercase tracking-tighter flex items-center gap-3">
-            <TicketIcon className="w-8 h-8 text-indigo-500" />
+            <TicketIcon className="w-8 h-8 text-sky-500" />
             Caja / Ticket
           </h2>
           <p className="text-sm text-slate-400 font-bold mt-1">Venta rápida sin emisión inmediata al SRI</p>
@@ -393,7 +393,7 @@ const QuickSaleForm: React.FC<QuickSaleFormProps> = ({ products, clients = [], s
                 value={searchTerm}
                 onChange={e => { setSearchTerm(e.target.value); setShowSearchResults(true); }}
                 onFocus={() => searchTerm && setShowSearchResults(true)}
-                className="w-full pl-12 pr-4 py-4 bg-white dark:bg-slate-800 rounded-2xl font-bold text-sm outline-none border-2 border-slate-200 dark:border-slate-700 focus:border-indigo-500 transition-colors"
+                className="w-full pl-12 pr-4 py-4 bg-white dark:bg-slate-800 rounded-2xl font-bold text-sm outline-none border-2 border-slate-200 dark:border-slate-700 focus:border-sky-500 transition-colors"
                 autoComplete="off"
               />
               {searchTerm && (
@@ -410,14 +410,14 @@ const QuickSaleForm: React.FC<QuickSaleFormProps> = ({ products, clients = [], s
                   <button
                     key={product.id}
                     onClick={() => addToCart(product)}
-                    className="w-full px-4 py-3 flex items-center justify-between hover:bg-indigo-50 dark:hover:bg-indigo-500/10 transition-colors text-left"
+                    className="w-full px-4 py-3 flex items-center justify-between hover:bg-sky-50 dark:hover:bg-sky-500/10 transition-colors text-left"
                   >
                     <div>
                       <p className="font-bold text-sm text-slate-800 dark:text-white">{product.description}</p>
                       <p className="text-[10px] text-slate-400 font-bold">{product.code} · Stock: {product.stock}</p>
                     </div>
                     <div className="text-right">
-                      <p className="font-black text-sm text-indigo-700 dark:text-indigo-400">${product.price.toFixed(2)}</p>
+                      <p className="font-black text-sm text-sky-500 dark:text-sky-400">${product.price.toFixed(2)}</p>
                       <p className="text-[10px] text-slate-400">IVA {product.taxRate}%</p>
                     </div>
                   </button>
@@ -450,7 +450,7 @@ const QuickSaleForm: React.FC<QuickSaleFormProps> = ({ products, clients = [], s
                     <button
                       key={product.id}
                       onClick={() => addToCart(product)}
-                      className="bg-white dark:bg-slate-800 rounded-[1.5rem] p-3 border border-slate-200 dark:border-slate-700 hover:border-indigo-500 hover:shadow-lg hover:shadow-indigo-500/10 transition-all text-left flex flex-col items-center group relative overflow-hidden"
+                      className="bg-white dark:bg-slate-800 rounded-[1.5rem] p-3 border border-slate-200 dark:border-slate-700 hover:border-sky-500 hover:shadow-lg hover:shadow-indigo-500/10 transition-all text-left flex flex-col items-center group relative overflow-hidden"
                     >
                       <div className="w-full aspect-square rounded-xl overflow-hidden bg-slate-50 dark:bg-slate-700/50 mb-3 relative flex items-center justify-center">
                         {product.imageUrl ? (
@@ -467,11 +467,11 @@ const QuickSaleForm: React.FC<QuickSaleFormProps> = ({ products, clients = [], s
                         )}
                       </div>
                       
-                      <p className="font-bold text-xs text-slate-800 dark:text-white text-center line-clamp-2 w-full group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">
+                      <p className="font-bold text-xs text-slate-800 dark:text-white text-center line-clamp-2 w-full group-hover:text-sky-600 dark:group-hover:text-sky-400 transition-colors">
                         {product.description}
                       </p>
                       <p className="text-[9px] text-slate-400 font-bold mt-1">{product.code}</p>
-                      <p className="font-black text-sm text-indigo-700 dark:text-indigo-400 mt-1">${product.price.toFixed(2)}</p>
+                      <p className="font-black text-sm text-sky-500 dark:text-sky-400 mt-1">${product.price.toFixed(2)}</p>
                     </button>
                   ))}
                 </div>
@@ -490,12 +490,12 @@ const QuickSaleForm: React.FC<QuickSaleFormProps> = ({ products, clients = [], s
             {/* Selector de Cliente Compacto */}
             <div className="relative w-48" ref={clientSearchRef}>
               {selectedClient ? (
-                <div className="flex items-center justify-between bg-indigo-50 dark:bg-indigo-500/10 px-3 py-1.5 rounded-xl border border-indigo-100 dark:border-indigo-500/20">
+                <div className="flex items-center justify-between bg-sky-50 dark:bg-sky-500/10 px-3 py-1.5 rounded-xl border border-sky-100 dark:border-sky-500/20">
                   <div className="min-w-0">
-                    <p className="text-[10px] font-black text-indigo-700 dark:text-indigo-400 truncate">{selectedClient.name}</p>
-                    <p className="text-[9px] text-indigo-500/70 font-bold">{selectedClient.ruc}</p>
+                    <p className="text-[10px] font-black text-sky-500 dark:text-sky-400 truncate">{selectedClient.name}</p>
+                    <p className="text-[9px] text-sky-500/70 font-bold">{selectedClient.ruc}</p>
                   </div>
-                  <button onClick={() => setSelectedClient(null)} className="ml-2 text-indigo-400 hover:text-indigo-600">
+                  <button onClick={() => setSelectedClient(null)} className="ml-2 text-sky-400 hover:text-sky-600">
                     <XMarkIcon className="w-4 h-4" />
                   </button>
                 </div>
@@ -508,7 +508,7 @@ const QuickSaleForm: React.FC<QuickSaleFormProps> = ({ products, clients = [], s
                       placeholder="Cliente (Cons. Final)" 
                       value={clientSearchTerm}
                       onChange={e => setClientSearchTerm(e.target.value)}
-                      className="w-full pl-8 pr-2 py-1.5 bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-xl text-[10px] font-bold outline-none focus:border-indigo-500 transition-colors dark:text-white"
+                      className="w-full pl-8 pr-2 py-1.5 bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-xl text-[10px] font-bold outline-none focus:border-sky-500 transition-colors dark:text-white"
                     />
                   </div>
                   {clientSearchTerm && (
@@ -521,7 +521,7 @@ const QuickSaleForm: React.FC<QuickSaleFormProps> = ({ products, clients = [], s
                       ))}
                       <button 
                         onClick={() => { setShowClientModal(true); setClientSearchTerm(''); }}
-                        className="w-full px-3 py-2 text-left bg-indigo-50 dark:bg-indigo-500/10 hover:bg-indigo-100 text-indigo-700 dark:text-indigo-400 text-xs font-black flex items-center gap-2"
+                        className="w-full px-3 py-2 text-left bg-sky-50 dark:bg-sky-500/10 hover:bg-sky-100 text-sky-500 dark:text-sky-400 text-xs font-black flex items-center gap-2"
                       >
                         <PlusIcon className="w-3.5 h-3.5" /> Nuevo Cliente
                       </button>
@@ -561,8 +561,8 @@ const QuickSaleForm: React.FC<QuickSaleFormProps> = ({ products, clients = [], s
                       <MinusIcon className="w-3 h-3 text-slate-600 dark:text-slate-300" />
                     </button>
                     <span className="w-8 text-center font-black text-sm">{item.quantity}</span>
-                    <button onClick={() => updateQuantity(item.productId, 1)} className="w-7 h-7 rounded-lg bg-indigo-100 dark:bg-indigo-500/20 flex items-center justify-center hover:bg-indigo-200">
-                      <PlusIcon className="w-3 h-3 text-indigo-700 dark:text-indigo-400" />
+                    <button onClick={() => updateQuantity(item.productId, 1)} className="w-7 h-7 rounded-lg bg-sky-100 dark:bg-sky-500/20 flex items-center justify-center hover:bg-sky-200">
+                      <PlusIcon className="w-3 h-3 text-sky-500 dark:text-sky-400" />
                     </button>
                   </div>
                   <p className="font-black text-sm w-16 text-right">${item.total.toFixed(2)}</p>
@@ -595,7 +595,7 @@ const QuickSaleForm: React.FC<QuickSaleFormProps> = ({ products, clients = [], s
                   key={opt.value}
                   onClick={() => setPaymentMethod(opt.value)}
                   className={`p-2 rounded-xl text-[10px] font-black uppercase transition-all flex flex-col items-center gap-1 ${paymentMethod === opt.value
-                      ? 'bg-indigo-700 text-white shadow-lg'
+                      ? 'bg-sky-500 text-white shadow-lg'
                       : 'bg-slate-100 dark:bg-slate-700 text-slate-500'
                     }`}
                 >
@@ -703,7 +703,7 @@ const QuickSaleForm: React.FC<QuickSaleFormProps> = ({ products, clients = [], s
                   type="text" 
                   value={newClientData.ruc}
                   onChange={e => setNewClientData({...newClientData, ruc: e.target.value})}
-                  className="w-full p-3 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl outline-none focus:border-indigo-500 text-sm font-bold dark:text-white"
+                  className="w-full p-3 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl outline-none focus:border-sky-500 text-sm font-bold dark:text-white"
                   required
                 />
               </div>
@@ -713,7 +713,7 @@ const QuickSaleForm: React.FC<QuickSaleFormProps> = ({ products, clients = [], s
                   type="text" 
                   value={newClientData.name}
                   onChange={e => setNewClientData({...newClientData, name: e.target.value})}
-                  className="w-full p-3 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl outline-none focus:border-indigo-500 text-sm font-bold dark:text-white"
+                  className="w-full p-3 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl outline-none focus:border-sky-500 text-sm font-bold dark:text-white"
                   required
                 />
               </div>
@@ -724,7 +724,7 @@ const QuickSaleForm: React.FC<QuickSaleFormProps> = ({ products, clients = [], s
                     type="email" 
                     value={newClientData.email}
                     onChange={e => setNewClientData({...newClientData, email: e.target.value})}
-                    className="w-full p-3 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl outline-none focus:border-indigo-500 text-sm dark:text-white"
+                    className="w-full p-3 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl outline-none focus:border-sky-500 text-sm dark:text-white"
                   />
                 </div>
                 <div className="space-y-1">
@@ -733,7 +733,7 @@ const QuickSaleForm: React.FC<QuickSaleFormProps> = ({ products, clients = [], s
                     type="text" 
                     value={newClientData.phone}
                     onChange={e => setNewClientData({...newClientData, phone: e.target.value})}
-                    className="w-full p-3 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl outline-none focus:border-indigo-500 text-sm dark:text-white"
+                    className="w-full p-3 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl outline-none focus:border-sky-500 text-sm dark:text-white"
                   />
                 </div>
               </div>
@@ -743,7 +743,7 @@ const QuickSaleForm: React.FC<QuickSaleFormProps> = ({ products, clients = [], s
                   type="text" 
                   value={newClientData.address}
                   onChange={e => setNewClientData({...newClientData, address: e.target.value})}
-                  className="w-full p-3 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl outline-none focus:border-indigo-500 text-sm dark:text-white"
+                  className="w-full p-3 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl outline-none focus:border-sky-500 text-sm dark:text-white"
                 />
               </div>
               
@@ -758,7 +758,7 @@ const QuickSaleForm: React.FC<QuickSaleFormProps> = ({ products, clients = [], s
                 <button 
                   type="submit" 
                   disabled={isCreatingClient}
-                  className="flex-1 py-3 bg-indigo-600 text-white font-bold rounded-xl text-sm hover:bg-indigo-700 transition-colors disabled:opacity-50"
+                  className="flex-1 py-3 bg-sky-600 text-white font-bold rounded-xl text-sm hover:bg-sky-600 transition-colors disabled:opacity-50"
                 >
                   {isCreatingClient ? 'Guardando...' : 'Guardar Cliente'}
                 </button>

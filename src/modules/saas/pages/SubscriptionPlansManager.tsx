@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect } from 'react';
 import { ClockIcon, CheckIcon, CpuChipIcon, StarIcon, PauseCircleIcon, PlayCircleIcon, TrashIcon, MegaphoneIcon } from '@heroicons/react/24/outline';
 
 // Interfaces para los planes de suscripción
@@ -337,7 +337,7 @@ const SubscriptionPlansManager: React.FC<SubscriptionPlansManagerProps> = ({ onN
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-indigo-50 dark:from-slate-900 dark:to-slate-800 p-4 md:p-8">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-sky-50 dark:from-slate-900 dark:to-slate-800 p-4 md:p-8">
       <div className="max-w-6xl mx-auto">
         {/* Header */}
         <div className="flex justify-between items-center mb-8">
@@ -347,7 +347,7 @@ const SubscriptionPlansManager: React.FC<SubscriptionPlansManagerProps> = ({ onN
           </div>
           <button
             onClick={() => handleOpenModal()}
-            className="px-6 py-3 bg-indigo-700 text-white font-bold rounded-xl hover:bg-indigo-800 transition-colors shadow-lg"
+            className="px-6 py-3 bg-sky-500 text-white font-bold rounded-xl hover:bg-sky-600 transition-colors shadow-lg"
           >
             + Nuevo Plan
           </button>
@@ -369,15 +369,15 @@ const SubscriptionPlansManager: React.FC<SubscriptionPlansManagerProps> = ({ onN
                 }`}
               >
                 {/* Header del Plan */}
-                <div className={`p-6 ${plan.isActive ? 'bg-gradient-to-r from-indigo-700 to-indigo-700' : 'bg-red-400'}`}>
+                <div className={`p-6 ${plan.isActive ? 'bg-gradient-to-r from-sky-700 to-sky-700' : 'bg-red-400'}`}>
                   <div className="flex justify-between items-start">
                     <div>
                       <h3 className="text-xl font-black text-white">{plan.name}</h3>
-                      <span className="text-indigo-100 text-sm font-mono">{plan.code}</span>
+                      <span className="text-sky-100 text-sm font-mono">{plan.code}</span>
                     </div>
                     <div className="text-right">
                       <p className="text-3xl font-black text-white">${plan.price.toFixed(2)}</p>
-                      <p className="text-indigo-100 text-sm">/{plan.period}</p>
+                      <p className="text-sky-100 text-sm">/{plan.period}</p>
                     </div>
                   </div>
                 </div>
@@ -490,7 +490,7 @@ const SubscriptionPlansManager: React.FC<SubscriptionPlansManagerProps> = ({ onN
                       type="text"
                       value={formData.code || ''}
                       onChange={e => setFormData({ ...formData, code: e.target.value.toUpperCase() })}
-                      className="w-full p-3 border-2 border-slate-200 dark:border-slate-600 rounded-lg font-medium focus:border-indigo-500 focus:outline-none bg-white dark:bg-slate-700 text-slate-800 dark:text-white"
+                      className="w-full p-3 border-2 border-slate-200 dark:border-slate-600 rounded-lg font-medium focus:border-sky-500 focus:outline-none bg-white dark:bg-slate-700 text-slate-800 dark:text-white"
                       placeholder="PRO, ENTERPRISE, etc."
                     />
                   </div>
@@ -500,7 +500,7 @@ const SubscriptionPlansManager: React.FC<SubscriptionPlansManagerProps> = ({ onN
                       type="text"
                       value={formData.name || ''}
                       onChange={e => setFormData({ ...formData, name: e.target.value })}
-                      className="w-full p-3 border-2 border-slate-200 dark:border-slate-600 rounded-lg font-medium focus:border-indigo-500 focus:outline-none bg-white dark:bg-slate-700 text-slate-800 dark:text-white"
+                      className="w-full p-3 border-2 border-slate-200 dark:border-slate-600 rounded-lg font-medium focus:border-sky-500 focus:outline-none bg-white dark:bg-slate-700 text-slate-800 dark:text-white"
                       placeholder="Plan Pro, Plan Enterprise..."
                     />
                   </div>
@@ -512,7 +512,7 @@ const SubscriptionPlansManager: React.FC<SubscriptionPlansManagerProps> = ({ onN
                   <textarea
                     value={formData.description || ''}
                     onChange={e => setFormData({ ...formData, description: e.target.value })}
-                    className="w-full p-3 border-2 border-slate-200 dark:border-slate-600 rounded-lg font-medium focus:border-indigo-500 focus:outline-none bg-white dark:bg-slate-700 text-slate-800 dark:text-white"
+                    className="w-full p-3 border-2 border-slate-200 dark:border-slate-600 rounded-lg font-medium focus:border-sky-500 focus:outline-none bg-white dark:bg-slate-700 text-slate-800 dark:text-white"
                     rows={2}
                     placeholder="Descripción del plan..."
                   />
@@ -526,7 +526,7 @@ const SubscriptionPlansManager: React.FC<SubscriptionPlansManagerProps> = ({ onN
                       type="number"
                       value={formData.price || 0}
                       onChange={e => setFormData({ ...formData, price: parseFloat(e.target.value) })}
-                      className="w-full p-3 border-2 border-slate-200 dark:border-slate-600 rounded-lg font-medium focus:border-indigo-500 focus:outline-none bg-white dark:bg-slate-700 text-slate-800 dark:text-white"
+                      className="w-full p-3 border-2 border-slate-200 dark:border-slate-600 rounded-lg font-medium focus:border-sky-500 focus:outline-none bg-white dark:bg-slate-700 text-slate-800 dark:text-white"
                       step="0.01"
                       min="0"
                     />
@@ -536,7 +536,7 @@ const SubscriptionPlansManager: React.FC<SubscriptionPlansManagerProps> = ({ onN
                     <select
                       value={formData.period || 'mensual'}
                       onChange={e => setFormData({ ...formData, period: e.target.value as any })}
-                      className="w-full p-3 border-2 border-slate-200 dark:border-slate-600 rounded-lg font-medium focus:border-indigo-500 focus:outline-none bg-white dark:bg-slate-700 text-slate-800 dark:text-white"
+                      className="w-full p-3 border-2 border-slate-200 dark:border-slate-600 rounded-lg font-medium focus:border-sky-500 focus:outline-none bg-white dark:bg-slate-700 text-slate-800 dark:text-white"
                     >
                       <option value="mensual">Mensual</option>
                       <option value="trimestral">Trimestral</option>
@@ -550,7 +550,7 @@ const SubscriptionPlansManager: React.FC<SubscriptionPlansManagerProps> = ({ onN
                       type="number"
                       value={formData.durationDays || 30}
                       onChange={e => setFormData({ ...formData, durationDays: parseInt(e.target.value) })}
-                      className="w-full p-3 border-2 border-slate-200 dark:border-slate-600 rounded-lg font-medium focus:border-indigo-500 focus:outline-none bg-white dark:bg-slate-700 text-slate-800 dark:text-white"
+                      className="w-full p-3 border-2 border-slate-200 dark:border-slate-600 rounded-lg font-medium focus:border-sky-500 focus:outline-none bg-white dark:bg-slate-700 text-slate-800 dark:text-white"
                       min="1"
                     />
                   </div>
@@ -564,7 +564,7 @@ const SubscriptionPlansManager: React.FC<SubscriptionPlansManagerProps> = ({ onN
                       type="number"
                       value={formData.maxBusinesses || 1}
                       onChange={e => setFormData({ ...formData, maxBusinesses: parseInt(e.target.value) })}
-                      className="w-full p-3 border-2 border-slate-200 dark:border-slate-600 rounded-lg font-medium focus:border-indigo-500 focus:outline-none bg-white dark:bg-slate-700 text-slate-800 dark:text-white"
+                      className="w-full p-3 border-2 border-slate-200 dark:border-slate-600 rounded-lg font-medium focus:border-sky-500 focus:outline-none bg-white dark:bg-slate-700 text-slate-800 dark:text-white"
                       min="-1"
                     />
                     <p className="text-xs text-slate-400 dark:text-slate-500 mt-1">Usa -1 para ilimitadas</p>
@@ -575,7 +575,7 @@ const SubscriptionPlansManager: React.FC<SubscriptionPlansManagerProps> = ({ onN
                       type="number"
                       value={formData.maxInvoicesPerMonth || 10}
                       onChange={e => setFormData({ ...formData, maxInvoicesPerMonth: parseInt(e.target.value) })}
-                      className="w-full p-3 border-2 border-slate-200 dark:border-slate-600 rounded-lg font-medium focus:border-indigo-500 focus:outline-none bg-white dark:bg-slate-700 text-slate-800 dark:text-white"
+                      className="w-full p-3 border-2 border-slate-200 dark:border-slate-600 rounded-lg font-medium focus:border-sky-500 focus:outline-none bg-white dark:bg-slate-700 text-slate-800 dark:text-white"
                       min="-1"
                     />
                     <p className="text-xs text-slate-400 dark:text-slate-500 mt-1">Usa -1 para ilimitadas</p>
@@ -586,7 +586,7 @@ const SubscriptionPlansManager: React.FC<SubscriptionPlansManagerProps> = ({ onN
                       type="number"
                       value={formData.maxUsers || 1}
                       onChange={e => setFormData({ ...formData, maxUsers: parseInt(e.target.value) })}
-                      className="w-full p-3 border-2 border-slate-200 dark:border-slate-600 rounded-lg font-medium focus:border-indigo-500 focus:outline-none bg-white dark:bg-slate-700 text-slate-800 dark:text-white"
+                      className="w-full p-3 border-2 border-slate-200 dark:border-slate-600 rounded-lg font-medium focus:border-sky-500 focus:outline-none bg-white dark:bg-slate-700 text-slate-800 dark:text-white"
                       min="-1"
                     />
                     <p className="text-xs text-slate-400 dark:text-slate-500 mt-1">Usa -1 para ilimitados</p>
@@ -601,7 +601,7 @@ const SubscriptionPlansManager: React.FC<SubscriptionPlansManagerProps> = ({ onN
                   <textarea
                     value={featuresText}
                     onChange={e => setFeaturesText(e.target.value)}
-                    className="w-full p-3 border-2 border-slate-200 dark:border-slate-600 rounded-lg font-mono text-sm focus:border-indigo-500 focus:outline-none bg-white dark:bg-slate-700 text-slate-800 dark:text-white"
+                    className="w-full p-3 border-2 border-slate-200 dark:border-slate-600 rounded-lg font-mono text-sm focus:border-sky-500 focus:outline-none bg-white dark:bg-slate-700 text-slate-800 dark:text-white"
                     rows={4}
                     placeholder="1 empresa&#10;Facturas ilimitadas&#10;Soporte 24/7"
                   />
@@ -614,7 +614,7 @@ const SubscriptionPlansManager: React.FC<SubscriptionPlansManagerProps> = ({ onN
                       type="checkbox"
                       checked={formData.hasAIAssistant || false}
                       onChange={e => setFormData({ ...formData, hasAIAssistant: e.target.checked })}
-                      className="w-5 h-5 text-indigo-700 rounded focus:ring-blue-500"
+                      className="w-5 h-5 text-sky-500 rounded focus:ring-blue-500"
                     />
                     <span className="font-medium text-slate-700 dark:text-slate-300">Asistente IA</span>
                     <CpuChipIcon className="w-4 h-4 text-xs text-slate-400 ml-1 inline" />
@@ -624,7 +624,7 @@ const SubscriptionPlansManager: React.FC<SubscriptionPlansManagerProps> = ({ onN
                       type="checkbox"
                       checked={formData.hasAudit || false}
                       onChange={e => setFormData({ ...formData, hasAudit: e.target.checked })}
-                      className="w-5 h-5 text-indigo-700 rounded focus:ring-blue-500"
+                      className="w-5 h-5 text-sky-500 rounded focus:ring-blue-500"
                     />
                     <span className="font-medium text-slate-700 dark:text-slate-300">Auditoría en Tiempo Real</span>
                     <MegaphoneIcon className="w-4 h-4 text-xs text-slate-400 ml-1 inline" />
@@ -634,7 +634,7 @@ const SubscriptionPlansManager: React.FC<SubscriptionPlansManagerProps> = ({ onN
                       type="checkbox"
                       checked={formData.hasPrioritySupport || false}
                       onChange={e => setFormData({ ...formData, hasPrioritySupport: e.target.checked })}
-                      className="w-5 h-5 text-indigo-700 rounded focus:ring-blue-500"
+                      className="w-5 h-5 text-sky-500 rounded focus:ring-blue-500"
                     />
                     <span className="font-medium text-slate-700 dark:text-slate-300">Soporte Prioritario</span>
                     <MegaphoneIcon className="w-4 h-4 text-xs text-slate-400 ml-1 inline" />
@@ -644,7 +644,7 @@ const SubscriptionPlansManager: React.FC<SubscriptionPlansManagerProps> = ({ onN
                       type="checkbox"
                       checked={formData.isActive !== false}
                       onChange={e => setFormData({ ...formData, isActive: e.target.checked })}
-                      className="w-5 h-5 text-indigo-700 rounded focus:ring-blue-500"
+                      className="w-5 h-5 text-sky-500 rounded focus:ring-blue-500"
                     />
                     <span className="font-medium text-slate-700 dark:text-slate-300">Activo</span>
                   </label>
@@ -661,7 +661,7 @@ const SubscriptionPlansManager: React.FC<SubscriptionPlansManagerProps> = ({ onN
                 </button>
                 <button
                   onClick={handleSave}
-                  className="flex-[2] py-3 bg-indigo-700 text-white font-bold rounded-xl hover:bg-indigo-800 transition-colors"
+                  className="flex-[2] py-3 bg-sky-500 text-white font-bold rounded-xl hover:bg-sky-600 transition-colors"
                 >
                   {editingPlan ? 'Guardar Cambios' : 'Crear Plan'}
                 </button>

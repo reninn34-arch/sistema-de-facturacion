@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+﻿import React, { useState, useMemo } from 'react';
 import { BanknotesIcon, ArrowDownTrayIcon, ExclamationTriangleIcon } from '@heroicons/react/24/outline';
 import { Document, BusinessInfo, Form104Data } from '../../../types/types';
 
@@ -134,20 +134,20 @@ IVA a Pagar / Crédito Tributario: $${form104Data.ivaToPayOrCredit.toFixed(2)}
         </div>
 
         <div className="space-y-4">
-          <div className="bg-gradient-to-br from-indigo-50 to-indigo-100 p-6 rounded-2xl border border-indigo-200">
-            <h3 className="font-black text-indigo-900 mb-4 text-lg">VENTAS</h3>
+          <div className="bg-gradient-to-br from-sky-50 to-sky-100 p-6 rounded-2xl border border-sky-200">
+            <h3 className="font-black text-sky-900 mb-4 text-lg">VENTAS</h3>
             <div className="space-y-3">
               <div className="flex justify-between items-center">
-                <span className="text-sm font-bold text-indigo-700">Base Imponible Tarifa 0%</span>
-                <span className="text-xl font-black text-indigo-900">${form104Data.taxableBase0.toFixed(2)}</span>
+                <span className="text-sm font-bold text-sky-500">Base Imponible Tarifa 0%</span>
+                <span className="text-xl font-black text-sky-900">${form104Data.taxableBase0.toFixed(2)}</span>
               </div>
               <div className="flex justify-between items-center">
-                <span className="text-sm font-bold text-indigo-700">Base Imponible Tarifa 12%</span>
-                <span className="text-xl font-black text-indigo-900">${form104Data.taxableBase12.toFixed(2)}</span>
+                <span className="text-sm font-bold text-sky-500">Base Imponible Tarifa 12%</span>
+                <span className="text-xl font-black text-sky-900">${form104Data.taxableBase12.toFixed(2)}</span>
               </div>
               <div className="flex justify-between items-center pt-3 border-t-2 border-blue-300">
-                <span className="text-sm font-bold text-indigo-700">IVA Generado (15%)</span>
-                <span className="text-2xl font-black text-indigo-700">${form104Data.generatedIva.toFixed(2)}</span>
+                <span className="text-sm font-bold text-sky-500">IVA Generado (15%)</span>
+                <span className="text-2xl font-black text-sky-500">${form104Data.generatedIva.toFixed(2)}</span>
               </div>
             </div>
           </div>
@@ -177,7 +177,7 @@ IVA a Pagar / Crédito Tributario: $${form104Data.ivaToPayOrCredit.toFixed(2)}
         <button
           onClick={exportReport}
           disabled={!month || !year}
-          className="w-full mt-6 py-4 bg-indigo-700 hover:bg-indigo-800 text-white rounded-2xl font-black uppercase text-sm tracking-wide shadow-lg shadow-indigo-500/20 disabled:opacity-50 disabled:cursor-not-allowed"
+          className="w-full mt-6 py-4 bg-sky-500 hover:bg-sky-600 text-white rounded-2xl font-black uppercase text-sm tracking-wide shadow-lg shadow-sky-500/20 disabled:opacity-50 disabled:cursor-not-allowed"
         >
           <ArrowDownTrayIcon className="w-4 h-4 inline" /> Exportar Declaración
         </button>

@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+﻿import React, { useState, useMemo } from 'react';
 import { CubeIcon, ArrowDownTrayIcon, InboxIcon } from '@heroicons/react/24/outline';
 import { Product, Document, InventoryMovement } from '../../../types/types';
 
@@ -111,7 +111,7 @@ export default function Kardex({ products, documents, onNotify }: KardexProps) {
           <button
             onClick={exportToCSV}
             disabled={movements.length === 0}
-            className="px-6 py-3 bg-indigo-700 text-white rounded-xl font-bold text-sm hover:bg-indigo-800 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="px-6 py-3 bg-sky-500 text-white rounded-xl font-bold text-sm hover:bg-sky-600 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <ArrowDownTrayIcon className="w-4 h-4 inline" /> Exportar CSV
           </button>
@@ -200,7 +200,7 @@ export default function Kardex({ products, documents, onNotify }: KardexProps) {
                   <td className="p-3 text-right font-bold text-red-600">{mov.quantityOut || '-'}</td>
                   <td className="p-3 text-right font-black text-slate-800">{mov.balance}</td>
                   <td className="p-3 text-right font-bold text-slate-600">${mov.unitCost.toFixed(2)}</td>
-                  <td className="p-3 text-right font-black text-indigo-700">${mov.totalCost.toFixed(2)}</td>
+                  <td className="p-3 text-right font-black text-sky-500">${mov.totalCost.toFixed(2)}</td>
                 </tr>
               ))}
             </tbody>

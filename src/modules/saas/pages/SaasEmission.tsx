@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect } from 'react';
 import {
   BeakerIcon,
   CalendarDaysIcon,
@@ -457,7 +457,7 @@ export default function SaasEmission({ businesses, subscriptions, onNotify }: Sa
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-indigo-50 dark:from-slate-900 dark:to-slate-800 p-4 md:p-8">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-sky-50 dark:from-slate-900 dark:to-slate-800 p-4 md:p-8">
       <div className="max-w-5xl mx-auto">
         {/* Header */}
         <div className="mb-8">
@@ -492,7 +492,7 @@ export default function SaasEmission({ businesses, subscriptions, onNotify }: Sa
                   const business = businessList.find(b => b.id === e.target.value);
                   setSelectedBusiness(business || null);
                 }}
-                className="w-full p-4 bg-slate-50 dark:bg-slate-700 border-2 border-slate-200 dark:border-slate-600 rounded-xl font-medium focus:border-indigo-500 focus:outline-none transition-colors text-slate-800 dark:text-white"
+                className="w-full p-4 bg-slate-50 dark:bg-slate-700 border-2 border-slate-200 dark:border-slate-600 rounded-xl font-medium focus:border-sky-500 focus:outline-none transition-colors text-slate-800 dark:text-white"
               >
                 <option value="">Seleccionar empresa...</option>
                 {businessList.map(b => (
@@ -514,7 +514,7 @@ export default function SaasEmission({ businesses, subscriptions, onNotify }: Sa
                   const sub = activeSubscriptions.find(s => s.id === e.target.value);
                   setSelectedSubscription(sub || null);
                 }}
-                className="w-full p-4 bg-slate-50 dark:bg-slate-700 border-2 border-slate-200 dark:border-slate-600 rounded-xl font-medium focus:border-indigo-500 focus:outline-none transition-colors text-slate-800 dark:text-white"
+                className="w-full p-4 bg-slate-50 dark:bg-slate-700 border-2 border-slate-200 dark:border-slate-600 rounded-xl font-medium focus:border-sky-500 focus:outline-none transition-colors text-slate-800 dark:text-white"
               >
                 <option value="">Seleccionar plan...</option>
                 {activeSubscriptions.map(s => (
@@ -528,32 +528,32 @@ export default function SaasEmission({ businesses, subscriptions, onNotify }: Sa
 
           {/* Datos del cliente y tiempo de suscripción */}
           {selectedBusiness && (
-            <div className="mt-6 p-6 bg-indigo-50 dark:bg-indigo-900/30 rounded-xl border border-indigo-100 dark:border-indigo-800">
-              <h3 className="font-bold text-indigo-800 dark:text-blue-300 mb-4">Datos del Cliente</h3>
+            <div className="mt-6 p-6 bg-sky-50 dark:bg-sky-900/30 rounded-xl border border-sky-100 dark:border-sky-800">
+              <h3 className="font-bold text-sky-800 dark:text-blue-300 mb-4">Datos del Cliente</h3>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
                 <div>
-                  <span className="text-indigo-700 dark:text-indigo-400 font-medium">Razón Social:</span>
+                  <span className="text-sky-500 dark:text-sky-400 font-medium">Razón Social:</span>
                   <p className="font-bold text-slate-800 dark:text-white">{selectedBusiness.name}</p>
                 </div>
                 <div>
-                  <span className="text-indigo-700 dark:text-indigo-400 font-medium">RUC:</span>
+                  <span className="text-sky-500 dark:text-sky-400 font-medium">RUC:</span>
                   <p className="font-bold text-slate-800 dark:text-white">{selectedBusiness.ruc}</p>
                 </div>
                 <div>
-                  <span className="text-indigo-700 dark:text-indigo-400 font-medium">Email:</span>
+                  <span className="text-sky-500 dark:text-sky-400 font-medium">Email:</span>
                   <p className="font-bold text-slate-800 dark:text-white">{selectedBusiness.email}</p>
                 </div>
                 <div>
-                  <span className="text-indigo-700 dark:text-indigo-400 font-medium">Plan Actual:</span>
+                  <span className="text-sky-500 dark:text-sky-400 font-medium">Plan Actual:</span>
                   <p className="font-bold text-slate-800 dark:text-white">{selectedBusiness.plan}</p>
                 </div>
               </div>
               
               {/* Tiempo de suscripción actual */}
-              <div className="mt-4 pt-4 border-t border-indigo-200 dark:border-indigo-700">
+              <div className="mt-4 pt-4 border-t border-sky-200 dark:border-sky-700">
                 <div className="flex flex-wrap gap-4 text-sm">
                   <div className="flex items-center gap-2">
-                    <CalendarDaysIcon className="w-4 h-4 inline text-indigo-700 dark:text-indigo-400" /> Fecha actual:
+                    <CalendarDaysIcon className="w-4 h-4 inline text-sky-500 dark:text-sky-400" /> Fecha actual:
                     <span className="font-bold text-slate-800 dark:text-white">
                       {selectedBusiness.subscriptionEnd 
                         ? new Date(selectedBusiness.subscriptionEnd).toLocaleDateString('es-EC')
@@ -561,7 +561,7 @@ export default function SaasEmission({ businesses, subscriptions, onNotify }: Sa
                     </span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <ClockIcon className="w-4 h-4 inline text-indigo-700 dark:text-indigo-400" /> Días restantes:
+                    <ClockIcon className="w-4 h-4 inline text-sky-500 dark:text-sky-400" /> Días restantes:
                     <span className={`font-bold ${calculateDaysRemaining(selectedBusiness.subscriptionEnd) > 10 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
                       {calculateDaysRemaining(selectedBusiness.subscriptionEnd)} días
                     </span>
@@ -570,10 +570,10 @@ export default function SaasEmission({ businesses, subscriptions, onNotify }: Sa
               </div>
 
               {/* Configuración SRI de la empresa */}
-              <div className="mt-4 pt-4 border-t border-indigo-200 dark:border-indigo-700">
+              <div className="mt-4 pt-4 border-t border-sky-200 dark:border-sky-700">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <BuildingOffice2Icon className="w-4 h-4 inline text-indigo-700 dark:text-indigo-400" /> Facturación SRI:
+                    <BuildingOffice2Icon className="w-4 h-4 inline text-sky-500 dark:text-sky-400" /> Facturación SRI:
                     <span className={`px-2 py-1 text-xs font-bold rounded ${
                       (selectedBusiness as any).sriEnabled 
                         ? 'bg-green-100 dark:bg-green-900/50 text-green-600 dark:text-green-400'
@@ -661,7 +661,7 @@ export default function SaasEmission({ businesses, subscriptions, onNotify }: Sa
                   onClick={() => setEmissionMode('SRI')}
                   className={`px-4 py-2 rounded-lg font-medium transition-colors ${
                     emissionMode === 'SRI'
-                      ? 'bg-indigo-700 text-white'
+                      ? 'bg-sky-500 text-white'
                       : 'bg-slate-200 dark:bg-slate-600 text-slate-600 dark:text-slate-200 hover:bg-slate-300 dark:hover:bg-slate-500'
                   }`}
                 >
@@ -725,7 +725,7 @@ export default function SaasEmission({ businesses, subscriptions, onNotify }: Sa
                   className={`flex-[2] py-4 font-bold rounded-xl shadow-lg transition-all ${
                     loading || !selectedBusiness || !selectedSubscription
                       ? 'bg-slate-300 dark:bg-slate-600 text-slate-500 dark:text-slate-400 cursor-not-allowed'
-                      : 'bg-indigo-700 text-white hover:bg-indigo-800 hover:shadow-xl'
+                      : 'bg-sky-500 text-white hover:bg-sky-600 hover:shadow-xl'
                   }`}
                 >
                   {loading ? (
