@@ -19,7 +19,9 @@ import {
   EyeSlashIcon,
   ExclamationTriangleIcon,
   QuestionMarkCircleIcon,
+  Cog6ToothIcon,
 } from '@heroicons/react/24/outline';
+import ModulePermissionModal from '../components/ModulePermissionModal';
 
 const API_URL = import.meta.env.VITE_BACKEND_URL || '';
 
@@ -67,6 +69,11 @@ const UserManagement: React.FC<UserManagementProps> = ({ currentUser, onNotify }
   const [editingUser, setEditingUser] = useState<User | null>(null);
   const [showPassword, setShowPassword] = useState(false);
   const [tempPassword, setTempPassword] = useState('');
+  const [showModuleModal, setShowModuleModal] = useState(false);
+  const [moduleUser, setModuleUser] = useState<User | null>(null);
+  const [hasModuleControl, setHasModuleControl] = useState(() => {
+    return JSON.parse(localStorage.getItem('hasModuleControl') || 'false');
+  });
 
   const isSuperAdmin = currentUser?.role === 'SUPERADMIN';
   const isAdmin = currentUser?.role === 'ADMIN';
@@ -567,6 +574,17 @@ const UserManagement: React.FC<UserManagementProps> = ({ currentUser, onNotify }
                               <PencilIcon className="w-4 h-4" />
                             </button>
                           )}
+
+                          {/* Gestionar Módulos - solo ADMIN de empresa con hasModuleControl */}
+                          {isAdmin && hasModuleControl && user.role !== 'ADMIN' && !isCurrentUser && (
+                            <button
+                              onClick={() => { setModuleUser(user); setShowModuleModal(true); }}
+                              className="p-2 rounded-lg hover:bg-purple-50 dark:hover:bg-purple-500/10 text-slate-400 hover:text-purple-500 transition-colors"
+                              title="Gestionar módulos del usuario"
+                            >
+                              <Cog6ToothIcon className="w-4 h-4" />
+                            </button>
+                          )}
                         </div>
                       </td>
                     </tr>
@@ -865,6 +883,17 @@ const UserManagement: React.FC<UserManagementProps> = ({ currentUser, onNotify }
             </form>
           </div>
         </div>
+      )}
+      {/* ============ MODAL: GESTIONAR MÓDULOS ============ */}
+      {showModuleModal && moduleUser && (
+        <ModulePermissionModal
+          userId={moduleUser.id}
+          userName={moduleUser.name || ''}
+          userEmail={moduleUser.email}
+          onClose={() => { setShowModuleModal(false); setModuleUser(null); }}
+          onNotify={onNotify}
+          onSaved={() => loadData()}
+        />
       )}
     </div>
   );

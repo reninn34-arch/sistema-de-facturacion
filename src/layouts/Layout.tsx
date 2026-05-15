@@ -30,6 +30,7 @@ import {
   TicketIcon,
   DocumentArrowUpIcon,
   GlobeAltIcon,
+  ShieldExclamationIcon,
 } from '@heroicons/react/24/outline';
 
 interface LayoutProps {
@@ -44,6 +45,8 @@ interface LayoutProps {
   subscriptionExpired?: boolean;
   pendingActivations?: number;
   planHasAIAssistant?: boolean;
+  hasModuleControl?: boolean;
+  modulePermissions?: { moduleCode: string; granted: boolean }[];
 }
 
 const iconMap: Record<string, React.ReactNode> = {
@@ -78,6 +81,7 @@ const iconMap: Record<string, React.ReactNode> = {
   'Pendientes SRI': <DocumentArrowUpIcon className="w-6 h-6" />,
   'Cerrar Sesión': <ArrowRightOnRectangleIcon className="w-6 h-6" />,
   'Landing Page': <GlobeAltIcon className="w-5 h-5" />,
+  'Seguridad / Dispositivos': <ShieldExclamationIcon className="w-6 h-6" />,
 };
 
 const Layout: React.FC<LayoutProps> = ({
@@ -91,7 +95,9 @@ const Layout: React.FC<LayoutProps> = ({
   currentUser,
   subscriptionExpired = false,
   pendingActivations = 0,
-  planHasAIAssistant = false
+  planHasAIAssistant = false,
+  hasModuleControl = false,
+  modulePermissions = []
 }) => {
   const [showNotifications, setShowNotifications] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -102,7 +108,35 @@ const Layout: React.FC<LayoutProps> = ({
     localStorage.removeItem('adminUser');
     localStorage.removeItem('subscriptionExpired');
     localStorage.removeItem('businessActive');
+    localStorage.removeItem('hasModuleControl');
+    localStorage.removeItem('modulePermissions');
+    localStorage.removeItem('sessionId');
     window.location.reload();
+  };
+
+  // Mapeo de menuItem ID → module code para control granular de módulos
+  const menuItemModuleMap: Record<string, string> = {
+    'invoices': 'invoices',
+    'credit-notes': 'credit-notes',
+    'retentions': 'retentions',
+    'remittances': 'remittances',
+    'settlements': 'settlements',
+    'reports': 'reports',
+    'sales-book': 'reports',
+    'ats': 'reports',
+    'form-104': 'reports',
+    'kardex': 'reports',
+    'profitability': 'reports',
+    'quicksale': 'caja',
+    'pending-sri': 'caja',
+    'clients': 'clients',
+    'products': 'products',
+    'recipes': 'production',
+    'production': 'production',
+    'config': 'config',
+    'integrations': 'integrations',
+    'ai-assistant': 'ai-assistant',
+    'audit': 'audit',
   };
 
   const allMenuItems = [
@@ -116,6 +150,7 @@ const Layout: React.FC<LayoutProps> = ({
     { id: 'subscription-reports', label: 'Contabilidad', roles: ['SUPERADMIN'] },
     { id: 'pago-interno', label: 'Suscripción', roles: ['ADMIN'] },
     { id: 'company-users', label: 'Panel de Gestión', roles: ['ADMIN'] },
+    { id: 'sessions', label: 'Seguridad / Dispositivos', roles: ['ADMIN', 'VENDEDOR', 'CONTADOR', 'SUPERADMIN'] },
     { id: 'invoices', label: 'Emisión', roles: ['ADMIN', 'VENDEDOR', 'CONTADOR'] },
     { id: 'quicksale', label: 'Caja', roles: ['ADMIN', 'VENDEDOR'], businessTypes: ['BAKERY', 'RESTAURANT'] },
     { id: 'pending-sri', label: 'Pendientes SRI', roles: ['ADMIN', 'VENDEDOR', 'CONTADOR'], businessTypes: ['BAKERY', 'RESTAURANT'] },
@@ -144,13 +179,27 @@ const Layout: React.FC<LayoutProps> = ({
     if (subscriptionExpired && item.id !== 'pago-interno' && item.id !== 'logout_btn') {
       return false;
     }
+    if (item.id === 'ai-assistant' && !planHasAIAssistant) {
+      return false;
+    }
+
+    // Si hasModuleControl está activo y el usuario NO es ADMIN/SUPERADMIN,
+    // los permisos explícitos de módulo mandan por encima de role/businessType
+    if (hasModuleControl && currentUser && currentUser.role !== 'ADMIN' && currentUser.role !== 'SUPERADMIN') {
+      const moduleCode = menuItemModuleMap[item.id];
+      if (moduleCode) {
+        // Este ítem tiene mapeo a módulo → solo el permiso explícito decide
+        const perm = modulePermissions.find(p => p.moduleCode === moduleCode);
+        return !!(perm && perm.granted);
+      }
+      // Ítems sin mapeo (dashboard, notifications, logout_btn, etc.) siguen con role check
+    }
+
+    // Comportamiento tradicional: filtrar por rol y businessType
     const hasRole = !item.roles || (currentUser && item.roles.includes(currentUser.role));
     if (!hasRole) return false;
     const userBusinessType = currentUser?.businessType || 'GENERAL';
     if (item.businessTypes && !item.businessTypes.includes(userBusinessType)) {
-      return false;
-    }
-    if (item.id === 'ai-assistant' && !planHasAIAssistant) {
       return false;
     }
     return true;

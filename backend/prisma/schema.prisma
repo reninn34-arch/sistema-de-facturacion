@@ -84,12 +84,14 @@ model User {
   name       String?
   isActive   Boolean   @default(true)
   
-  // SAAS: El usuario pertenece a una empresa
-  // (Es opcional '?' porque el SUPERADMIN podría no tener empresa)
-  businessId String?   
-  business   Business? @relation(fields: [businessId], references: [id], onDelete: Cascade)
-  
-  documents  Document[]
+   // SAAS: El usuario pertenece a una empresa
+   // (Es opcional '?' porque el SUPERADMIN podría no tener empresa)
+   businessId String?   
+   business   Business? @relation(fields: [businessId], references: [id], onDelete: Cascade)
+   
+   documents  Document[]
+   modulePermissions UserModulePermission[]
+   sessions   Session[]
 
   createdAt  DateTime  @default(now())
   updatedAt  DateTime  @updatedAt
@@ -372,6 +374,7 @@ model SubscriptionPlan {
   hasAIAssistant      Boolean  @default(false)
   hasPrioritySupport  Boolean  @default(false)
   hasAudit            Boolean  @default(false)
+  hasModuleControl    Boolean  @default(false)  // Permite que el ADMIN de empresa gestione módulos por usuario
   isActive            Boolean  @default(true)
   displayOrder        Int      @default(0)
   createdAt            DateTime @default(now())
@@ -485,4 +488,54 @@ model AppSettings {
   cardEnabled   Boolean  @default(false)
   landingContent Json    @default("{}")
   updatedAt    DateTime @updatedAt
+}
+
+// ---------------------------------------------------------
+// 13. MODELO DE MÓDULOS (Permisos granulares por usuario)
+// ---------------------------------------------------------
+model Module {
+  id          String   @id @default(uuid())
+  code        String   @unique  // "invoices", "clients", "caja", "reports", etc.
+  name        String
+  description String?
+  icon        String?
+  isActive    Boolean  @default(true)
+  displayOrder Int     @default(0)
+
+  permissions UserModulePermission[]
+}
+
+// ---------------------------------------------------------
+// 14. PERMISOS DE MÓDULO POR USUARIO (Admin gestiona empleados)
+// ---------------------------------------------------------
+model UserModulePermission {
+  id       String  @id @default(uuid())
+  userId   String
+  moduleId String
+  granted  Boolean  // true = tiene acceso, false = explícitamente denegado
+
+  user     User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  module   Module  @relation(fields: [moduleId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, moduleId])
+}
+
+// ---------------------------------------------------------
+// 15. MODELO DE SESIONES (Registro de dispositivos / login)
+// ---------------------------------------------------------
+model Session {
+  id          String   @id @default(uuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  businessId  String?
+  ipAddress   String?
+  userAgent   String?
+  deviceName  String?
+  browser     String?   // "Chrome 125.0", "Firefox 124.0"
+  location    String?   // "Ecuador, Quito" (desde ip-api.com)
+  loginAt     DateTime @default(now())
+  isActive    Boolean  @default(true)
+
+  @@index([userId])
+  @@index([businessId])
 }

@@ -448,3 +448,26 @@ export interface ProductionRecord {
   notes?: string;
   createdAt: string;
 }
+
+// ============================================
+// MÓDULOS Y PERMISOS DE USUARIO
+// ============================================
+export interface Module {
+  id: string;
+  code: string;
+  name: string;
+  description?: string;
+  icon?: string;
+  isActive: boolean;
+  displayOrder: number;
+}
+
+export interface UserModulePermission {
+  moduleId: string;
+  granted: boolean;
+}
+
+export interface UserModuleWithState extends Module {
+  granted: boolean | null;
+  inherited: boolean;
+}

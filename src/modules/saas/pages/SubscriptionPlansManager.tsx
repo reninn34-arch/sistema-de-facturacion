@@ -1,5 +1,5 @@
 ﻿import React, { useState, useEffect } from 'react';
-import { ClockIcon, CheckIcon, CpuChipIcon, StarIcon, PauseCircleIcon, PlayCircleIcon, TrashIcon, MegaphoneIcon } from '@heroicons/react/24/outline';
+import { ClockIcon, CheckIcon, CpuChipIcon, StarIcon, PauseCircleIcon, PlayCircleIcon, TrashIcon, MegaphoneIcon, Cog6ToothIcon } from '@heroicons/react/24/outline';
 
 // Interfaces para los planes de suscripción
 interface SubscriptionPlan {
@@ -17,6 +17,7 @@ interface SubscriptionPlan {
   hasAIAssistant: boolean;
   hasPrioritySupport: boolean;
   hasAudit: boolean;
+  hasModuleControl: boolean;
   isActive: boolean;
   createdAt?: string;
   updatedAt?: string;
@@ -43,6 +44,7 @@ const defaultPlans: SubscriptionPlan[] = [
     hasAIAssistant: false,
     hasPrioritySupport: false,
     hasAudit: false,
+    hasModuleControl: false,
     isActive: true
   },
   {
@@ -60,6 +62,7 @@ const defaultPlans: SubscriptionPlan[] = [
     hasAIAssistant: false,
     hasPrioritySupport: false,
     hasAudit: false,
+    hasModuleControl: false,
     isActive: true
   },
   {
@@ -77,6 +80,7 @@ const defaultPlans: SubscriptionPlan[] = [
     hasAIAssistant: true,
     hasPrioritySupport: true,
     hasAudit: true,
+    hasModuleControl: true,
     isActive: true
   },
   {
@@ -94,6 +98,7 @@ const defaultPlans: SubscriptionPlan[] = [
     hasAIAssistant: true,
     hasPrioritySupport: true,
     hasAudit: true,
+    hasModuleControl: true,
     isActive: true
   },
   {
@@ -111,6 +116,7 @@ const defaultPlans: SubscriptionPlan[] = [
     hasAIAssistant: true,
     hasPrioritySupport: true,
     hasAudit: true,
+    hasModuleControl: true,
     isActive: true
   }
 ];
@@ -131,6 +137,7 @@ const SubscriptionPlansManager: React.FC<SubscriptionPlansManagerProps> = ({ onN
     hasAIAssistant: false,
     hasPrioritySupport: false,
     hasAudit: false,
+    hasModuleControl: false,
     isActive: true,
     price: 0
   });
@@ -188,6 +195,7 @@ const SubscriptionPlansManager: React.FC<SubscriptionPlansManagerProps> = ({ onN
         hasAIAssistant: false,
         hasPrioritySupport: false,
         hasAudit: false,
+        hasModuleControl: false,
         isActive: true
       });
       setFeaturesText('');
@@ -224,6 +232,7 @@ const SubscriptionPlansManager: React.FC<SubscriptionPlansManagerProps> = ({ onN
       hasAIAssistant: formData.hasAIAssistant || false,
       hasPrioritySupport: formData.hasPrioritySupport || false,
       hasAudit: formData.hasAudit || false,
+      hasModuleControl: formData.hasModuleControl || false,
       isActive: formData.isActive !== false
     };
 
@@ -638,6 +647,16 @@ const SubscriptionPlansManager: React.FC<SubscriptionPlansManagerProps> = ({ onN
                     />
                     <span className="font-medium text-slate-700 dark:text-slate-300">Soporte Prioritario</span>
                     <MegaphoneIcon className="w-4 h-4 text-xs text-slate-400 ml-1 inline" />
+                  </label>
+                  <label className="flex items-center gap-2 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={formData.hasModuleControl || false}
+                      onChange={e => setFormData({ ...formData, hasModuleControl: e.target.checked })}
+                      className="w-5 h-5 text-sky-500 rounded focus:ring-blue-500"
+                    />
+                    <span className="font-medium text-slate-700 dark:text-slate-300">Control de Módulos</span>
+                    <Cog6ToothIcon className="w-4 h-4 text-xs text-slate-400 ml-1 inline" />
                   </label>
                   <label className="flex items-center gap-2 cursor-pointer">
                     <input

@@ -47,6 +47,7 @@ import RecipeManager from './modules/produccion/components/RecipeManager';
 import ProductionRecord from './modules/produccion/components/ProductionRecord';
 import QuickSaleForm from './modules/caja/pages/QuickSaleForm';
 import PendingTickets from './modules/caja/pages/PendingTickets';
+import SessionsPage from './modules/admin/pages/SessionsPage';
 
 // URL del backend definida en variable de entorno o fallback
 // Usar variable de entorno VITE_BACKEND_URL para producción en Railway
@@ -147,6 +148,16 @@ const App: React.FC = () => {
   const [currentPlanHasAudit, setCurrentPlanHasAudit] = useState(false);
   const [currentPlanDurationDays, setCurrentPlanDurationDays] = useState(30);
   const [currentPlanMaxInvoices, setCurrentPlanMaxInvoices] = useState(999999);
+
+  // Estado para control de módulos por usuario
+  const [hasModuleControl, setHasModuleControl] = useState(() => {
+    const stored = localStorage.getItem('hasModuleControl');
+    return stored ? JSON.parse(stored) : false;
+  });
+  const [modulePermissions, setModulePermissions] = useState<{ moduleCode: string; granted: boolean }[]>(() => {
+    const stored = localStorage.getItem('modulePermissions');
+    return stored ? JSON.parse(stored) : [];
+  });
 
   const showNotify = useCallback((text: string, type: AppNotification['type'] = 'success') => {
     const newNotif: AppNotification = {
@@ -403,6 +414,64 @@ const App: React.FC = () => {
     loadData();
   }, [isAuthenticated, isDemoMode]); // <-- Se recarga si cambias el switch
 
+  // Verificación de sesión por eventos (sin polling)
+  // Escucha visibilidad de pestaña + actividad del usuario para detectar revocación
+  useEffect(() => {
+    if (!isAuthenticated) return;
+
+    let lastCheck = 0;
+    const MIN_CHECK_INTERVAL = 60000; // no verificar más de 1 vez por minuto
+
+    const checkSession = async () => {
+      const now = Date.now();
+      if (now - lastCheck < MIN_CHECK_INTERVAL) return;
+      lastCheck = now;
+
+      try {
+        const token = localStorage.getItem('adminToken');
+        if (!token) return;
+
+        const response = await fetch(`${API_URL}/api/business/sessions`, {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        if (response.status === 401) {
+          localStorage.removeItem('adminToken');
+          localStorage.removeItem('adminUser');
+          window.location.href = '/login';
+          return;
+        }
+        if (!response.ok) return;
+
+        const data = await response.json();
+        const mySession = data.sessions?.find((s: any) => s.id === data.currentSessionId);
+        if (mySession && !mySession.isActive) {
+          showNotify('Tu sesión fue cerrada por el administrador', 'warning');
+          localStorage.removeItem('adminToken');
+          localStorage.removeItem('adminUser');
+          localStorage.removeItem('hasModuleControl');
+          localStorage.removeItem('modulePermissions');
+          localStorage.removeItem('sessionId');
+          window.location.href = '/login';
+        }
+      } catch (e) { /* silencioso */ }
+    };
+
+    // Evento: usuario vuelve a la pestaña
+    const onVisible = () => { if (document.visibilityState === 'visible') checkSession(); };
+    document.addEventListener('visibilitychange', onVisible);
+
+    // Evento: actividad del usuario (click, tecla) — con debounce
+    const onActivity = () => checkSession();
+    document.addEventListener('click', onActivity, { passive: true });
+    document.addEventListener('keydown', onActivity, { passive: true });
+
+    return () => {
+      document.removeEventListener('visibilitychange', onVisible);
+      document.removeEventListener('click', onActivity);
+      document.removeEventListener('keydown', onActivity);
+    };
+  }, [isAuthenticated]);
+
 
 
   // Cargar el archivo de firma cuando se selecciona
@@ -419,10 +488,12 @@ const App: React.FC = () => {
         reader.readAsDataURL(file);
         reader.onload = () => {
           const base64 = (reader.result as string).split(',')[1];
+          const updatedFeatures = { ...((businessInfo as any).features || {}), signatureP12: base64 };
           setBusinessInfo(prev => ({
             ...prev,
-            features: { ...((prev as any).features || {}), signatureP12: base64 }
+            features: updatedFeatures
           }));
+          saveBusinessField({ features: updatedFeatures });
         };
 
         // Si está en modo demo, salir del modo demo al cargar la firma
@@ -636,6 +707,25 @@ const App: React.FC = () => {
     }
   };
 
+  // Helper: guarda un subconjunto de campos del negocio a la BD de forma silenciosa
+  const saveBusinessField = async (data: Record<string, any>, silent = true) => {
+    try {
+      const token = localStorage.getItem('adminToken');
+      const response = await fetch(`${API_URL}/api/business`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify(data)
+      });
+      if (!response.ok) throw new Error('Error en servidor');
+      if (!silent) showNotify("Configuración guardada");
+    } catch (error) {
+      console.error('Error al guardar campo:', error);
+    }
+  };
+
   // 👤 ACTUALIZAR PERFIL PERSONAL
   const handleUpdateProfile = async () => {
     try {
@@ -754,7 +844,11 @@ const App: React.FC = () => {
 
   // 3. Login explícito - Solo para no autenticados
   if (window.location.pathname === '/login' && !isAuthenticated) {
-    return <Login onLoginSuccess={() => setIsAuthenticated(true)} />;
+    return <Login onLoginSuccess={() => {
+      setIsAuthenticated(true);
+      setHasModuleControl(JSON.parse(localStorage.getItem('hasModuleControl') || 'false'));
+      setModulePermissions(JSON.parse(localStorage.getItem('modulePermissions') || '[]'));
+    }} />;
   }
 
   // 4. Ruta pública para Portal de Clientes
@@ -771,7 +865,11 @@ const App: React.FC = () => {
   }
 
   if (!isAuthenticated) {
-    return <Login onLoginSuccess={() => setIsAuthenticated(true)} />;
+    return <Login onLoginSuccess={() => {
+      setIsAuthenticated(true);
+      setHasModuleControl(JSON.parse(localStorage.getItem('hasModuleControl') || 'false'));
+      setModulePermissions(JSON.parse(localStorage.getItem('modulePermissions') || '[]'));
+    }} />;
   }
 
   const renderContent = () => {
@@ -850,7 +948,7 @@ const App: React.FC = () => {
           <div className="space-y-6">
             {/* Mostrar resumen de ventas solo a administradores de empresa */}
             {currentUser?.role === 'ADMIN' && <SalesSummary documents={documents} />}
-            <Dashboard documents={documents} products={products} setActiveTab={setActiveTab} currentUser={currentUser} businessInfo={businessInfo} planHasAudit={currentPlanHasAudit || currentUser?.role === 'SUPERADMIN'} planDurationDays={currentPlanDurationDays} />
+            <Dashboard documents={documents} products={products} setActiveTab={setActiveTab} currentUser={currentUser} businessInfo={businessInfo} planHasAudit={currentPlanHasAudit || currentUser?.role === 'SUPERADMIN'} planDurationDays={currentPlanDurationDays} hasModuleControl={hasModuleControl} modulePermissions={modulePermissions} />
           </div>
         );
 
@@ -972,6 +1070,9 @@ const App: React.FC = () => {
         // Usar UserManagement con diseño de tabla para Gestión Global
         return <UserManagement currentUser={currentUser} onNotify={showNotify} />;
 
+      case 'sessions':
+        return <SessionsPage currentUser={currentUser} onNotify={showNotify} />;
+
       case 'user-management':
         // Ruta eliminada - cada rol tiene su propio panel dedicado
         showNotify('Acceso no disponible', 'error');
@@ -1003,7 +1104,12 @@ const App: React.FC = () => {
                     const file = e.target.files?.[0];
                     if (file && file instanceof File) {
                       const reader = new FileReader();
-                      reader.onloadend = () => setBusinessInfo(prev => ({ ...prev, logo: reader.result as string }));
+                      reader.onloadend = () => {
+                        const logoData = reader.result as string;
+                        setBusinessInfo(prev => ({ ...prev, logo: logoData }));
+                        saveBusinessField({ logo: logoData });
+                        showNotify('Logo guardado correctamente');
+                      };
                       reader.readAsDataURL(file);
                     }
                   }} />
@@ -1293,10 +1399,12 @@ const App: React.FC = () => {
                             value={signaturePassword}
                             onChange={e => {
                               setSignaturePassword(e.target.value);
+                              const updatedFeatures = { ...((businessInfo as any).features || {}), signaturePassword: e.target.value };
                               setBusinessInfo(prev => ({
                                 ...prev,
-                                features: { ...((prev as any).features || {}), signaturePassword: e.target.value }
+                                features: updatedFeatures
                               }));
+                              saveBusinessField({ features: updatedFeatures });
                             }}
                             className="w-full p-4 pr-12 bg-white/5 border border-white/10 rounded-2xl font-bold text-sm focus:border-sky-500 outline-none"
                           />
@@ -1318,10 +1426,12 @@ const App: React.FC = () => {
                             setSignatureFile(null);
                             setSignatureBuffer(null);
                             setSignaturePassword('');
+                            const clearedFeatures = { ...((businessInfo as any).features || {}), signatureP12: null, signaturePassword: '' };
                             setBusinessInfo(prev => ({
                               ...prev,
-                              features: { ...((prev as any).features || {}), signatureP12: null, signaturePassword: '' }
+                              features: clearedFeatures
                             }));
+                            saveBusinessField({ features: clearedFeatures });
                             showNotify('Firma digital eliminada. Puedes activar el modo demo.');
                           }}
                           className="w-full py-3 bg-red-500/20 hover:bg-red-500/30 text-red-400 rounded-2xl font-bold text-xs uppercase tracking-widest transition-all inline-flex items-center justify-center gap-2"
@@ -1364,6 +1474,8 @@ const App: React.FC = () => {
       subscriptionExpired={subscriptionExpired}
       pendingActivations={pendingActivationCount}
       planHasAIAssistant={currentPlanHasAI || currentUser?.role === 'SUPERADMIN'}
+      hasModuleControl={hasModuleControl}
+      modulePermissions={modulePermissions}
     >
       {renderContent()}
 

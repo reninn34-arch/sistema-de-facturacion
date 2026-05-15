@@ -1,0 +1,345 @@
+import React, { useState, useEffect } from 'react';
+import {
+  ShieldExclamationIcon,
+  ComputerDesktopIcon,
+  DevicePhoneMobileIcon,
+  GlobeAltIcon,
+  ClockIcon,
+  CheckCircleIcon,
+  XCircleIcon,
+  ArrowPathIcon,
+  ExclamationTriangleIcon,
+  UserIcon,
+  SignalIcon,
+} from '@heroicons/react/24/outline';
+
+const API_URL = import.meta.env.VITE_BACKEND_URL || '';
+
+interface SessionData {
+  id: string;
+  userId: string;
+  businessId: string | null;
+  ipAddress: string | null;
+  userAgent: string | null;
+  deviceName: string | null;
+  browser: string | null;
+  location: string | null;
+  loginAt: string;
+  isActive: boolean;
+  user: {
+    id: string;
+    email: string;
+    name: string | null;
+    role: string;
+  };
+}
+
+interface SessionsPageProps {
+  currentUser: any;
+  onNotify: (text: string, type?: 'success' | 'error' | 'info' | 'warning') => void;
+}
+
+const SessionsPage: React.FC<SessionsPageProps> = ({ currentUser, onNotify }) => {
+  const [sessions, setSessions] = useState<SessionData[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [currentSessionId, setCurrentSessionId] = useState<string | null>(null);
+
+  const isAdmin = currentUser?.role === 'ADMIN' || currentUser?.role === 'SUPERADMIN';
+
+  const loadSessions = async () => {
+    setLoading(true);
+    try {
+      const token = localStorage.getItem('adminToken');
+      const response = await fetch(`${API_URL}/api/business/sessions`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+
+      if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.message || 'Error al cargar sesiones');
+      }
+
+      const data = await response.json();
+      setSessions(data.sessions || []);
+      setCurrentSessionId(data.currentSessionId || null);
+    } catch (error: any) {
+      onNotify(error.message || 'Error al cargar sesiones', 'error');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    loadSessions();
+    // Auto-refresh cada 15 segundos para ver cambios en tiempo real
+    const interval = setInterval(loadSessions, 15000);
+    return () => clearInterval(interval);
+  }, []);
+
+  const handleRevoke = async (sessionId: string) => {
+    if (!confirm('¿Estás seguro de cerrar esta sesión? El usuario será desconectado de ese dispositivo.')) return;
+
+    // Optimistic update: marcar como revocada al instante
+    setSessions(prev => prev.map(s => s.id === sessionId ? { ...s, isActive: false } : s));
+
+    try {
+      const token = localStorage.getItem('adminToken');
+      const response = await fetch(`${API_URL}/api/business/sessions/${sessionId}/revoke`, {
+        method: 'PUT',
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        // Revertir si falló
+        setSessions(prev => prev.map(s => s.id === sessionId ? { ...s, isActive: true } : s));
+        throw new Error(data.message || 'Error al revocar sesión');
+      }
+
+      onNotify('Sesión cerrada correctamente', 'success');
+    } catch (error: any) {
+      onNotify(error.message || 'Error al revocar sesión', 'error');
+    }
+  };
+
+  const handleRevokeAll = async () => {
+    if (!confirm('¿Cerrar todas las demás sesiones? Esto desconectará a los usuarios de todos los demás dispositivos.')) return;
+
+    const otherSessions = sessions.filter(s => s.isActive && s.id !== currentSessionId);
+    let revoked = 0;
+    for (const s of otherSessions) {
+      try {
+        const token = localStorage.getItem('adminToken');
+        const response = await fetch(`${API_URL}/api/business/sessions/${s.id}/revoke`, {
+          method: 'PUT',
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        if (response.ok) revoked++;
+      } catch (e) {}
+    }
+    onNotify(`${revoked} sesiones cerradas`, 'success');
+    loadSessions();
+  };
+
+  const formatDate = (dateStr: string) => {
+    const d = new Date(dateStr);
+    return d.toLocaleDateString('es-EC', { day: '2-digit', month: 'short', year: 'numeric' }) +
+      ' ' + d.toLocaleTimeString('es-EC', { hour: '2-digit', minute: '2-digit' });
+  };
+
+  const activeSessions = sessions.filter(s => s.isActive);
+  const otherActiveSessions = activeSessions.filter(s => s.id !== currentSessionId);
+
+  return (
+    <div className="space-y-6 animate-in fade-in duration-500">
+      {/* Header */}
+      <div className="bg-white dark:bg-slate-800 p-8 rounded-[2.5rem] shadow-sm dark:shadow-lg dark:shadow-black/10 border border-slate-100 dark:border-slate-700/50">
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+          <div>
+            <h2 className="text-2xl font-black text-slate-800 dark:text-white tracking-tighter flex items-center gap-3">
+              <ShieldExclamationIcon className="w-8 h-8 text-indigo-500" />
+              Seguridad / Dispositivos
+            </h2>
+            <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
+              {isAdmin
+                ? 'Monitorea las sesiones activas de tu equipo y cierra accesos no autorizados.'
+                : 'Revisa los dispositivos desde los que has iniciado sesión.'}
+            </p>
+          </div>
+          <div className="flex gap-3">
+            <button
+              onClick={loadSessions}
+              className="px-4 py-3 bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 rounded-xl font-bold text-sm hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors flex items-center gap-2"
+            >
+              <ArrowPathIcon className="w-4 h-4" /> Actualizar
+            </button>
+            {otherActiveSessions.length > 0 && (
+              <button
+                onClick={handleRevokeAll}
+                className="px-4 py-3 bg-red-500 text-white rounded-xl font-bold text-sm hover:bg-red-600 transition-colors shadow-lg shadow-red-500/20 flex items-center gap-2"
+              >
+                <XCircleIcon className="w-4 h-4" /> Cerrar todas ({otherActiveSessions.length})
+              </button>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* Stats */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div className="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-100 dark:border-slate-700/50 shadow-sm">
+          <div className="flex items-center gap-2 mb-2">
+            <SignalIcon className="w-4 h-4 text-emerald-500" />
+            <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Activas</span>
+          </div>
+          <p className="text-2xl font-black text-slate-800 dark:text-white">{activeSessions.length}</p>
+        </div>
+        <div className="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-100 dark:border-slate-700/50 shadow-sm">
+          <div className="flex items-center gap-2 mb-2">
+            <UserIcon className="w-4 h-4 text-sky-500" />
+            <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Usuarios</span>
+          </div>
+          <p className="text-2xl font-black text-slate-800 dark:text-white">
+            {new Set(activeSessions.map(s => s.userId)).size}
+          </p>
+        </div>
+        <div className="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-100 dark:border-slate-700/50 shadow-sm">
+          <div className="flex items-center gap-2 mb-2">
+            <XCircleIcon className="w-4 h-4 text-slate-400" />
+            <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Revocadas</span>
+          </div>
+          <p className="text-2xl font-black text-slate-800 dark:text-white">
+            {sessions.filter(s => !s.isActive).length}
+          </p>
+        </div>
+        <div className="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-100 dark:border-slate-700/50 shadow-sm">
+          <div className="flex items-center gap-2 mb-2">
+            <GlobeAltIcon className="w-4 h-4 text-purple-500" />
+            <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">IPs Únicas</span>
+          </div>
+          <p className="text-2xl font-black text-slate-800 dark:text-white">
+            {new Set(sessions.filter(s => s.isActive).map(s => s.ipAddress).filter(Boolean)).size}
+          </p>
+        </div>
+      </div>
+
+      {/* Sessions Table */}
+      <div className="bg-white dark:bg-slate-800 rounded-[2rem] shadow-sm dark:shadow-lg dark:shadow-black/10 border border-slate-100 dark:border-slate-700/50 overflow-hidden">
+        {loading ? (
+          <div className="p-16 text-center text-slate-400 dark:text-slate-500">
+            <ClockIcon className="w-12 h-12 mx-auto mb-4 animate-pulse" />
+            <p className="font-bold">Cargando sesiones...</p>
+          </div>
+        ) : sessions.length === 0 ? (
+          <div className="p-16 text-center text-slate-400 dark:text-slate-500">
+            <ComputerDesktopIcon className="w-12 h-12 mx-auto mb-4 text-slate-300" />
+            <p className="font-bold">No se encontraron sesiones</p>
+            <p className="text-xs mt-2">Las sesiones se registran al iniciar sesión.</p>
+          </div>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead>
+                <tr className="bg-slate-50 dark:bg-slate-800/50 border-b border-slate-100 dark:border-slate-700/50">
+                  <th className="text-left px-6 py-4 text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest">Dispositivo</th>
+                  {isAdmin && (
+                    <th className="text-left px-6 py-4 text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest">Usuario</th>
+                  )}
+                  <th className="text-left px-6 py-4 text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest">Navegador</th>
+                  <th className="text-left px-6 py-4 text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest">Ubicación</th>
+                  <th className="text-left px-6 py-4 text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest">IP</th>
+                  <th className="text-left px-6 py-4 text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest">Fecha de Inicio</th>
+                  <th className="text-left px-6 py-4 text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest">Estado</th>
+                  <th className="text-right px-6 py-4 text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest">Acción</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-50 dark:divide-slate-700/50">
+                {sessions.map((session) => {
+                  const isCurrent = session.id === currentSessionId;
+                  const isMobile = session.deviceName?.toLowerCase().includes('iphone') ||
+                    session.deviceName?.toLowerCase().includes('android');
+
+                  return (
+                    <tr
+                      key={session.id}
+                      className={`hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors ${
+                        isCurrent ? 'bg-indigo-50/30 dark:bg-indigo-500/5' : ''
+                      }`}
+                    >
+                      <td className="px-6 py-4">
+                        <div className="flex items-center gap-3">
+                          <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${
+                            isCurrent
+                              ? 'bg-indigo-100 dark:bg-indigo-500/10 text-indigo-500'
+                              : 'bg-slate-100 dark:bg-slate-700/50 text-slate-500 dark:text-slate-400'
+                          }`}>
+                            {isMobile
+                              ? <DevicePhoneMobileIcon className="w-5 h-5" />
+                              : <ComputerDesktopIcon className="w-5 h-5" />
+                            }
+                          </div>
+                          <div>
+                            <p className="font-bold text-sm text-slate-800 dark:text-white">
+                              {session.deviceName || 'Desconocido'}
+                              {isCurrent && (
+                                <span className="ml-2 text-[9px] bg-indigo-100 dark:bg-indigo-500/20 text-indigo-500 dark:text-indigo-400 px-2 py-0.5 rounded-full font-black">
+                                  ACTUAL
+                                </span>
+                              )}
+                            </p>
+                          </div>
+                        </div>
+                      </td>
+                      {isAdmin && (
+                        <td className="px-6 py-4">
+                          <div>
+                            <p className="font-bold text-sm text-slate-800 dark:text-white">
+                              {session.user.name || session.user.email}
+                            </p>
+                            <p className="text-xs text-slate-400">{session.user.role}</p>
+                          </div>
+                        </td>
+                      )}
+                      <td className="px-6 py-4">
+                        <span className="text-sm text-slate-600 dark:text-slate-400">
+                          {session.browser || '-'}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4">
+                        <div className="flex items-center gap-2">
+                          <GlobeAltIcon className="w-3 h-3 text-slate-400 flex-shrink-0" />
+                          <span className="text-sm text-slate-600 dark:text-slate-400">
+                            {session.location || '-'}
+                          </span>
+                        </div>
+                      </td>
+                      <td className="px-6 py-4">
+                        <span className="text-sm font-mono text-slate-500 dark:text-slate-400">
+                          {session.ipAddress || 'N/A'}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4">
+                        <span className="text-sm text-slate-600 dark:text-slate-400">
+                          {formatDate(session.loginAt)}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4">
+                        <span className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-[10px] font-black ${
+                          session.isActive
+                            ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400'
+                            : 'bg-slate-100 dark:bg-slate-700/50 text-slate-400 dark:text-slate-500'
+                        }`}>
+                          <span className={`w-1.5 h-1.5 rounded-full ${session.isActive ? 'bg-emerald-500' : 'bg-slate-400'}`}></span>
+                          {session.isActive ? 'ACTIVA' : 'REVOCADA'}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4">
+                        <div className="flex items-center justify-end">
+                          {session.isActive && !isCurrent && (
+                            <button
+                              onClick={() => handleRevoke(session.id)}
+                              className="px-4 py-2 bg-red-50 dark:bg-red-500/10 text-red-600 dark:text-red-400 rounded-xl font-bold text-xs hover:bg-red-100 dark:hover:bg-red-500/20 transition-colors flex items-center gap-1"
+                            >
+                              <XCircleIcon className="w-3 h-3" />
+                              Cerrar sesión
+                            </button>
+                          )}
+                          {isCurrent && (
+                            <span className="text-xs text-slate-400 italic">Sesión actual</span>
+                          )}
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
+
+export default SessionsPage;

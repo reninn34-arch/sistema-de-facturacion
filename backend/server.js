@@ -33,6 +33,8 @@ const activationRequestsRoutes = require('./src/routes/activation-requests.route
 const productionRoutes = require('./src/routes/production.routes'); // Rutas de producción (recetas)
 const quickSaleRoutes = require('./src/routes/quicksale.routes'); // Rutas de venta rápida (tickets/POS)
 const settingsRoutes = require('./src/routes/settings.routes'); // Configuración global (pagos, banco)
+const modulePermissionsRoutes = require('./src/routes/module-permissions.routes'); // Gestión de módulos por usuario
+const sessionRoutes = require('./src/routes/session.routes'); // Registro de sesiones / dispositivos
 const { errorHandler } = require('./src/middleware/error.handler'); // [NUEVO] Manejador de errores centralizado
 
 // Middleware de seguridad
@@ -873,6 +875,8 @@ app.use(internalPaymentRoutes);
   app.use(quickSaleRoutes);
   app.use(paymentRoutes);
   app.use(settingsRoutes);
+  app.use(modulePermissionsRoutes);
+  app.use(sessionRoutes);
 
 // ============================================
 // SERVIR FRONTEND EN PRODUCCIÓN

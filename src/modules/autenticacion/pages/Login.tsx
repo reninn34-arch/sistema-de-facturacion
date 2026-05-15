@@ -87,6 +87,15 @@ const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
             if (data.subscriptionPending !== undefined) {
                 localStorage.setItem('subscriptionPending', JSON.stringify(data.subscriptionPending));
             }
+            if (data.hasModuleControl !== undefined) {
+                localStorage.setItem('hasModuleControl', JSON.stringify(data.hasModuleControl));
+            }
+            if (data.modulePermissions) {
+                localStorage.setItem('modulePermissions', JSON.stringify(data.modulePermissions));
+            }
+            if (data.sessionId) {
+                localStorage.setItem('sessionId', data.sessionId);
+            }
 
             onLoginSuccess();
 

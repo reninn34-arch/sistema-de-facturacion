@@ -53,6 +53,8 @@ interface DashboardProps {
   businessInfo?: BusinessInfo;
   planHasAudit?: boolean;
   planDurationDays?: number;
+  hasModuleControl?: boolean;
+  modulePermissions?: { moduleCode: string; granted: boolean }[];
 }
 
 const planColors: Record<string, string> = {
@@ -68,7 +70,7 @@ const planColors: Record<string, string> = {
   PENDING: 'gray'
 };
 
-const Dashboard: React.FC<DashboardProps> = ({ documents, products, setActiveTab, currentUser, businessInfo, planHasAudit, planDurationDays = 30 }) => {
+const Dashboard: React.FC<DashboardProps> = ({ documents, products, setActiveTab, currentUser, businessInfo, planHasAudit, planDurationDays = 30, hasModuleControl = false, modulePermissions = [] }) => {
   const [auditResult, setAuditResult] = useState<AuditResult | null>(null);
   const [auditLoading, setAuditLoading] = useState(true);
   const [auditError, setAuditError] = useState<string | null>(null);
@@ -139,6 +141,17 @@ const Dashboard: React.FC<DashboardProps> = ({ documents, products, setActiveTab
       setAuditLoading(false);
       setAuditResult(null);
       return;
+    }
+
+    // Si hasModuleControl está activo, verificar permiso explícito del módulo audit
+    const isEmployee = currentUser && currentUser.role !== 'ADMIN' && currentUser.role !== 'SUPERADMIN';
+    if (hasModuleControl && isEmployee) {
+      const auditPerm = modulePermissions.find(p => p.moduleCode === 'audit');
+      if (!auditPerm || !auditPerm.granted) {
+        setAuditLoading(false);
+        setAuditResult(null);
+        return;
+      }
     }
     setAuditLoading(true);
     setAuditError(null);
@@ -441,6 +454,14 @@ const Dashboard: React.FC<DashboardProps> = ({ documents, products, setActiveTab
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8">
+        {/* Auditoría: ocultar si el módulo está denegado vía permisos */}
+        {(() => {
+          const isEmployee = currentUser && currentUser.role !== 'ADMIN' && currentUser.role !== 'SUPERADMIN';
+          if (hasModuleControl && isEmployee) {
+            const auditPerm = modulePermissions.find(p => p.moduleCode === 'audit');
+            if (!auditPerm || !auditPerm.granted) return null;
+          }
+          return (
         <Card padding="lg" className="lg:col-span-2 min-h-[300px] sm:min-h-[400px]">
           <h3 className="font-bold text-slate-800 dark:text-white mb-4 uppercase tracking-tight text-sm sm:text-lg flex justify-between items-center">
             Auditoría en Tiempo Real
@@ -568,6 +589,8 @@ const Dashboard: React.FC<DashboardProps> = ({ documents, products, setActiveTab
             </div>
           )}
         </Card>
+          );
+        })()}
 
         <Card padding="lg" className="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700/50 text-slate-800 dark:text-white flex flex-col transition-colors duration-300">
           <h3 className="font-bold mb-6 uppercase tracking-tight text-slate-400 text-sm sm:text-base flex items-center gap-2">

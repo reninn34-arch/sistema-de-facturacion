@@ -156,15 +156,45 @@ async function main() {
   console.log(`📊 Secuenciales creados para Demo`);
 
   // ============================================
-  // 5. CREAR PLANES DE SUSCRIPCIÓN POR DEFECTO
+  // 5. CREAR MÓDULOS DEL SISTEMA
+  // ============================================
+  const modules = [
+    { code: 'invoices', name: 'Facturación', description: 'Emisión de facturas electrónicas', icon: 'DocumentTextIcon', displayOrder: 1 },
+    { code: 'credit-notes', name: 'Notas de Crédito', description: 'Emisión de notas de crédito', icon: 'ArrowPathIcon', displayOrder: 2 },
+    { code: 'retentions', name: 'Retenciones', description: 'Comprobantes de retención', icon: 'BanknotesIcon', displayOrder: 3 },
+    { code: 'remittances', name: 'Guías de Remisión', description: 'Guías de remisión electrónicas', icon: 'TruckIcon', displayOrder: 4 },
+    { code: 'settlements', name: 'Liquidaciones', description: 'Liquidaciones de compra', icon: 'ClipboardDocumentListIcon', displayOrder: 5 },
+    { code: 'reports', name: 'Reportes', description: 'Reportes y análisis', icon: 'ChartBarIcon', displayOrder: 6 },
+    { code: 'caja', name: 'Caja (Venta Rápida)', description: 'Punto de venta rápido', icon: 'TicketIcon', displayOrder: 7 },
+    { code: 'clients', name: 'Clientes', description: 'Gestión de clientes y proveedores', icon: 'UsersIcon', displayOrder: 8 },
+    { code: 'products', name: 'Productos', description: 'Inventario y productos', icon: 'TagIcon', displayOrder: 9 },
+    { code: 'production', name: 'Producción', description: 'Recetas y registros de producción', icon: 'BeakerIcon', displayOrder: 10 },
+    { code: 'config', name: 'Configuración', description: 'Perfil de empresa y ajustes', icon: 'Cog6ToothIcon', displayOrder: 11 },
+    { code: 'integrations', name: 'Integraciones', description: 'Integración con tiendas web', icon: 'LinkIcon', displayOrder: 12 },
+    { code: 'ai-assistant', name: 'Asistente IA', description: 'Asistente de inteligencia artificial', icon: 'SparklesIcon', displayOrder: 13 },
+    { code: 'audit', name: 'Auditoría en Tiempo Real', description: 'Análisis inteligente del negocio', icon: 'MegaphoneIcon', displayOrder: 14 },
+  ];
+
+  for (const mod of modules) {
+    await prisma.module.upsert({
+      where: { code: mod.code },
+      update: mod,
+      create: mod
+    });
+  }
+
+  console.log(`📦 Módulos del sistema creados (${modules.length})`);
+
+  // ============================================
+  // 6. CREAR PLANES DE SUSCRIPCIÓN POR DEFECTO
   // ============================================
   const plans = [
-    { code: 'FREE', name: 'Plan Gratuito', description: 'Plan gratuito para pruebas y micro-emprendedores', price: 0, priceWithTax: 0, period: 'mensual', durationDays: 30, features: ['1_empresa', '10_facturas_mes', 'soporte_email'], maxInvoicesPerMonth: 10, maxBusinesses: 1, maxUsers: 1, hasAIAssistant: false, hasPrioritySupport: false, hasAudit: false, isActive: true, displayOrder: 1 },
-    { code: 'BASIC', name: 'Plan Básico', description: 'Plan básico para pequeñas empresas', price: 29.99, priceWithTax: 34.49, period: 'mensual', durationDays: 30, features: ['1_empresa', '100_facturas_mes', 'reportes_basicos', 'soporte_email'], maxInvoicesPerMonth: 100, maxBusinesses: 1, maxUsers: 3, hasAIAssistant: false, hasPrioritySupport: false, hasAudit: false, isActive: true, displayOrder: 2 },
-    { code: 'GASTRONOMICO', name: 'Plan Gastronómico', description: 'Para restaurantes, panaderías, cafeterías y negocios de comida', price: 79.99, priceWithTax: 91.99, period: 'mensual', durationDays: 30, features: ['1_empresa', '300_facturas_mes', 'caja_pos', 'recetas_produccion', 'ai_assistant', 'reportes_avanzados', 'soporte_prioritario'], maxInvoicesPerMonth: 300, maxBusinesses: 1, maxUsers: 5, hasAIAssistant: true, hasPrioritySupport: true, hasAudit: true, isActive: true, displayOrder: 3 },
-    { code: 'PRO', name: 'Plan Profesional', description: 'Plan profesional para negocios en crecimiento', price: 149.99, priceWithTax: 172.49, period: 'mensual', durationDays: 30, features: ['3_empresas', '500_facturas_mes', 'clientes_ilimitados', 'ai_assistant', 'reportes_avanzados', 'soporte_prioritario'], maxInvoicesPerMonth: 500, maxBusinesses: 3, maxUsers: 10, hasAIAssistant: true, hasPrioritySupport: true, hasAudit: true, isActive: true, displayOrder: 4 },
-    { code: 'ENTERPRISE', name: 'Plan Empresarial', description: 'Plan empresarial para grandes organizaciones', price: 249.99, priceWithTax: 287.49, period: 'mensual', durationDays: 30, features: ['10_empresas', '2000_facturas_mes', 'clientes_ilimitados', 'ai_assistant', 'reportes_avanzados', 'soporte_prioritario', 'api_access', 'multi_usuarios'], maxInvoicesPerMonth: 2000, maxBusinesses: 10, maxUsers: 50, hasAIAssistant: true, hasPrioritySupport: true, hasAudit: true, isActive: true, displayOrder: 5 },
-    { code: 'UNLIMITED', name: 'Plan Ilimitado', description: 'Plan ilimitado para superadmins y distribuidores', price: 0, priceWithTax: 0, period: 'indefinido', durationDays: 36500, features: ['empresas_ilimitadas', 'facturas_ilimitadas', 'clientes_ilimitados', 'ai_assistant', 'reportes_avanzados', 'soporte_prioritario', 'api_access', 'multi_usuarios', 'gestion_resellers'], maxInvoicesPerMonth: 999999, maxBusinesses: 999, maxUsers: 999999, hasAIAssistant: true, hasPrioritySupport: true, hasAudit: true, isActive: true, displayOrder: 6 }
+    { code: 'FREE', name: 'Plan Gratuito', description: 'Plan gratuito para pruebas y micro-emprendedores', price: 0, priceWithTax: 0, period: 'mensual', durationDays: 30, features: ['1_empresa', '10_facturas_mes', 'soporte_email'], maxInvoicesPerMonth: 10, maxBusinesses: 1, maxUsers: 1, hasAIAssistant: false, hasPrioritySupport: false, hasAudit: false, hasModuleControl: false, isActive: true, displayOrder: 1 },
+    { code: 'BASIC', name: 'Plan Básico', description: 'Plan básico para pequeñas empresas', price: 29.99, priceWithTax: 34.49, period: 'mensual', durationDays: 30, features: ['1_empresa', '100_facturas_mes', 'reportes_basicos', 'soporte_email'], maxInvoicesPerMonth: 100, maxBusinesses: 1, maxUsers: 3, hasAIAssistant: false, hasPrioritySupport: false, hasAudit: false, hasModuleControl: false, isActive: true, displayOrder: 2 },
+    { code: 'GASTRONOMICO', name: 'Plan Gastronómico', description: 'Para restaurantes, panaderías, cafeterías y negocios de comida', price: 79.99, priceWithTax: 91.99, period: 'mensual', durationDays: 30, features: ['1_empresa', '300_facturas_mes', 'caja_pos', 'recetas_produccion', 'ai_assistant', 'reportes_avanzados', 'soporte_prioritario'], maxInvoicesPerMonth: 300, maxBusinesses: 1, maxUsers: 5, hasAIAssistant: true, hasPrioritySupport: true, hasAudit: true, hasModuleControl: true, isActive: true, displayOrder: 3 },
+    { code: 'PRO', name: 'Plan Profesional', description: 'Plan profesional para negocios en crecimiento', price: 149.99, priceWithTax: 172.49, period: 'mensual', durationDays: 30, features: ['3_empresas', '500_facturas_mes', 'clientes_ilimitados', 'ai_assistant', 'reportes_avanzados', 'soporte_prioritario'], maxInvoicesPerMonth: 500, maxBusinesses: 3, maxUsers: 10, hasAIAssistant: true, hasPrioritySupport: true, hasAudit: true, hasModuleControl: true, isActive: true, displayOrder: 4 },
+    { code: 'ENTERPRISE', name: 'Plan Empresarial', description: 'Plan empresarial para grandes organizaciones', price: 249.99, priceWithTax: 287.49, period: 'mensual', durationDays: 30, features: ['10_empresas', '2000_facturas_mes', 'clientes_ilimitados', 'ai_assistant', 'reportes_avanzados', 'soporte_prioritario', 'api_access', 'multi_usuarios'], maxInvoicesPerMonth: 2000, maxBusinesses: 10, maxUsers: 50, hasAIAssistant: true, hasPrioritySupport: true, hasAudit: true, hasModuleControl: true, isActive: true, displayOrder: 5 },
+    { code: 'UNLIMITED', name: 'Plan Ilimitado', description: 'Plan ilimitado para superadmins y distribuidores', price: 0, priceWithTax: 0, period: 'indefinido', durationDays: 36500, features: ['empresas_ilimitadas', 'facturas_ilimitadas', 'clientes_ilimitados', 'ai_assistant', 'reportes_avanzados', 'soporte_prioritario', 'api_access', 'multi_usuarios', 'gestion_resellers'], maxInvoicesPerMonth: 999999, maxBusinesses: 999, maxUsers: 999999, hasAIAssistant: true, hasPrioritySupport: true, hasAudit: true, hasModuleControl: true, isActive: true, displayOrder: 6 }
   ];
 
   for (const plan of plans) {

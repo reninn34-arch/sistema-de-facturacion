@@ -4,6 +4,7 @@ const jwt = require('jsonwebtoken');
 const { catchAsync, AppError } = require('../middleware/error.handler');
 const { validatePayment, validateAmount } = require('../services/paypal.service');
 const prisma = require('../../prisma/client');
+const sessionController = require('./session.controller');
 
 console.log("? [LOAD] Cargando AuthController..."); // Log para verificar carga
 
@@ -59,13 +60,24 @@ const authController = {
 
     console.log('? [LOGIN] Login exitoso para:', email);
 
-    // Generar Token
+    // Crear registro de sesión (dispositivo, IP, navegador)
+    let session;
+    try {
+      const ip = req.ip || req.connection?.remoteAddress || req.socket?.remoteAddress || null;
+      const userAgent = req.get('User-Agent') || null;
+      session = await sessionController.createSession(user.id, user.businessId, ip, userAgent);
+    } catch (e) {
+      console.error('Error creando sesión:', e.message);
+    }
+
+    // Generar Token (incluye sessionId para validación en middleware)
     const token = jwt.sign(
       { 
         id: user.id, 
         email: user.email, 
         role: user.role,
-        businessId: user.businessId 
+        businessId: user.businessId,
+        sessionId: session?.id || null
       },
       JWT_SECRET,
       { expiresIn: '4h' }
@@ -87,13 +99,39 @@ const authController = {
     const isBusinessActive = user.business?.isActive && !isSubscriptionExpired;
     const isSubscriptionPending = user.business?.subscriptionStatus === 'PENDING';
 
+    // Obtener permisos de módulo del usuario y plan hasModuleControl
+    let userModulePermissions = [];
+    let hasModuleControl = false;
+    if (user.businessId && user.business?.plan) {
+      const plan = await prisma.subscriptionPlan.findUnique({
+        where: { code: user.business.plan },
+        select: { hasModuleControl: true }
+      });
+      hasModuleControl = plan?.hasModuleControl || false;
+
+      if (hasModuleControl) {
+        userModulePermissions = await prisma.userModulePermission.findMany({
+          where: { userId: user.id },
+          select: { moduleId: true, granted: true, module: { select: { code: true } } }
+        });
+        // Aplanar para que el frontend reciba { moduleCode, granted }
+        userModulePermissions = userModulePermissions.map(p => ({
+          moduleCode: p.module.code,
+          granted: p.granted
+        }));
+      }
+    }
+
     res.json({
       success: true,
       token,
       user: userWithDemoFlag,
+      sessionId: session?.id || null,
       subscriptionExpired: isSubscriptionExpired,
       businessActive: isBusinessActive,
-      subscriptionPending: isSubscriptionPending
+      subscriptionPending: isSubscriptionPending,
+      hasModuleControl,
+      modulePermissions: userModulePermissions
     });
   }),
 
