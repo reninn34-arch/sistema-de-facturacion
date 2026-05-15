@@ -13,10 +13,23 @@ import {
   MoonIcon,
   DocumentTextIcon,
   StarIcon,
+  FireIcon,
+  BuildingStorefrontIcon,
+  ShoppingBagIcon,
+  WrenchScrewdriverIcon,
+  BuildingOffice2Icon,
 } from '@heroicons/react/24/outline';
 import { BUSINESS_TYPES, BusinessType } from '../../../types/types';
 
 const API_URL = import.meta.env.VITE_BACKEND_URL || '';
+
+const businessTypeIcons: Record<string, { Icon: React.ComponentType<React.SVGProps<SVGSVGElement>>; color: string; bg: string; activeBg: string }> = {
+  BAKERY:     { Icon: FireIcon,               color: 'text-amber-600',  bg: 'bg-amber-50',   activeBg: 'bg-amber-100' },
+  RESTAURANT: { Icon: BuildingStorefrontIcon, color: 'text-rose-600',   bg: 'bg-rose-50',    activeBg: 'bg-rose-100' },
+  STORE:      { Icon: ShoppingBagIcon,        color: 'text-violet-600', bg: 'bg-violet-50',  activeBg: 'bg-violet-100' },
+  SERVICE:    { Icon: WrenchScrewdriverIcon,  color: 'text-sky-600',    bg: 'bg-sky-50',     activeBg: 'bg-sky-100' },
+  GENERAL:    { Icon: BuildingOffice2Icon,    color: 'text-[#0057FF]',  bg: 'bg-blue-50',   activeBg: 'bg-blue-100' },
+};
 
 const BankDetails: React.FC = () => {
   const [bankSettings, setBankSettings] = useState<any>(null);
@@ -486,21 +499,28 @@ const SubscriptionPage: React.FC = () => {
               </div>
 
               <div className="grid sm:grid-cols-2 lg:grid-cols-5 gap-4 mt-6">
-                {(Object.entries(BUSINESS_TYPES) as [BusinessType, typeof BUSINESS_TYPES[BusinessType]][]).map(([key, value]) => (
-                  <button
-                    key={key}
-                    onClick={() => handleBusinessTypeSelect(key)}
-                    className={`group relative bg-white rounded-3xl p-6 border-2 transition-all duration-300 text-center hover:-translate-y-1 cursor-pointer ${
-                      selectedBusinessType === key
-                        ? 'border-[#0057FF] shadow-2xl shadow-[#0057FF]/10'
-                        : 'border-slate-200 hover:border-[#0057FF]/50 hover:shadow-xl'
-                    }`}
-                  >
-                    <div className="text-4xl mb-4">{value.icon}</div>
-                    <h3 className="text-lg font-extrabold text-slate-800 group-hover:text-[#0057FF] transition-colors">{value.label}</h3>
-                    <p className="text-sm text-slate-500 mt-2 leading-relaxed font-medium">{value.description}</p>
-                  </button>
-                ))}
+                {(Object.entries(BUSINESS_TYPES) as [BusinessType, typeof BUSINESS_TYPES[BusinessType]][]).map(([key, value]) => {
+                  const btIcon = businessTypeIcons[key] ?? businessTypeIcons['GENERAL'];
+                  const { Icon, color, bg, activeBg } = btIcon;
+                  const isSelected = selectedBusinessType === key;
+                  return (
+                    <button
+                      key={key}
+                      onClick={() => handleBusinessTypeSelect(key)}
+                      className={`group relative bg-white rounded-3xl p-6 border-2 transition-all duration-300 text-center hover:-translate-y-1 cursor-pointer ${
+                        isSelected
+                          ? 'border-[#0057FF] shadow-2xl shadow-[#0057FF]/10'
+                          : 'border-slate-200 hover:border-[#0057FF]/50 hover:shadow-xl'
+                      }`}
+                    >
+                      <div className={`w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-5 transition-colors duration-300 ${isSelected ? activeBg : bg} group-hover:${activeBg}`}>
+                        <Icon className={`w-8 h-8 ${color} transition-colors duration-300`} />
+                      </div>
+                      <h3 className="text-lg font-extrabold text-slate-800 group-hover:text-[#0057FF] transition-colors">{value.label}</h3>
+                      <p className="text-sm text-slate-500 mt-2 leading-relaxed font-medium">{value.description}</p>
+                    </button>
+                  );
+                })}
               </div>
 
               <div className="text-center mt-4">
