@@ -240,12 +240,20 @@ body {
   right: 0;
   overflow: hidden;
   line-height: 0;
+  height: 90px;
+}
+
+@media (min-width: 768px) {
+  .hero-waves {
+    height: 130px;
+  }
 }
 
 .hero-waves svg {
   display: block;
   width: calc(100% + 240px);
   margin-left: -120px;
+  height: 100%;
 }
 
 .wave-1 { animation: wave-slow 10s ease-in-out infinite; }
