@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { EnvelopeIcon } from '@heroicons/react/24/outline';
 import { PayPalScriptProvider, PayPalButtons } from "@paypal/react-paypal-js";
 
@@ -29,12 +29,27 @@ const BankDetailsDisplay: React.FC = () => {
   return (
     <div className="space-y-3">
       {accounts.map((bank: any) => (
-        <div key={bank.id} className="text-xs text-sky-500 dark:text-sky-400 space-y-1 p-3 bg-white/50 dark:bg-slate-800/50 rounded-lg border border-sky-100 dark:border-sky-900/50 shadow-sm">
-          <p><strong>Banco:</strong> {bank.bankName}</p>
-          <p><strong>Cuenta:</strong> {bank.bankAccount}</p>
-          <p><strong>Tipo:</strong> {bank.bankAccountType}</p>
-          <p><strong>Titular:</strong> {bank.bankHolderName}</p>
-          <p><strong>RUC:</strong> {bank.bankHolderRuc}</p>
+        <div key={bank.id} className="text-xs text-slate-800 dark:text-slate-200 space-y-1 p-3 bg-white/80 dark:bg-slate-800/80 rounded-xl border border-sky-200 dark:border-sky-800 shadow-sm">
+          <p className="flex justify-between">
+            <span className="font-bold text-slate-500 dark:text-slate-400">Banco:</span>
+            <span className="font-black">{bank.bankName}</span>
+          </p>
+          <p className="flex justify-between border-t border-slate-100 dark:border-slate-700/50 pt-1">
+            <span className="font-bold text-slate-500 dark:text-slate-400">Cuenta:</span>
+            <span className="font-black text-sky-600 dark:text-sky-400">{bank.bankAccount}</span>
+          </p>
+          <p className="flex justify-between">
+            <span className="font-bold text-slate-500 dark:text-slate-400">Tipo:</span>
+            <span>{bank.bankAccountType}</span>
+          </p>
+          <p className="flex justify-between border-t border-slate-100 dark:border-slate-700/50 pt-1">
+            <span className="font-bold text-slate-500 dark:text-slate-400">Titular:</span>
+            <span className="font-bold">{bank.bankHolderName}</span>
+          </p>
+          <p className="flex justify-between">
+            <span className="font-bold text-slate-500 dark:text-slate-400">RUC:</span>
+            <span>{bank.bankHolderRuc}</span>
+          </p>
         </div>
       ))}
     </div>
@@ -494,8 +509,8 @@ const PagoInterno: React.FC<PagoInternoProps> = ({ businessInfo, isExpired = fal
               {/* Formulario según método */}
               {paymentMethod === 'TRANSFER' && (
                 <div className="space-y-4">
-                  <div className="p-4 bg-sky-50 dark:bg-sky-900/20 rounded-xl border border-sky-200 dark:border-sky-800">
-                    <p className="text-sm font-bold text-sky-800 dark:text-blue-300 mb-2">
+                  <div className="p-4 bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-slate-200 dark:border-slate-700">
+                    <p className="text-xs font-black text-slate-500 dark:text-slate-400 mb-3 uppercase tracking-widest">
                       Datos para transferencia:
                     </p>
                     <BankDetailsDisplay />

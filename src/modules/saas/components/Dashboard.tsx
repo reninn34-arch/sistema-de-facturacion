@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { getAuditReport, AuditResult, AuditIssue } from '../../../services/geminiService';
 import { Document, Product, DocumentType, SriStatus } from '../../../types/types';
 import { client } from '../../../api/client';
@@ -418,8 +418,8 @@ const Dashboard: React.FC<DashboardProps> = ({ documents, products, setActiveTab
           label="Alertas Inventario"
           value={`${lowStock.length}`}
           subtitle="Items bajos"
-          color={lowStock.length > 0 ? 'rose' : 'indigo'}
-          icon={<CubeIcon className="w-5 h-5" />}
+          color={lowStock.length > 0 ? 'amber' : 'slate'}
+          icon={<ExclamationTriangleIcon className="w-5 h-5" />}
           onClick={() => setActiveTab('products')}
         />
         <StatCard
@@ -450,16 +450,20 @@ const Dashboard: React.FC<DashboardProps> = ({ documents, products, setActiveTab
           </h3>
 
           {!planHasAudit ? (
-            <div className="bg-gradient-to-br from-sky-50 to-purple-50 dark:from-sky-900/20 dark:to-purple-900/20 border border-sky-100 dark:border-sky-800 rounded-2xl p-8 text-center">
-              <SparklesIcon className="w-12 h-12 text-sky-400 mx-auto mb-3" />
-              <p className="text-sky-500 dark:text-sky-300 font-bold text-lg">Auditoría en Tiempo Real</p>
-              <p className="text-sky-500 dark:text-sky-400 text-sm mt-2">
-                Detecta facturas rechazadas, inventario bajo, duplicados y más automáticamente.
+            <div className="bg-gradient-to-br from-indigo-50/50 to-violet-50/50 dark:from-indigo-900/20 dark:to-violet-900/20 border border-indigo-100 dark:border-indigo-800/50 rounded-2xl p-8 text-center relative overflow-hidden group">
+              <div className="absolute top-0 right-0 p-3 opacity-10 group-hover:opacity-20 transition-opacity">
+                <SparklesIcon className="w-20 h-20 text-indigo-500" />
+              </div>
+              <SparklesIcon className="w-12 h-12 text-indigo-500 mx-auto mb-3" />
+              <p className="text-indigo-700 dark:text-indigo-300 font-bold text-lg">Auditoría en Tiempo Real</p>
+              <p className="text-indigo-600/70 dark:text-indigo-400/70 text-sm mt-2 max-w-md mx-auto">
+                Detecta facturas rechazadas, inventario bajo, duplicados y más automáticamente con nuestro asistente inteligente.
               </p>
               <button
                 onClick={() => setActiveTab('pago-interno')}
-                className="mt-4 px-6 py-3 bg-sky-500 text-white font-bold rounded-xl hover:bg-sky-600 transition-colors shadow-lg shadow-sky-500/20 text-sm"
+                className="mt-6 px-8 py-3 bg-indigo-600 text-white font-bold rounded-xl hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-500/20 text-sm flex items-center gap-2 mx-auto"
               >
+                <SparklesIcon className="w-4 h-4" />
                 Actualizar Plan para Desbloquear
               </button>
             </div>
@@ -566,29 +570,32 @@ const Dashboard: React.FC<DashboardProps> = ({ documents, products, setActiveTab
         </Card>
 
         <Card padding="lg" className="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700/50 text-slate-800 dark:text-white flex flex-col transition-colors duration-300">
-          <h3 className="font-bold mb-6 uppercase tracking-tight text-sky-400 text-sm sm:text-base">Estado de Inventario</h3>
+          <h3 className="font-bold mb-6 uppercase tracking-tight text-slate-400 text-sm sm:text-base flex items-center gap-2">
+            <CubeIcon className="w-5 h-5 text-sky-500" />
+            Estado de Inventario
+          </h3>
           <div className="space-y-6 flex-1 overflow-y-auto pr-2">
             {safeProducts.length === 0 ? (
               <div className="text-center py-8 text-slate-500">
-                <InboxIcon className="w-10 h-10 mx-auto mb-2" />
+                <InboxIcon className="w-10 h-10 mx-auto mb-2 text-slate-200" />
                 <p className="text-sm">No hay productos registrados</p>
                 <button
                   onClick={() => setActiveTab('products')}
-                  className="mt-4 px-4 py-2 bg-sky-500 hover:bg-sky-600 rounded-lg text-xs font-bold transition-colors"
+                  className="mt-4 px-4 py-2 bg-sky-500 hover:bg-sky-600 rounded-lg text-xs font-bold text-white transition-colors"
                 >
                   Agregar Productos
                 </button>
               </div>
             ) : (
               safeProducts.slice(0, 10).map(p => (
-                <div key={p.id} className="flex flex-col gap-2">
-                  <div className="flex justify-between text-xs font-bold uppercase tracking-wider gap-2">
-                    <span className="truncate w-20 sm:w-40">{p.description}</span>
-                    <span className={p.stock < p.minStock ? 'text-rose-400' : 'text-sky-400'}>{p.stock} un.</span>
+                <div key={p.id} className="flex flex-col gap-2 group">
+                  <div className="flex justify-between text-[11px] font-bold uppercase tracking-wider gap-2">
+                    <span className="truncate w-20 sm:w-40 text-slate-500 dark:text-slate-400 group-hover:text-slate-900 dark:group-hover:text-white transition-colors">{p.description}</span>
+                    <span className={p.stock < p.minStock ? 'text-rose-500' : 'text-sky-500'}>{p.stock} un.</span>
                   </div>
-                  <div className="h-2 bg-slate-200 dark:bg-slate-800 rounded-full overflow-hidden">
+                  <div className="h-1.5 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
                     <div
-                      className={`h-full transition-all duration-1000 ${p.stock < p.minStock ? 'bg-rose-500 shadow-[0_0_8px_rgba(244,63,94,0.4)]' : 'bg-sky-500 shadow-[0_0_8px_rgba(99,102,241,0.4)]'}`}
+                      className={`h-full transition-all duration-1000 ${p.stock < p.minStock ? 'bg-rose-500' : 'bg-sky-500'}`}
                       style={{ width: `${Math.min((p.stock / 100) * 100, 100)}%` }}
                     />
                   </div>
@@ -598,7 +605,7 @@ const Dashboard: React.FC<DashboardProps> = ({ documents, products, setActiveTab
           </div>
           <button
             onClick={() => setActiveTab('products')}
-            className="mt-6 sm:mt-8 w-full py-3 sm:py-4 bg-white/10 hover:bg-white/20 rounded-xl font-bold text-xs uppercase tracking-widest transition-all min-h-[48px]"
+            className="mt-6 sm:mt-8 w-full py-3 sm:py-4 bg-slate-50 dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-xl font-bold text-xs text-slate-400 dark:text-slate-500 uppercase tracking-widest transition-all min-h-[48px] border border-slate-100 dark:border-slate-700"
           >
             {safeProducts.length > 0 ? 'Ver Inventario Completo' : 'Agregar Productos'}
           </button>

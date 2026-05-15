@@ -36,7 +36,7 @@
   --color-brand-accent:  #06B6D4;   /* cyan-500 — acento turquesa */
   --color-brand-success: #10B981;
   --color-brand-neutral: #64748B;
-  --color-brand-dark-text: #0C4A6E;
+  --color-brand-dark-text: #0F172A;
   --color-brand-surface: #F0F9FF;   /* sky-50   — fondo azul muy suave */
   --color-brand-white:   #FFFFFF;
 
@@ -51,7 +51,7 @@
 body {
   font-family: var(--font-sans);
   background-color: #F0F9FF;   /* sky-50: blanco con toque azul muy suave */
-  color: #0C4A6E;              /* sky-900: texto azul marino oscuro */
+  color: #0F172A;              /* slate-900: texto negro/gris muy oscuro */
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }

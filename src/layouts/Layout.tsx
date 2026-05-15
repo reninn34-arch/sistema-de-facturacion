@@ -221,12 +221,12 @@ const Layout: React.FC<LayoutProps> = ({
             <button
               key={item.id}
               onClick={() => handleTabClick(item.id)}
-              className={`w-full flex items-center space-x-3 px-4 py-3.5 sm:py-4 rounded-xl transition-all min-h-[48px] sm:min-h-[52px] text-left ${
+              className={`w-full flex items-center space-x-3 px-4 py-3 sm:py-3.5 rounded-xl transition-all duration-200 min-h-[44px] sm:min-h-[48px] text-left border-l-4 group ${
                 activeTab === item.id
-                  ? 'bg-sky-500 text-white font-bold shadow-lg shadow-sky-500/20'
+                  ? 'bg-sky-50 border-sky-500 text-sky-700 font-bold'
                   : item.id === 'logout_btn'
-                    ? 'text-red-500 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-500/20 hover:text-red-600 dark:hover:text-red-300 mt-4 font-bold'
-                    : 'text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700 hover:text-slate-800 dark:hover:text-white font-semibold'
+                    ? 'border-transparent text-red-500 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-500/20 hover:text-red-600 dark:hover:text-red-300 mt-4 font-bold'
+                    : 'border-transparent text-slate-500 dark:text-slate-400 hover:bg-sky-50/50 hover:text-sky-600 hover:translate-x-1 dark:hover:bg-sky-500/10 font-semibold'
               }`}
             >
               <span className="flex-shrink-0">{iconMap[item.label] || <CubeIcon className="w-6 h-6" />}</span>
