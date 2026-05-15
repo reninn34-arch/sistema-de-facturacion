@@ -1025,16 +1025,6 @@ const LandingPage: React.FC = () => {
         </div>
       </footer>
 
-      {/* ===== STICKY MOBILE CTA ===== */}
-      <div className={`lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-lg border-t border-slate-200 px-4 py-3 shadow-2xl shadow-slate-300/50 transition-all duration-300 ${ctaVisible ? 'translate-y-full opacity-0 pointer-events-none' : 'translate-y-0 opacity-100'}`}>
-        <a
-          href="/suscripcion"
-          className="flex items-center justify-center gap-2 bg-[#0057FF] text-white px-6 py-3.5 rounded-2xl font-bold text-sm w-full hover:bg-[#003ACC] transition-all shadow-lg shadow-[#0057FF]/25 active:scale-[0.98]"
-        >
-          Comenzar Gratis
-          <ArrowRightIcon className="w-4 h-4" />
-        </a>
-      </div>
       <CookieBanner />
     </div>
   );
