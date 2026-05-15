@@ -483,5 +483,6 @@ model AppSettings {
   paypalEnabled Boolean  @default(true)
   transferEnabled Boolean @default(true)
   cardEnabled   Boolean  @default(false)
+  landingContent Json    @default("{}")
   updatedAt    DateTime @updatedAt
 }

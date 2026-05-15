@@ -29,6 +29,7 @@ import {
   ClipboardDocumentCheckIcon,
   TicketIcon,
   DocumentArrowUpIcon,
+  GlobeAltIcon,
 } from '@heroicons/react/24/outline';
 
 interface LayoutProps {
@@ -76,6 +77,7 @@ const iconMap: Record<string, React.ReactNode> = {
   'Caja': <TicketIcon className="w-6 h-6" />,
   'Pendientes SRI': <DocumentArrowUpIcon className="w-6 h-6" />,
   'Cerrar Sesión': <ArrowRightOnRectangleIcon className="w-6 h-6" />,
+  'Landing Page': <GlobeAltIcon className="w-5 h-5" />,
 };
 
 const Layout: React.FC<LayoutProps> = ({
@@ -110,6 +112,7 @@ const Layout: React.FC<LayoutProps> = ({
     { id: 'saas-credit-notes', label: 'Devoluciones', roles: ['SUPERADMIN'] },
     { id: 'activation-requests', label: 'Activaciones', roles: ['SUPERADMIN'] },
     { id: 'subscription-plans', label: 'Planes', roles: ['SUPERADMIN'] },
+    { id: 'landing-editor', label: 'Landing Page', roles: ['SUPERADMIN'] },
     { id: 'subscription-reports', label: 'Contabilidad', roles: ['SUPERADMIN'] },
     { id: 'pago-interno', label: 'Suscripción', roles: ['ADMIN'] },
     { id: 'company-users', label: 'Panel de Gestión', roles: ['ADMIN'] },

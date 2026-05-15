@@ -39,6 +39,10 @@ import SalesSummary from './modules/saas/pages/SalesSummary';
 import PagoInterno from './modules/saas/pages/SubscriptionPayment';
 import ActivationRequests from './modules/admin/pages/ActivationRequests';
 import LandingPage from './modules/landing/pages/LandingPage';
+import AyudaPage from './modules/landing/pages/AyudaPage';
+import ContactoPage from './modules/landing/pages/ContactoPage';
+import LegalPage from './modules/landing/pages/LegalPage';
+import LandingPageEditor from './modules/admin/pages/LandingPageEditor';
 import RecipeManager from './modules/produccion/components/RecipeManager';
 import ProductionRecord from './modules/produccion/components/ProductionRecord';
 import QuickSaleForm from './modules/caja/pages/QuickSaleForm';
@@ -743,20 +747,25 @@ const App: React.FC = () => {
     return <LandingPage />;
   }
 
-  // 2. Login explícito - Solo para no autenticados
+  // 2. Páginas públicas (accesibles sin autenticación)
+  if (window.location.pathname === '/ayuda') return <AyudaPage />;
+  if (window.location.pathname === '/contacto') return <ContactoPage />;
+  if (window.location.pathname === '/legal') return <LegalPage />;
+
+  // 3. Login explícito - Solo para no autenticados
   if (window.location.pathname === '/login' && !isAuthenticated) {
     return <Login onLoginSuccess={() => setIsAuthenticated(true)} />;
   }
 
-  // 3. Ruta pública para Portal de Clientes
+  // 4. Ruta pública para Portal de Clientes
   if (window.location.pathname === '/portal/login') {
     return <ClientLogin />;
   }
-  // 4. Ruta protegida para Dashboard de Clientes
+  // 5. Ruta protegida para Dashboard de Clientes
   if (window.location.pathname === '/portal/dashboard') {
     return <ClientDashboard />;
   }
-  // 5. Ruta pública para Suscripciones
+  // 6. Ruta pública para Suscripciones
   if (window.location.pathname === '/suscripcion') {
     return <SubscriptionPage />;
   }
@@ -910,6 +919,13 @@ const App: React.FC = () => {
           return <Dashboard documents={documents} products={products} setActiveTab={setActiveTab} currentUser={currentUser} />;
         }
         return <ActivationRequests onNotify={showNotify} />;
+
+      case 'landing-editor':
+        if (currentUser?.role !== 'SUPERADMIN') {
+          showNotify('Acceso restringido', 'error');
+          return <Dashboard documents={documents} products={products} setActiveTab={setActiveTab} currentUser={currentUser} />;
+        }
+        return <LandingPageEditor />;
 
       case 'saas-credit-notes':
         // Notas de crédito / Devoluciones para SUPERADMIN

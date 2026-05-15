@@ -64,7 +64,7 @@ router.get('/api/admin/settings', async (req, res) => {
 // PUT /api/admin/settings - Actualizar configuración (solo SUPERADMIN)
 router.put('/api/admin/settings', jwtMiddleware, roleMiddleware(['SUPERADMIN']), async (req, res) => {
   try {
-    const { bankName, bankAccount, bankAccountType, bankHolderName, bankHolderRuc, bankAccounts, paypalEnabled, transferEnabled, cardEnabled } = req.body;
+    const { bankName, bankAccount, bankAccountType, bankHolderName, bankHolderRuc, bankAccounts, paypalEnabled, transferEnabled, cardEnabled, landingContent } = req.body;
 
     const settings = await prisma.appSettings.upsert({
       where: { id: 'global' },
@@ -77,7 +77,8 @@ router.put('/api/admin/settings', jwtMiddleware, roleMiddleware(['SUPERADMIN']),
         ...(bankAccounts !== undefined && { bankAccounts }),
         ...(paypalEnabled !== undefined && { paypalEnabled }),
         ...(transferEnabled !== undefined && { transferEnabled }),
-        ...(cardEnabled !== undefined && { cardEnabled })
+        ...(cardEnabled !== undefined && { cardEnabled }),
+        ...(landingContent !== undefined && { landingContent })
       },
       create: {
         id: 'global',
@@ -89,7 +90,8 @@ router.put('/api/admin/settings', jwtMiddleware, roleMiddleware(['SUPERADMIN']),
         bankAccounts: bankAccounts || [],
         paypalEnabled: paypalEnabled !== false,
         transferEnabled: transferEnabled !== false,
-        cardEnabled: cardEnabled || false
+        cardEnabled: cardEnabled || false,
+        landingContent: landingContent || {}
       }
     });
 
@@ -97,6 +99,37 @@ router.put('/api/admin/settings', jwtMiddleware, roleMiddleware(['SUPERADMIN']),
   } catch (error) {
     console.error('Error al actualizar configuración:', error);
     res.status(500).json({ error: 'Error al actualizar configuración' });
+  }
+});
+
+// GET /api/landing-content - Obtener contenido del landing page (público)
+router.get('/api/landing-content', async (req, res) => {
+  try {
+    const settings = await prisma.appSettings.findUnique({ where: { id: 'global' } });
+    res.json({ landingContent: settings?.landingContent || {} });
+  } catch (error) {
+    res.status(500).json({ error: 'Error al obtener contenido del landing' });
+  }
+});
+
+// PUT /api/landing-content - Actualizar contenido del landing page (solo SUPERADMIN)
+router.put('/api/landing-content', jwtMiddleware, roleMiddleware(['SUPERADMIN']), async (req, res) => {
+  try {
+    const { landingContent } = req.body;
+
+    await prisma.appSettings.upsert({
+      where: { id: 'global' },
+      update: { landingContent },
+      create: {
+        id: 'global',
+        landingContent: landingContent || {}
+      }
+    });
+
+    res.json({ success: true, landingContent });
+  } catch (error) {
+    console.error('Error al actualizar landing content:', error);
+    res.status(500).json({ error: 'Error al actualizar contenido del landing' });
   }
 });
 
