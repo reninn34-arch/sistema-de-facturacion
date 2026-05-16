@@ -444,8 +444,11 @@ const App: React.FC = () => {
 
         const data = await response.json();
         const mySession = data.sessions?.find((s: any) => s.id === data.currentSessionId);
-        if (mySession && !mySession.isActive) {
-          showNotify('Tu sesión fue cerrada por el administrador', 'warning');
+        if (mySession && mySession.status !== 'ACTIVE') {
+          const reason = mySession.status === 'REVOKED'
+            ? 'Tu sesión fue cerrada por el administrador'
+            : 'Tu sesión ha expirado';
+          showNotify(reason, 'warning');
           localStorage.removeItem('adminToken');
           localStorage.removeItem('adminUser');
           localStorage.removeItem('hasModuleControl');

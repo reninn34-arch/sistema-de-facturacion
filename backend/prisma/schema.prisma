@@ -534,7 +534,7 @@ model Session {
   browser     String?   // "Chrome 125.0", "Firefox 124.0"
   location    String?   // "Ecuador, Quito" (desde ip-api.com)
   loginAt     DateTime @default(now())
-  isActive    Boolean  @default(true)
+  status      String   @default("ACTIVE")  // ACTIVE | INACTIVE | REVOKED
 
   @@index([userId])
   @@index([businessId])

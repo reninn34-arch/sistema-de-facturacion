@@ -103,7 +103,19 @@ const Layout: React.FC<LayoutProps> = ({
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const notificationRef = useRef<HTMLDivElement>(null);
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
+    // Avisar al backend que esta sesión se cierra (esperar respuesta antes de recargar)
+    const sessionId = localStorage.getItem('sessionId');
+    const token = localStorage.getItem('adminToken');
+    if (sessionId && token) {
+      try {
+        await fetch(`${import.meta.env.VITE_BACKEND_URL || ''}/api/business/sessions/${sessionId}/revoke`, {
+          method: 'PUT',
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+      } catch (e) { /* ignorar, cerrar sesión igual */ }
+    }
+
     localStorage.removeItem('adminToken');
     localStorage.removeItem('adminUser');
     localStorage.removeItem('subscriptionExpired');

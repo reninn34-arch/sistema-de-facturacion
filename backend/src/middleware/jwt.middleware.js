@@ -27,10 +27,13 @@ const verifyToken = async (req, res, next) => {
           try {
             const session = await prisma.session.findUnique({
               where: { id: decoded.sessionId },
-              select: { isActive: true }
+              select: { status: true }
             });
-            if (!session || !session.isActive) {
-              return next(new AppError('Sesión revocada por el administrador. Inicia sesión nuevamente.', 401));
+            if (!session || session.status !== 'ACTIVE') {
+              const reason = session?.status === 'REVOKED'
+                ? 'Tu sesión fue cerrada por el administrador'
+                : 'Tu sesión ha expirado';
+              return next(new AppError(`${reason}. Inicia sesión nuevamente.`, 401));
             }
           } catch (dbError) {
             // Si falla la DB, permitir acceso para no bloquear

@@ -93,7 +93,7 @@ const sessionController = {
         deviceName,
         browser,
         location,
-        isActive: true
+        status: 'ACTIVE'
       }
     });
   },
@@ -146,16 +146,20 @@ const sessionController = {
       throw new AppError('No tienes permiso para revocar esta sesión', 403);
     }
 
-    if (session.id === req.user.sessionId) {
-      throw new AppError('No puedes cerrar tu propia sesión actual. Usa "Cerrar Sesión" del menú.', 400);
-    }
+    // Auto-revocación = INACTIVE (cerró sesión normalmente).
+    // Revocación por admin/otro usuario = REVOKED (forzado externamente).
+    const isSelfRevoke = session.userId === req.user.id;
+    const newStatus = isSelfRevoke ? 'INACTIVE' : 'REVOKED';
+    const message = isSelfRevoke
+      ? 'Sesión cerrada correctamente'
+      : 'Sesión revocada correctamente';
 
     await prisma.session.update({
       where: { id },
-      data: { isActive: false }
+      data: { status: newStatus }
     });
 
-    res.json({ success: true, message: 'Sesión revocada correctamente' });
+    res.json({ success: true, message });
   })
 };
 

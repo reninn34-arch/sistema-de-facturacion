@@ -25,7 +25,7 @@ interface SessionData {
   browser: string | null;
   location: string | null;
   loginAt: string;
-  isActive: boolean;
+  status: string;
   user: {
     id: string;
     email: string;
@@ -71,16 +71,26 @@ const SessionsPage: React.FC<SessionsPageProps> = ({ currentUser, onNotify }) =>
 
   useEffect(() => {
     loadSessions();
-    // Auto-refresh cada 15 segundos para ver cambios en tiempo real
-    const interval = setInterval(loadSessions, 15000);
-    return () => clearInterval(interval);
+
+    // Refrescar tabla solo por eventos reales (cero polling)
+    const onVisible = () => { if (document.visibilityState === 'visible') loadSessions(); };
+    document.addEventListener('visibilitychange', onVisible);
+
+    // Otra pestaña del mismo navegador revocó una sesión → refrescar
+    const onStorage = (e: StorageEvent) => { if (e.key === 'sessionRevoked') loadSessions(); };
+    window.addEventListener('storage', onStorage);
+
+    return () => {
+      document.removeEventListener('visibilitychange', onVisible);
+      window.removeEventListener('storage', onStorage);
+    };
   }, []);
 
   const handleRevoke = async (sessionId: string) => {
     if (!confirm('¿Estás seguro de cerrar esta sesión? El usuario será desconectado de ese dispositivo.')) return;
 
-    // Optimistic update: marcar como revocada al instante
-    setSessions(prev => prev.map(s => s.id === sessionId ? { ...s, isActive: false } : s));
+    // Optimistic update: marcar como inactiva al instante
+    setSessions(prev => prev.map(s => s.id === sessionId ? { ...s, status: 'REVOKED' } : s));
 
     try {
       const token = localStorage.getItem('adminToken');
@@ -93,11 +103,13 @@ const SessionsPage: React.FC<SessionsPageProps> = ({ currentUser, onNotify }) =>
 
       if (!response.ok) {
         // Revertir si falló
-        setSessions(prev => prev.map(s => s.id === sessionId ? { ...s, isActive: true } : s));
+        setSessions(prev => prev.map(s => s.id === sessionId ? { ...s, status: 'ACTIVE' } : s));
         throw new Error(data.message || 'Error al revocar sesión');
       }
 
       onNotify('Sesión cerrada correctamente', 'success');
+      // Notificar a otras pestañas del mismo navegador que refresquen la tabla
+      localStorage.setItem('sessionRevoked', Date.now().toString());
     } catch (error: any) {
       onNotify(error.message || 'Error al revocar sesión', 'error');
     }
@@ -106,7 +118,7 @@ const SessionsPage: React.FC<SessionsPageProps> = ({ currentUser, onNotify }) =>
   const handleRevokeAll = async () => {
     if (!confirm('¿Cerrar todas las demás sesiones? Esto desconectará a los usuarios de todos los demás dispositivos.')) return;
 
-    const otherSessions = sessions.filter(s => s.isActive && s.id !== currentSessionId);
+    const otherSessions = sessions.filter(s => s.status === 'ACTIVE' && s.id !== currentSessionId);
     let revoked = 0;
     for (const s of otherSessions) {
       try {
@@ -128,7 +140,7 @@ const SessionsPage: React.FC<SessionsPageProps> = ({ currentUser, onNotify }) =>
       ' ' + d.toLocaleTimeString('es-EC', { hour: '2-digit', minute: '2-digit' });
   };
 
-  const activeSessions = sessions.filter(s => s.isActive);
+  const activeSessions = sessions.filter(s => s.status === 'ACTIVE');
   const otherActiveSessions = activeSessions.filter(s => s.id !== currentSessionId);
 
   return (
@@ -190,7 +202,7 @@ const SessionsPage: React.FC<SessionsPageProps> = ({ currentUser, onNotify }) =>
             <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Revocadas</span>
           </div>
           <p className="text-2xl font-black text-slate-800 dark:text-white">
-            {sessions.filter(s => !s.isActive).length}
+            {sessions.filter(s => s.status !== 'ACTIVE').length}
           </p>
         </div>
         <div className="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-100 dark:border-slate-700/50 shadow-sm">
@@ -199,7 +211,7 @@ const SessionsPage: React.FC<SessionsPageProps> = ({ currentUser, onNotify }) =>
             <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">IPs Únicas</span>
           </div>
           <p className="text-2xl font-black text-slate-800 dark:text-white">
-            {new Set(sessions.filter(s => s.isActive).map(s => s.ipAddress).filter(Boolean)).size}
+            {new Set(sessions.filter(s => s.status === 'ACTIVE').map(s => s.ipAddress).filter(Boolean)).size}
           </p>
         </div>
       </div>
@@ -305,18 +317,33 @@ const SessionsPage: React.FC<SessionsPageProps> = ({ currentUser, onNotify }) =>
                         </span>
                       </td>
                       <td className="px-6 py-4">
-                        <span className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-[10px] font-black ${
-                          session.isActive
-                            ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400'
-                            : 'bg-slate-100 dark:bg-slate-700/50 text-slate-400 dark:text-slate-500'
-                        }`}>
-                          <span className={`w-1.5 h-1.5 rounded-full ${session.isActive ? 'bg-emerald-500' : 'bg-slate-400'}`}></span>
-                          {session.isActive ? 'ACTIVA' : 'REVOCADA'}
-                        </span>
+                        {(() => {
+                          const statusColors: Record<string, string> = {
+                            'ACTIVE': 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400',
+                            'INACTIVE': 'bg-slate-100 dark:bg-slate-700/50 text-slate-400 dark:text-slate-500',
+                            'REVOKED': 'bg-red-50 dark:bg-red-500/10 text-red-600 dark:text-red-400',
+                          };
+                          const statusDot: Record<string, string> = {
+                            'ACTIVE': 'bg-emerald-500',
+                            'INACTIVE': 'bg-slate-400',
+                            'REVOKED': 'bg-red-500',
+                          };
+                          const statusLabel: Record<string, string> = {
+                            'ACTIVE': 'ACTIVA',
+                            'INACTIVE': 'INACTIVA',
+                            'REVOKED': 'REVOCADA',
+                          };
+                          return (
+                            <span className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-[10px] font-black ${statusColors[session.status] || 'bg-slate-100 text-slate-400'}`}>
+                              <span className={`w-1.5 h-1.5 rounded-full ${statusDot[session.status] || 'bg-slate-400'}`}></span>
+                              {statusLabel[session.status] || session.status}
+                            </span>
+                          );
+                        })()}
                       </td>
                       <td className="px-6 py-4">
                         <div className="flex items-center justify-end">
-                          {session.isActive && !isCurrent && (
+                          {session.status === 'ACTIVE' && !isCurrent && (
                             <button
                               onClick={() => handleRevoke(session.id)}
                               className="px-4 py-2 bg-red-50 dark:bg-red-500/10 text-red-600 dark:text-red-400 rounded-xl font-bold text-xs hover:bg-red-100 dark:hover:bg-red-500/20 transition-colors flex items-center gap-1"
