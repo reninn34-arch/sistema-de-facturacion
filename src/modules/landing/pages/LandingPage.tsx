@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import {
   Bars3Icon,
   XMarkIcon,
@@ -65,11 +65,11 @@ const painPointIcons = [ExclamationTriangleIcon, CalculatorIcon, ClockIcon];
 const whyIcons = [ShieldCheckIcon, StarIcon, UserGroupIcon, ChartBarIcon];
 
 const businessTypeIcons: Record<string, { Icon: React.ComponentType<React.SVGProps<SVGSVGElement>>; color: string; bg: string }> = {
-  BAKERY:     { Icon: FireIcon,               color: 'text-amber-600',   bg: 'bg-amber-50 group-hover:bg-amber-100' },
-  RESTAURANT: { Icon: BuildingStorefrontIcon, color: 'text-rose-600',    bg: 'bg-rose-50 group-hover:bg-rose-100' },
-  STORE:      { Icon: ShoppingBagIcon,        color: 'text-violet-600',  bg: 'bg-violet-50 group-hover:bg-violet-100' },
-  SERVICE:    { Icon: WrenchScrewdriverIcon,  color: 'text-sky-600',     bg: 'bg-sky-50 group-hover:bg-sky-100' },
-  GENERAL:    { Icon: BuildingOffice2Icon,    color: 'text-[#0EA5E9]',   bg: 'bg-blue-50 group-hover:bg-blue-100' },
+  BAKERY: { Icon: FireIcon, color: 'text-amber-600', bg: 'bg-amber-50 group-hover:bg-amber-100' },
+  RESTAURANT: { Icon: BuildingStorefrontIcon, color: 'text-rose-600', bg: 'bg-rose-50 group-hover:bg-rose-100' },
+  STORE: { Icon: ShoppingBagIcon, color: 'text-violet-600', bg: 'bg-violet-50 group-hover:bg-violet-100' },
+  SERVICE: { Icon: WrenchScrewdriverIcon, color: 'text-sky-600', bg: 'bg-sky-50 group-hover:bg-sky-100' },
+  GENERAL: { Icon: BuildingOffice2Icon, color: 'text-[#0EA5E9]', bg: 'bg-blue-50 group-hover:bg-blue-100' },
 };
 
 const getDefaultContent = (): LandingContent => ({
@@ -223,7 +223,7 @@ const LandingPage: React.FC = () => {
           setLandingContent(prev => deepMerge(prev, data.landingContent));
         }
       })
-      .catch(() => {});
+      .catch(() => { });
   }, []);
 
   useEffect(() => {
@@ -254,7 +254,7 @@ const LandingPage: React.FC = () => {
     const statSetters = [setCountNegocios, setCountFacturas, setCountRating, setCountUptime];
     const durations = [1800, 2000, 1200, 1500];
     const targets = landingContentRef.current.stats.map((stat, i) => ({
-      setter: statSetters[i] || (() => {}),
+      setter: statSetters[i] || (() => { }),
       target: stat.value,
       duration: durations[i] || 1500,
     }));
@@ -342,27 +342,23 @@ const LandingPage: React.FC = () => {
       </div>
 
       {/* ===== MAIN NAV ===== */}
-      <nav className={`fixed top-0 lg:top-9 left-0 right-0 z-50 transition-all duration-300 ${
-        scrolled
+      <nav className={`fixed top-0 lg:top-9 left-0 right-0 z-50 transition-all duration-300 ${scrolled
           ? 'bg-white/95 backdrop-blur-md shadow-lg shadow-sky-100/30'
           : 'bg-transparent lg:bg-white/80 lg:backdrop-blur-sm'
-      }`}>
+        }`}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16 lg:h-[72px]">
             <div className="flex items-center gap-2.5">
-              <div className={`w-10 h-10 rounded-xl flex items-center justify-center shadow-lg transition-all duration-300 ${
-                scrolled
+              <div className={`w-10 h-10 rounded-xl flex items-center justify-center shadow-lg transition-all duration-300 ${scrolled
                   ? 'bg-[#0EA5E9] shadow-[#0EA5E9]/30'
                   : 'bg-white/20 shadow-white/10 lg:bg-[#0EA5E9] lg:shadow-[#0EA5E9]/30'
-              }`}>
+                }`}>
                 <DocumentTextIcon className="w-5 h-5 text-white" />
               </div>
-              <span className={`text-xl font-extrabold tracking-tight transition-colors duration-300 ${
-                scrolled ? 'text-slate-900' : 'text-white lg:text-slate-900'
-              }`}>
-                Azul <span className={`transition-colors duration-300 ${
-                  scrolled ? 'text-[#0EA5E9]' : 'text-white/90 lg:text-[#0EA5E9]'
-                }`}>PRO</span>
+              <span className={`text-xl font-extrabold tracking-tight transition-colors duration-300 ${scrolled ? 'text-slate-900' : 'text-white lg:text-slate-900'
+                }`}>
+                Azul <span className={`transition-colors duration-300 ${scrolled ? 'text-[#0EA5E9]' : 'text-white/90 lg:text-[#0EA5E9]'
+                  }`}>PRO</span>
               </span>
             </div>
 
@@ -388,11 +384,10 @@ const LandingPage: React.FC = () => {
 
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className={`lg:hidden p-2 rounded-xl transition-all duration-300 ${
-                scrolled
+              className={`lg:hidden p-2 rounded-xl transition-all duration-300 ${scrolled
                   ? 'text-slate-800 hover:bg-slate-100'
                   : 'text-white hover:bg-white/15'
-              }`}
+                }`}
             >
               {mobileMenuOpen ? <XMarkIcon className="w-6 h-6" /> : <Bars3Icon className="w-6 h-6" />}
             </button>
@@ -523,16 +518,16 @@ const LandingPage: React.FC = () => {
           {/* Ola 3 — más al fondo, azul claro semitransparente, más lenta */}
           <svg className="wave-3" style={{ position: 'absolute', bottom: 0, opacity: 0.35 }}
             viewBox="0 0 1440 120" fill="none" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none">
-            <path d="M0 60C180 100 360 20 540 60C720 100 900 20 1080 60C1260 100 1440 40 1440 40V120H0V60Z" fill="white"/>
+            <path d="M0 60C180 100 360 20 540 60C720 100 900 20 1080 60C1260 100 1440 40 1440 40V120H0V60Z" fill="white" />
           </svg>
           {/* Ola 2 — capa media, blanco suave, velocidad media */}
           <svg className="wave-2" style={{ position: 'absolute', bottom: 0, opacity: 0.6 }}
             viewBox="0 0 1440 100" fill="none" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none">
-            <path d="M0 50C200 90 400 10 600 50C800 90 1000 15 1200 55C1350 80 1440 45 1440 45V100H0V50Z" fill="white"/>
+            <path d="M0 50C200 90 400 10 600 50C800 90 1000 15 1200 55C1350 80 1440 45 1440 45V100H0V50Z" fill="white" />
           </svg>
           {/* Ola 1 — frente, blanco sólido, rellena la base */}
           <svg className="wave-1" viewBox="0 0 1440 80" fill="none" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none">
-            <path d="M0 40C240 80 480 0 720 40C960 80 1200 10 1440 40V80H0V40Z" fill="white"/>
+            <path d="M0 40C240 80 480 0 720 40C960 80 1200 10 1440 40V80H0V40Z" fill="white" />
           </svg>
         </div>
       </section>
@@ -788,12 +783,11 @@ const LandingPage: React.FC = () => {
             </p>
           </div>
 
-          <div className={`grid gap-5 mx-auto ${
-            plans.length <= 2 ? 'max-w-2xl md:grid-cols-2' :
-            plans.length === 3 ? 'max-w-5xl md:grid-cols-3' :
-            plans.length === 4 ? 'max-w-6xl sm:grid-cols-2 lg:grid-cols-4' :
-            'max-w-7xl sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5'
-          }`}>
+          <div className={`grid gap-5 mx-auto ${plans.length <= 2 ? 'max-w-2xl md:grid-cols-2' :
+              plans.length === 3 ? 'max-w-5xl md:grid-cols-3' :
+                plans.length === 4 ? 'max-w-6xl sm:grid-cols-2 lg:grid-cols-4' :
+                  'max-w-7xl sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5'
+            }`}>
             {loadingPlans ? (
               [...Array(5)].map((_, i) => (
                 <div key={i} className="bg-[#F8F9FC] rounded-3xl p-8 border-2 border-slate-100 animate-pulse">
@@ -814,56 +808,54 @@ const LandingPage: React.FC = () => {
               plans.map((plan, idx) => {
                 const isPopular = plan.highlighted;
                 return (
-                <div
-                  key={plan.id}
-                  className={`relative bg-white rounded-3xl p-6 lg:p-8 border-2 transition-all duration-300 hover:-translate-y-1 flex flex-col ${
-                    isPopular
-                      ? 'border-[#0EA5E9] shadow-2xl shadow-[#0EA5E9]/20 scale-[1.02] z-10'
-                      : 'border-slate-100 hover:border-slate-300 hover:shadow-xl'
-                  }`}
-                >
-                  {isPopular && (
-                    <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-[#06B6D4] text-white text-xs font-extrabold px-4 py-1.5 rounded-full shadow-lg shadow-[#06B6D4]/30 whitespace-nowrap">
-                      Más Popular
-                    </div>
-                  )}
-
-                  <h3 className="text-base lg:text-lg font-extrabold text-slate-900">{plan.name}</h3>
-                  {plan.description && (
-                    <p className="text-xs text-slate-500 mt-1 font-medium line-clamp-1">{plan.description}</p>
-                  )}
-                  <div className="mt-4 flex items-baseline gap-1">
-                    <span className="text-3xl lg:text-4xl font-extrabold text-slate-900">
-                      {plan.price === 0 ? 'Gratis' : `$${plan.price.toFixed(2)}`}
-                    </span>
-                    {plan.price > 0 && <span className="text-slate-400 font-semibold text-sm">/{plan.period}</span>}
-                  </div>
-
-                  <ul className="mt-6 space-y-2.5 flex-1">
-                    {plan.features.slice(0, 6).map((feat, fi) => (
-                      <li key={fi} className="flex items-start gap-2.5">
-                        <CheckCircleIcon className="w-4 h-4 text-[#10B981] flex-shrink-0 mt-0.5" />
-                        <span className="text-xs lg:text-sm text-slate-600 font-medium">{feat}</span>
-                      </li>
-                    ))}
-                    {plan.features.length > 6 && (
-                      <li className="text-xs text-slate-400 pl-7">+{plan.features.length - 6} más</li>
-                    )}
-                  </ul>
-
-                  <a
-                    href={`/suscripcion?plan=${plan.code}`}
-                    className={`mt-6 block text-center py-3 rounded-2xl font-bold text-sm transition-all ${
-                      isPopular
-                        ? 'bg-[#0EA5E9] text-white hover:bg-[#0369A1] shadow-lg shadow-[#0EA5E9]/25'
-                        : plan.price === 0
-                          ? 'bg-[#10B981] text-white hover:bg-emerald-600 shadow-lg shadow-[#10B981]/25'
-                          : 'bg-[#F8F9FC] text-slate-700 hover:bg-slate-100'
-                    }`}
+                  <div
+                    key={plan.id}
+                    className={`relative bg-white rounded-3xl p-6 lg:p-8 border-2 transition-all duration-300 hover:-translate-y-1 flex flex-col ${isPopular
+                        ? 'border-[#0EA5E9] shadow-2xl shadow-[#0EA5E9]/20 scale-[1.02] z-10'
+                        : 'border-slate-100 hover:border-slate-300 hover:shadow-xl'
+                      }`}
                   >
-                    {plan.price === 0 ? 'Comenzar Gratis' : `Elegir ${plan.name}`}
-                  </a>
-                </div>
+                    {isPopular && (
+                      <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-[#06B6D4] text-white text-xs font-extrabold px-4 py-1.5 rounded-full shadow-lg shadow-[#06B6D4]/30 whitespace-nowrap">
+                        Más Popular
+                      </div>
+                    )}
+
+                    <h3 className="text-base lg:text-lg font-extrabold text-slate-900">{plan.name}</h3>
+                    {plan.description && (
+                      <p className="text-xs text-slate-500 mt-1 font-medium line-clamp-1">{plan.description}</p>
+                    )}
+                    <div className="mt-4 flex items-baseline gap-1">
+                      <span className="text-3xl lg:text-4xl font-extrabold text-slate-900">
+                        {plan.price === 0 ? 'Gratis' : `$${plan.price.toFixed(2)}`}
+                      </span>
+                      {plan.price > 0 && <span className="text-slate-400 font-semibold text-sm">/{plan.period}</span>}
+                    </div>
+
+                    <ul className="mt-6 space-y-2.5 flex-1">
+                      {plan.features.slice(0, 6).map((feat, fi) => (
+                        <li key={fi} className="flex items-start gap-2.5">
+                          <CheckCircleIcon className="w-4 h-4 text-[#10B981] flex-shrink-0 mt-0.5" />
+                          <span className="text-xs lg:text-sm text-slate-600 font-medium">{feat}</span>
+                        </li>
+                      ))}
+                      {plan.features.length > 6 && (
+                        <li className="text-xs text-slate-400 pl-7">+{plan.features.length - 6} más</li>
+                      )}
+                    </ul>
+
+                    <a
+                      href={`/suscripcion?plan=${plan.code}`}
+                      className={`mt-6 block text-center py-3 rounded-2xl font-bold text-sm transition-all ${isPopular
+                          ? 'bg-[#0EA5E9] text-white hover:bg-[#0369A1] shadow-lg shadow-[#0EA5E9]/25'
+                          : plan.price === 0
+                            ? 'bg-[#10B981] text-white hover:bg-emerald-600 shadow-lg shadow-[#10B981]/25'
+                            : 'bg-[#F8F9FC] text-slate-700 hover:bg-slate-100'
+                        }`}
+                    >
+                      {plan.price === 0 ? 'Comenzar Gratis' : `Elegir ${plan.name}`}
+                    </a>
+                  </div>
                 );
               })
             )}
@@ -922,21 +914,21 @@ const LandingPage: React.FC = () => {
               <p className="mt-4 text-lg text-white/80 max-w-xl mx-auto font-medium">
                 {landingContent.finalCta.subheadline}
               </p>
-            <div className="mt-8 flex flex-col sm:flex-row gap-4 justify-center">
-              <a
-                href="/suscripcion"
-                className="inline-flex items-center justify-center gap-2 bg-[#06B6D4] text-white px-8 py-4 rounded-2xl font-bold text-base hover:bg-[#e55a2b] transition-all shadow-xl shadow-[#06B6D4]/30 hover:-translate-y-0.5"
-              >
-                {landingContent.finalCta.primaryCta}
-                <ArrowRightIcon className="w-5 h-5" />
-              </a>
-              <a
-                href="/login"
-                className="inline-flex items-center justify-center gap-2 bg-white/10 text-white px-8 py-4 rounded-2xl font-bold text-base hover:bg-white/20 transition-all border border-white/20"
-              >
-                {landingContent.finalCta.secondaryCta}
-              </a>
-            </div>
+              <div className="mt-8 flex flex-col sm:flex-row gap-4 justify-center">
+                <a
+                  href="/suscripcion"
+                  className="inline-flex items-center justify-center gap-2 bg-[#06B6D4] text-white px-8 py-4 rounded-2xl font-bold text-base hover:bg-[#e55a2b] transition-all shadow-xl shadow-[#06B6D4]/30 hover:-translate-y-0.5"
+                >
+                  {landingContent.finalCta.primaryCta}
+                  <ArrowRightIcon className="w-5 h-5" />
+                </a>
+                <a
+                  href="/login"
+                  className="inline-flex items-center justify-center gap-2 bg-white/10 text-white px-8 py-4 rounded-2xl font-bold text-base hover:bg-white/20 transition-all border border-white/20"
+                >
+                  {landingContent.finalCta.secondaryCta}
+                </a>
+              </div>
             </div>
           </div>
         </div>

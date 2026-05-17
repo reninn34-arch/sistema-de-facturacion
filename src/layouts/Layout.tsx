@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
+import EnvironmentModal from '../components/EnvironmentModal';
 import { AppNotification, BusinessInfo } from '../types/types';
 import {
   BuildingOffice2Icon,
@@ -31,6 +32,8 @@ import {
   DocumentArrowUpIcon,
   GlobeAltIcon,
   ShieldExclamationIcon,
+  ExclamationTriangleIcon,
+  ChevronDownIcon,
 } from '@heroicons/react/24/outline';
 
 interface LayoutProps {
@@ -47,6 +50,7 @@ interface LayoutProps {
   planHasAIAssistant?: boolean;
   hasModuleControl?: boolean;
   modulePermissions?: { moduleCode: string; granted: boolean }[];
+  onActivateProduction?: () => Promise<void>;
 }
 
 const iconMap: Record<string, React.ReactNode> = {
@@ -97,9 +101,12 @@ const Layout: React.FC<LayoutProps> = ({
   pendingActivations = 0,
   planHasAIAssistant = false,
   hasModuleControl = false,
-  modulePermissions = []
+  modulePermissions = [],
+  onActivateProduction
 }) => {
   const [showNotifications, setShowNotifications] = useState(false);
+  const [isEnvModalOpen, setIsEnvModalOpen] = useState(false);
+  const [isEnvLoading, setIsEnvLoading] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const notificationRef = useRef<HTMLDivElement>(null);
 
@@ -238,8 +245,26 @@ const Layout: React.FC<LayoutProps> = ({
     }
   };
 
+  const handleConfirmProduction = async () => {
+    if (!onActivateProduction) return;
+    setIsEnvLoading(true);
+    try {
+      await onActivateProduction();
+      setIsEnvModalOpen(false);
+    } finally {
+      setIsEnvLoading(false);
+    }
+  };
+
   return (
     <div className="flex h-screen bg-[#F6F6F7] dark:bg-[#0F172A] overflow-hidden relative transition-colors duration-300">
+      
+      <EnvironmentModal 
+        isOpen={isEnvModalOpen} 
+        onClose={() => setIsEnvModalOpen(false)} 
+        onConfirm={handleConfirmProduction}
+        loading={isEnvLoading}
+      />
 
       {isSidebarOpen && (
         <div
@@ -277,7 +302,30 @@ const Layout: React.FC<LayoutProps> = ({
           </button>
         </div>
 
-        <nav className="flex-1 p-2 sm:p-4 space-y-1 overflow-y-auto">
+        {/* --- SRI Environment Toggle --- */}
+        {currentUser?.role !== 'SUPERADMIN' && (
+          <div className="px-4 mt-4">
+            {businessInfo?.isProduction ? (
+              <div className="w-full flex items-center justify-center gap-2 bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400 py-3 rounded-xl border border-emerald-200 dark:border-emerald-800/50">
+                <ShieldExclamationIcon className="w-5 h-5" />
+                <span className="font-black text-xs uppercase tracking-widest">Ambiente Producción</span>
+              </div>
+            ) : (
+              <button
+                onClick={() => setIsEnvModalOpen(true)}
+                className="w-full flex items-center justify-between bg-red-500 hover:bg-red-600 text-white py-3 px-4 rounded-xl shadow-lg shadow-red-500/20 transition-colors group"
+              >
+                <div className="flex items-center gap-2">
+                  <ExclamationTriangleIcon className="w-5 h-5 animate-pulse" />
+                  <span className="font-black text-xs uppercase tracking-widest">Ambiente Pruebas</span>
+                </div>
+                <ChevronDownIcon className="w-4 h-4 opacity-50 group-hover:opacity-100 transition-opacity" />
+              </button>
+            )}
+          </div>
+        )}
+
+        <nav className="flex-1 p-2 sm:p-4 mt-2 space-y-1 overflow-y-auto">
           {menuItems.map((item) => (
             <button
               key={item.id}

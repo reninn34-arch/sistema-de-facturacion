@@ -677,6 +677,72 @@ const businessController = {
 
         const features = business?.features || {};
         res.json({ isDemo: features.isDemo || false });
+    }),
+
+    // --- Activar Modo Producción ---
+    activateProduction: catchAsync(async (req, res) => {
+        const businessId = req.user.businessId;
+
+        if (!businessId) {
+            return res.status(400).json({ message: 'No se encontró la empresa' });
+        }
+
+        if (req.user.role !== 'ADMIN' && req.user.role !== 'SUPERADMIN') {
+            return res.status(403).json({ message: 'Solo administradores pueden cambiar el ambiente' });
+        }
+
+        const business = await prisma.business.findUnique({ where: { id: businessId } });
+        if (!business) {
+            return res.status(404).json({ message: 'Empresa no encontrada' });
+        }
+
+        if (business.isProduction) {
+            return res.status(400).json({ message: 'La empresa ya está en modo producción' });
+        }
+
+        const features = business.features || {};
+        if (!features.signatureP12) {
+             return res.status(400).json({ message: 'Debes configurar una firma electrónica (.p12) antes de pasar a Producción' });
+        }
+
+        // Transacción: eliminar documentos de prueba y activar producción
+        await prisma.$transaction(async (tx) => {
+            const testDocs = await tx.document.findMany({
+                where: { businessId },
+                select: { id: true }
+            });
+            const docIds = testDocs.map(d => d.id);
+
+            if (docIds.length > 0) {
+                // Eliminar movimientos de inventario relacionados
+                await tx.inventoryMovement.deleteMany({
+                    where: { documentId: { in: docIds } }
+                });
+
+                // Eliminar ítems de documentos
+                await tx.documentItem.deleteMany({
+                    where: { documentId: { in: docIds } }
+                });
+
+                // Eliminar los documentos
+                await tx.document.deleteMany({
+                    where: { id: { in: docIds } }
+                });
+            }
+
+            // Eliminar secuencias para que inicie en 1
+            await tx.sequence.deleteMany({
+                where: { businessId }
+            });
+
+            // Set isProduction to true
+            await tx.business.update({
+                where: { id: businessId },
+                data: { isProduction: true }
+            });
+        });
+
+        res.json({ success: true, message: 'Ambiente de Producción activado. Documentos de prueba eliminados.' });
     })
 };
 

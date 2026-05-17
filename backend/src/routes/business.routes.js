@@ -43,6 +43,8 @@ router.post('/api/business/demo', verifyToken, businessController.toggleDemoMode
 // Verificar estado del modo demo
 router.get('/api/business/demo', verifyToken, businessController.getDemoStatus);
 
+router.post('/api/business/production', verifyToken, businessController.activateProduction);
+
 // =================================================================
 // GESTIÓN DE CLIENTES
 // =================================================================

@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect, useCallback, useRef } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { SunIcon, MoonIcon, EyeIcon, EyeSlashIcon, CameraIcon, DocumentTextIcon, ShieldCheckIcon, UserIcon, KeyIcon, TrashIcon } from '@heroicons/react/24/outline';
 import Layout from './layouts/Layout';
 import Dashboard from './modules/saas/components/Dashboard';
@@ -590,27 +590,24 @@ const App: React.FC = () => {
     }
   };
 
-  const toggleEnvironment = async () => {
-    const nextState = !businessInfo.isProduction;
-    if (nextState && !signatureFile) {
-      showNotify("Sube tu firma .p12 para activar PRODUCCIÓN", "warning");
+  const handleActivateProduction = async () => {
+    if (!signatureFile) {
+      showNotify("Debes configurar una firma electrónica (.p12) antes de pasar a Producción", "error");
+      throw new Error("No signature");
     }
-    setBusinessInfo(prev => ({ ...prev, isProduction: nextState }));
 
-    // Guardar inmediatamente en BD
     try {
-      const token = localStorage.getItem('adminToken');
-      await fetch(`${API_URL}/api/business`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify({ isProduction: nextState })
-      });
-      showNotify(`Modo ${nextState ? 'PRODUCCIÓN' : 'PRUEBAS'} activo y guardado`);
-    } catch (error) {
+      const response = await client.post('/api/business/production');
+      
+      setBusinessInfo(prev => ({ ...prev, isProduction: true }));
+      setDocuments([]); // Limpiar documentos del estado
+      
+      showNotify('Ambiente de Producción activado. Comprobantes de prueba eliminados.', 'success');
+    } catch (error: any) {
       console.error(error);
+      const msg = error.response?.data?.message || 'Error al cambiar a producción';
+      showNotify(msg, 'error');
+      throw error;
     }
   };
 
@@ -1479,6 +1476,7 @@ const App: React.FC = () => {
       planHasAIAssistant={currentPlanHasAI || currentUser?.role === 'SUPERADMIN'}
       hasModuleControl={hasModuleControl}
       modulePermissions={modulePermissions}
+      onActivateProduction={handleActivateProduction}
     >
       {renderContent()}
 

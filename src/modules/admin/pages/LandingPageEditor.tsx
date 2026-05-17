@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   ChevronDownIcon,
   ChevronUpIcon,
@@ -251,7 +251,7 @@ function getDefaultContent(): LandingContent {
         content: '<h3>1. ¿Qué son las Cookies?</h3><p>Las cookies son pequeños archivos de texto que se almacenan en su navegador cuando visita nuestro sitio web.</p><h3>2. Cookies que Utilizamos</h3><p>Utilizamos cookies esenciales para el funcionamiento de la plataforma (sesión, autenticación) y cookies de análisis para mejorar el servicio.</p><h3>3. Cookies de Terceros</h3><p>PayPal puede utilizar cookies propias cuando procesa pagos a través de nuestra plataforma.</p><h3>4. Control de Cookies</h3><p>Puede configurar su navegador para rechazar cookies, pero algunas funciones de la plataforma podrían no estar disponibles.</p><h3>5. Actualizaciones</h3><p>Esta política puede actualizarse periódicamente. Le notificaremos sobre cambios significativos.</p>',
       },
     },
-  cookieBanner: {
+    cookieBanner: {
       message: 'Utilizamos cookies propias y de terceros para mejorar tu experiencia, analizar el tráfico y mostrarte contenido personalizado. Al hacer clic en "Aceptar", consientes el uso de todas las cookies.',
     },
   };

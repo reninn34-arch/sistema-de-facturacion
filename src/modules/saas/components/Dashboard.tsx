@@ -341,117 +341,175 @@ const Dashboard: React.FC<DashboardProps> = ({ documents, products, setActiveTab
   // =============================================
   // DASHBOARD ADMIN / USER
   // =============================================
+  
+  const now = new Date();
+  const timeString = now.toLocaleTimeString('es-EC', { hour: '2-digit', minute: '2-digit' });
+  const dateString = now.toLocaleDateString('es-EC', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+
+  // Calcular estadísticas de comprobantes del mes actual
+  const currentMonth = now.getMonth();
+  const currentYear = now.getFullYear();
+  
+  const docsThisMonth = safeDocuments.filter(d => {
+    const dDate = new Date(d.createdAt || Date.now());
+    return dDate.getMonth() === currentMonth && dDate.getFullYear() === currentYear;
+  });
+
+  const totalEmitted = docsThisMonth.length;
+  const totalAuthorized = docsThisMonth.filter(d => d.status === SriStatus.AUTHORIZED || d.status === 'AUTORIZADO').length;
+  const totalRejected = docsThisMonth.filter(d => d.status === 'RECHAZADO' || d.status === 'NO_AUTORIZADO' || d.status === 'DEVUELTO').length;
+
   return (
     <div className="space-y-8 animate-fade-in">
-      {isAdmin && businessInfo && businessInfo.plan !== 'UNLIMITED' && (
-        <div className="bg-gradient-to-r from-slate-900 to-slate-800 rounded-2xl p-6 text-white shadow-xl border border-slate-700/50">
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-            <div className="flex items-center gap-4">
-              <div className={`w-14 h-14 rounded-2xl flex items-center justify-center text-2xl ${subscriptionStatusColor === 'emerald' ? 'bg-emerald-500/20' :
-                  subscriptionStatusColor === 'amber' ? 'bg-amber-500/20' : 'bg-red-500/20'
-                }`}>
-                {subscriptionDaysRemaining === null
-                  ? <SparklesIcon className="w-7 h-7 text-emerald-400" />
-                  : subscriptionDaysRemaining < 0
-                    ? <ExclamationTriangleIcon className="w-7 h-7 text-red-400" />
-                    : <CalendarDaysIcon className="w-7 h-7 text-sky-400" />
-                }
-              </div>
-              <div>
-                <div className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Suscripción</div>
-                <div className="text-xl font-bold">
-                  {subscriptionDaysRemaining === null ? (
-                    'Ilimitado'
-                  ) : subscriptionDaysRemaining < 0 ? (
-                    <span className="text-red-400">Vencida hace {Math.abs(subscriptionDaysRemaining)} días</span>
-                  ) : (
-                    `${subscriptionDaysRemaining} días restantes`
-                  )}
-                </div>
-                <div className="text-xs text-slate-400 mt-1">
-                  Plan: {getPlanLabel(businessInfo.plan)} • Vence: {businessInfo.subscriptionEnd ? new Date(businessInfo.subscriptionEnd).toLocaleDateString() : 'N/A'}
-                </div>
-              </div>
-            </div>
-            <div className="flex gap-3">
-              <div className="hidden md:block w-48">
-                <div className="h-3 bg-slate-700 rounded-full overflow-hidden">
-                  <div
-                    className={`h-full transition-all duration-500 ${subscriptionStatusColor === 'emerald' ? 'bg-emerald-500' :
-                        subscriptionStatusColor === 'amber' ? 'bg-amber-500' : 'bg-red-500'
-                      }`}
-                    style={{ width: subscriptionDaysRemaining === null ? '100%' : `${Math.min(Math.max((subscriptionDaysRemaining / planDurationDays) * 100, 0), 100)}%` }}
-                  />
-                </div>
-                <div className="text-[10px] text-slate-400 mt-1 text-center">Tiempo restante</div>
-              </div>
+      {/* ROW 1: Welcome & Subscription */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Welcome Card */}
+        <Card padding="none" className="lg:col-span-2 overflow-hidden relative bg-gradient-to-br from-indigo-50 to-white dark:from-slate-800 dark:to-slate-900 border-none shadow-sm">
+          <div className="p-8 md:p-10 flex flex-col md:w-2/3 z-10 relative">
+            <h2 className="text-3xl font-black text-slate-800 dark:text-white tracking-tight mb-2">
+              ¡Hola, {currentUser?.name?.split(' ')[0] || 'Bienvenido'}! 👋
+            </h2>
+            <p className="text-slate-500 dark:text-slate-400 font-medium mb-8 capitalize">
+              {dateString} • {timeString}
+            </p>
+            
+            <div className="flex flex-col sm:flex-row gap-4 mt-auto">
               <button
-                onClick={() => setActiveTab('pago-interno')}
-                className={`px-6 py-3 rounded-xl font-bold text-sm uppercase tracking-wider transition-all shadow-lg ${subscriptionStatusColor === 'red'
-                    ? 'bg-red-500 hover:bg-red-400 text-white shadow-red-500/30' :
-                    subscriptionStatusColor === 'amber'
-                      ? 'bg-amber-500 hover:bg-amber-400 text-white shadow-amber-500/30'
-                      : 'bg-sky-500 hover:bg-sky-600 text-white shadow-sky-500/30'
-                  }`}
+                onClick={() => setActiveTab('invoices')}
+                className="px-6 py-3 bg-sky-600 hover:bg-sky-700 text-white rounded-xl font-bold text-sm shadow-lg shadow-sky-500/30 transition-all flex items-center justify-center gap-2"
               >
-                {subscriptionDaysRemaining !== null && subscriptionDaysRemaining <= Math.max(Math.ceil(planDurationDays * 0.20), 3) ? 'Renovar' : 'Gestionar'}
+                <DocumentTextIcon className="w-5 h-5" />
+                Generar Factura
+              </button>
+              <button
+                onClick={() => setActiveTab('help')}
+                className="px-6 py-3 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 rounded-xl font-bold text-sm hover:bg-slate-50 dark:hover:bg-slate-700 transition-all flex items-center justify-center gap-2"
+              >
+                Ver Tutoriales
               </button>
             </div>
           </div>
-        </div>
-      )}
+          
+          {/* 3D Illustration */}
+          <div className="absolute right-0 bottom-0 top-0 w-1/3 hidden md:flex items-center justify-center pointer-events-none opacity-90">
+            <img 
+              src="/images/dashboard-illustration.png" 
+              alt="Dashboard 3D" 
+              className="object-cover h-[120%] w-auto max-w-none transform translate-x-8 translate-y-4"
+            />
+          </div>
+        </Card>
 
-      {isAdmin && businessInfo && businessInfo.plan === 'UNLIMITED' && (
-        <div className="bg-gradient-to-r from-emerald-600 to-emerald-800 dark:from-emerald-900 dark:to-slate-900 rounded-[2rem] p-8 text-white shadow-xl shadow-emerald-500/10 transition-all hover:scale-[1.01] duration-300">
-          <div className="flex items-center gap-6">
-            <div className="w-16 h-16 rounded-[1.5rem] flex items-center justify-center text-3xl bg-white/20 backdrop-blur-sm">
-              <SparklesIcon className="w-8 h-8 text-white" />
-            </div>
+        {/* Subscription Card */}
+        <Card padding="lg" className="bg-white dark:bg-slate-900 flex flex-col justify-between border-none shadow-sm">
+          <div className="flex justify-between items-start mb-6">
             <div>
-              <div className="text-[10px] font-black text-emerald-200 uppercase tracking-[0.2em] mb-1">Estatus Premium</div>
-              <div className="text-2xl font-black text-white uppercase tracking-tighter">Plan Ilimitado Activo</div>
-              <div className="text-sm text-emerald-50/70 mt-1 font-medium italic">
-                "Tu empresa no tiene límites de crecimiento con Azul"
-              </div>
+              <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Tu Plan Actual</p>
+              <h3 className="text-xl font-black text-slate-800 dark:text-white flex items-center gap-2">
+                <SparklesIcon className="w-5 h-5 text-sky-500" />
+                {getPlanLabel(businessInfo?.plan)}
+              </h3>
+            </div>
+            <Badge variant={subscriptionStatusColor === 'emerald' ? 'success' : subscriptionStatusColor === 'amber' ? 'warning' : 'error'}>
+              {businessInfo?.plan === 'UNLIMITED' ? 'ACTIVO' : subscriptionDaysRemaining !== null && subscriptionDaysRemaining > 0 ? 'ACTIVO' : 'VENCIDO'}
+            </Badge>
+          </div>
+
+          <div className="flex items-center gap-6 mt-auto">
+            {/* Circular Progress for Days */}
+            <div className="relative w-20 h-20 flex-shrink-0">
+              {businessInfo?.plan === 'UNLIMITED' ? (
+                <div className="w-full h-full rounded-full border-4 border-emerald-100 dark:border-emerald-900/30 flex items-center justify-center bg-emerald-50 dark:bg-emerald-900/10">
+                  <SparklesIcon className="w-8 h-8 text-emerald-500" />
+                </div>
+              ) : (
+                <>
+                  <svg className="w-full h-full transform -rotate-90">
+                    <circle cx="40" cy="40" r="36" stroke="currentColor" strokeWidth="8" fill="transparent" className="text-slate-100 dark:text-slate-800" />
+                    <circle 
+                      cx="40" 
+                      cy="40" 
+                      r="36" 
+                      stroke="currentColor" 
+                      strokeWidth="8" 
+                      fill="transparent" 
+                      strokeDasharray={`${2 * Math.PI * 36}`}
+                      strokeDashoffset={`${2 * Math.PI * 36 * (1 - Math.max(0, Math.min(1, (subscriptionDaysRemaining || 0) / planDurationDays)))}`}
+                      className={`transition-all duration-1000 ${subscriptionStatusColor === 'emerald' ? 'text-emerald-500' : subscriptionStatusColor === 'amber' ? 'text-amber-500' : 'text-red-500'}`} 
+                    />
+                  </svg>
+                  <div className="absolute inset-0 flex flex-col items-center justify-center">
+                    <span className="text-lg font-black text-slate-800 dark:text-white">{subscriptionDaysRemaining !== null && subscriptionDaysRemaining > 0 ? subscriptionDaysRemaining : 0}</span>
+                    <span className="text-[8px] font-bold text-slate-400 uppercase">Días</span>
+                  </div>
+                </>
+              )}
+            </div>
+            
+            <div className="flex-1">
+              <p className="text-xs text-slate-500 dark:text-slate-400 mb-3">
+                {businessInfo?.plan === 'UNLIMITED' 
+                  ? 'Tu empresa no tiene límites de crecimiento.' 
+                  : `Vence el ${businessInfo?.subscriptionEnd ? new Date(businessInfo.subscriptionEnd).toLocaleDateString() : 'N/A'}`}
+              </p>
+              {isAdmin && businessInfo?.plan !== 'UNLIMITED' && (
+                <button
+                  onClick={() => setActiveTab('pago-interno')}
+                  className={`w-full py-2 rounded-lg font-bold text-xs uppercase tracking-wider transition-all ${subscriptionStatusColor === 'red' || (subscriptionDaysRemaining !== null && subscriptionDaysRemaining <= 5)
+                    ? 'bg-red-500 hover:bg-red-600 text-white' 
+                    : 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700'}`}
+                >
+                  Renovar Plan
+                </button>
+              )}
+            </div>
+          </div>
+        </Card>
+      </div>
+
+      {/* ROW 2: Documents Summary (Shopify Analytics Style) */}
+      <Card padding="none" className="bg-white dark:bg-slate-900 border-none shadow-sm overflow-hidden">
+        <div className="p-6 border-b border-slate-100 dark:border-slate-800/50 flex justify-between items-center bg-slate-50/50 dark:bg-slate-800/20">
+          <h3 className="font-bold text-slate-800 dark:text-white text-sm uppercase tracking-wide flex items-center gap-2">
+            <ArrowTrendingUpIcon className="w-5 h-5 text-sky-500" />
+            Rendimiento del Mes
+          </h3>
+          <button onClick={() => setActiveTab('reports')} className="text-xs font-bold text-sky-500 hover:text-sky-600 flex items-center gap-1">
+            Ver Reportes <ArrowRightIcon className="w-3 h-3" />
+          </button>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-3 divide-y md:divide-y-0 md:divide-x divide-slate-100 dark:divide-slate-800/50">
+          <div className="p-6 md:p-8 flex flex-col justify-center transition-colors hover:bg-slate-50/50 dark:hover:bg-slate-800/30 cursor-pointer" onClick={() => setActiveTab('reports')}>
+            <p className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-2 flex items-center gap-2">
+              <DocumentTextIcon className="w-4 h-4" /> Comprobantes Emitidos
+            </p>
+            <div className="flex items-baseline gap-3">
+              <span className="text-4xl md:text-5xl font-black text-slate-800 dark:text-white tracking-tighter">{totalEmitted}</span>
+              <span className="text-xs font-bold text-emerald-500 bg-emerald-50 dark:bg-emerald-500/10 px-2 py-1 rounded-md">Total Mes</span>
+            </div>
+          </div>
+          
+          <div className="p-6 md:p-8 flex flex-col justify-center transition-colors hover:bg-slate-50/50 dark:hover:bg-slate-800/30 cursor-pointer" onClick={() => setActiveTab('reports')}>
+            <p className="text-xs font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-widest mb-2 flex items-center gap-2">
+              <CheckCircleIcon className="w-4 h-4" /> Autorizados SRI
+            </p>
+            <div className="flex items-baseline gap-3">
+              <span className="text-3xl md:text-4xl font-black text-slate-800 dark:text-white tracking-tighter">{totalAuthorized}</span>
+              <span className="text-xs font-medium text-slate-500">{totalEmitted > 0 ? Math.round((totalAuthorized/totalEmitted)*100) : 0}% de emitidos</span>
+            </div>
+          </div>
+          
+          <div className="p-6 md:p-8 flex flex-col justify-center transition-colors hover:bg-slate-50/50 dark:hover:bg-slate-800/30 cursor-pointer" onClick={() => setActiveTab('reports')}>
+            <p className="text-xs font-bold text-rose-600 dark:text-rose-400 uppercase tracking-widest mb-2 flex items-center gap-2">
+              <XCircleIcon className="w-4 h-4" /> No Autorizados
+            </p>
+            <div className="flex items-baseline gap-3">
+              <span className="text-3xl md:text-4xl font-black text-slate-800 dark:text-white tracking-tighter">{totalRejected}</span>
+              <span className="text-xs font-medium text-slate-500">Requieren atención</span>
             </div>
           </div>
         </div>
-      )}
-
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-        <StatCard
-          label="Ventas Reales"
-          value={`$${(totalSales || 0).toFixed(2)}`}
-          subtitle="Total facturado"
-          color="emerald"
-          icon={<BanknotesIcon className="w-5 h-5" />}
-          onClick={() => setActiveTab('reports')}
-        />
-        <StatCard
-          label="Alertas Inventario"
-          value={`${lowStock.length}`}
-          subtitle="Items bajos"
-          color={lowStock.length > 0 ? 'amber' : 'slate'}
-          icon={<ExclamationTriangleIcon className="w-5 h-5" />}
-          onClick={() => setActiveTab('products')}
-        />
-        <StatCard
-          label="Emitidos Hoy"
-          value={`${safeDocuments.length}`}
-          subtitle="Doc. SRI"
-          color="indigo"
-          icon={<DocumentTextIcon className="w-5 h-5" />}
-          onClick={() => setActiveTab('reports')}
-        />
-        <StatCard
-          label="IVA Neto"
-          value={`$${((totalSales || 0) * 0.15).toFixed(2)}`}
-          subtitle="Estimado"
-          color="indigo"
-          icon={<ArrowTrendingUpIcon className="w-5 h-5" />}
-          onClick={() => setActiveTab('reports')}
-        />
-      </div>
+      </Card>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8">
         {/* Auditoría: ocultar si el módulo está denegado vía permisos */}

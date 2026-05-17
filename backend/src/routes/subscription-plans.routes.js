@@ -249,14 +249,14 @@ router.put('/:id', jwtMiddleware, roleMiddleware(['SUPERADMIN']), async (req, re
     let existingPlan = await prisma.subscriptionPlan.findUnique({
       where: { id }
     });
-    
+
     // Si no encuentra por ID, buscar por código
     if (!existingPlan) {
       existingPlan = await prisma.subscriptionPlan.findUnique({
         where: { code: id }
       });
     }
-    
+
     if (!existingPlan) {
       return res.status(404).json({ error: 'Plan no encontrado' });
     }
@@ -312,14 +312,14 @@ router.delete('/:id', jwtMiddleware, roleMiddleware(['SUPERADMIN']), async (req,
     let existingPlan = await prisma.subscriptionPlan.findUnique({
       where: { id }
     });
-    
+
     // Si no encuentra por ID, buscar por código
     if (!existingPlan) {
       existingPlan = await prisma.subscriptionPlan.findUnique({
         where: { code: id }
       });
     }
-    
+
     if (!existingPlan) {
       return res.status(404).json({ error: 'Plan no encontrado' });
     }
