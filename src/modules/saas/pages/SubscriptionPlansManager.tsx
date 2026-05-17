@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { ClockIcon, CheckIcon, CpuChipIcon, StarIcon, PauseCircleIcon, PlayCircleIcon, TrashIcon, MegaphoneIcon, Cog6ToothIcon } from '@heroicons/react/24/outline';
 
 // Interfaces para los planes de suscripción
@@ -19,6 +19,8 @@ interface SubscriptionPlan {
   hasAudit: boolean;
   hasModuleControl: boolean;
   isActive: boolean;
+  ctaType?: 'NORMAL' | 'WHATSAPP';
+  ctaWhatsapp?: { number: string; message: string; buttonLabel: string; priceLabel: string };
   createdAt?: string;
   updatedAt?: string;
 }
@@ -139,7 +141,9 @@ const SubscriptionPlansManager: React.FC<SubscriptionPlansManagerProps> = ({ onN
     hasAudit: false,
     hasModuleControl: false,
     isActive: true,
-    price: 0
+    price: 0,
+    ctaType: 'NORMAL' as const,
+    ctaWhatsapp: { number: '', message: '', buttonLabel: '💬 Hablar por WhatsApp', priceLabel: 'Precio a medida' }
   });
   const [featuresText, setFeaturesText] = useState('');
   const [confirmModal, setConfirmModal] = useState<{show: boolean, planId: string | null, planName: string}>({show: false, planId: null, planName: ''});
@@ -177,7 +181,11 @@ const SubscriptionPlansManager: React.FC<SubscriptionPlansManagerProps> = ({ onN
   const handleOpenModal = (plan?: SubscriptionPlan) => {
     if (plan) {
       setEditingPlan(plan);
-      setFormData(plan);
+      setFormData({
+        ...plan,
+        ctaType: plan.ctaType || 'NORMAL',
+        ctaWhatsapp: plan.ctaWhatsapp || { number: '', message: '', buttonLabel: '💬 Hablar por WhatsApp', priceLabel: 'Precio a medida' }
+      });
       setFeaturesText(plan.features.join('\n'));
     } else {
       setEditingPlan(null);
@@ -196,7 +204,9 @@ const SubscriptionPlansManager: React.FC<SubscriptionPlansManagerProps> = ({ onN
         hasPrioritySupport: false,
         hasAudit: false,
         hasModuleControl: false,
-        isActive: true
+        isActive: true,
+        ctaType: 'NORMAL',
+        ctaWhatsapp: { number: '', message: '', buttonLabel: '💬 Hablar por WhatsApp', priceLabel: 'Precio a medida' }
       });
       setFeaturesText('');
     }
@@ -233,7 +243,9 @@ const SubscriptionPlansManager: React.FC<SubscriptionPlansManagerProps> = ({ onN
       hasPrioritySupport: formData.hasPrioritySupport || false,
       hasAudit: formData.hasAudit || false,
       hasModuleControl: formData.hasModuleControl || false,
-      isActive: formData.isActive !== false
+      isActive: formData.isActive !== false,
+      ctaType: formData.ctaType || 'NORMAL',
+      ctaWhatsapp: formData.ctaWhatsapp
     };
 
     // Guardar en backend
@@ -614,6 +626,72 @@ const SubscriptionPlansManager: React.FC<SubscriptionPlansManagerProps> = ({ onN
                     rows={4}
                     placeholder="1 empresa&#10;Facturas ilimitadas&#10;Soporte 24/7"
                   />
+                </div>
+
+                {/* CTA WhatsApp */}
+                <div className="border-2 border-dashed border-slate-200 dark:border-slate-600 rounded-xl p-4 space-y-3">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm font-bold text-slate-700 dark:text-slate-200">Tipo de botón en la landing</p>
+                      <p className="text-xs text-slate-400 dark:text-slate-500 mt-0.5">Redirigir a WhatsApp en lugar del flujo normal de pago</p>
+                    </div>
+                    <select
+                      value={formData.ctaType || 'NORMAL'}
+                      onChange={e => setFormData({ ...formData, ctaType: e.target.value as any })}
+                      className="p-2 border-2 border-slate-200 dark:border-slate-600 rounded-lg text-sm font-bold focus:border-sky-500 focus:outline-none bg-white dark:bg-slate-700 text-slate-800 dark:text-white"
+                    >
+                      <option value="NORMAL">🛒 Flujo normal de pago</option>
+                      <option value="WHATSAPP">💬 Redirigir a WhatsApp</option>
+                    </select>
+                  </div>
+
+                  {formData.ctaType === 'WHATSAPP' && (
+                    <div className="space-y-3 pt-2 border-t border-slate-100 dark:border-slate-700">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                        <div>
+                          <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1 uppercase tracking-wide">Número WhatsApp (sin + ni espacios)</label>
+                          <input
+                            type="text"
+                            value={formData.ctaWhatsapp?.number || ''}
+                            onChange={e => setFormData({ ...formData, ctaWhatsapp: { ...formData.ctaWhatsapp!, number: e.target.value } })}
+                            className="w-full p-2 border-2 border-slate-200 dark:border-slate-600 rounded-lg text-sm focus:border-sky-500 focus:outline-none bg-white dark:bg-slate-700 text-slate-800 dark:text-white"
+                            placeholder="593999999999"
+                          />
+                          <p className="text-[10px] text-slate-400 mt-0.5">Ecuador: 593 + número sin 0 inicial</p>
+                        </div>
+                        <div>
+                          <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1 uppercase tracking-wide">Texto del botón</label>
+                          <input
+                            type="text"
+                            value={formData.ctaWhatsapp?.buttonLabel || ''}
+                            onChange={e => setFormData({ ...formData, ctaWhatsapp: { ...formData.ctaWhatsapp!, buttonLabel: e.target.value } })}
+                            className="w-full p-2 border-2 border-slate-200 dark:border-slate-600 rounded-lg text-sm focus:border-sky-500 focus:outline-none bg-white dark:bg-slate-700 text-slate-800 dark:text-white"
+                            placeholder="💬 Hablar por WhatsApp"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1 uppercase tracking-wide">Etiqueta de precio</label>
+                          <input
+                            type="text"
+                            value={formData.ctaWhatsapp?.priceLabel || ''}
+                            onChange={e => setFormData({ ...formData, ctaWhatsapp: { ...formData.ctaWhatsapp!, priceLabel: e.target.value } })}
+                            className="w-full p-2 border-2 border-slate-200 dark:border-slate-600 rounded-lg text-sm focus:border-sky-500 focus:outline-none bg-white dark:bg-slate-700 text-slate-800 dark:text-white"
+                            placeholder="Precio a medida"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1 uppercase tracking-wide">Mensaje pre-cargado</label>
+                          <input
+                            type="text"
+                            value={formData.ctaWhatsapp?.message || ''}
+                            onChange={e => setFormData({ ...formData, ctaWhatsapp: { ...formData.ctaWhatsapp!, message: e.target.value } })}
+                            className="w-full p-2 border-2 border-slate-200 dark:border-slate-600 rounded-lg text-sm focus:border-sky-500 focus:outline-none bg-white dark:bg-slate-700 text-slate-800 dark:text-white"
+                            placeholder="Hola, me interesa el plan..."
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  )}
                 </div>
 
                 {/* Opciones adicionales */}

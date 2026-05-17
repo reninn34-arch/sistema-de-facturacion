@@ -40,6 +40,8 @@ interface ApiPlan {
   features: string[];
   isActive: boolean;
   highlighted?: boolean;
+  ctaType?: 'NORMAL' | 'WHATSAPP';
+  ctaWhatsapp?: { number: string; message: string; buttonLabel: string; priceLabel: string };
 }
 
 interface LandingContent {
@@ -826,10 +828,12 @@ const LandingPage: React.FC = () => {
                       <p className="text-xs text-slate-500 mt-1 font-medium line-clamp-1">{plan.description}</p>
                     )}
                     <div className="mt-4 flex items-baseline gap-1">
-                      <span className="text-3xl lg:text-4xl font-extrabold text-slate-900">
-                        {plan.price === 0 ? 'Gratis' : `$${plan.price.toFixed(2)}`}
+                      <span className={`text-3xl lg:text-4xl font-extrabold ${plan.ctaType === 'WHATSAPP' ? 'text-amber-500' : 'text-slate-900'}`}>
+                        {plan.ctaType === 'WHATSAPP'
+                          ? (plan.ctaWhatsapp?.priceLabel || 'Precio a medida')
+                          : plan.price === 0 ? 'Gratis' : `$${plan.price.toFixed(2)}`}
                       </span>
-                      {plan.price > 0 && <span className="text-slate-400 font-semibold text-sm">/{plan.period}</span>}
+                      {plan.price > 0 && plan.ctaType !== 'WHATSAPP' && <span className="text-slate-400 font-semibold text-sm">/{plan.period}</span>}
                     </div>
 
                     <ul className="mt-6 space-y-2.5 flex-1">
@@ -844,17 +848,28 @@ const LandingPage: React.FC = () => {
                       )}
                     </ul>
 
-                    <a
-                      href={`/suscripcion?plan=${plan.code}`}
-                      className={`mt-6 block text-center py-3 rounded-2xl font-bold text-sm transition-all ${isPopular
-                          ? 'bg-[#0EA5E9] text-white hover:bg-[#0369A1] shadow-lg shadow-[#0EA5E9]/25'
-                          : plan.price === 0
-                            ? 'bg-[#10B981] text-white hover:bg-emerald-600 shadow-lg shadow-[#10B981]/25'
-                            : 'bg-[#F8F9FC] text-slate-700 hover:bg-slate-100'
-                        }`}
-                    >
-                      {plan.price === 0 ? 'Comenzar Gratis' : `Elegir ${plan.name}`}
-                    </a>
+                    {plan.ctaType === 'WHATSAPP' ? (
+                      <a
+                        href={`https://wa.me/${plan.ctaWhatsapp?.number || ''}?text=${encodeURIComponent(plan.ctaWhatsapp?.message || '')}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="mt-6 block text-center py-3 rounded-2xl font-bold text-sm transition-all bg-[#25D366] text-white hover:bg-[#1ebe5d] shadow-lg shadow-[#25D366]/30 hover:-translate-y-0.5"
+                      >
+                        {plan.ctaWhatsapp?.buttonLabel || '💬 Hablar por WhatsApp'}
+                      </a>
+                    ) : (
+                      <a
+                        href={`/suscripcion?plan=${plan.code}`}
+                        className={`mt-6 block text-center py-3 rounded-2xl font-bold text-sm transition-all ${isPopular
+                            ? 'bg-[#0EA5E9] text-white hover:bg-[#0369A1] shadow-lg shadow-[#0EA5E9]/25'
+                            : plan.price === 0
+                              ? 'bg-[#10B981] text-white hover:bg-emerald-600 shadow-lg shadow-[#10B981]/25'
+                              : 'bg-[#F8F9FC] text-slate-700 hover:bg-slate-100'
+                          }`}
+                      >
+                        {plan.price === 0 ? 'Comenzar Gratis' : `Elegir ${plan.name}`}
+                      </a>
+                    )}
                   </div>
                 );
               })

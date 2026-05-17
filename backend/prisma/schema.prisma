@@ -377,6 +377,8 @@ model SubscriptionPlan {
   hasModuleControl    Boolean  @default(false)  // Permite que el ADMIN de empresa gestione módulos por usuario
   isActive            Boolean  @default(true)
   displayOrder        Int      @default(0)
+  ctaType             String?  // "NORMAL" | "WHATSAPP" - tipo de botón CTA en la landing
+  ctaWhatsapp         Json?    // { number, message, buttonLabel, priceLabel } si ctaType = "WHATSAPP"
   createdAt            DateTime @default(now())
   updatedAt            DateTime @updatedAt
 }

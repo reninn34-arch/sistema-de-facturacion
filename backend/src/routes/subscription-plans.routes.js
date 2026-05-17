@@ -228,7 +228,9 @@ router.post('/', jwtMiddleware, roleMiddleware(['SUPERADMIN']), async (req, res)
         hasPrioritySupport: hasPrioritySupport || false,
         hasAudit: hasAudit || false,
         isActive: isActive !== false,
-        displayOrder: parseInt(displayOrder) || 0
+        displayOrder: parseInt(displayOrder) || 0,
+        ctaType: req.body.ctaType || 'NORMAL',
+        ctaWhatsapp: req.body.ctaWhatsapp || null
       }
     });
 
@@ -281,7 +283,7 @@ router.put('/:id', jwtMiddleware, roleMiddleware(['SUPERADMIN']), async (req, re
         code: code ? code.toUpperCase() : existingPlan.code,
         name: name || existingPlan.name,
         description: description !== undefined ? description : existingPlan.description,
-        price: finalPrice, // Guardar el precio tal como lo ingresa el usuario
+        price: finalPrice,
         priceWithTax: finalPrice,
         period: period || existingPlan.period,
         durationDays: durationDays !== undefined ? parseInt(durationDays) : existingPlan.durationDays,
@@ -292,7 +294,9 @@ router.put('/:id', jwtMiddleware, roleMiddleware(['SUPERADMIN']), async (req, re
         hasPrioritySupport: hasPrioritySupport !== undefined ? hasPrioritySupport : existingPlan.hasPrioritySupport,
         hasAudit: hasAudit !== undefined ? hasAudit : existingPlan.hasAudit,
         isActive: isActive !== undefined ? isActive : existingPlan.isActive,
-        displayOrder: displayOrder !== undefined ? parseInt(displayOrder) : existingPlan.displayOrder
+        displayOrder: displayOrder !== undefined ? parseInt(displayOrder) : existingPlan.displayOrder,
+        ctaType: req.body.ctaType !== undefined ? req.body.ctaType : existingPlan.ctaType,
+        ctaWhatsapp: req.body.ctaWhatsapp !== undefined ? req.body.ctaWhatsapp : existingPlan.ctaWhatsapp,
       }
     });
 

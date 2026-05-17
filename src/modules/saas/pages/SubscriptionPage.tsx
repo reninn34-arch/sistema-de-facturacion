@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { PayPalScriptProvider, PayPalButtons } from "@paypal/react-paypal-js";
 import {
   CheckCircleIcon,
@@ -77,6 +77,8 @@ interface SubscriptionPlan {
   hasAIAssistant: boolean;
   hasPrioritySupport: boolean;
   isActive: boolean;
+  ctaType?: 'NORMAL' | 'WHATSAPP';
+  ctaWhatsapp?: { number: string; message: string; buttonLabel: string; priceLabel: string };
 }
 
 const PAYPAL_CLIENT_ID = import.meta.env.VITE_PAYPAL_CLIENT_ID || 'sb';
@@ -422,12 +424,16 @@ const SubscriptionPage: React.FC = () => {
                             {plan.name}
                           </h3>
                           <div className="flex items-baseline gap-1">
-                            <span className="text-slate-900 text-5xl font-extrabold tracking-tighter">
-                              {plan.price === 0 ? 'Gratis' : `$${plan.price.toFixed(2)}`}
+                            <span className={`text-5xl font-extrabold tracking-tighter ${plan.ctaType === 'WHATSAPP' ? 'text-amber-500' : 'text-slate-900'}`}>
+                              {plan.ctaType === 'WHATSAPP'
+                                ? (plan.ctaWhatsapp?.priceLabel || 'Precio a medida')
+                                : plan.price === 0 ? 'Gratis' : `$${plan.price.toFixed(2)}`}
                             </span>
-                            <span className="text-slate-400 text-lg font-semibold">
-                              /{plan.period}
-                            </span>
+                            {plan.price > 0 && plan.ctaType !== 'WHATSAPP' && (
+                              <span className="text-slate-400 text-lg font-semibold">
+                                /{plan.period}
+                              </span>
+                            )}
                           </div>
                           <p className={`text-sm mt-2 leading-relaxed font-medium ${isPopular ? 'text-[#0EA5E9]/80' : 'text-slate-500'}`}>
                             {plan.description}
@@ -445,17 +451,28 @@ const SubscriptionPage: React.FC = () => {
                             <p className="text-slate-400 text-xs font-medium">+{plan.features.length - 5} más características</p>
                           )}
                         </div>
-                        <button
-                          onClick={() => handlePlanSelect(plan.code)}
-                          disabled={!plan.isActive}
-                          className={`w-full flex items-center justify-center rounded-xl h-12 font-bold transition-all ${
-                            isPopular
-                              ? 'bg-[#0EA5E9] text-white hover:bg-[#0369A1] shadow-lg shadow-[#0EA5E9]/25 hover:-translate-y-0.5'
-                              : 'bg-[#F8F9FC] text-slate-700 hover:bg-slate-100'
-                          } ${!plan.isActive ? 'opacity-50 cursor-not-allowed' : ''}`}
-                        >
-                          {plan.isActive ? (isPopular ? 'Obtener Oferta' : 'Suscribirse Ahora') : 'No disponible'}
-                        </button>
+                        {plan.ctaType === 'WHATSAPP' ? (
+                          <a
+                            href={`https://wa.me/${plan.ctaWhatsapp?.number || ''}?text=${encodeURIComponent(plan.ctaWhatsapp?.message || '')}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="w-full flex items-center justify-center rounded-xl h-12 font-bold transition-all bg-[#25D366] text-white hover:bg-[#1ebe5d] shadow-lg shadow-[#25D366]/25 hover:-translate-y-0.5 text-center"
+                          >
+                            {plan.ctaWhatsapp?.buttonLabel || '💬 Hablar por WhatsApp'}
+                          </a>
+                        ) : (
+                          <button
+                            onClick={() => handlePlanSelect(plan.code)}
+                            disabled={!plan.isActive}
+                            className={`w-full flex items-center justify-center rounded-xl h-12 font-bold transition-all ${
+                              isPopular
+                                ? 'bg-[#0EA5E9] text-white hover:bg-[#0369A1] shadow-lg shadow-[#0EA5E9]/25 hover:-translate-y-0.5'
+                                : 'bg-[#F8F9FC] text-slate-700 hover:bg-slate-100'
+                            } ${!plan.isActive ? 'opacity-50 cursor-not-allowed' : ''}`}
+                          >
+                            {plan.isActive ? (isPopular ? 'Obtener Oferta' : 'Suscribirse Ahora') : 'No disponible'}
+                          </button>
+                        )}
                       </div>
                     </div>
                     );
