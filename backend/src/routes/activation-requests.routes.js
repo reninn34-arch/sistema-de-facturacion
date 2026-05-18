@@ -104,7 +104,7 @@ router.post('/', jwtMiddleware, async (req, res) => {
 });
 
 // PUT /api/activation-requests/:id/upload-proof - Subir comprobante de pago
-router.put('/:id/upload-proof', jwtMiddleware, async (req, res) => {
+router.put('/:id/upload-proof', async (req, res) => {
   try {
     const { id } = req.params;
     const { paymentProofUrl, paymentProofName } = req.body;

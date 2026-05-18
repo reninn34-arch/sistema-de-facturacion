@@ -293,30 +293,17 @@ const authController = {
       return { business, user, activationRequestId };
     });
 
-    // Generar token autom�ticamente
-    const token = jwt.sign(
-      { 
-        id: result.user.id, 
-        email: result.user.email, 
-        role: result.user.role,
-        businessId: result.business.id 
-      },
-      JWT_SECRET,
-      { expiresIn: '4h' }
-    );
-
     const { password: _, ...userWithoutPass } = result.user;
 
-    // Mensaje diferente seg�n el m�todo de pago
+    // Mensaje diferente segn el mtodo de pago
     const message = isFreePlan
-      ? 'Registro exitoso. Su cuenta gratuita est� activa.'
+      ? 'Registro exitoso. Su cuenta gratuita est activa.'
       : paymentMethod === 'TRANSFER' 
-        ? 'Registro exitoso. Su cuenta est� pendiente de aprobaci�n. Recibir� una notificaci�n cuando el administrador verifique su pago.'
+        ? 'Registro exitoso. Su cuenta est pendiente de aprobacin. Recibir una notificacin cuando el administrador verifique su pago.'
         : 'Registro exitoso';
 
     res.json({ 
       success: true, 
-      token,
       user: { ...userWithoutPass, business: result.business },
       message,
       pendingApproval: !isFreePlan && paymentMethod === 'TRANSFER',

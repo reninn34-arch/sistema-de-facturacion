@@ -1,4 +1,4 @@
-﻿import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   EnvelopeIcon,
   LockClosedIcon,
@@ -27,6 +27,19 @@ const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
     const [view, setView] = useState<'login' | 'forgot'>('login');
     const [resetEmail, setResetEmail] = useState('');
     const [resetMessage, setResetMessage] = useState('');
+
+    useEffect(() => {
+        const tempEmail = sessionStorage.getItem('tempLoginEmail');
+        const tempPassword = sessionStorage.getItem('tempLoginPassword');
+        if (tempEmail) {
+            setEmail(tempEmail);
+            sessionStorage.removeItem('tempLoginEmail');
+        }
+        if (tempPassword) {
+            setPassword(tempPassword);
+            sessionStorage.removeItem('tempLoginPassword');
+        }
+    }, []);
 
     const handleForgotPassword = async (e: React.FormEvent) => {
         e.preventDefault();

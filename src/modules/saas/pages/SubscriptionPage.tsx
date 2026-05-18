@@ -283,12 +283,18 @@ const SubscriptionPage: React.FC = () => {
       const data = await response.json();
 
       if (data.success) {
-        localStorage.setItem('adminToken', data.token);
-        localStorage.setItem('adminUser', JSON.stringify(data.user));
-
         if (paymentMethod === 'PAYPAL' || paymentMethod === 'FREE') {
-          showNotify(paymentMethod === 'FREE' ? 'Cuenta gratuita activada! Bienvenido.' : 'Cuenta creada exitosamente! Bienvenido.', 'success');
-          setTimeout(() => { window.location.href = '/'; }, 2000);
+          // Guardar credenciales temporales en sessionStorage de forma segura para prellenar en el Login
+          sessionStorage.setItem('tempLoginEmail', formData.email);
+          sessionStorage.setItem('tempLoginPassword', formData.password);
+
+          showNotify(
+            paymentMethod === 'FREE' 
+              ? '¡Cuenta gratuita creada exitosamente! Redirigiendo al inicio de sesión...' 
+              : '¡Cuenta creada exitosamente! Redirigiendo al inicio de sesión...', 
+            'success'
+          );
+          setTimeout(() => { window.location.href = '/login'; }, 2000);
         }
         return data;
       } else {
@@ -325,13 +331,12 @@ const SubscriptionPage: React.FC = () => {
         });
 
         const base64 = await base64Promise;
-        const token = localStorage.getItem('adminToken');
 
+        // No enviamos token de autenticación porque es una solicitud pública de registro pendiente
         await fetch(`${API_URL}/api/activation-requests/${activationId}/upload-proof`, {
           method: 'PUT',
           headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`
+            'Content-Type': 'application/json'
           },
           body: JSON.stringify({
             paymentProofUrl: base64,
@@ -350,8 +355,8 @@ const SubscriptionPage: React.FC = () => {
     }
 
     setLoading(false);
-    showNotify('Registro exitoso. Su cuenta está pendiente de aprobación.', 'info');
-    setTimeout(() => { window.location.href = '/'; }, 2500);
+    showNotify('Registro exitoso. Su cuenta está pendiente de aprobación por transferencia.', 'info');
+    setTimeout(() => { window.location.href = '/login'; }, 2500);
   };
 
   return (

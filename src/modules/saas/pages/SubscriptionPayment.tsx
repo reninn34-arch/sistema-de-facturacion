@@ -655,7 +655,10 @@ const PagoInterno: React.FC<PagoInternoProps> = ({ businessInfo, isExpired = fal
                       clientId: PAYPAL_CLIENT_ID, 
                       currency: "USD",
                       intent: "capture",
-                      debug: IS_SANDBOX
+                      debug: IS_SANDBOX,
+                      locale: "es_EC",
+                      buyerCountry: "EC",
+                      "enable-funding": "card"
                     }}
                   >
                     <PayPalButtons
@@ -663,6 +666,8 @@ const PagoInterno: React.FC<PagoInternoProps> = ({ businessInfo, isExpired = fal
                       createOrder={(data, actions) => {
                         return actions.order.create({
                           intent: "CAPTURE",
+                          payer: { address: { country_code: "EC" } },
+                          application_context: { shipping_preference: "NO_SHIPPING", landing_page: "BILLING" },
                           purchase_units: [{
                             amount: { currency_code: "USD", value: currentPlan.price.toFixed(2) },
                             description: `Suscripción Azul - ${currentPlan.name}`
