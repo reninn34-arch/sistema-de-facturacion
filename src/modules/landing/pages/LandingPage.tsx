@@ -209,6 +209,7 @@ const LandingPage: React.FC = () => {
   const [statsVisible, setStatsVisible] = useState(false);
   const [landingContent, setLandingContent] = useState<LandingContent>(getDefaultContent());
   const landingContentRef = useRef(landingContent);
+  const [landingLogo, setLandingLogo] = useState<string | null>(null);
   const ctaSectionRef = useRef<HTMLDivElement>(null);
   const statsRef = useRef<HTMLDivElement>(null);
   const [countNegocios, setCountNegocios] = useState(0);
@@ -227,6 +228,14 @@ const LandingPage: React.FC = () => {
         }
       })
       .catch(() => { });
+  }, []);
+
+  // Cargar logo de la landing
+  useEffect(() => {
+    const img = new Image();
+    img.onload = () => setLandingLogo('/api/settings/landing-logo');
+    img.onerror = () => {};
+    img.src = '/api/settings/landing-logo';
   }, []);
 
   useEffect(() => {
@@ -352,17 +361,23 @@ const LandingPage: React.FC = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16 lg:h-[72px]">
             <div className="flex items-center gap-2.5">
-              <div className={`w-10 h-10 rounded-xl flex items-center justify-center shadow-lg transition-all duration-300 ${scrolled
-                  ? 'bg-[#0EA5E9] shadow-[#0EA5E9]/30'
-                  : 'bg-white/20 shadow-white/10 lg:bg-[#0EA5E9] lg:shadow-[#0EA5E9]/30'
-                }`}>
-                <DocumentTextIcon className="w-5 h-5 text-white" />
-              </div>
-              <span className={`text-xl font-extrabold tracking-tight transition-colors duration-300 ${scrolled ? 'text-slate-900' : 'text-white lg:text-slate-900'
-                }`}>
-                Azul <span className={`transition-colors duration-300 ${scrolled ? 'text-[#0EA5E9]' : 'text-white/90 lg:text-[#0EA5E9]'
-                  }`}>PRO</span>
-              </span>
+              {landingLogo ? (
+                <img src={landingLogo} className={`h-13 lg:h-16 w-auto max-w-[220px] object-contain object-left transition-all duration-300 ${scrolled ? '' : 'brightness-0 invert lg:brightness-100 lg:invert-0'}`} alt="Azul PRO" />
+              ) : (
+                <>
+                  <div className={`w-10 h-10 rounded-xl flex items-center justify-center shadow-lg transition-all duration-300 ${scrolled
+                      ? 'bg-[#0EA5E9] shadow-[#0EA5E9]/30'
+                      : 'bg-white/20 shadow-white/10 lg:bg-[#0EA5E9] lg:shadow-[#0EA5E9]/30'
+                    }`}>
+                    <DocumentTextIcon className="w-5 h-5 text-white" />
+                  </div>
+                  <span className={`text-xl font-extrabold tracking-tight transition-colors duration-300 ${scrolled ? 'text-slate-900' : 'text-white lg:text-slate-900'
+                    }`}>
+                    Azul <span className={`transition-colors duration-300 ${scrolled ? 'text-[#0EA5E9]' : 'text-white/90 lg:text-[#0EA5E9]'
+                      }`}>PRO</span>
+                  </span>
+                </>
+              )}
             </div>
 
             <div className="hidden lg:flex items-center gap-8">
@@ -468,8 +483,12 @@ const LandingPage: React.FC = () => {
             <div className="relative hidden lg:block">
               <div className="relative z-10 bg-white rounded-3xl shadow-2xl p-6 border border-slate-100">
                 <div className="flex items-center gap-3 mb-5">
-                  <div className="w-10 h-10 bg-[#0EA5E9] rounded-xl flex items-center justify-center">
-                    <DocumentTextIcon className="w-5 h-5 text-white" />
+                  <div className="w-10 h-10 bg-slate-50 border border-slate-100 rounded-xl flex items-center justify-center overflow-hidden">
+                    {landingLogo ? (
+                      <img src={landingLogo} className="w-full h-full object-contain p-1.5" alt="Logo" />
+                    ) : (
+                      <DocumentTextIcon className="w-5 h-5 text-white" />
+                    )}
                   </div>
                   <div>
                     <p className="text-sm font-extrabold text-slate-800">Panel de Facturación</p>
@@ -963,12 +982,18 @@ const LandingPage: React.FC = () => {
           <div className="grid md:grid-cols-2 lg:grid-cols-5 gap-8 mb-12">
             <div className="lg:col-span-2">
               <div className="flex items-center gap-2.5 mb-4">
-                <div className="w-10 h-10 bg-[#0EA5E9] rounded-xl flex items-center justify-center shadow-lg shadow-[#0EA5E9]/20">
-                  <DocumentTextIcon className="w-5 h-5 text-white" />
-                </div>
-                <span className="text-xl font-extrabold text-white tracking-tight">
-                  Azul <span className="text-[#0EA5E9]">PRO</span>
-                </span>
+                {landingLogo ? (
+                  <img src={landingLogo} className="h-14 w-auto max-w-[220px] object-contain object-left brightness-0 invert" alt="Azul PRO" />
+                ) : (
+                  <>
+                    <div className="w-10 h-10 bg-[#0EA5E9] rounded-xl flex items-center justify-center shadow-lg shadow-[#0EA5E9]/20 overflow-hidden">
+                      <DocumentTextIcon className="w-5 h-5 text-white" />
+                    </div>
+                    <span className="text-xl font-extrabold text-white tracking-tight">
+                      Azul <span className="text-[#0EA5E9]">PRO</span>
+                    </span>
+                  </>
+                )}
               </div>
               <p className="text-sm leading-relaxed max-w-sm mb-6">
                 {landingContent.footer.tagline}

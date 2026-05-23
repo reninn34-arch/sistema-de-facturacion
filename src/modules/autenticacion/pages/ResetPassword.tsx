@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   LockClosedIcon,
   EyeIcon,
@@ -22,6 +22,14 @@ const ResetPassword: React.FC<{ type?: 'admin' | 'client' }> = ({ type = 'admin'
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [loading, setLoading] = useState(false);
+  const [landingLogo, setLandingLogo] = useState<string | null>(null);
+
+  useEffect(() => {
+    const img = new Image();
+    img.onload = () => setLandingLogo('/api/settings/landing-logo');
+    img.onerror = () => {};
+    img.src = '/api/settings/landing-logo';
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -80,14 +88,18 @@ const ResetPassword: React.FC<{ type?: 'admin' | 'client' }> = ({ type = 'admin'
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-sky-50 to-slate-100 px-4 py-12">
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
-          <div className="flex items-center justify-center gap-2 mb-3">
-            <div className="w-10 h-10 bg-[#0EA5E9] rounded-xl flex items-center justify-center">
-              <DocumentTextIcon className="w-6 h-6 text-white" />
+          {landingLogo ? (
+            <img src={landingLogo} className="h-14 w-auto max-w-[220px] object-contain mx-auto mb-3" alt="Azul PRO" />
+          ) : (
+            <div className="flex items-center justify-center gap-2 mb-3">
+              <div className="w-10 h-10 bg-[#0EA5E9] rounded-xl flex items-center justify-center">
+                <DocumentTextIcon className="w-6 h-6 text-white" />
+              </div>
+              <span className="text-2xl font-extrabold text-slate-900 tracking-tight">
+                Azul <span className="text-[#0EA5E9]">PRO</span>
+              </span>
             </div>
-            <span className="text-2xl font-extrabold text-slate-900 tracking-tight">
-              Azul <span className="text-[#0EA5E9]">PRO</span>
-            </span>
-          </div>
+          )}
         </div>
 
         <div className="bg-white rounded-3xl border border-slate-200 shadow-xl shadow-sky-100/50 p-8">

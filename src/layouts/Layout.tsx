@@ -357,15 +357,11 @@ const Layout: React.FC<LayoutProps> = ({
       `}>
         <div className="p-4 sm:p-6 border-b border-slate-200 dark:border-slate-700/50 flex justify-between items-center">
           <div className="min-w-0 flex-1">
-            <div className="flex items-center gap-2">
-              <div className="w-8 h-8 bg-sky-500 rounded-lg flex items-center justify-center shadow-lg shadow-sky-500/20">
-                <DocumentTextIcon className="w-5 h-5 text-white" />
-              </div>
-              <h1 className="text-lg sm:text-xl font-bold tracking-tight text-slate-800 dark:text-white">
-                Azul <span className="text-sky-500 dark:text-sky-400">PRO</span>
-              </h1>
+            <div className="py-2">
+              <img src="/logo.png" className="h-16 w-auto max-w-full object-contain object-left dark:brightness-0 dark:invert" alt="Azul PRO"
+                onError={(e) => { const el = e.currentTarget; el.style.display = 'none'; }} />
+              <p className="text-[9px] text-slate-400 dark:text-slate-500 mt-1.5 uppercase font-bold tracking-widest">Enterprise Edition</p>
             </div>
-            <p className="text-[10px] text-slate-400 dark:text-slate-500 mt-1.5 uppercase font-bold tracking-widest">Enterprise Edition</p>
           </div>
           <button onClick={() => setIsSidebarOpen(false)}
             className="lg:hidden text-slate-400 hover:text-slate-700 dark:hover:text-white p-2 min-w-[44px] min-h-[44px] flex items-center justify-center">
