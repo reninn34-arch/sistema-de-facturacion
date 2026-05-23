@@ -205,14 +205,18 @@ const Layout: React.FC<LayoutProps> = ({
       items: [
         { id: 'saas-admin', label: 'Panel SaaS', roles: ['SUPERADMIN'] },
         { id: 'dashboard', label: 'Dashboard', roles: ['SUPERADMIN'] },
+        { id: '_div_gestion', label: '──── Gestión ────', roles: ['SUPERADMIN'] },
         { id: 'activation-requests', label: 'Activaciones', roles: ['SUPERADMIN'] },
         { id: 'subscription-plans', label: 'Planes', roles: ['SUPERADMIN'] },
+        { id: '_div_contenido', label: '──── Contenido ────', roles: ['SUPERADMIN'] },
+        { id: 'landing-editor', label: 'Landing Page', roles: ['SUPERADMIN'] },
+        { id: 'blog-editor', label: 'Blog', roles: ['SUPERADMIN'] },
+        { id: '_div_financiero', label: '──── Financiero ────', roles: ['SUPERADMIN'] },
         { id: 'subscription-invoices', label: 'Facturación SaaS', roles: ['SUPERADMIN'] },
         { id: 'saas-credit-notes', label: 'NC SaaS', roles: ['SUPERADMIN'] },
         { id: 'subscription-reports', label: 'Libro Ventas SaaS', roles: ['SUPERADMIN'] },
+        { id: '_div_fidelidad', label: '──── Fidelidad ────', roles: ['SUPERADMIN'] },
         { id: 'points-admin', label: 'Puntos SaaS', roles: ['SUPERADMIN'] },
-        { id: 'landing-editor', label: 'Landing Page', roles: ['SUPERADMIN'] },
-        { id: 'blog-editor', label: 'Blog', roles: ['SUPERADMIN'] },
       ]
     },
     {
@@ -430,10 +434,13 @@ const Layout: React.FC<LayoutProps> = ({
 
                 <div className={`overflow-hidden transition-all duration-300 ease-in-out ${isCollapsed ? 'max-h-0 opacity-0 pointer-events-none' : 'max-h-[2000px] opacity-100'}`}>
                   <div className="space-y-0.5 mt-1">
-                    {visibleItems.map(item => (
-                      <button
-                        key={item.id}
-                        onClick={() => handleTabClick(item.id)}
+                      {visibleItems.map(item => (
+                        item.id.startsWith('_div_') ? (
+                          <div key={item.id} className="px-4 py-1.5 text-[9px] font-black text-slate-300 dark:text-slate-600 uppercase tracking-[0.2em] select-none pointer-events-none">{item.label.replace(/─/g, '')}</div>
+                        ) : (
+                        <button
+                          key={item.id}
+                          onClick={() => handleTabClick(item.id)}
                         className={`w-full flex items-center space-x-3 px-4 py-2.5 rounded-xl transition-all duration-200 min-h-[44px] text-left border-l-4 group ${
                           activeTab === item.id
                             ? 'bg-sky-50 border-sky-500 text-sky-700 font-bold'
@@ -447,7 +454,8 @@ const Layout: React.FC<LayoutProps> = ({
                             {pendingActivations}
                           </span>
                         )}
-                      </button>
+                       </button>
+                        )
                     ))}
                   </div>
                 </div>
@@ -490,7 +498,15 @@ const Layout: React.FC<LayoutProps> = ({
               <Bars3Icon className="w-6 h-6" />
             </button>
             <h2 className="text-[10px] sm:text-xs lg:text-sm font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500 truncate print:hidden max-w-[120px] sm:max-w-[200px] lg:max-w-none">
-              {visibleGroups.flatMap(g => g.items).find(i => i.id === activeTab)?.label || 'Dashboard'}
+              {(() => {
+                const activeItem = visibleGroups.flatMap(g => g.items).find(i => i.id === activeTab);
+                if (!activeItem) return activeTab === 'dashboard' ? 'Dashboard' : '';
+                const activeGroup = visibleGroups.find(g => g.items.some(i => i.id === activeTab));
+                if (activeGroup && !activeItem.id.startsWith('_div_')) {
+                  return <>{activeGroup.label} <span className="text-sky-500 dark:text-sky-400 mx-1">›</span> {activeItem.label}</>;
+                }
+                return activeItem.label;
+              })()}
             </h2>
           </div>
 
