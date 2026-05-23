@@ -1,10 +1,11 @@
-﻿
+
 import React, { useState, useRef, useEffect, useMemo } from 'react';
-import { Client, Product, InvoiceItem, SriStatus, DocumentType, Document, PaymentStatus, BusinessInfo, NotificationSettings, EmissionPoint } from '../../../types/types';
+import { Client, Product, InvoiceItem, SriStatus, DocumentType, Document, PaymentStatus, BusinessInfo, NotificationSettings, EmissionPoint, ReimbursementDetail, ExportDetails } from '../../../types/types';
 import { SRI_PAYMENT_METHODS } from '../../../constants';
 import { generateAccessKey } from '../../../utils/sri';
 import { buildInvoiceXml, authorizeWithSRI } from '../../../services/sriService';
 import { getLocalDateISO } from '../../../utils/date';
+import { validateEcuadorianId } from '../../../utils/validation';
 import RideViewer from './RideViewer';
 import { DocumentTextIcon, PrinterIcon, EnvelopeIcon, MagnifyingGlassIcon, CubeIcon, Cog6ToothIcon, ShoppingCartIcon, BuildingOffice2Icon } from '@heroicons/react/24/outline';
 import { jsPDF } from 'jspdf';
@@ -12,6 +13,8 @@ import autoTable from 'jspdf-autotable';
 
 interface InvoiceFormProps {
   clients: Client[];
+  setClients?: React.Dispatch<React.SetStateAction<Client[]>>;
+  isDemoMode?: boolean;
   products: Product[];
   businessInfo: BusinessInfo;
   signatureFile: File | null;
@@ -21,12 +24,17 @@ interface InvoiceFormProps {
   onAuthorize: (doc: Document, items: InvoiceItem[]) => void;
   emissionPoints?: EmissionPoint[];
   selectedEmissionPoint?: EmissionPoint | null;
-  onSelectEmissionPoint?: (point: EmissionPoint) => void;
+  onSelectEmissionPoint?: (point: EmissionPoint | null) => void;
 }
 
-const InvoiceForm: React.FC<InvoiceFormProps> = ({ clients, products, businessInfo, signatureFile, signaturePassword, notificationSettings, onNotify, onAuthorize, emissionPoints, selectedEmissionPoint, onSelectEmissionPoint }) => {
+const InvoiceForm: React.FC<InvoiceFormProps> = ({ clients, setClients, isDemoMode, products, businessInfo, signatureFile, signaturePassword, notificationSettings, onNotify, onAuthorize, emissionPoints, selectedEmissionPoint, onSelectEmissionPoint }) => {
   // Detectar modo oscuro
   const isDarkMode = (businessInfo as any)?.features?.isDarkMode ?? false;
+  const API_URL = import.meta.env.VITE_BACKEND_URL || '';
+
+  const [isNewClient, setIsNewClient] = useState(false);
+  const [newClientData, setNewClientData] = useState({ ruc: '', name: '', email: '', phone: '', address: '' });
+
   const [selectedClient, setSelectedClient] = useState<Client | null>(null);
   const [paymentMethod, setPaymentMethod] = useState('01');
   const [priceTier, setPriceTier] = useState<'price' | 'wholesalePrice' | 'distributorPrice'>('price');
@@ -37,6 +45,36 @@ const InvoiceForm: React.FC<InvoiceFormProps> = ({ clients, products, businessIn
   const [authLogs, setAuthLogs] = useState<string[]>([]);
   const [showProductDropdown, setShowProductDropdown] = useState(false);
   const [showPreview, setShowPreview] = useState(false);
+
+  const [additionalInfo, setAdditionalInfo] = useState('');
+  const [tip, setTip] = useState(0);
+  const [customEmail, setCustomEmail] = useState('');
+  const [customPhone, setCustomPhone] = useState('');
+  const [invoiceType, setInvoiceType] = useState('Factura Simple');
+  const [discountType, setDiscountType] = useState<'TOTAL' | 'PRODUCT'>('TOTAL');
+  const [globalDiscount, setGlobalDiscount] = useState(0);
+  const [reimbursementTab, setReimbursementTab] = useState<'PRODUCTO' | 'REEMBOLSO'>('PRODUCTO');
+  const [reimbursements, setReimbursements] = useState<ReimbursementDetail[]>([]);
+  const [showReimbursementForm, setShowReimbursementForm] = useState(false);
+  const [reimbursementForm, setReimbursementForm] = useState<Partial<ReimbursementDetail>>({
+    tipoIdentificacionProveedorReembolso: '04',
+    tipoProveedorReembolso: '01',
+    codDocReembolso: '01',
+    baseImponibleSinIva: 0,
+    baseImponibleConIva: 0,
+    impuestoReembolso: 0
+  });
+  const [exportDetails, setExportDetails] = useState({
+    comercioExterior: 'EXPORTADOR',
+    lugarIncoterm: '',
+    puertoEmbarque: '',
+    puertoDestino: '',
+    incoTermTotalSinImpuestos: '',
+    incoTermFactura: '',
+    paisOrigen: 'ECUADOR',
+    paisAdquisicion: '',
+    paisDestino: ''
+  });
 
   const [lastDocument, setLastDocument] = useState<Document | null>(null);
   const [showRide, setShowRide] = useState(false);
@@ -553,10 +591,17 @@ const InvoiceForm: React.FC<InvoiceFormProps> = ({ clients, products, businessIn
 
   const totals = useMemo(() => {
     let sub15 = 0, sub0 = 0, desc = 0, tax = 0;
+    const totalBase = items.reduce((acc, i) => acc + (i.quantity * i.unitPrice), 0);
+
     items.forEach(i => {
-      const base = i.quantity * i.unitPrice - (i.discount || 0);
+      let itemDiscount = i.discount || 0;
+      if (invoiceType === 'Factura Básica' && discountType === 'TOTAL' && globalDiscount > 0 && totalBase > 0) {
+        const itemBase = i.quantity * i.unitPrice;
+        itemDiscount = (itemBase / totalBase) * globalDiscount;
+      }
+      const base = i.quantity * i.unitPrice - itemDiscount;
       const net = Math.max(0, base);
-      desc += (i.discount || 0);
+      desc += itemDiscount;
       if (i.taxRate > 0) {
         sub15 += net;
         tax += (net * (i.taxRate / 100));
@@ -565,7 +610,7 @@ const InvoiceForm: React.FC<InvoiceFormProps> = ({ clients, products, businessIn
       }
     });
     return { sub15, sub0, desc, tax, total: sub15 + sub0 + tax };
-  }, [items]);
+  }, [items, invoiceType, discountType, globalDiscount]);
 
   const addItem = (product: Product) => {
     const unitPrice = product[priceTier] || product.price;
@@ -598,6 +643,61 @@ const InvoiceForm: React.FC<InvoiceFormProps> = ({ clients, products, businessIn
       }
       return i;
     }));
+  };
+
+  const addReimbursement = () => {
+    if (reimbursementForm.identificacionProveedorReembolso && reimbursementForm.codDocReembolso) {
+      setReimbursements([...reimbursements, reimbursementForm as ReimbursementDetail]);
+      setShowReimbursementForm(false);
+      setReimbursementForm({
+        tipoIdentificacionProveedorReembolso: '04',
+        tipoProveedorReembolso: '01',
+        codDocReembolso: '01',
+        baseImponibleSinIva: 0,
+        baseImponibleConIva: 0,
+        impuestoReembolso: 0
+      });
+    }
+  };
+
+  const handleIdLookup = () => {
+    const ruc = newClientData.ruc.trim();
+    if (ruc.length !== 10 && ruc.length !== 13) return;
+
+    // 1. Buscar en locales primero
+    const matched = clients.find(c => c.ruc === ruc);
+    if (matched) {
+      setNewClientData({
+        ruc: matched.ruc,
+        name: matched.name,
+        email: matched.email || '',
+        phone: matched.phone || '',
+        address: matched.address || ''
+      });
+      onNotify(`Cliente encontrado en base de datos: ${matched.name}`, 'info');
+      return;
+    }
+
+    // 2. Resolvedor simulado si no existe y Razón Social está vacía
+    if (!newClientData.name) {
+      const nombres = ['María José', 'Juan Carlos', 'Luis Alberto', 'Ana Belén', 'Carlos Alfredo', 'Diana Carolina', 'José Vicente', 'Sandra Elizabeth'];
+      const apellidos = ['Vallejo', 'Mendoza', 'Pazmiño', 'Chávez', 'Cárdenas', 'Guevara', 'Zambrano', 'Rodríguez'];
+      
+      const seed = parseInt(ruc.substring(3, 8)) || 0;
+      const nombreElegido = nombres[seed % nombres.length];
+      const apellidoElegido = apellidos[(seed + 3) % apellidos.length];
+      const apellido2Elegido = apellidos[(seed + 7) % apellidos.length];
+      
+      const nameMock = `${nombreElegido} ${apellidoElegido} ${apellido2Elegido}`.toUpperCase();
+      
+      setNewClientData(prev => ({
+        ...prev,
+        name: nameMock,
+        address: prev.address || 'Quito, Ecuador',
+        email: prev.email || `${nombreElegido.toLowerCase().replace(' ', '.')}.${apellidoElegido.toLowerCase()}@ejemplo.com`
+      }));
+      onNotify(`Identificación resuelta en registro (Simulado): ${nameMock}`, 'info');
+    }
   };
 
   const handleProcess = async () => {
@@ -636,22 +736,120 @@ const InvoiceForm: React.FC<InvoiceFormProps> = ({ clients, products, businessIn
       '1'
     );
 
+    let clientToUse: Client | null = null;
+
+    if (isNewClient) {
+      if (!newClientData.ruc || !newClientData.name) {
+        onNotify("Identificación y Razón Social son obligatorios para el nuevo cliente", "error");
+        setIsSubmitting(false);
+        setAuthStep('');
+        return;
+      }
+
+      if ((newClientData.ruc.length === 10 || newClientData.ruc.length === 13) && !validateEcuadorianId(newClientData.ruc) && newClientData.ruc !== '9999999999999') {
+        onNotify("El RUC/Cédula del nuevo cliente no es válido para Ecuador", "error");
+        setIsSubmitting(false);
+        setAuthStep('');
+        return;
+      }
+
+      // Buscar si el cliente ya existe por RUC
+      const existing = clients.find(c => c.ruc === newClientData.ruc);
+      if (existing) {
+        onNotify(`Se encontró un cliente existente con la identificación ${newClientData.ruc}. Se usará ese cliente.`);
+        clientToUse = existing;
+      } else {
+        // Registrar cliente
+        if (isDemoMode) {
+          const newClientObj: Client = {
+            id: `demo-${Date.now()}`,
+            ruc: newClientData.ruc,
+            name: newClientData.name,
+            email: newClientData.email || '',
+            phone: newClientData.phone || '',
+            address: newClientData.address || '',
+            type: 'CLIENTE'
+          };
+          if (setClients) {
+            setClients(prev => [newClientObj, ...prev]);
+          }
+          clientToUse = newClientObj;
+          onNotify("Cliente guardado automáticamente (Modo Demo)");
+        } else {
+          try {
+            const token = localStorage.getItem('adminToken');
+            const response = await fetch(`${API_URL}/api/clients`, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+              },
+              body: JSON.stringify({
+                ruc: newClientData.ruc,
+                name: newClientData.name,
+                email: newClientData.email || '',
+                phone: newClientData.phone || '',
+                address: newClientData.address || '',
+                type: 'CLIENTE'
+              })
+            });
+            if (!response.ok) {
+              const err = await response.json().catch(() => ({}));
+              throw new Error(err.message || err.error || 'Error al guardar el cliente');
+            }
+            const savedClient = await response.json();
+            if (setClients) {
+              setClients(prev => [savedClient, ...prev]);
+            }
+            clientToUse = savedClient;
+            onNotify("Cliente guardado automáticamente");
+          } catch (error: any) {
+            onNotify(error.message || "Error al registrar cliente", "error");
+            setIsSubmitting(false);
+            setAuthStep('');
+            return;
+          }
+        }
+      }
+    } else {
+      clientToUse = selectedClient;
+    }
+
+    const finalEmail = customEmail || clientToUse?.email || '';
+    const finalPhone = customPhone || clientToUse?.phone || '';
+
+    let finalItems = [...items];
+    if (invoiceType === 'Factura Básica' && discountType === 'TOTAL' && globalDiscount > 0) {
+       const totalBase = items.reduce((acc, i) => acc + (i.quantity * i.unitPrice), 0);
+       if (totalBase > 0) {
+          finalItems = items.map(i => {
+             const proportion = (i.quantity * i.unitPrice) / totalBase;
+             return { ...i, discount: proportion * globalDiscount };
+          });
+       }
+    }
+
     const doc: Document = {
       id: Math.random().toString(36).substr(2, 9),
       type: isProforma ? DocumentType.PROFORMA : DocumentType.INVOICE,
       number: `${estabCode}-${emiCode}-${sequential}`,
       accessKey: accessKey,
       issueDate: getLocalDateISO(),
-      entityName: selectedClient?.name || 'CONSUMIDOR FINAL',
-      entityRuc: selectedClient?.ruc || '9999999999999',
-      entityEmail: selectedClient?.email || '',
-      entityPhone: selectedClient?.phone || '',
-      entityAddress: selectedClient?.address || '',
-      total: totals.total,
+      entityName: clientToUse?.name || 'CONSUMIDOR FINAL',
+      entityRuc: clientToUse?.ruc || '9999999999999',
+      entityEmail: finalEmail,
+      entityPhone: finalPhone,
+      entityAddress: clientToUse?.address || '',
+      total: totals.total + tip,
+      tip: tip,
+      additionalInfo: additionalInfo || undefined,
+      exportDetails: invoiceType === 'Factura Exportación' ? exportDetails : undefined,
+      isReimbursement: invoiceType === 'Factura Reembolso',
+      reimbursements: invoiceType === 'Factura Reembolso' ? reimbursements : undefined,
       status: isProforma ? SriStatus.DRAFT : SriStatus.PENDING,
       paymentStatus: PaymentStatus.PENDING,
       paymentMethod,
-      items: [...items]
+      items: finalItems
     };
 
     if (isProforma) {
@@ -659,6 +857,8 @@ const InvoiceForm: React.FC<InvoiceFormProps> = ({ clients, products, businessIn
       onNotify('Proforma generada exitosamente. Puede convertirla a factura cuando desee.');
       setItems([]);
       setSelectedClient(null);
+      setNewClientData({ ruc: '', name: '', email: '', phone: '', address: '' });
+      setIsNewClient(false);
       setIsProforma(false);
       setIsSubmitting(false);
       setAuthStep('');
@@ -696,6 +896,8 @@ const InvoiceForm: React.FC<InvoiceFormProps> = ({ clients, products, businessIn
 
       setItems([]);
       setSelectedClient(null);
+      setNewClientData({ ruc: '', name: '', email: '', phone: '', address: '' });
+      setIsNewClient(false);
     } else if (result.status === SriStatus.REJECTED) {
       onNotify(result.message, 'error');
     } else {
@@ -761,42 +963,324 @@ const InvoiceForm: React.FC<InvoiceFormProps> = ({ clients, products, businessIn
 
         {!lastDocument && (
           <>
-            <div className={`${isDarkMode ? 'bg-slate-800 border-slate-700' : 'bg-white border-slate-100'} p-4 sm:p-6 lg:p-8 rounded-[2rem] lg:rounded-[2.5rem] shadow-sm flex flex-col md:flex-row gap-4 sm:gap-6 items-stretch md:items-end`}>
-              <div className="flex-1 space-y-2">
-                <label className={`text-[10px] font-black uppercase tracking-widest ${isDarkMode ? 'text-slate-500' : 'text-slate-400'} px-1 block`}>Cliente Receptor</label>
-                <select className={`w-full ${isDarkMode ? 'bg-slate-700 text-white border-slate-600' : 'bg-slate-50'} p-3 sm:p-4 rounded-2xl font-bold outline-none border-2 border-transparent focus:border-sky-500 transition-all text-sm min-h-[48px]`} onChange={e => setSelectedClient(clients.find(c => c.id === e.target.value) || null)} value={selectedClient?.id || ''}>
-                  <option value="">Consumidor Final (9999999999999)</option>
-                  {(Array.isArray(clients) ? clients : []).map(c => <option key={c.id} value={c.id}>{c.name} ({c.ruc})</option>)}
-                </select>
-              </div>
-              {(emissionPoints && emissionPoints.length > 1) && (
-                <div className="md:w-48 space-y-2">
-                  <label className={`text-[10px] font-black uppercase tracking-widest ${isDarkMode ? 'text-slate-500' : 'text-slate-400'} px-1 block`}>Pto. Emisión</label>
-                  <select
-                    className={`w-full ${isDarkMode ? 'bg-slate-700 text-white border-slate-600' : 'bg-slate-50'} p-3 sm:p-4 rounded-2xl font-bold outline-none border-2 border-transparent focus:border-sky-500 transition-all text-xs min-h-[48px]`}
-                    value={selectedEmissionPoint?.id || ''}
-                    onChange={e => {
-                      const ep = emissionPoints.find(p => p.id === e.target.value);
-                      if (ep && onSelectEmissionPoint) onSelectEmissionPoint(ep);
-                    }}
-                  >
-                    {emissionPoints.map(ep => (
-                      <option key={ep.id} value={ep.id}>{ep.establishmentCode}-{ep.emissionPointCode}</option>
-                    ))}
-                  </select>
-                </div>
-              )}
-              <div className="md:w-64 space-y-2">
-                <label className={`text-[10px] font-black uppercase tracking-widest ${isDarkMode ? 'text-slate-500' : 'text-slate-400'} px-1 block`}>Esquema Tarifario</label>
-                <select className={`w-full ${isDarkMode ? 'bg-slate-700 text-blue-300 border-slate-600' : 'bg-sky-50 text-sky-500'} p-3 sm:p-4 rounded-2xl font-black outline-none border-2 text-sm min-h-[48px]`} value={priceTier} onChange={e => setPriceTier(e.target.value as any)}>
-                  <option value="price">PVP PÚBLICO</option>
-                  <option value="wholesalePrice">MAYORISTA</option>
-                  <option value="distributorPrice">DISTRIBUIDOR</option>
-                </select>
-              </div>
+            {/* TIPOS DE FACTURA */}
+            <div className={`flex flex-wrap gap-2 mb-6 ${isDarkMode ? 'bg-slate-800 border-slate-700' : 'bg-white border-slate-100'} p-3 rounded-2xl shadow-sm border`}>
+              {['Factura Simple', 'Factura Básica', 'Factura Exportación', 'Factura Reembolso'].map(type => (
+                <button
+                  key={type}
+                  onClick={() => setInvoiceType(type)}
+                  className={`px-4 py-2 rounded-xl text-xs font-black transition-all ${invoiceType === type ? 'bg-slate-900 text-white dark:bg-sky-500 dark:text-white shadow-md' : (isDarkMode ? 'bg-slate-700 text-slate-300 hover:bg-slate-600' : 'bg-slate-100 text-slate-500 hover:bg-slate-200')}`}
+                >
+                  {type}
+                </button>
+              ))}
             </div>
 
-            <div className={`${isDarkMode ? 'bg-slate-800 border-slate-700' : 'bg-white border-slate-100'} p-3 sm:p-4 lg:p-8 rounded-[2rem] lg:rounded-[2.5rem] shadow-sm min-h-[400px] sm:min-h-[500px] relative overflow-visible`}>
+            <div className={`${isDarkMode ? 'bg-slate-800 border-slate-700' : 'bg-white border-slate-100'} p-4 sm:p-6 lg:p-8 rounded-[2rem] lg:rounded-[2.5rem] shadow-sm flex flex-col gap-4 sm:gap-6`}>
+              <div className="flex flex-col md:flex-row gap-4 sm:gap-6 items-stretch md:items-end">
+                <div className="flex-1 space-y-2">
+                  <div className="flex justify-between items-center mb-1">
+                    <label className={`text-[10px] font-black uppercase tracking-widest ${isDarkMode ? 'text-slate-500' : 'text-slate-400'} px-1 block`}>Cliente Receptor</label>
+                    <div className="flex bg-slate-100 dark:bg-slate-700 p-0.5 rounded-lg text-[9px] font-black">
+                      <button
+                        type="button"
+                        onClick={() => setIsNewClient(false)}
+                        className={`px-3 py-1 rounded-md transition-all ${!isNewClient ? 'bg-white dark:bg-slate-600 shadow-sm text-sky-500 dark:text-sky-400 font-bold' : 'text-slate-400 dark:text-slate-400 font-medium'}`}
+                      >
+                        Existente / Final
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setIsNewClient(true)}
+                        className={`px-3 py-1 rounded-md transition-all ${isNewClient ? 'bg-white dark:bg-slate-600 shadow-sm text-sky-500 dark:text-sky-400 font-bold' : 'text-slate-400 dark:text-slate-400 font-medium'}`}
+                      >
+                        + Nuevo Cliente
+                      </button>
+                    </div>
+                  </div>
+                  {!isNewClient ? (
+                    <select className={`w-full ${isDarkMode ? 'bg-slate-700 text-white border-slate-600' : 'bg-slate-50'} p-3 sm:p-4 rounded-2xl font-bold outline-none border-2 border-transparent focus:border-sky-500 transition-all text-sm min-h-[48px]`} onChange={e => setSelectedClient(clients.find(c => c.id === e.target.value) || null)} value={selectedClient?.id || ''}>
+                      <option value="">Consumidor Final (9999999999999)</option>
+                      {(Array.isArray(clients) ? clients : []).map(c => <option key={c.id} value={c.id}>{c.name} ({c.ruc})</option>)}
+                    </select>
+                  ) : (
+                    <div className={`p-3 ${isDarkMode ? 'bg-slate-700 text-slate-300 border-slate-600' : 'bg-slate-50 text-slate-500'} rounded-2xl border font-bold text-xs flex items-center justify-between min-h-[48px]`}>
+                      <span>Rellene los datos del cliente a continuación:</span>
+                    </div>
+                  )}
+                </div>
+                {(emissionPoints && emissionPoints.length > 1) && (
+                  <div className="md:w-48 space-y-2">
+                    <label className={`text-[10px] font-black uppercase tracking-widest ${isDarkMode ? 'text-slate-500' : 'text-slate-400'} px-1 block`}>Pto. Emisión</label>
+                    <select
+                      className={`w-full ${isDarkMode ? 'bg-slate-700 text-white border-slate-600' : 'bg-slate-50'} p-3 sm:p-4 rounded-2xl font-bold outline-none border-2 border-transparent focus:border-sky-500 transition-all text-xs min-h-[48px]`}
+                      value={selectedEmissionPoint?.id || ''}
+                      onChange={e => {
+                        const ep = emissionPoints.find(p => p.id === e.target.value);
+                        if (ep && onSelectEmissionPoint) onSelectEmissionPoint(ep);
+                      }}
+                    >
+                      {emissionPoints.map(ep => (
+                        <option key={ep.id} value={ep.id}>{ep.establishmentCode}-{ep.emissionPointCode}</option>
+                      ))}
+                    </select>
+                  </div>
+                )}
+                <div className="md:w-64 space-y-2">
+                  <label className={`text-[10px] font-black uppercase tracking-widest ${isDarkMode ? 'text-slate-500' : 'text-slate-400'} px-1 block`}>Esquema Tarifario</label>
+                  <select className={`w-full ${isDarkMode ? 'bg-slate-700 text-blue-300 border-slate-600' : 'bg-sky-50 text-sky-500'} p-3 sm:p-4 rounded-2xl font-black outline-none border-2 text-sm min-h-[48px]`} value={priceTier} onChange={e => setPriceTier(e.target.value as any)}>
+                    <option value="price">PVP PÚBLICO</option>
+                    <option value="wholesalePrice">MAYORISTA</option>
+                    <option value="distributorPrice">DISTRIBUIDOR</option>
+                  </select>
+                </div>
+              </div>
+
+              {/* Formulario Inline de Nuevo Cliente */}
+              {isNewClient && (
+                <div className="grid grid-cols-1 md:grid-cols-5 gap-4 pt-4 border-t border-slate-100 dark:border-slate-700/50">
+                  <div className="md:col-span-2 space-y-2">
+                    <label className={`text-[10px] font-black uppercase tracking-widest ${isDarkMode ? 'text-slate-500' : 'text-slate-400'} px-1 block`}>Identificación (RUC / Cédula) *</label>
+                    <div className="relative">
+                      <input
+                        type="text"
+                        placeholder="Ej: 1722334455001"
+                        value={newClientData.ruc}
+                        onChange={e => setNewClientData({ ...newClientData, ruc: e.target.value })}
+                        onBlur={handleIdLookup}
+                        className={`w-full ${isDarkMode ? 'bg-slate-700 text-white border-slate-600' : 'bg-slate-50'} p-3 pr-12 rounded-2xl font-bold outline-none border-2 border-transparent focus:border-sky-500 transition-all text-sm min-h-[48px]`}
+                      />
+                      <button
+                        type="button"
+                        onClick={handleIdLookup}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-sky-500 p-1 transition-colors"
+                        title="Consultar Identificación"
+                      >
+                        <MagnifyingGlassIcon className="w-5 h-5" />
+                      </button>
+                    </div>
+                  </div>
+                  <div className="md:col-span-3 space-y-2">
+                    <label className={`text-[10px] font-black uppercase tracking-widest ${isDarkMode ? 'text-slate-500' : 'text-slate-400'} px-1 block`}>Razón Social / Nombre Completo *</label>
+                    <input
+                      type="text"
+                      placeholder="Ej: Juan Pérez o Empresa S.A."
+                      value={newClientData.name}
+                      onChange={e => setNewClientData({ ...newClientData, name: e.target.value })}
+                      className={`w-full ${isDarkMode ? 'bg-slate-700 text-white border-slate-600' : 'bg-slate-50'} p-3 rounded-2xl font-bold outline-none border-2 border-transparent focus:border-sky-500 transition-all text-sm min-h-[48px]`}
+                    />
+                  </div>
+                  <div className="md:col-span-2 space-y-2">
+                    <label className={`text-[10px] font-black uppercase tracking-widest ${isDarkMode ? 'text-slate-500' : 'text-slate-400'} px-1 block`}>Correo Electrónico</label>
+                    <input
+                      type="email"
+                      placeholder="ejemplo@correo.com"
+                      value={newClientData.email}
+                      onChange={e => setNewClientData({ ...newClientData, email: e.target.value })}
+                      className={`w-full ${isDarkMode ? 'bg-slate-700 text-white border-slate-600' : 'bg-slate-50'} p-3 rounded-2xl font-bold outline-none border-2 border-transparent focus:border-sky-500 transition-all text-sm min-h-[48px]`}
+                    />
+                  </div>
+                  <div className="md:col-span-1 space-y-2">
+                    <label className={`text-[10px] font-black uppercase tracking-widest ${isDarkMode ? 'text-slate-500' : 'text-slate-400'} px-1 block`}>Teléfono</label>
+                    <input
+                      type="text"
+                      placeholder="0999999999"
+                      value={newClientData.phone}
+                      onChange={e => setNewClientData({ ...newClientData, phone: e.target.value })}
+                      className={`w-full ${isDarkMode ? 'bg-slate-700 text-white border-slate-600' : 'bg-slate-50'} p-3 rounded-2xl font-bold outline-none border-2 border-transparent focus:border-sky-500 transition-all text-sm min-h-[48px]`}
+                    />
+                  </div>
+                  <div className="md:col-span-2 space-y-2">
+                    <label className={`text-[10px] font-black uppercase tracking-widest ${isDarkMode ? 'text-slate-500' : 'text-slate-400'} px-1 block`}>Dirección Completa</label>
+                    <input
+                      type="text"
+                      placeholder="Ej: Av. Amazonas y Colón, Quito"
+                      value={newClientData.address}
+                      onChange={e => setNewClientData({ ...newClientData, address: e.target.value })}
+                      className={`w-full ${isDarkMode ? 'bg-slate-700 text-white border-slate-600' : 'bg-slate-50'} p-3 rounded-2xl font-bold outline-none border-2 border-transparent focus:border-sky-500 transition-all text-sm min-h-[48px]`}
+                    />
+                  </div>
+                </div>
+              )}
+
+              {/* Campos extra opcionales */}
+              {selectedClient && (
+                <div className="flex flex-col sm:flex-row gap-4 pt-4 border-t border-slate-100 dark:border-slate-700/50">
+                  <div className="flex-1 space-y-2">
+                    <label className={`text-[10px] font-black uppercase tracking-widest ${isDarkMode ? 'text-slate-500' : 'text-slate-400'} px-1 block`}>Correo 2 (Opcional)</label>
+                    <input 
+                      type="email" 
+                      placeholder={selectedClient.email || 'ejemplo@correo.com'}
+                      className={`w-full ${isDarkMode ? 'bg-slate-700 text-white border-slate-600' : 'bg-slate-50'} p-3 rounded-xl font-bold outline-none border-2 border-transparent focus:border-sky-500 transition-all text-sm`}
+                      value={customEmail}
+                      onChange={e => setCustomEmail(e.target.value)}
+                    />
+                  </div>
+                  <div className="flex-1 space-y-2">
+                    <label className={`text-[10px] font-black uppercase tracking-widest ${isDarkMode ? 'text-slate-500' : 'text-slate-400'} px-1 block`}>Teléfono 2 (Opcional)</label>
+                    <input 
+                      type="text" 
+                      placeholder={selectedClient.phone || '0999999999'}
+                      className={`w-full ${isDarkMode ? 'bg-slate-700 text-white border-slate-600' : 'bg-slate-50'} p-3 rounded-xl font-bold outline-none border-2 border-transparent focus:border-sky-500 transition-all text-sm`}
+                      value={customPhone}
+                      onChange={e => setCustomPhone(e.target.value)}
+                    />
+                  </div>
+                </div>
+              )}
+
+              {/* Controles de Factura Básica */}
+              {invoiceType === 'Factura Básica' && (
+                <div className="pt-4 border-t border-slate-100 dark:border-slate-700/50 flex flex-wrap items-center gap-4">
+                  <span className={`text-[10px] font-black uppercase tracking-widest ${isDarkMode ? 'text-slate-500' : 'text-slate-400'}`}>Descuento:</span>
+                  <label className="flex items-center gap-2 cursor-pointer">
+                    <input type="radio" name="discount" className="text-sky-500 focus:ring-sky-500" checked={discountType === 'TOTAL'} onChange={() => setDiscountType('TOTAL')} />
+                    <span className={`text-xs font-bold ${isDarkMode ? 'text-slate-300' : 'text-slate-600'}`}>Al total de la factura</span>
+                  </label>
+                  <label className="flex items-center gap-2 cursor-pointer">
+                    <input type="radio" name="discount" className="text-sky-500 focus:ring-sky-500" checked={discountType === 'PRODUCT'} onChange={() => setDiscountType('PRODUCT')} />
+                    <span className={`text-xs font-bold ${isDarkMode ? 'text-slate-300' : 'text-slate-600'}`}>Directo al producto</span>
+                  </label>
+                  
+                  {discountType === 'TOTAL' && (
+                    <div className="flex items-center gap-2 md:ml-auto">
+                      <span className={`text-[10px] font-black uppercase tracking-widest ${isDarkMode ? 'text-slate-500' : 'text-slate-400'}`}>Monto ($):</span>
+                      <input 
+                        type="number"
+                        min="0"
+                        step="0.01"
+                        className={`w-24 p-2 rounded-xl font-bold outline-none border-2 border-transparent focus:border-sky-500 transition-all text-sm ${isDarkMode ? 'bg-slate-700 text-white border-slate-600' : 'bg-slate-50 text-slate-800'}`}
+                        value={globalDiscount || ''}
+                        onChange={e => setGlobalDiscount(Math.max(0, parseFloat(e.target.value) || 0))}
+                      />
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* Campos Factura Exportación */}
+              {invoiceType === 'Factura Exportación' && (
+                <div className="pt-6 mt-2 border-t border-slate-100 dark:border-slate-700/50 space-y-4">
+                  <h4 className={`text-xs font-black uppercase tracking-widest ${isDarkMode ? 'text-slate-300' : 'text-slate-700'}`}>Datos de Comercio Exterior</h4>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    <div className="space-y-2">
+                      <label className={`text-[10px] font-black uppercase tracking-widest ${isDarkMode ? 'text-slate-500' : 'text-slate-400'} px-1 block`}>Comercio Exterior</label>
+                      <input type="text" className={`w-full ${isDarkMode ? 'bg-slate-700 text-white border-slate-600' : 'bg-slate-50'} p-3 rounded-xl font-bold outline-none border-2 border-transparent focus:border-sky-500 transition-all text-sm`} value={exportDetails.comercioExterior} onChange={e => setExportDetails({...exportDetails, comercioExterior: e.target.value})} />
+                    </div>
+                    <div className="space-y-2">
+                      <label className={`text-[10px] font-black uppercase tracking-widest ${isDarkMode ? 'text-slate-500' : 'text-slate-400'} px-1 block`}>Lugar Inco Term</label>
+                      <input type="text" placeholder="Ej: Miami" className={`w-full ${isDarkMode ? 'bg-slate-700 text-white border-slate-600' : 'bg-slate-50'} p-3 rounded-xl font-bold outline-none border-2 border-transparent focus:border-sky-500 transition-all text-sm`} value={exportDetails.lugarIncoterm} onChange={e => setExportDetails({...exportDetails, lugarIncoterm: e.target.value})} />
+                    </div>
+                    <div className="space-y-2">
+                      <label className={`text-[10px] font-black uppercase tracking-widest ${isDarkMode ? 'text-slate-500' : 'text-slate-400'} px-1 block`}>Inco Term Total</label>
+                      <select className={`w-full ${isDarkMode ? 'bg-slate-700 text-white border-slate-600' : 'bg-slate-50'} p-3 rounded-xl font-bold outline-none border-2 border-transparent focus:border-sky-500 transition-all text-sm`} value={exportDetails.incoTermTotalSinImpuestos} onChange={e => setExportDetails({...exportDetails, incoTermTotalSinImpuestos: e.target.value})}>
+                        <option value="">Seleccione</option><option value="FOB">FOB</option><option value="CIF">CIF</option><option value="EXW">EXW</option>
+                      </select>
+                    </div>
+                    <div className="space-y-2">
+                      <label className={`text-[10px] font-black uppercase tracking-widest ${isDarkMode ? 'text-slate-500' : 'text-slate-400'} px-1 block`}>Puerto Embarque</label>
+                      <input type="text" className={`w-full ${isDarkMode ? 'bg-slate-700 text-white border-slate-600' : 'bg-slate-50'} p-3 rounded-xl font-bold outline-none border-2 border-transparent focus:border-sky-500 transition-all text-sm`} value={exportDetails.puertoEmbarque} onChange={e => setExportDetails({...exportDetails, puertoEmbarque: e.target.value})} />
+                    </div>
+                    <div className="space-y-2">
+                      <label className={`text-[10px] font-black uppercase tracking-widest ${isDarkMode ? 'text-slate-500' : 'text-slate-400'} px-1 block`}>Puerto Destino</label>
+                      <input type="text" className={`w-full ${isDarkMode ? 'bg-slate-700 text-white border-slate-600' : 'bg-slate-50'} p-3 rounded-xl font-bold outline-none border-2 border-transparent focus:border-sky-500 transition-all text-sm`} value={exportDetails.puertoDestino} onChange={e => setExportDetails({...exportDetails, puertoDestino: e.target.value})} />
+                    </div>
+                    <div className="space-y-2">
+                      <label className={`text-[10px] font-black uppercase tracking-widest ${isDarkMode ? 'text-slate-500' : 'text-slate-400'} px-1 block`}>País Destino</label>
+                      <select className={`w-full ${isDarkMode ? 'bg-slate-700 text-white border-slate-600' : 'bg-slate-50'} p-3 rounded-xl font-bold outline-none border-2 border-transparent focus:border-sky-500 transition-all text-sm`} value={exportDetails.paisDestino} onChange={e => setExportDetails({...exportDetails, paisDestino: e.target.value})}>
+                        <option value="">Seleccione</option><option value="US">Estados Unidos</option><option value="CO">Colombia</option><option value="PE">Perú</option>
+                      </select>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Pestañas de Factura Reembolso */}
+              {invoiceType === 'Factura Reembolso' && (
+                <div className="pt-4 border-t border-slate-100 dark:border-slate-700/50">
+                  <div className="flex border-b border-slate-200 dark:border-slate-700 mb-4">
+                    <button onClick={() => setReimbursementTab('PRODUCTO')} className={`flex-1 py-3 text-sm font-black uppercase tracking-widest border-b-2 transition-all ${reimbursementTab === 'PRODUCTO' ? 'border-sky-500 text-sky-500' : 'border-transparent text-slate-400 hover:text-slate-500'}`}>
+                      Sección Producto
+                    </button>
+                    <button onClick={() => setReimbursementTab('REEMBOLSO')} className={`flex-1 py-3 text-sm font-black uppercase tracking-widest border-b-2 transition-all ${reimbursementTab === 'REEMBOLSO' ? 'border-sky-500 text-sky-500' : 'border-transparent text-slate-400 hover:text-slate-500'}`}>
+                      Sección Reembolso
+                    </button>
+                  </div>
+                  {reimbursementTab === 'REEMBOLSO' && (
+                    <div className="py-8 text-center border-2 border-dashed border-slate-200 dark:border-slate-700 rounded-2xl px-4">
+                       {reimbursements.length > 0 ? (
+                         <div className="mb-4 space-y-2">
+                           {reimbursements.map((r, idx) => (
+                             <div key={idx} className={`p-4 rounded-xl text-left border ${isDarkMode ? 'bg-slate-700 border-slate-600 text-slate-200' : 'bg-slate-50 border-slate-200 text-slate-800'} flex justify-between items-center`}>
+                               <div>
+                                 <div className="font-bold text-sm">Factura: {r.estabDocReembolso}-{r.ptoEmiDocReembolso}-{r.secuencialDocReembolso}</div>
+                                 <div className="text-xs opacity-70">RUC: {r.identificacionProveedorReembolso}</div>
+                               </div>
+                               <div className="text-right text-xs">
+                                 <div>Total IVA: ${r.impuestoReembolso.toFixed(2)}</div>
+                               </div>
+                             </div>
+                           ))}
+                         </div>
+                       ) : (
+                         <p className={`text-sm font-bold ${isDarkMode ? 'text-slate-400' : 'text-slate-500'} mb-4`}>Añade los comprobantes de reembolso aquí.</p>
+                       )}
+                       
+                       {!showReimbursementForm ? (
+                         <button onClick={() => setShowReimbursementForm(true)} className="mt-2 bg-sky-50 text-sky-600 px-6 py-2 rounded-xl font-bold hover:bg-sky-100 dark:bg-sky-900/30 dark:hover:bg-sky-900/50 transition-all border border-sky-200 dark:border-sky-800">Añadir Comprobante</button>
+                       ) : (
+                         <div className={`mt-4 p-4 text-left border rounded-2xl ${isDarkMode ? 'border-slate-600 bg-slate-800 text-white' : 'border-slate-200 bg-white text-slate-800'} shadow-sm`}>
+                           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                              <div className="space-y-1">
+                                <label className="text-[10px] font-black uppercase tracking-widest opacity-70">RUC Proveedor</label>
+                                <input type="text" className="w-full p-2 border-2 border-slate-200 dark:border-slate-600 rounded-xl dark:bg-slate-700 outline-none focus:border-sky-500 text-sm font-bold transition-all" value={reimbursementForm.identificacionProveedorReembolso || ''} onChange={e => setReimbursementForm({...reimbursementForm, identificacionProveedorReembolso: e.target.value})} />
+                              </div>
+                              <div className="space-y-1">
+                                <label className="text-[10px] font-black uppercase tracking-widest opacity-70">Establecimiento (001)</label>
+                                <input type="text" className="w-full p-2 border-2 border-slate-200 dark:border-slate-600 rounded-xl dark:bg-slate-700 outline-none focus:border-sky-500 text-sm font-bold transition-all" value={reimbursementForm.estabDocReembolso || ''} onChange={e => setReimbursementForm({...reimbursementForm, estabDocReembolso: e.target.value})} />
+                              </div>
+                              <div className="space-y-1">
+                                <label className="text-[10px] font-black uppercase tracking-widest opacity-70">Pto. Emisión (001)</label>
+                                <input type="text" className="w-full p-2 border-2 border-slate-200 dark:border-slate-600 rounded-xl dark:bg-slate-700 outline-none focus:border-sky-500 text-sm font-bold transition-all" value={reimbursementForm.ptoEmiDocReembolso || ''} onChange={e => setReimbursementForm({...reimbursementForm, ptoEmiDocReembolso: e.target.value})} />
+                              </div>
+                              <div className="space-y-1">
+                                <label className="text-[10px] font-black uppercase tracking-widest opacity-70">Secuencial</label>
+                                <input type="text" className="w-full p-2 border-2 border-slate-200 dark:border-slate-600 rounded-xl dark:bg-slate-700 outline-none focus:border-sky-500 text-sm font-bold transition-all" value={reimbursementForm.secuencialDocReembolso || ''} onChange={e => setReimbursementForm({...reimbursementForm, secuencialDocReembolso: e.target.value})} />
+                              </div>
+                              <div className="space-y-1">
+                                <label className="text-[10px] font-black uppercase tracking-widest opacity-70">Fecha (DD/MM/YYYY)</label>
+                                <input type="text" className="w-full p-2 border-2 border-slate-200 dark:border-slate-600 rounded-xl dark:bg-slate-700 outline-none focus:border-sky-500 text-sm font-bold transition-all" value={reimbursementForm.fechaEmisionDocReembolso || ''} onChange={e => setReimbursementForm({...reimbursementForm, fechaEmisionDocReembolso: e.target.value})} />
+                              </div>
+                              <div className="space-y-1">
+                                <label className="text-[10px] font-black uppercase tracking-widest opacity-70">Autorización</label>
+                                <input type="text" className="w-full p-2 border-2 border-slate-200 dark:border-slate-600 rounded-xl dark:bg-slate-700 outline-none focus:border-sky-500 text-sm font-bold transition-all" value={reimbursementForm.numeroautorizacionDocReemb || ''} onChange={e => setReimbursementForm({...reimbursementForm, numeroautorizacionDocReemb: e.target.value})} />
+                              </div>
+                              <div className="space-y-1">
+                                <label className="text-[10px] font-black uppercase tracking-widest opacity-70 text-sky-600 dark:text-sky-400">Base Sin IVA ($)</label>
+                                <input type="number" className="w-full p-2 border-2 border-slate-200 dark:border-slate-600 rounded-xl dark:bg-slate-700 outline-none focus:border-sky-500 text-sm font-bold transition-all" value={reimbursementForm.baseImponibleSinIva || ''} onChange={e => setReimbursementForm({...reimbursementForm, baseImponibleSinIva: parseFloat(e.target.value) || 0})} />
+                              </div>
+                              <div className="space-y-1">
+                                <label className="text-[10px] font-black uppercase tracking-widest opacity-70 text-sky-600 dark:text-sky-400">Base Con IVA ($)</label>
+                                <input type="number" className="w-full p-2 border-2 border-slate-200 dark:border-slate-600 rounded-xl dark:bg-slate-700 outline-none focus:border-sky-500 text-sm font-bold transition-all" value={reimbursementForm.baseImponibleConIva || ''} onChange={e => setReimbursementForm({...reimbursementForm, baseImponibleConIva: parseFloat(e.target.value) || 0})} />
+                              </div>
+                              <div className="space-y-1">
+                                <label className="text-[10px] font-black uppercase tracking-widest opacity-70 text-sky-600 dark:text-sky-400">Valor IVA ($)</label>
+                                <input type="number" className="w-full p-2 border-2 border-slate-200 dark:border-slate-600 rounded-xl dark:bg-slate-700 outline-none focus:border-sky-500 text-sm font-bold transition-all" value={reimbursementForm.impuestoReembolso || ''} onChange={e => setReimbursementForm({...reimbursementForm, impuestoReembolso: parseFloat(e.target.value) || 0})} />
+                              </div>
+                           </div>
+                           <div className="mt-6 flex gap-3">
+                             <button onClick={addReimbursement} className="bg-sky-500 hover:bg-sky-600 text-white px-6 py-2.5 rounded-xl font-bold shadow-md transition-all text-sm">Guardar Comprobante</button>
+                             <button onClick={() => setShowReimbursementForm(false)} className="bg-slate-100 hover:bg-slate-200 text-slate-700 dark:bg-slate-700 dark:hover:bg-slate-600 dark:text-slate-300 px-6 py-2.5 rounded-xl font-bold transition-all text-sm">Cancelar</button>
+                           </div>
+                         </div>
+                       )}
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+
+            <div className={`${isDarkMode ? 'bg-slate-800 border-slate-700' : 'bg-white border-slate-100'} p-3 sm:p-4 lg:p-8 rounded-[2rem] lg:rounded-[2.5rem] shadow-sm min-h-[400px] sm:min-h-[500px] relative overflow-visible ${reimbursementTab === 'REEMBOLSO' ? 'hidden' : ''}`}>
               <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-3 sm:gap-4 mb-6 sm:mb-8">
                 <h3 className={`font-black ${isDarkMode ? 'text-white' : 'text-slate-800'} uppercase tracking-tighter text-base sm:text-lg`}>Detalle de Productos</h3>
                 <div ref={searchRef} className="relative w-full lg:w-96">
@@ -932,6 +1416,18 @@ const InvoiceForm: React.FC<InvoiceFormProps> = ({ clients, products, businessIn
                   </div>
                 )}
               </div>
+
+              {/* Detalle Textarea */}
+              <div className="mt-8 space-y-2">
+                <label className={`text-[10px] font-black uppercase tracking-widest ${isDarkMode ? 'text-slate-500' : 'text-slate-400'} px-1 block`}>Detalle / Información Adicional</label>
+                <textarea
+                  className={`w-full ${isDarkMode ? 'bg-slate-700 text-white border-slate-600' : 'bg-slate-50'} p-4 rounded-2xl font-bold outline-none border-2 border-transparent focus:border-sky-500 transition-all text-sm min-h-[80px] resize-none`}
+                  placeholder="Este campo permite hasta máximo 300 caracteres."
+                  maxLength={300}
+                  value={additionalInfo}
+                  onChange={e => setAdditionalInfo(e.target.value)}
+                />
+              </div>
             </div>
           </>
         )}
@@ -947,8 +1443,26 @@ const InvoiceForm: React.FC<InvoiceFormProps> = ({ clients, products, businessIn
                 <div className="flex justify-between text-xs font-bold text-amber-600"><span>Descuentos</span><span>-${totals.desc.toFixed(2)}</span></div>
               )}
               <div className="flex justify-between text-xs font-black text-sky-500"><span>IVA (15%)</span><span>${totals.tax.toFixed(2)}</span></div>
+              
+              {/* PROPINA */}
+              <div className="flex justify-between items-center pt-2">
+                <span className={`text-xs font-bold ${isDarkMode ? 'text-slate-400' : 'text-slate-500'}`}>Propina</span>
+                <div className="relative">
+                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 font-bold">$</span>
+                  <input
+                    type="number"
+                    min="0"
+                    step="0.01"
+                    className={`w-24 pl-6 pr-3 py-1.5 text-right font-bold ${isDarkMode ? 'bg-slate-700 text-white' : 'bg-slate-100'} rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500 text-sm`}
+                    value={tip || ''}
+                    onChange={e => setTip(Math.max(0, parseFloat(e.target.value) || 0))}
+                    placeholder="0.00"
+                  />
+                </div>
+              </div>
+
               <div className="pt-4 border-t border-slate-100">
-                <p className={`text-4xl font-black ${isDarkMode ? 'text-white' : 'text-slate-900'} tracking-tighter`}>${totals.total.toFixed(2)}</p>
+                <p className={`text-4xl font-black ${isDarkMode ? 'text-white' : 'text-slate-900'} tracking-tighter`}>${(totals.total + tip).toFixed(2)}</p>
                 <p className={`text-[9px] ${isDarkMode ? 'text-slate-500' : 'text-slate-400'} font-bold uppercase tracking-widest mt-1`}>Total Comprobante</p>
               </div>
             </div>
@@ -1029,7 +1543,7 @@ const InvoiceForm: React.FC<InvoiceFormProps> = ({ clients, products, businessIn
               <div className="flex justify-between items-end border-t border-slate-100 pt-6">
                 <div>
                   <p className={`text-[10px] font-black ${isDarkMode ? 'text-slate-500' : 'text-slate-400'} uppercase tracking-widest`}>A pagar</p>
-                  <p className={`text-4xl font-black ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>${totals.total.toFixed(2)}</p>
+                  <p className={`text-4xl font-black ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>${(totals.total + tip).toFixed(2)}</p>
                 </div>
                 <button
                   onClick={handleProcess}

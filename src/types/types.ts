@@ -121,6 +121,34 @@ export interface PaymentMethod {
   label: string;
 }
 
+export interface ExportDetails {
+  comercioExterior: string;
+  incoTermTotalSinImpuestos: string;
+  incoTermFactura: string;
+  lugarIncoterm: string;
+  paisOrigen: string;
+  puertoEmbarque: string;
+  puertoDestino: string;
+  paisDestino: string;
+  paisAdquisicion: string;
+}
+
+export interface ReimbursementDetail {
+  tipoIdentificacionProveedorReembolso: string;
+  identificacionProveedorReembolso: string;
+  codPaisPagoProveedorReembolso?: string;
+  tipoProveedorReembolso: string;
+  codDocReembolso: string;
+  estabDocReembolso: string;
+  ptoEmiDocReembolso: string;
+  secuencialDocReembolso: string;
+  fechaEmisionDocReembolso: string;
+  numeroautorizacionDocReemb: string;
+  baseImponibleSinIva: number;
+  baseImponibleConIva: number;
+  impuestoReembolso: number;
+}
+
 export interface Document {
   id: string;
   type: DocumentType;
@@ -138,7 +166,11 @@ export interface Document {
   paymentStatus: PaymentStatus;
   paymentMethod?: string;
   additionalInfo?: string;
+  tip?: number;
   items?: InvoiceItem[];
+  exportDetails?: ExportDetails;
+  isReimbursement?: boolean;
+  reimbursements?: ReimbursementDetail[];
   source?: 'LOCAL' | 'TIENDA_ONLINE';
   authorizedXml?: string; // XML autorizado por el SRI
   // Para Notas de Crédito

@@ -57,6 +57,7 @@ interface DashboardProps {
   hasModuleControl?: boolean;
   modulePermissions?: { moduleCode: string; granted: boolean }[];
   pointsProgramEnabled?: boolean;
+  planMaxInvoices?: number;
 }
 
 const planColors: Record<string, string> = {
@@ -72,7 +73,7 @@ const planColors: Record<string, string> = {
   PENDING: 'gray'
 };
 
-const Dashboard: React.FC<DashboardProps> = ({ documents, products, setActiveTab, currentUser, businessInfo, planHasAudit, planDurationDays = 30, hasModuleControl = false, modulePermissions = [], pointsProgramEnabled = true }) => {
+const Dashboard: React.FC<DashboardProps> = ({ documents, products, setActiveTab, currentUser, businessInfo, planHasAudit, planDurationDays = 30, planMaxInvoices, hasModuleControl = false, modulePermissions = [], pointsProgramEnabled = true }) => {
   const [auditResult, setAuditResult] = useState<AuditResult | null>(null);
   const [auditLoading, setAuditLoading] = useState(true);
   const [auditError, setAuditError] = useState<string | null>(null);
@@ -361,31 +362,45 @@ const Dashboard: React.FC<DashboardProps> = ({ documents, products, setActiveTab
   const totalAuthorized = docsThisMonth.filter(d => d.status === SriStatus.AUTHORIZED || d.status === 'AUTORIZADO').length;
   const totalRejected = docsThisMonth.filter(d => d.status === 'RECHAZADO' || d.status === 'NO_AUTORIZADO' || d.status === 'DEVUELTO').length;
 
+  const maxDocs = planMaxInvoices !== undefined ? planMaxInvoices : 300;
+  
+  const isUnlimitedDocs = maxDocs === -1 || maxDocs === 999999 || businessInfo?.plan === 'UNLIMITED';
+  
+  // Si estamos en ambiente de pruebas o demo, no descontamos facturas del plan
+  const isTestEnvironment = !businessInfo?.isProduction || (businessInfo as any)?.isDemo;
+  const consumedDocs = isTestEnvironment ? 0 : totalEmitted;
+  
+  const docsAvailable = isUnlimitedDocs ? '∞' : Math.max(0, maxDocs - consumedDocs);
+  const docsPercentage = isUnlimitedDocs ? 0 : Math.min(1, consumedDocs / maxDocs);
+  const remainingPercentage = isUnlimitedDocs ? 1 : Math.max(0, 1 - docsPercentage);
+
   return (
     <div className="space-y-8 animate-fade-in">
       {/* ROW 1: Welcome & Subscription */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Welcome Card */}
-        <Card padding="none" className="lg:col-span-2 overflow-hidden relative bg-gradient-to-br from-indigo-50 to-white dark:from-slate-800 dark:to-slate-900 border-none shadow-sm">
-          <div className="p-8 md:p-10 flex flex-col md:w-2/3 z-10 relative">
-            <h2 className="text-3xl font-black text-slate-800 dark:text-white tracking-tight mb-2">
-              ¡Hola, {currentUser?.name?.split(' ')[0] || 'Bienvenido'}! 👋
-            </h2>
-            <p className="text-slate-500 dark:text-slate-400 font-medium mb-8 capitalize">
-              {dateString} • {timeString}
-            </p>
+        <Card padding="none" className="lg:col-span-2 overflow-hidden relative bg-gradient-to-br from-indigo-50 to-white dark:from-slate-800 dark:to-slate-900 border-none shadow-sm flex">
+          <div className="p-4 md:p-5 flex flex-col justify-between md:w-2/3 z-10 relative">
+            <div>
+              <h2 className="text-xl md:text-2xl font-black text-slate-800 dark:text-white tracking-tight mb-0.5">
+                ¡Hola, {currentUser?.name?.split(' ')[0] || 'Bienvenido'}! 👋
+              </h2>
+              <p className="text-[11px] md:text-xs text-slate-500 dark:text-slate-400 font-medium capitalize">
+                {dateString} • {timeString}
+              </p>
+            </div>
             
-            <div className="flex flex-col sm:flex-row gap-4 mt-auto">
+            <div className="flex flex-col sm:flex-row gap-2 mt-4">
               <button
                 onClick={() => setActiveTab('invoices')}
-                className="px-6 py-3 bg-sky-600 hover:bg-sky-700 text-white rounded-xl font-bold text-sm shadow-lg shadow-sky-500/30 transition-all flex items-center justify-center gap-2"
+                className="px-4 py-2 bg-sky-600 hover:bg-sky-700 text-white rounded-xl font-bold text-[11px] shadow-lg shadow-sky-500/30 transition-all flex items-center justify-center gap-1.5"
               >
-                <DocumentTextIcon className="w-5 h-5" />
+                <DocumentTextIcon className="w-3.5 h-3.5" />
                 Generar Factura
               </button>
               <button
                 onClick={() => setActiveTab('help')}
-                className="px-6 py-3 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 rounded-xl font-bold text-sm hover:bg-slate-50 dark:hover:bg-slate-700 transition-all flex items-center justify-center gap-2"
+                className="px-4 py-2 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 rounded-xl font-bold text-[11px] hover:bg-slate-50 dark:hover:bg-slate-700 transition-all flex items-center justify-center gap-1.5"
               >
                 Ver Tutoriales
               </button>
@@ -397,18 +412,18 @@ const Dashboard: React.FC<DashboardProps> = ({ documents, products, setActiveTab
             <img 
               src="/images/dashboard-illustration.png" 
               alt="Dashboard 3D" 
-              className="object-cover h-[120%] w-auto max-w-none transform translate-x-8 translate-y-4"
+              className="object-cover h-[105%] w-auto max-w-none transform translate-x-8 translate-y-2"
             />
           </div>
         </Card>
 
         {/* Subscription Card */}
-        <Card padding="lg" className="bg-white dark:bg-slate-900 flex flex-col justify-between border-none shadow-sm">
-          <div className="flex justify-between items-start mb-6">
+        <Card padding="none" className="bg-white dark:bg-slate-900 p-4 md:p-5 flex flex-col justify-between border-none shadow-sm">
+          <div className="flex justify-between items-start mb-3">
             <div>
-              <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Tu Plan Actual</p>
-              <h3 className="text-xl font-black text-slate-800 dark:text-white flex items-center gap-2">
-                <SparklesIcon className="w-5 h-5 text-sky-500" />
+              <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest mb-0.5">Tu Plan Actual</p>
+              <h3 className="text-base font-black text-slate-800 dark:text-white flex items-center gap-1.5">
+                <SparklesIcon className="w-3.5 h-3.5 text-sky-500" />
                 {getPlanLabel(businessInfo?.plan)}
               </h3>
             </div>
@@ -417,55 +432,55 @@ const Dashboard: React.FC<DashboardProps> = ({ documents, products, setActiveTab
             </Badge>
           </div>
 
-          <div className="flex items-center gap-6 mt-auto">
-            {/* Circular Progress for Days */}
-            <div className="relative w-20 h-20 flex-shrink-0">
+          <div className="flex items-center gap-4 flex-1 py-1.5">
+            <div className="relative w-16 h-16 flex-shrink-0">
               {businessInfo?.plan === 'UNLIMITED' ? (
-                <div className="w-full h-full rounded-full border-4 border-emerald-100 dark:border-emerald-900/30 flex items-center justify-center bg-emerald-50 dark:bg-emerald-900/10">
-                  <SparklesIcon className="w-8 h-8 text-emerald-500" />
+                <div className="w-full h-full rounded-full border-2 border-emerald-100 dark:border-emerald-900/30 flex items-center justify-center bg-emerald-50 dark:bg-emerald-900/10">
+                  <SparklesIcon className="w-6 h-6 text-emerald-500" />
                 </div>
               ) : (
                 <>
                   <svg className="w-full h-full transform -rotate-90">
-                    <circle cx="40" cy="40" r="36" stroke="currentColor" strokeWidth="8" fill="transparent" className="text-slate-100 dark:text-slate-800" />
+                    <circle cx="32" cy="32" r="28" stroke="currentColor" strokeWidth="4" fill="transparent" className="text-slate-100 dark:text-slate-800" />
                     <circle 
-                      cx="40" 
-                      cy="40" 
-                      r="36" 
+                      cx="32" 
+                      cy="32" 
+                      r="28" 
                       stroke="currentColor" 
-                      strokeWidth="8" 
+                      strokeWidth="4" 
                       fill="transparent" 
-                      strokeDasharray={`${2 * Math.PI * 36}`}
-                      strokeDashoffset={`${2 * Math.PI * 36 * (1 - Math.max(0, Math.min(1, (subscriptionDaysRemaining || 0) / planDurationDays)))}`}
+                      strokeDasharray={`${2 * Math.PI * 28}`}
+                      strokeDashoffset={`${2 * Math.PI * 28 * (1 - Math.max(0, Math.min(1, (subscriptionDaysRemaining || 0) / planDurationDays)))}`}
                       className={`transition-all duration-1000 ${subscriptionStatusColor === 'emerald' ? 'text-emerald-500' : subscriptionStatusColor === 'amber' ? 'text-amber-500' : 'text-red-500'}`} 
                     />
                   </svg>
                   <div className="absolute inset-0 flex flex-col items-center justify-center">
-                    <span className="text-lg font-black text-slate-800 dark:text-white">{subscriptionDaysRemaining !== null && subscriptionDaysRemaining > 0 ? subscriptionDaysRemaining : 0}</span>
-                    <span className="text-[8px] font-bold text-slate-400 uppercase">Días</span>
+                    <span className="text-sm font-black leading-none text-slate-800 dark:text-white">{subscriptionDaysRemaining !== null && subscriptionDaysRemaining > 0 ? subscriptionDaysRemaining : 0}</span>
+                    <span className="text-[7px] font-bold text-slate-400 uppercase tracking-tighter mt-0.5">Días</span>
                   </div>
                 </>
               )}
             </div>
-            
-            <div className="flex-1">
-              <p className="text-xs text-slate-500 dark:text-slate-400 mb-3">
+            <div className="flex flex-col min-w-0">
+              <p className="text-[11px] font-bold text-slate-700 dark:text-slate-300">Línea de Tiempo</p>
+              <p className="text-[9px] font-medium text-slate-500 dark:text-slate-400 mt-0.5">
                 {businessInfo?.plan === 'UNLIMITED' 
-                  ? 'Tu empresa no tiene límites de crecimiento.' 
-                  : `Vence el ${businessInfo?.subscriptionEnd ? new Date(businessInfo.subscriptionEnd).toLocaleDateString() : 'N/A'}`}
+                  ? 'Sin límite de tiempo' 
+                  : `Vence: ${businessInfo?.subscriptionEnd ? new Date(businessInfo.subscriptionEnd).toLocaleDateString('es-EC', {day: 'numeric', month: 'short', year: 'numeric'}) : 'N/A'}`}
               </p>
-              {isAdmin && businessInfo?.plan !== 'UNLIMITED' && (
-                <button
-                  onClick={() => setActiveTab('pago-interno')}
-                  className={`w-full py-2 rounded-lg font-bold text-xs uppercase tracking-wider transition-all ${subscriptionStatusColor === 'red' || (subscriptionDaysRemaining !== null && subscriptionDaysRemaining <= 5)
-                    ? 'bg-red-500 hover:bg-red-600 text-white' 
-                    : 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700'}`}
-                >
-                  Renovar Plan
-                </button>
-              )}
             </div>
           </div>
+
+          {isAdmin && businessInfo?.plan !== 'UNLIMITED' && (
+            <button
+              onClick={() => setActiveTab('pago-interno')}
+              className={`w-full py-1.5 mt-2 rounded-lg font-bold text-[10px] uppercase tracking-wider transition-all ${subscriptionStatusColor === 'red' || (subscriptionDaysRemaining !== null && subscriptionDaysRemaining <= 5)
+                ? 'bg-red-50 hover:bg-red-600 text-white' 
+                : 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700'}`}
+            >
+              Renovar Plan
+            </button>
+          )}
         </Card>
       </div>
 
@@ -501,7 +516,7 @@ const Dashboard: React.FC<DashboardProps> = ({ documents, products, setActiveTab
             Ver Reportes <ArrowRightIcon className="w-3 h-3" />
           </button>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-3 divide-y md:divide-y-0 md:divide-x divide-slate-100 dark:divide-slate-800/50">
+         <div className="grid grid-cols-1 md:grid-cols-4 divide-y md:divide-y-0 md:divide-x divide-slate-100 dark:divide-slate-800/50">
           <div className="p-6 md:p-8 flex flex-col justify-center transition-colors hover:bg-slate-50/50 dark:hover:bg-slate-800/30 cursor-pointer" onClick={() => setActiveTab('reports')}>
             <p className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-2 flex items-center gap-2">
               <DocumentTextIcon className="w-4 h-4" /> Comprobantes Emitidos
@@ -529,6 +544,51 @@ const Dashboard: React.FC<DashboardProps> = ({ documents, products, setActiveTab
             <div className="flex items-baseline gap-3">
               <span className="text-3xl md:text-4xl font-black text-slate-800 dark:text-white tracking-tighter">{totalRejected}</span>
               <span className="text-xs font-medium text-slate-500">Requieren atención</span>
+            </div>
+          </div>
+
+          <div className="p-6 md:p-8 flex items-center gap-4 transition-colors hover:bg-slate-50/50 dark:hover:bg-slate-800/30 cursor-pointer" onClick={() => setActiveTab('reports')}>
+            <div className="relative w-14 h-14 flex-shrink-0">
+              {isUnlimitedDocs ? (
+                <div className="w-full h-full rounded-full border-2 border-sky-100 dark:border-sky-900/30 flex items-center justify-center bg-sky-50 dark:bg-sky-900/10">
+                  <DocumentTextIcon className="w-5 h-5 text-sky-500" />
+                </div>
+              ) : (
+                <>
+                  <svg className="w-full h-full transform -rotate-90">
+                    <circle cx="28" cy="28" r="24" stroke="currentColor" strokeWidth="4" fill="transparent" className="text-slate-100 dark:text-slate-800" />
+                    <circle 
+                      cx="28" 
+                      cy="28" 
+                      r="24" 
+                      stroke="currentColor" 
+                      strokeWidth="4" 
+                      fill="transparent" 
+                      strokeDasharray={`${2 * Math.PI * 24}`}
+                      strokeDashoffset={`${2 * Math.PI * 24 * (1 - remainingPercentage)}`}
+                      className="transition-all duration-1000 text-sky-500" 
+                      strokeLinecap="round"
+                    />
+                  </svg>
+                  <div className="absolute inset-0 flex flex-col items-center justify-center">
+                    <span className="text-sm font-black leading-none text-slate-800 dark:text-white">{isUnlimitedDocs ? '∞' : docsAvailable}</span>
+                    <span className="text-[7px] font-bold text-slate-400 uppercase tracking-tighter mt-0.5">Disp.</span>
+                  </div>
+                </>
+              )}
+            </div>
+            <div className="flex flex-col min-w-0">
+              <p className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-1.5 flex items-center gap-2">
+                <DocumentTextIcon className="w-4 h-4 text-sky-500" /> Facturas Plan
+              </p>
+              <div className="flex flex-col gap-0.5">
+                <span className="text-xl md:text-2xl font-black text-slate-800 dark:text-white leading-none">
+                  {isUnlimitedDocs ? 'Ilimitadas' : `${docsAvailable} disp.`}
+                </span>
+                <span className="text-[10px] font-medium text-slate-400 dark:text-slate-500 truncate">
+                  {isUnlimitedDocs ? 'Consumo sin límites' : `de ${maxDocs} incluidas`}
+                </span>
+              </div>
             </div>
           </div>
         </div>

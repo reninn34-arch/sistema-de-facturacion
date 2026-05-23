@@ -82,11 +82,24 @@ export const buildInvoiceXml = (doc: Document, business: BusinessInfo, items: In
     <fechaEmision>${fechaEmision}</fechaEmision>
     <dirEstablecimiento>${escapeXml((business.branchAddress || business.address).trim())}</dirEstablecimiento>${business.specialTaxpayerCode ? `
     <contribuyenteEspecial>${business.specialTaxpayerCode}</contribuyenteEspecial>` : ''}
-    <obligadoContabilidad>${business.isAccountingObliged ? 'SI' : 'NO'}</obligadoContabilidad>
+    <obligadoContabilidad>${business.isAccountingObliged ? 'SI' : 'NO'}</obligadoContabilidad>${doc.exportDetails ? `
+    <comercioExterior>${escapeXml(doc.exportDetails.comercioExterior)}</comercioExterior>
+    <incoTermTotalSinImpuestos>${escapeXml(doc.exportDetails.incoTermTotalSinImpuestos)}</incoTermTotalSinImpuestos>
+    <incoTermFactura>${escapeXml(doc.exportDetails.incoTermFactura || doc.exportDetails.incoTermTotalSinImpuestos)}</incoTermFactura>
+    <lugarIncoterm>${escapeXml(doc.exportDetails.lugarIncoterm)}</lugarIncoterm>
+    <paisOrigen>593</paisOrigen>
+    <puertoEmbarque>${escapeXml(doc.exportDetails.puertoEmbarque)}</puertoEmbarque>
+    <puertoDestino>${escapeXml(doc.exportDetails.puertoDestino)}</puertoDestino>
+    <paisDestino>${escapeXml(doc.exportDetails.paisDestino)}</paisDestino>
+    <paisAdquisicion>${escapeXml(doc.exportDetails.paisDestino)}</paisAdquisicion>` : ''}${(doc.isReimbursement && doc.reimbursements && doc.reimbursements.length > 0) ? `
+    <codDocReembolso>41</codDocReembolso>
+    <totalComprobantesReembolso>${doc.reimbursements.reduce((acc, r) => acc + r.baseImponibleSinIva + r.baseImponibleConIva + r.impuestoReembolso, 0).toFixed(2)}</totalComprobantesReembolso>
+    <totalBaseImponibleReembolso>${doc.reimbursements.reduce((acc, r) => acc + r.baseImponibleSinIva + r.baseImponibleConIva, 0).toFixed(2)}</totalBaseImponibleReembolso>
+    <totalImpuestoReembolso>${doc.reimbursements.reduce((acc, r) => acc + r.impuestoReembolso, 0).toFixed(2)}</totalImpuestoReembolso>` : ''}
     <tipoIdentificacionComprador>${tipoIdComprador}</tipoIdentificacionComprador>
     <razonSocialComprador>${escapeXml(doc.entityName)}</razonSocialComprador>
-    <identificacionComprador>${doc.entityPhone || '9999999999999'}</identificacionComprador>${doc.entityEmail ? `
-    <direccionComprador>EMAIL: ${escapeXml(doc.entityEmail)}</direccionComprador>` : ''}
+    <identificacionComprador>${doc.entityRuc || '9999999999999'}</identificacionComprador>${doc.entityAddress ? `
+    <direccionComprador>${escapeXml(doc.entityAddress)}</direccionComprador>` : ''}
     <totalSinImpuestos>${totalSinImpuestos.toFixed(2)}</totalSinImpuestos>
     <totalDescuento>${totalDesc.toFixed(2)}</totalDescuento>
     <totalConImpuestos>${subtotal15 > 0 ? `
@@ -105,7 +118,7 @@ export const buildInvoiceXml = (doc: Document, business: BusinessInfo, items: In
         <valor>0.00</valor>
       </totalImpuesto>` : ''}
     </totalConImpuestos>
-    <propina>0.00</propina>
+    <propina>${(doc.tip || 0).toFixed(2)}</propina>
     <importeTotal>${doc.total.toFixed(2)}</importeTotal>
     <moneda>DOLAR</moneda>
     <pagos>
@@ -139,7 +152,37 @@ export const buildInvoiceXml = (doc: Document, business: BusinessInfo, items: In
       </impuestos>
     </detalle>`;
   }).join('')}
-  </detalles>${doc.additionalInfo ? `
+  </detalles>${(doc.isReimbursement && doc.reimbursements && doc.reimbursements.length > 0) ? `
+  <reembolsos>${doc.reimbursements.map(r => `
+    <reembolsoDetalle>
+      <tipoIdentificacionProveedorReembolso>${r.tipoIdentificacionProveedorReembolso}</tipoIdentificacionProveedorReembolso>
+      <identificacionProveedorReembolso>${r.identificacionProveedorReembolso}</identificacionProveedorReembolso>
+      <codPaisPagoProveedorReembolso>593</codPaisPagoProveedorReembolso>
+      <tipoProveedorReembolso>${r.tipoProveedorReembolso}</tipoProveedorReembolso>
+      <codDocReembolso>${r.codDocReembolso}</codDocReembolso>
+      <estabDocReembolso>${r.estabDocReembolso}</estabDocReembolso>
+      <ptoEmiDocReembolso>${r.ptoEmiDocReembolso}</ptoEmiDocReembolso>
+      <secuencialDocReembolso>${r.secuencialDocReembolso}</secuencialDocReembolso>
+      <fechaEmisionDocReembolso>${r.fechaEmisionDocReembolso}</fechaEmisionDocReembolso>
+      <numeroautorizacionDocReemb>${r.numeroautorizacionDocReemb}</numeroautorizacionDocReemb>
+      <detalleImpuestos>${r.baseImponibleSinIva > 0 ? `
+        <detalleImpuesto>
+          <codigo>2</codigo>
+          <codigoPorcentaje>0</codigoPorcentaje>
+          <tarifa>0.00</tarifa>
+          <baseImponibleReembolso>${r.baseImponibleSinIva.toFixed(2)}</baseImponibleReembolso>
+          <impuestoReembolso>0.00</impuestoReembolso>
+        </detalleImpuesto>` : ''}${r.baseImponibleConIva > 0 ? `
+        <detalleImpuesto>
+          <codigo>2</codigo>
+          <codigoPorcentaje>4</codigoPorcentaje>
+          <tarifa>15.00</tarifa>
+          <baseImponibleReembolso>${r.baseImponibleConIva.toFixed(2)}</baseImponibleReembolso>
+          <impuestoReembolso>${r.impuestoReembolso.toFixed(2)}</impuestoReembolso>
+        </detalleImpuesto>` : ''}
+      </detalleImpuestos>
+    </reembolsoDetalle>`).join('')}
+  </reembolsos>` : ''}${doc.additionalInfo ? `
   <infoAdicional>
     <campoAdicional nombre="Observaciones">${escapeXml(doc.additionalInfo)}</campoAdicional>
   </infoAdicional>` : ''}

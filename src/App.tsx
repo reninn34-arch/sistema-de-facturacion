@@ -221,9 +221,16 @@ const App: React.FC = () => {
       const plan = (businessInfo as any).plan;
       if (!plan) return;
 
+      const defaultLimits: Record<string, number> = { FREE: 10, BASIC: 100, GASTRONOMICO: 300, PRO: 500, ENTERPRISE: 2000, MONTHLY: 100, SEMIANNUAL: 100, YEARLY: 100 };
+      const fallbackLimit = defaultLimits[plan] !== undefined ? defaultLimits[plan] : 999999;
+
       try {
         const API_URL = import.meta.env.VITE_BACKEND_URL || '';
-        const response = await fetch(`${API_URL}/api/subscription-plans`);
+        const token = localStorage.getItem('adminToken');
+        const headers: Record<string, string> = {};
+        if (token) headers['Authorization'] = `Bearer ${token}`;
+
+        const response = await fetch(`${API_URL}/api/subscription-plans`, { headers });
         if (response.ok) {
           const data = await response.json();
           const plans = data.plans || [];
@@ -232,13 +239,17 @@ const App: React.FC = () => {
             setCurrentPlanHasAI(!!currentPlan.hasAIAssistant);
             setCurrentPlanHasAudit(!!currentPlan.hasAudit);
             setCurrentPlanDurationDays(currentPlan.durationDays ?? 30);
-            setCurrentPlanMaxInvoices(currentPlan.maxInvoicesPerMonth ?? 999999);
+            setCurrentPlanMaxInvoices(currentPlan.maxInvoicesPerMonth ?? fallbackLimit);
             setCurrentPlanMaxEmissionPoints(currentPlan.maxEmissionPoints ?? 1);
+            return;
           }
         }
       } catch (error) {
         // Silencioso - usar valores por defecto
       }
+      
+      // Si falla o no encuentra el plan, usar el límite por defecto
+      setCurrentPlanMaxInvoices(fallbackLimit);
     };
     loadPlanFeatures();
   }, [(businessInfo as any).plan]);
@@ -977,11 +988,11 @@ const App: React.FC = () => {
           <div className="space-y-6">
             {/* Mostrar resumen de ventas solo a administradores de empresa */}
             {currentUser?.role === 'ADMIN' && <SalesSummary documents={documents} />}
-            <Dashboard documents={documents} products={products} setActiveTab={setActiveTab} currentUser={currentUser} businessInfo={businessInfo} planHasAudit={currentPlanHasAudit || currentUser?.role === 'SUPERADMIN'} planDurationDays={currentPlanDurationDays} hasModuleControl={hasModuleControl} modulePermissions={modulePermissions} />
+            <Dashboard documents={documents} products={products} setActiveTab={setActiveTab} currentUser={currentUser} businessInfo={businessInfo} planHasAudit={currentPlanHasAudit || currentUser?.role === 'SUPERADMIN'} planDurationDays={currentPlanDurationDays} planMaxInvoices={currentPlanMaxInvoices} hasModuleControl={hasModuleControl} modulePermissions={modulePermissions} />
           </div>
         );
 
-      case 'invoices': return <InvoiceForm clients={clients} products={products} businessInfo={effectiveBusinessInfo} signatureFile={signatureFile} signaturePassword={signaturePassword} notificationSettings={notificationSettings} onNotify={showNotify} onAuthorize={handleDocumentAuthorized} emissionPoints={emissionPoints} selectedEmissionPoint={selectedEmissionPoint} onSelectEmissionPoint={setSelectedEmissionPoint} />;
+      case 'invoices': return <InvoiceForm clients={clients} setClients={setClients} isDemoMode={isDemoMode} products={products} businessInfo={effectiveBusinessInfo} signatureFile={signatureFile} signaturePassword={signaturePassword} notificationSettings={notificationSettings} onNotify={showNotify} onAuthorize={handleDocumentAuthorized} emissionPoints={emissionPoints} selectedEmissionPoint={selectedEmissionPoint} onSelectEmissionPoint={setSelectedEmissionPoint} />;
       case 'credit-notes': return (
         <CreditNoteForm
           clients={clients}
@@ -1007,7 +1018,7 @@ const App: React.FC = () => {
       case 'notifications': return <NotificationSettingsComponent settings={notificationSettings} onSave={handleSaveNotificationSettings} onNotify={showNotify} />;
       case 'reports': return <Reports documents={documents} businessInfo={businessInfo} onConvertProforma={() => {
         setActiveTab('invoices');
-        toast.success('Cree una nueva factura con los datos de la proforma');
+        showNotify('Cree una nueva factura con los datos de la proforma', 'success');
       }} setActiveTab={setActiveTab} />;
       case 'purchases': return (
         <PurchaseManager
