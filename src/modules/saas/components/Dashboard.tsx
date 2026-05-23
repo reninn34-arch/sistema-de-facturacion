@@ -21,6 +21,7 @@ import {
   ClockIcon,
   ShieldExclamationIcon,
   ArrowRightIcon,
+  TrophyIcon,
 } from '@heroicons/react/24/outline';
 
 interface SubscriptionStats {
@@ -55,6 +56,7 @@ interface DashboardProps {
   planDurationDays?: number;
   hasModuleControl?: boolean;
   modulePermissions?: { moduleCode: string; granted: boolean }[];
+  pointsProgramEnabled?: boolean;
 }
 
 const planColors: Record<string, string> = {
@@ -70,7 +72,7 @@ const planColors: Record<string, string> = {
   PENDING: 'gray'
 };
 
-const Dashboard: React.FC<DashboardProps> = ({ documents, products, setActiveTab, currentUser, businessInfo, planHasAudit, planDurationDays = 30, hasModuleControl = false, modulePermissions = [] }) => {
+const Dashboard: React.FC<DashboardProps> = ({ documents, products, setActiveTab, currentUser, businessInfo, planHasAudit, planDurationDays = 30, hasModuleControl = false, modulePermissions = [], pointsProgramEnabled = true }) => {
   const [auditResult, setAuditResult] = useState<AuditResult | null>(null);
   const [auditLoading, setAuditLoading] = useState(true);
   const [auditError, setAuditError] = useState<string | null>(null);
@@ -467,6 +469,27 @@ const Dashboard: React.FC<DashboardProps> = ({ documents, products, setActiveTab
         </Card>
       </div>
 
+      {pointsProgramEnabled && (() => {
+        const points = (businessInfo as any)?.points || 0;
+        if (points <= 0 && (businessInfo as any)?.referralCode) return null;
+        return (
+          <div className="bg-gradient-to-r from-amber-50 to-amber-100/50 border border-amber-200 rounded-2xl p-4 flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 bg-amber-500 rounded-xl flex items-center justify-center">
+                <TrophyIcon className="w-5 h-5 text-white" />
+              </div>
+              <div>
+                <p className="font-bold text-sm text-amber-800">{points > 0 ? `${points} Puntos Acumulados` : 'Programa de Puntos'}</p>
+                <p className="text-xs text-amber-600">{points > 0 ? 'Invita empresas y canjea premios' : 'Activa tu codigo de referido'}</p>
+              </div>
+            </div>
+            <button onClick={() => setActiveTab('security-points')} className="px-4 py-2 bg-amber-500 text-white rounded-xl font-bold text-xs hover:bg-amber-600 transition-all">
+              Ver Puntos
+            </button>
+          </div>
+        );
+      })()}
+
       {/* ROW 2: Documents Summary (Shopify Analytics Style) */}
       <Card padding="none" className="bg-white dark:bg-slate-900 border-none shadow-sm overflow-hidden">
         <div className="p-6 border-b border-slate-100 dark:border-slate-800/50 flex justify-between items-center bg-slate-50/50 dark:bg-slate-800/20">
@@ -510,6 +533,54 @@ const Dashboard: React.FC<DashboardProps> = ({ documents, products, setActiveTab
           </div>
         </div>
       </Card>
+
+      {(() => {
+        const topClientsDashboard = (() => {
+          const map: Record<string, { name: string; total: number; count: number }> = {};
+          safeDocuments.filter((d: any) => d.type === '01' && (d.status === 'AUTORIZADA' || d.status === 'AUTORIZADO')).forEach((doc: any) => {
+            const key = doc.entityName || 'CONSUMIDOR FINAL';
+            if (!map[key]) map[key] = { name: key, total: 0, count: 0 };
+            map[key].total += doc.total || 0;
+            map[key].count += 1;
+          });
+          return Object.values(map).sort((a, b) => b.total - a.total).slice(0, 5);
+        })();
+        if (topClientsDashboard.length === 0) return null;
+        return (
+      <Card padding="lg" className="bg-white dark:bg-slate-900 border-none shadow-sm">
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="font-bold text-slate-800 dark:text-white uppercase tracking-tight text-sm flex items-center gap-2">
+            <TrophyIcon className="w-5 h-5 text-amber-500" />
+            Top 5 Clientes
+          </h3>
+          <button onClick={() => setActiveTab('reports')} className="text-xs font-bold text-sky-500 hover:text-sky-600 flex items-center gap-1">
+            Ver Reporte <ArrowRightIcon className="w-3 h-3" />
+          </button>
+        </div>
+        <div className="space-y-3">
+          {topClientsDashboard.map((client, idx) => (
+            <div key={client.name} className="flex items-center gap-3">
+              <span className={`w-6 h-6 rounded-lg flex items-center justify-center text-[10px] font-black ${idx === 0 ? 'bg-amber-500 text-white' : 'bg-slate-100 dark:bg-slate-800 text-slate-400'}`}>
+                {idx + 1}
+              </span>
+              <div className="flex-1 min-w-0">
+                <div className="flex justify-between items-baseline mb-1">
+                  <span className="text-xs font-bold text-slate-700 dark:text-slate-300 truncate">{client.name}</span>
+                  <span className="text-xs font-black text-sky-500 ml-2 flex-shrink-0">${client.total.toFixed(0)}</span>
+                </div>
+                <div className="h-1.5 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
+                  <div
+                    className="h-full bg-gradient-to-r from-sky-400 to-sky-500 rounded-full transition-all duration-700"
+                    style={{ width: `${Math.max(5, (client.total / (topClientsDashboard[0]?.total || 1)) * 100)}%` }}
+                  />
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </Card>
+        );
+      })()}
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8">
         {/* Auditoría: ocultar si el módulo está denegado vía permisos */}

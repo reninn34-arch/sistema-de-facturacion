@@ -5,6 +5,8 @@ import {
   CheckCircleIcon,
   ExclamationCircleIcon,
   ArrowPathIcon,
+  EyeIcon,
+  EyeSlashIcon,
 } from '@heroicons/react/24/outline';
 import RichTextEditor from '../../../components/RichTextEditor';
 
@@ -310,6 +312,7 @@ const LandingPageEditor: React.FC = () => {
   const [saved, setSaved] = useState(false);
   const [error, setError] = useState('');
   const [loadError, setLoadError] = useState('');
+  const [showPreview, setShowPreview] = useState(false);
 
   useEffect(() => {
     const token = localStorage.getItem('adminToken');
@@ -520,12 +523,22 @@ const LandingPageEditor: React.FC = () => {
   }
 
   return (
-    <div className="p-6 max-w-4xl mx-auto space-y-6">
+    <div className={`${showPreview ? 'flex gap-0 h-[calc(100vh-64px)] overflow-hidden' : 'p-6 max-w-4xl mx-auto space-y-6'}`}>
+      <div className={`${showPreview ? 'flex-1 overflow-y-auto p-6 space-y-6' : ''}`}>
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-black text-slate-800 tracking-tight">
           Contenido de la Landing Page
         </h1>
-        <SaveButton />
+        <div className="flex gap-3">
+          <button
+            onClick={() => setShowPreview(!showPreview)}
+            className={`px-4 py-2 rounded-xl font-bold text-xs uppercase flex items-center gap-2 transition-all ${showPreview ? 'bg-sky-500 text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'}`}
+          >
+            {showPreview ? <EyeSlashIcon className="w-4 h-4" /> : <EyeIcon className="w-4 h-4" />}
+            {showPreview ? 'Ocultar Preview' : 'Vista Previa'}
+          </button>
+          <SaveButton />
+        </div>
       </div>
 
       {loadError && (
@@ -1154,6 +1167,105 @@ const LandingPageEditor: React.FC = () => {
       <div className="flex justify-end pt-2">
         <SaveButton />
       </div>
+      </div>
+
+      {showPreview && (
+        <div className="w-[420px] border-l border-slate-200 bg-white overflow-y-auto flex-shrink-0 shadow-2xl z-10">
+          <div className="sticky top-0 bg-white border-b border-slate-100 p-4 z-10">
+            <p className="text-xs font-black text-slate-400 uppercase tracking-widest text-center">Vista Previa en Vivo</p>
+          </div>
+
+          <div className="p-5 space-y-6 scale-[0.85] origin-top-left" style={{ width: 'calc(100% / 0.85)' }}>
+            {/* Hero Section */}
+            <div className="bg-gradient-to-br from-sky-600 to-sky-800 rounded-2xl p-6 text-white">
+              <span className="inline-block bg-white/20 px-2 py-0.5 rounded-full text-[10px] font-black uppercase mb-2">{content.hero.badge || 'Badge'}</span>
+              <h2 className="text-lg font-extrabold leading-tight mb-1">{content.hero.headline}</h2>
+              <p className="text-white/70 text-[11px] leading-relaxed mb-3">{content.hero.subheadline}</p>
+              <div className="flex gap-2">
+                <span className="bg-white text-sky-700 px-3 py-1.5 rounded-lg text-[10px] font-black">{content.hero.primaryCta}</span>
+                <span className="border border-white/30 text-white px-3 py-1.5 rounded-lg text-[10px] font-bold">{content.hero.secondaryCta}</span>
+              </div>
+            </div>
+
+            {/* Stats */}
+            <div className="grid grid-cols-2 gap-2">
+              {content.stats.slice(0, 4).map((s, i) => (
+                <div key={i} className="bg-sky-50 rounded-xl p-3 text-center">
+                  <p className="text-lg font-black text-sky-600">{s.value}{s.suffix}</p>
+                  <p className="text-[9px] font-bold text-slate-400 uppercase">{s.label}</p>
+                </div>
+              ))}
+            </div>
+
+            {/* Features */}
+            <div>
+              <h3 className="text-sm font-black text-slate-800 mb-2 text-center">Funcionalidades</h3>
+              <div className="grid grid-cols-2 gap-1.5">
+                {content.features.slice(0, 6).map((f, i) => (
+                  <div key={i} className="bg-slate-50 rounded-xl p-2.5">
+                    <p className="text-[10px] font-bold text-slate-700">{f.title}</p>
+                    <p className="text-[9px] text-slate-400 leading-tight">{f.description.substring(0, 50)}...</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* How it Works */}
+            <div>
+              <h3 className="text-sm font-black text-slate-800 mb-2 text-center">Como Funciona</h3>
+              <div className="flex gap-2">
+                {content.howItWorks.slice(0, 3).map((s, i) => (
+                  <div key={i} className="flex-1 bg-white border border-slate-200 rounded-xl p-2.5 text-center">
+                    <div className="w-6 h-6 rounded-full bg-sky-500 text-white flex items-center justify-center text-[10px] font-black mx-auto mb-1">{s.step}</div>
+                    <p className="text-[9px] font-bold text-slate-700">{s.title}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Testimonials */}
+            <div>
+              <h3 className="text-sm font-black text-slate-800 mb-2 text-center">Testimonios</h3>
+              <div className="space-y-1.5">
+                {content.testimonials.slice(0, 3).map((t, i) => (
+                  <div key={i} className="bg-slate-50 rounded-xl p-2.5">
+                    <p className="text-[10px] italic text-slate-600">"{t.quote.substring(0, 80)}..."</p>
+                    <p className="text-[9px] font-bold text-slate-700 mt-1">{t.name} - {t.business}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* FAQ */}
+            <div>
+              <h3 className="text-sm font-black text-slate-800 mb-2 text-center">FAQ</h3>
+              <div className="space-y-1">
+                {content.faq.slice(0, 3).map((f, i) => (
+                  <div key={i} className="bg-slate-50 rounded-lg p-2">
+                    <p className="text-[9px] font-bold text-slate-700">{f.question}</p>
+                    <p className="text-[8px] text-slate-400">{f.answer.substring(0, 60)}...</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Final CTA */}
+            <div className="bg-gradient-to-br from-sky-600 to-sky-800 rounded-2xl p-6 text-white text-center">
+              <h3 className="text-base font-extrabold mb-1">{content.finalCta.headline}</h3>
+              <p className="text-white/70 text-[10px] mb-3">{content.finalCta.subheadline}</p>
+              <div className="flex gap-2 justify-center">
+                <span className="bg-white text-sky-700 px-3 py-1.5 rounded-lg text-[10px] font-black">{content.finalCta.primaryCta}</span>
+              </div>
+            </div>
+
+            {/* Contact & Footer */}
+            <div className="bg-slate-800 rounded-xl p-4 text-center text-white">
+              <p className="text-[10px] font-bold">{content.contact.phone} | {content.contact.email}</p>
+              <p className="text-[9px] text-slate-400 mt-1">{content.footer.tagline}</p>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

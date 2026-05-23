@@ -32,24 +32,36 @@ export default function Form104({ documents, business, onNotify }: Form104Props)
       return docMonth === month && docYear === year && doc.status === 'AUTORIZADA' && doc.type === '01';
     });
 
-    const taxableBase0 = filteredDocs.reduce((sum, doc) => {
-      const subtotal0 = doc.items?.filter(i => i.taxRate === 0).reduce((s, item) => s + (item.unitPrice * item.quantity - item.discount), 0) || 0;
-      return sum + subtotal0;
+    const salesDocs = filteredDocs.filter(d => (d as any).source !== 'RECEIVED');
+    const purchaseDocs = filteredDocs.filter(d => (d as any).source === 'RECEIVED');
+
+    const taxableBase0 = salesDocs.reduce((sum, doc) => {
+      const sub0 = doc.items?.filter(i => i.taxRate === 0).reduce((s, item) => s + (item.unitPrice * item.quantity - item.discount), 0) || 0;
+      return sum + sub0;
     }, 0);
-    const taxableBase12 = filteredDocs.reduce((sum, doc) => {
-      const subtotal12 = doc.items?.filter(i => i.taxRate > 0).reduce((s, item) => s + (item.unitPrice * item.quantity - item.discount), 0) || 0;
-      return sum + subtotal12;
+    const taxableBase12 = salesDocs.reduce((sum, doc) => {
+      const sub12 = doc.items?.filter(i => i.taxRate > 0).reduce((s, item) => s + (item.unitPrice * item.quantity - item.discount), 0) || 0;
+      return sum + sub12;
     }, 0);
     const generatedIva = taxableBase12 * 0.15;
+
+    const purchasesWithCredit = purchaseDocs.reduce((sum, doc) => {
+      const base12 = doc.items?.filter(i => i.taxRate > 0).reduce((s, item) => s + (item.unitPrice * item.quantity - item.discount), 0) || 0;
+      return sum + base12;
+    }, 0);
+    const ivaPurchases = purchaseDocs.reduce((sum, doc) => {
+      const iva = doc.items?.filter(i => i.taxRate > 0).reduce((s, item) => s + ((item.unitPrice * item.quantity - item.discount) * (item.taxRate / 100)), 0) || 0;
+      return sum + iva;
+    }, 0);
 
     return {
       period: `${month}/${year}`,
       taxableBase0,
       taxableBase12,
       generatedIva,
-      purchasesWithCredit: 0, // Requiere módulo de compras
-      ivaPurchases: 0, // Requiere módulo de compras
-      ivaToPayOrCredit: generatedIva
+      purchasesWithCredit,
+      ivaPurchases,
+      ivaToPayOrCredit: generatedIva - ivaPurchases
     };
   }, [documents, month, year]);
 

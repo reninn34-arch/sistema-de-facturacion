@@ -3,6 +3,8 @@ import React, { useEffect, useState } from 'react';
 import { Document, BusinessInfo, InvoiceItem } from '../../../types/types';
 import QRCode from 'qrcode';
 import { DocumentTextIcon, PrinterIcon, BuildingOffice2Icon } from '@heroicons/react/24/outline';
+import { jsPDF } from 'jspdf';
+import autoTable from 'jspdf-autotable';
 
 interface RideViewerProps {
   document: Document;
@@ -34,55 +36,186 @@ const RideViewer: React.FC<RideViewerProps> = ({ document, businessInfo, items, 
   }, [document.accessKey]);
 
   const handlePrint = () => {
-    window.print();
+    const rideEl = window.document.getElementById('ride-content');
+    if (!rideEl) return;
+
+    const printWindow = window.open('', '_blank', 'width=800,height=600');
+    if (!printWindow) {
+      alert('El navegador bloqueó la ventana de impresión. Permita ventanas emergentes.');
+      return;
+    }
+
+    const content = rideEl.cloneNode(true) as HTMLElement;
+    const controls = content.querySelector('.print\\:hidden');
+    if (controls) controls.remove();
+
+    printWindow.document.write(`
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <title>RIDE - ${document.number}</title>
+        <script src="https://cdn.tailwindcss.com"><\/script>
+        <style>
+          * { box-sizing: border-box; }
+          body { 
+            margin: 0; padding: 20px 24px;
+            font-family: serif;
+            background: white;
+            color: #1e293b;
+          }
+          @media print {
+            @page { size: A4; margin: 10mm; }
+            body { margin: 0; padding: 0; }
+          }
+          .print\\:hidden { display: none !important; }
+        </style>
+      </head>
+      <body>${content.outerHTML}</body>
+      </html>
+    `);
+    printWindow.document.close();
+
+    printWindow.onload = () => {
+      setTimeout(() => {
+        printWindow.print();
+        printWindow.close();
+      }, 400);
+    };
   };
 
   const handleDownloadPDF = async () => {
     setIsGeneratingPdf(true);
     try {
-      // Importar html2pdf dinámicamente
-      const html2pdf = (await import('html2pdf.js')).default;
-      
-      // Usar window.document para evitar colisión con el prop "document"
-      const element = window.document.getElementById('ride-content');
-      if (!element) {
-        console.error('No se encontró el elemento RIDE');
+      if (!items || items.length === 0) {
+        alert('No hay productos para incluir en el PDF.');
         setIsGeneratingPdf(false);
         return;
       }
 
-      const opt = {
-        margin: [5, 5, 5, 5],
-        filename: `factura_${document.number.replace(/-/g, '_')}.pdf`,
-        image: { type: 'jpeg', quality: 0.95 },
-        html2canvas: { 
-          scale: 1.5,
-          useCORS: true,
-          letterRendering: true,
-          logging: false,
-          scrollY: 0,
-          scrollX: 0,
-          windowHeight: element.scrollHeight,
-          windowWidth: element.scrollWidth
-        },
-        jsPDF: { 
-          unit: 'mm', 
-          format: 'a4', 
-          orientation: 'portrait',
-          compress: true
-        },
-        pagebreak: { 
-          mode: ['avoid-all', 'css', 'legacy'],
-          before: '.page-break-before',
-          after: '.page-break-after',
-          avoid: ['img', 'table', '.no-break', '.qr-code']
-        }
-      };
+      let qrBase64 = '';
+      if (document.accessKey) {
+        try {
+          qrBase64 = await QRCode.toDataURL(document.accessKey, {
+            margin: 1, width: 160,
+            color: { dark: '#000000', light: '#ffffff' }
+          });
+        } catch { /* sin QR */ }
+      }
 
-      await html2pdf().set(opt).from(element).save();
+      const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+
+      const sub15 = items.reduce((a, b) => b.taxRate > 0 ? a + (b.quantity * b.unitPrice - (b.discount || 0)) : a, 0);
+      const sub0 = items.reduce((a, b) => b.taxRate === 0 ? a + (b.quantity * b.unitPrice - (b.discount || 0)) : a, 0);
+      const iva = items.reduce((a, b) => b.taxRate > 0 ? a + ((b.quantity * b.unitPrice - (b.discount || 0)) * (b.taxRate / 100)) : a, 0);
+      const desc = items.reduce((a, b) => a + (b.discount || 0), 0);
+      const total = sub15 + sub0 + iva;
+
+      let y = 15;
+
+      pdf.setDrawColor(0);
+      pdf.setLineWidth(0.5);
+      pdf.rect(10, y, 90, 40);
+      pdf.rect(100, y, 100, 40);
+
+      let logoRightEdge = 12;
+      if (businessInfo.logo) {
+        try {
+          const imgProps = pdf.getImageProperties(businessInfo.logo);
+          const aspectRatio = imgProps.width / imgProps.height;
+          const maxH = 36;
+          const maxW = 55;
+          let lw: number, lh: number;
+          if (aspectRatio > 1) { lw = Math.min(maxW, maxH * aspectRatio); lh = lw / aspectRatio; }
+          else { lh = maxH; lw = lh * aspectRatio; }
+          pdf.addImage(businessInfo.logo, 'PNG', 12, y + 6, lw, lh);
+          logoRightEdge = 12 + lw + 3;
+        } catch { /* logo falló */ }
+      }
+      pdf.setFontSize(9);
+      pdf.setFont('helvetica', 'bold');
+      pdf.text(businessInfo.name, logoRightEdge, y + 10, { maxWidth: 88 - logoRightEdge });
+      pdf.setFontSize(7);
+      pdf.setFont('helvetica', 'normal');
+      pdf.text(`Dir: ${businessInfo.address}`, 12, y + 20, { maxWidth: 86 });
+      pdf.text(`RUC: ${businessInfo.ruc}`, 12, y + 26);
+      pdf.text(`Obligado contabilidad: ${businessInfo.isAccountingObliged ? 'SI' : 'NO'}`, 12, y + 32);
+
+      const isProforma = (document as any).type === '00';
+      pdf.setFontSize(10);
+      pdf.setFont('helvetica', 'bold');
+      pdf.text(isProforma ? 'PROFORMA' : 'FACTURA', 150, y + 10, { align: 'center' });
+      pdf.setFontSize(8);
+      pdf.setFont('helvetica', 'normal');
+      pdf.text(`No. ${document.number}`, 150, y + 16, { align: 'center' });
+      pdf.setFontSize(7);
+      pdf.text(`Clave: ${document.accessKey}`, 102, y + 24, { maxWidth: 96 });
+      pdf.text(`Fecha: ${document.issueDate || new Date().toLocaleDateString()}`, 102, y + 32);
+
+      y += 48;
+
+      pdf.setFontSize(8);
+      pdf.setFont('helvetica', 'bold');
+      pdf.text('DATOS DEL CLIENTE', 12, y);
+      y += 5;
+      pdf.setFont('helvetica', 'normal');
+      pdf.setFontSize(7);
+      pdf.text(`Razon Social: ${document.entityName}`, 12, y);
+      pdf.text(`RUC/CI: ${document.entityRuc || '9999999999'}`, 100, y);
+      y += 5;
+      pdf.text(`Email: ${document.entityEmail || 'N/A'}`, 12, y);
+      pdf.text(`Direccion: ${document.entityAddress || 'N/A'}`, 100, y);
+
+      y += 10;
+
+      const rows = items.map((it, i) => [
+        `ITM-${i + 1}`,
+        String(it.quantity),
+        it.description,
+        `$${it.unitPrice.toFixed(2)}`,
+        `$${(it.discount || 0).toFixed(2)}`,
+        `$${(it.quantity * it.unitPrice - (it.discount || 0)).toFixed(2)}`
+      ]);
+
+      autoTable(pdf, {
+        startY: y,
+        head: [['Cod', 'Cant', 'Descripcion', 'P.Unit', 'Desc', 'Total']],
+        body: rows,
+        styles: { fontSize: 7, cellPadding: 1.5 },
+        headStyles: { fillColor: [241, 245, 249], textColor: [30, 41, 59], fontStyle: 'bold' },
+      });
+
+      y = (pdf as any).lastAutoTable.finalY + 8;
+
+      pdf.setFontSize(7);
+      pdf.setFont('helvetica', 'bold');
+      pdf.text(`SUBTOTAL 15%:`, 12, y);
+      pdf.text(`$${sub15.toFixed(2)}`, 60, y, { align: 'right' });
+      pdf.text(`SUBTOTAL 0%:`, 80, y);
+      pdf.text(`$${sub0.toFixed(2)}`, 128, y, { align: 'right' });
+      y += 5;
+      pdf.text(`SUBTOTAL SIN IMPUESTOS:`, 12, y);
+      pdf.text(`$${(sub15 + sub0).toFixed(2)}`, 60, y, { align: 'right' });
+      pdf.text(`DESCUENTO:`, 80, y);
+      pdf.text(`$${desc.toFixed(2)}`, 128, y, { align: 'right' });
+      y += 5;
+      pdf.text(`IVA 15%:`, 12, y);
+      pdf.text(`$${iva.toFixed(2)}`, 60, y, { align: 'right' });
+      y += 5;
+      pdf.setFontSize(9);
+      pdf.text(`VALOR TOTAL:`, 12, y);
+      pdf.text(`$${total.toFixed(2)}`, 60, y, { align: 'right' });
+
+      if (qrBase64) {
+        pdf.addImage(qrBase64, 'PNG', 120, y - 10, 30, 30);
+        pdf.setFontSize(6);
+        pdf.text('Escanee para verificar', 135, y + 22, { align: 'center' });
+      }
+
+      const label = isProforma ? 'proforma' : 'factura';
+      pdf.save(`${label}_${String(document.number).replace(/-/g, '_')}.pdf`);
     } catch (error) {
       console.error('Error generando PDF:', error);
-      alert('Error al generar el PDF. Intente usar el botón de Imprimir.');
+      alert('Error al generar el PDF. Use el boton Imprimir y seleccione "Guardar como PDF".');
     } finally {
       setIsGeneratingPdf(false);
     }
@@ -106,37 +239,18 @@ const RideViewer: React.FC<RideViewerProps> = ({ document, businessInfo, items, 
   const finalTotal = subtotal15 + subtotal0 + totalIva;
 
   return (
-    <div className="fixed inset-0 bg-slate-900/90 backdrop-blur-sm z-[300] overflow-y-auto print:p-0 print:bg-white print:static print:block print:overflow-visible">
+    <div className="fixed inset-0 bg-slate-900/90 backdrop-blur-sm z-[300] overflow-y-auto">
       {/* Estilos inyectados específicamente para impresión */}
       <style dangerouslySetInnerHTML={{ __html: `
         @media print {
-          @page { 
-            size: A4; 
-            margin: 10mm; 
-          }
-          body { 
-            background: white !important; 
-            margin: 0 !important;
-            padding: 0 !important;
-          }
-          .print-container {
-            width: 100% !important;
-            max-width: none !important;
-            margin: 0 !important;
-            padding: 0 !important;
-            box-shadow: none !important;
-            border: none !important;
-            -webkit-print-color-adjust: exact;
-            print-color-adjust: exact;
-          }
-          /* Ocultar scrollbars y otros elementos */
-          ::-webkit-scrollbar { display: none; }
+          @page { size: A4; margin: 10mm; }
+          body { background: white !important; }
         }
       `}} />
 
       {/* Contenedor con scroll mejorado */}
-      <div className="min-h-screen flex items-start justify-center py-8 px-4 print:p-0 print:min-h-0">
-        <div className="print-container bg-white w-full max-w-[210mm] shadow-2xl rounded-xl overflow-hidden print:shadow-none print:rounded-none print:w-full">
+      <div className="min-h-screen flex items-start justify-center py-8 px-4">
+        <div className="print-container bg-white w-full max-w-[210mm] shadow-2xl rounded-xl overflow-hidden">
           {/* Header de controles (No se imprime) - FIXED al top */}
           <div className="sticky top-0 z-10 bg-white shadow-md flex justify-between items-center px-6 py-4 border-b border-slate-200 print:hidden">
             <div className="flex items-center gap-4">
@@ -181,7 +295,7 @@ const RideViewer: React.FC<RideViewerProps> = ({ document, businessInfo, items, 
             {/* Bloque Izquierdo: Emisor */}
             <div className="border border-slate-300 p-2 rounded-lg flex flex-col items-center justify-center space-y-2 text-center">
               {businessInfo.logo ? (
-                <img src={businessInfo.logo} className="max-h-16 object-contain" alt="Logo" />
+                <img src={businessInfo.logo} className="max-h-32 object-contain" alt="Logo" />
               ) : (
                 <div className="w-12 h-12 bg-slate-100 flex items-center justify-center rounded-xl"><BuildingOffice2Icon className="w-6 h-6 text-slate-400" /></div>
               )}

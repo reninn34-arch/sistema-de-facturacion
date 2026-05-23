@@ -53,6 +53,8 @@ model Business {
   sriPassword          String?  // Clave de la firma electrónica
 
   features             Json?    // Permisos/Módulos habilitados (Inventario, Contabilidad, etc.)
+  points               Int      @default(0)  // Puntos acumulados del programa de fidelidad
+  referralCode         String?  @unique  // Codigo unico de referido
   subscriptionStart    DateTime? @default(now())
   subscriptionEnd      DateTime?
   subscriptionStatus   String   @default("ACTIVE") // ACTIVE, EXPIRED, SUSPENDED
@@ -69,8 +71,10 @@ model Business {
   subscriptions Subscription[]
   activationRequests ActivationRequest[]
    recipes     Recipe[]
-   productionRecords ProductionRecord[]
-   quickSales  QuickSale[]
+    productionRecords ProductionRecord[]
+    quickSales  QuickSale[]
+    emissionPoints EmissionPoint[]
+    referrals   Referral[] @relation("Referrer")
 }
 
 // ---------------------------------------------------------
@@ -88,6 +92,15 @@ model User {
    // (Es opcional '?' porque el SUPERADMIN podría no tener empresa)
    businessId String?   
    business   Business? @relation(fields: [businessId], references: [id], onDelete: Cascade)
+   
+   // Seguridad
+   emailVerified        Boolean   @default(false)
+   verificationToken    String?
+   passwordResetToken   String?
+   passwordResetExpires DateTime?
+   failedLoginAttempts  Int       @default(0)
+   lockedUntil          DateTime?
+   refreshToken         String?
    
    documents  Document[]
    modulePermissions UserModulePermission[]
@@ -111,6 +124,12 @@ model Client {
   address   String?
   phone     String?
   type      String   // CLIENTE, PROVEEDOR, AMBOS
+  
+  passwordResetToken   String?
+  passwordResetExpires DateTime?
+  failedLoginAttempts  Int       @default(0)
+  lockedUntil          DateTime?
+  
   createdAt DateTime @default(now())
 
   // SAAS: Pertenece a una empresa
@@ -341,6 +360,7 @@ model ActivationRequest {
   
   // Notas del administrador
   adminNotes      String?
+  documents       Json?     // { cedula: base64, rucDoc: base64, nombramiento: base64 }
   
   // Usuario que aprobó/rechazó (si aplica)
   processedBy     String?
@@ -375,6 +395,7 @@ model SubscriptionPlan {
   hasPrioritySupport  Boolean  @default(false)
   hasAudit            Boolean  @default(false)
   hasModuleControl    Boolean  @default(false)  // Permite que el ADMIN de empresa gestione módulos por usuario
+  maxEmissionPoints   Int      @default(1)   // Puntos de emision maximos
   isActive            Boolean  @default(true)
   displayOrder        Int      @default(0)
   ctaType             String?  // "NORMAL" | "WHATSAPP" - tipo de botón CTA en la landing
@@ -540,4 +561,72 @@ model Session {
 
   @@index([userId])
   @@index([businessId])
+}
+
+model EmissionPoint {
+  id                  String   @id @default(uuid())
+  businessId          String
+  business            Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  establishmentCode   String   @default("001")
+  emissionPointCode   String   @default("001")
+  description         String?
+  isActive            Boolean  @default(true)
+  createdAt           DateTime @default(now())
+
+  @@unique([businessId, establishmentCode, emissionPointCode])
+}
+
+model Referral {
+  id                String   @id @default(uuid())
+  referrerBusinessId String
+  referrer          Business @relation("Referrer", fields: [referrerBusinessId], references: [id], onDelete: Cascade)
+  referredName      String   // Nombre de la empresa referida
+  referredRuc       String?
+  referralCode      String   // Codigo usado
+  pointsAwarded     Int      @default(0)
+  status            String   @default("PENDING")  // PENDING, COMPLETED, REJECTED
+  createdAt         DateTime @default(now())
+  completedAt       DateTime?
+
+  @@index([referrerBusinessId])
+  @@index([referralCode])
+}
+
+model PointsConfig {
+  id                      String   @id @default("global")
+  enabled                 Boolean  @default(true)
+  pointsPerReferral       Int      @default(50)
+  maxRedemptionsPerMonth  Int      @default(3)
+  updatedAt               DateTime @updatedAt
+}
+
+model Prize {
+  id          String   @id @default(uuid())
+  name        String
+  description String?
+  points      Int
+  icon        String   @default("🎁")
+  isActive    Boolean  @default(true)
+  displayOrder Int     @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model BlogPost {
+  id          String   @id @default(uuid())
+  title       String
+  slug        String   @unique
+  content     String   // HTML del contenido
+  excerpt     String?  // Resumen corto
+  coverImage  String?  // URL de imagen de portada
+  category    String   @default("tutoriales") // tutoriales, capacitaciones, noticias
+  tags        String[] // Etiquetas para SEO
+  videoUrl    String?  // URL de YouTube/Vimeo para capacitaciones
+  published   Boolean  @default(false)
+  publishedAt DateTime?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([category])
+  @@index([published])
 }

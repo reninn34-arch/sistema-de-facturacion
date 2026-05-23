@@ -1,10 +1,12 @@
 const { PrismaClient } = require('@prisma/client');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+const crypto = require('crypto');
 const { catchAsync, AppError } = require('../middleware/error.handler');
 const { validatePayment, validateAmount } = require('../services/paypal.service');
 const prisma = require('../../prisma/client');
 const sessionController = require('./session.controller');
+const emailService = require('../services/email.service');
 
 console.log("? [LOAD] Cargando AuthController..."); // Log para verificar carga
 
@@ -13,6 +15,9 @@ if (!process.env.JWT_SECRET) {
   console.warn('?? JWT_SECRET no est� configurado en .env - usando valor por defecto inseguro');
 }
 const JWT_SECRET = process.env.JWT_SECRET || 'secret_key_change_me';
+
+const MAX_LOGIN_ATTEMPTS = 5;
+const LOCKOUT_DURATION_MINUTES = 15;
 
 const authController = {
   // Login de Usuarios (Panel Administrativo)
@@ -48,17 +53,41 @@ const authController = {
     }
 
     if (!user || !user.isActive) {
-      console.log('?? [LOGIN] Usuario no encontrado o inactivo:', email);
-      throw new AppError('Credenciales inv�lidas o usuario inactivo', 401);
+      console.log('⚠️ [LOGIN] Usuario no encontrado o inactivo:', email);
+      throw new AppError('Credenciales inválidas o usuario inactivo', 401);
+    }
+
+    if (user.lockedUntil && new Date(user.lockedUntil) > new Date()) {
+      const minutesLeft = Math.ceil((new Date(user.lockedUntil) - new Date()) / 60000);
+      console.log('🔒 [LOGIN] Cuenta bloqueada:', email, '-', minutesLeft, 'min restantes');
+      throw new AppError(`Cuenta bloqueada por exceso de intentos. Intente de nuevo en ${minutesLeft} minuto(s).`, 423);
     }
 
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
-      console.log('?? [LOGIN] Contrase�a incorrecta para:', email);
-      throw new AppError('Credenciales inv�lidas', 401);
+      const attempts = (user.failedLoginAttempts || 0) + 1;
+      const updateData = { failedLoginAttempts: attempts };
+      if (attempts >= MAX_LOGIN_ATTEMPTS) {
+        updateData.lockedUntil = new Date(Date.now() + LOCKOUT_DURATION_MINUTES * 60 * 1000);
+        console.log('🔒 [LOGIN] Cuenta bloqueada por 15min:', email);
+      }
+      await prisma.user.update({ where: { id: user.id }, data: updateData });
+      console.log('❌ [LOGIN] Contraseña incorrecta para:', email, '(intento', attempts, 'de', MAX_LOGIN_ATTEMPTS, ')');
+      throw new AppError('Credenciales inválidas', 401);
     }
 
-    console.log('? [LOGIN] Login exitoso para:', email);
+    await prisma.user.update({
+      where: { id: user.id },
+      data: { failedLoginAttempts: 0, lockedUntil: null }
+    });
+
+    const refreshTokenValue = crypto.randomBytes(64).toString('hex');
+    await prisma.user.update({
+      where: { id: user.id },
+      data: { refreshToken: refreshTokenValue }
+    });
+
+    console.log('✅ [LOGIN] Login exitoso para:', email);
 
     // Crear registro de sesión (dispositivo, IP, navegador)
     let session;
@@ -125,6 +154,7 @@ const authController = {
     res.json({
       success: true,
       token,
+      refreshToken: refreshTokenValue,
       user: userWithDemoFlag,
       sessionId: session?.id || null,
       subscriptionExpired: isSubscriptionExpired,
@@ -168,7 +198,7 @@ const authController = {
 
   // Registro de nuevos usuarios (Suscripci�n P�blica)
   register: catchAsync(async (req, res) => {
-    const { email, password, name, ruc, plan, businessName, phone, address, paymentMethod, paymentId, businessType } = req.body;
+    const { email, password, name, ruc, plan, businessName, phone, address, paymentMethod, paymentId, businessType, referralCode, documents } = req.body;
 
     // Validaci�n de RUC (Requerido por TC-BB-008)
     if (ruc && ruc.length !== 13) {
@@ -244,6 +274,8 @@ const authController = {
     const initialStatus = isPaymentConfirmed ? 'ACTIVE' : 'PENDING';
     const initialIsActive = isPaymentConfirmed;
 
+    const verifyToken = crypto.randomBytes(32).toString('hex');
+
     const result = await prisma.$transaction(async (tx) => {
       const validBusinessTypes = ['GENERAL', 'BAKERY', 'RESTAURANT', 'STORE', 'SERVICE'];
       const selectedBusinessType = businessType && validBusinessTypes.includes(businessType) ? businessType : 'GENERAL';
@@ -269,7 +301,9 @@ const authController = {
           email,
           password: hashedPassword,
           role: 'ADMIN',
-          businessId: business.id
+          businessId: business.id,
+          verificationToken: verifyToken,
+          emailVerified: false
         }
       });
 
@@ -284,7 +318,8 @@ const authController = {
             amount: planPrice,
             paymentMethod: 'TRANSFER',
             status: 'PENDING',
-            referenceNumber: null
+            referenceNumber: null,
+            documents: documents || null
           }
         });
         activationRequestId = activationReq.id;
@@ -294,6 +329,35 @@ const authController = {
     });
 
     const { password: _, ...userWithoutPass } = result.user;
+
+    if (referralCode) {
+      try {
+        const referrer = await prisma.business.findUnique({ where: { referralCode } });
+        if (referrer && referrer.id !== result.business.id) {
+          const config = await prisma.pointsConfig.findUnique({ where: { id: 'global' } });
+          const pointsAward = config?.pointsPerReferral || 50;
+
+          await prisma.referral.create({
+            data: {
+              referrerBusinessId: referrer.id,
+              referredName: result.business.name,
+              referredRuc: result.business.ruc,
+              referralCode,
+              pointsAwarded: pointsAward,
+              status: 'COMPLETED',
+              completedAt: new Date()
+            }
+          });
+          await prisma.business.update({
+            where: { id: referrer.id },
+            data: { points: { increment: pointsAward } }
+          });
+          console.log(`[Referral] ${result.business.name} fue referido por ${referrer.name} (+${pointsAward} pts)`);
+        }
+      } catch (refErr) {
+        console.error('[Referral] Error procesando referido:', refErr.message);
+      }
+    }
 
     // Mensaje diferente segn el mtodo de pago
     const message = isFreePlan
@@ -307,8 +371,16 @@ const authController = {
       user: { ...userWithoutPass, business: result.business },
       message,
       pendingApproval: !isFreePlan && paymentMethod === 'TRANSFER',
-      activationRequestId: result.activationRequestId || null
+      activationRequestId: result.activationRequestId || null,
+      emailVerified: false
     });
+
+    const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
+    const verifyLink = `${frontendUrl}/verify-email?token=${verifyToken}`;
+    const verifyEmailContent = emailService.buildVerificationEmail(verifyLink, result.user.name || businessName);
+    emailService.sendEmail({ to: email, ...verifyEmailContent }).catch(e =>
+      console.error('[EMAIL] Error enviando verificación:', e.message)
+    );
   }),
 
   // Actualizar perfil propio
@@ -326,11 +398,68 @@ const authController = {
 
   // Placeholders para evitar errores de "undefined" en las rutas
   forgotPassword: catchAsync(async (req, res) => {
-    res.json({ message: "Funcionalidad pendiente: forgotPassword" });
+    const { email } = req.body;
+    if (!email) throw new AppError('El correo electrónico es requerido', 400);
+
+    const user = await prisma.user.findUnique({ where: { email } });
+    if (!user) {
+      return res.json({ success: true, message: 'Si el correo existe, recibirás un enlace de recuperación.' });
+    }
+
+    const resetToken = crypto.randomBytes(32).toString('hex');
+    const resetExpires = new Date(Date.now() + 60 * 60 * 1000); // 1 hora
+
+    await prisma.user.update({
+      where: { id: user.id },
+      data: {
+        passwordResetToken: resetToken,
+        passwordResetExpires: resetExpires
+      }
+    });
+
+    const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
+    const resetLink = `${frontendUrl}/reset-password?token=${resetToken}`;
+    const emailContent = emailService.buildPasswordResetEmail(resetLink, user.name);
+
+    await emailService.sendEmail({ to: user.email, ...emailContent });
+
+    res.json({ success: true, message: 'Si el correo existe, recibirás un enlace de recuperación.' });
   }),
 
   resetPassword: catchAsync(async (req, res) => {
-    res.json({ message: "Funcionalidad pendiente: resetPassword" });
+    const { token, newPassword } = req.body;
+    if (!token || !newPassword) throw new AppError('Token y nueva contraseña son requeridos', 400);
+    if (newPassword.length < 6) throw new AppError('La contraseña debe tener al menos 6 caracteres', 400);
+    const hasUppercase = /[A-Z]/.test(newPassword);
+    const hasNumber = /[0-9]/.test(newPassword);
+    if (!hasUppercase || !hasNumber) {
+      throw new AppError('La contraseña debe contener al menos una mayúscula y un número', 400);
+    }
+
+    const user = await prisma.user.findFirst({
+      where: {
+        passwordResetToken: token,
+        passwordResetExpires: { gt: new Date() }
+      }
+    });
+
+    if (!user) throw new AppError('Token inválido o expirado. Solicite un nuevo enlace.', 400);
+
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+    await prisma.user.update({
+      where: { id: user.id },
+      data: {
+        password: hashedPassword,
+        passwordResetToken: null,
+        passwordResetExpires: null,
+        failedLoginAttempts: 0,
+        lockedUntil: null,
+        refreshToken: null
+      }
+    });
+
+    res.json({ success: true, message: 'Contraseña restablecida correctamente. Ya puede iniciar sesión.' });
   }),
 
   clientLogin: catchAsync(async (req, res) => {
@@ -425,24 +554,26 @@ const authController = {
     // Continuar con el flujo normal de cliente
     // Normalizar mensaje de error para evitar enumeraci�n de usuarios
     if (!client) {
-      console.log('?? [CLIENT_LOGIN] Cliente no encontrado:', identification);
-      return res.status(401).json({ message: 'Credenciales inv�lidas' });
+      console.log('[CLIENT_LOGIN] Cliente no encontrado:', identification);
+      return res.status(401).json({ message: 'Credenciales invalidas' });
+    }
+
+    if (client.lockedUntil && new Date(client.lockedUntil) > new Date()) {
+      const minutesLeft = Math.ceil((new Date(client.lockedUntil) - new Date()) / 60000);
+      return res.status(423).json({ message: `Cuenta bloqueada por exceso de intentos. Intente de nuevo en ${minutesLeft} minuto(s).` });
     }
     
-    // Verificar contrasena
     let isValidPassword = false;
     let isFirstLogin = false;
     if (client.password) {
-      // Si tiene contrasena, verificarla normalmente
       isValidPassword = await bcrypt.compare(password, client.password);
     } else {
-      // Primer acceso: el cliente debe ingresar su RUC/cedula como contrasena temporal
       if (password === identification) {
         isValidPassword = true;
         isFirstLogin = true;
-        console.log('? [CLIENT_LOGIN] Primer acceso detectado para:', identification);
+        console.log('[CLIENT_LOGIN] Primer acceso detectado para:', identification);
       } else {
-        console.log('?? [CLIENT_LOGIN] Primer acceso: contrasena temporal incorrecta para:', identification);
+        console.log('[CLIENT_LOGIN] Primer acceso: contrasena temporal incorrecta para:', identification);
         return res.status(401).json({ 
           message: 'Para su primer acceso, ingrese su numero de Cedula o RUC como contrasena',
           requirePasswordSetup: true 
@@ -451,11 +582,22 @@ const authController = {
     }
     
     if (!isValidPassword) {
-      console.log('?? [CLIENT_LOGIN] Contrasena incorrecta para:', identification);
+      const attempts = (client.failedLoginAttempts || 0) + 1;
+      const updateData = { failedLoginAttempts: attempts };
+      if (attempts >= MAX_LOGIN_ATTEMPTS) {
+        updateData.lockedUntil = new Date(Date.now() + LOCKOUT_DURATION_MINUTES * 60 * 1000);
+      }
+      await prisma.client.update({ where: { id: client.id }, data: updateData });
+      console.log('[CLIENT_LOGIN] Contrasena incorrecta para:', identification, '(intento', attempts, 'de', MAX_LOGIN_ATTEMPTS, ')');
       return res.status(401).json({ message: 'Credenciales invalidas' });
     }
+
+    await prisma.client.update({
+      where: { id: client.id },
+      data: { failedLoginAttempts: 0, lockedUntil: null }
+    });
     
-    console.log('? [CLIENT_LOGIN] Login exitoso para:', identification);
+    console.log('[CLIENT_LOGIN] Login exitoso para:', identification);
     
     // Generar token
     const token = jwt.sign(
@@ -484,7 +626,64 @@ const authController = {
   }),
 
   clientForgotPassword: catchAsync(async (req, res) => {
-    res.json({ message: "Funcionalidad pendiente: clientForgotPassword" });
+    const { identification } = req.body;
+    if (!identification) throw new AppError('El número de cédula/RUC es requerido', 400);
+
+    const client = await prisma.client.findFirst({ where: { ruc: identification } });
+    if (!client || !client.email) {
+      return res.json({ success: true, message: 'Si los datos son correctos, recibirás un enlace en tu correo.' });
+    }
+
+    const resetToken = crypto.randomBytes(32).toString('hex');
+    const resetExpires = new Date(Date.now() + 60 * 60 * 1000);
+
+    await prisma.client.update({
+      where: { id: client.id },
+      data: {
+        passwordResetToken: resetToken,
+        passwordResetExpires: resetExpires
+      }
+    });
+
+    const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
+    const resetLink = `${frontendUrl}/portal/reset-password?token=${resetToken}&id=${client.ruc}`;
+    const emailContent = emailService.buildPasswordResetEmail(resetLink, client.name);
+
+    await emailService.sendEmail({ to: client.email, ...emailContent });
+
+    res.json({ success: true, message: 'Si los datos son correctos, recibirás un enlace en tu correo.' });
+  }),
+
+  clientResetPassword: catchAsync(async (req, res) => {
+    const { token, identification, newPassword } = req.body;
+    if (!token || !identification || !newPassword) {
+      throw new AppError('Token, identificación y nueva contraseña son requeridos', 400);
+    }
+    if (newPassword.length < 6) throw new AppError('La contraseña debe tener al menos 6 caracteres', 400);
+
+    const client = await prisma.client.findFirst({
+      where: {
+        ruc: identification,
+        passwordResetToken: token,
+        passwordResetExpires: { gt: new Date() }
+      }
+    });
+
+    if (!client) throw new AppError('Token inválido o expirado.', 400);
+
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+    await prisma.client.update({
+      where: { id: client.id },
+      data: {
+        password: hashedPassword,
+        passwordResetToken: null,
+        passwordResetExpires: null,
+        failedLoginAttempts: 0,
+        lockedUntil: null
+      }
+    });
+
+    res.json({ success: true, message: 'Contraseña restablecida correctamente. Ya puede iniciar sesión en el portal.' });
   }),
 
   changeClientPassword: catchAsync(async (req, res) => {
@@ -522,7 +721,37 @@ const authController = {
   }),
 
   changeUserPassword: catchAsync(async (req, res) => {
-    res.json({ message: "Funcionalidad pendiente: changeUserPassword" });
+    const userId = req.user.id;
+    const { currentPassword, newPassword } = req.body;
+
+    if (!currentPassword || !newPassword) {
+      throw new AppError('Contraseña actual y nueva son requeridas', 400);
+    }
+    if (newPassword.length < 6) {
+      throw new AppError('La nueva contraseña debe tener al menos 6 caracteres', 400);
+    }
+    const hasUppercase = /[A-Z]/.test(newPassword);
+    const hasNumber = /[0-9]/.test(newPassword);
+    if (!hasUppercase || !hasNumber) {
+      throw new AppError('La nueva contraseña debe contener al menos una mayúscula y un número', 400);
+    }
+
+    const user = await prisma.user.findUnique({ where: { id: userId } });
+    if (!user) throw new AppError('Usuario no encontrado', 404);
+
+    const isMatch = await bcrypt.compare(currentPassword, user.password);
+    if (!isMatch) throw new AppError('La contraseña actual es incorrecta', 400);
+
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+    await prisma.user.update({
+      where: { id: userId },
+      data: {
+        password: hashedPassword,
+        refreshToken: null
+      }
+    });
+
+    res.json({ success: true, message: 'Contraseña actualizada correctamente.' });
   }),
 
   // Obtener documentos del cliente (para portal de clientes)
@@ -569,7 +798,7 @@ const authController = {
         orderBy: { issueDate: 'desc' }
       });
 
-      // También agrupar por negocio
+      // Tambien agrupar por negocio
       const docsByBusinessMap = {};
       documents.forEach(doc => {
         const businessId = doc.businessId;
@@ -588,6 +817,70 @@ const authController = {
       documents,
       documentsByBusiness
     });
+  }),
+
+  refreshToken: catchAsync(async (req, res) => {
+    const { refreshToken: tokenValue } = req.body;
+    if (!tokenValue) throw new AppError('Refresh token requerido', 400);
+
+    const user = await prisma.user.findFirst({ where: { refreshToken: tokenValue } });
+    if (!user) throw new AppError('Refresh token invalido o expirado', 401);
+
+    const newRefreshToken = crypto.randomBytes(64).toString('hex');
+    await prisma.user.update({
+      where: { id: user.id },
+      data: { refreshToken: newRefreshToken }
+    });
+
+    const token = jwt.sign(
+      {
+        id: user.id,
+        email: user.email,
+        role: user.role,
+        businessId: user.businessId,
+        sessionId: null
+      },
+      JWT_SECRET,
+      { expiresIn: '4h' }
+    );
+
+    res.json({ success: true, token, refreshToken: newRefreshToken });
+  }),
+
+  verifyEmail: catchAsync(async (req, res) => {
+    const { token } = req.body;
+    if (!token) throw new AppError('Token de verificacion requerido', 400);
+
+    const user = await prisma.user.findFirst({ where: { verificationToken: token } });
+    if (!user) throw new AppError('Token de verificacion invalido o ya utilizado', 400);
+
+    await prisma.user.update({
+      where: { id: user.id },
+      data: { emailVerified: true, verificationToken: null }
+    });
+
+    res.json({ success: true, message: 'Correo verificado correctamente.' });
+  }),
+
+  resendVerification: catchAsync(async (req, res) => {
+    const userId = req.user.id;
+    const user = await prisma.user.findUnique({ where: { id: userId } });
+    if (!user) throw new AppError('Usuario no encontrado', 404);
+    if (user.emailVerified) throw new AppError('El correo ya esta verificado', 400);
+
+    const verifyToken = crypto.randomBytes(32).toString('hex');
+    await prisma.user.update({
+      where: { id: userId },
+      data: { verificationToken: verifyToken }
+    });
+
+    const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
+    const verifyLink = `${frontendUrl}/verify-email?token=${verifyToken}`;
+    const emailContent = emailService.buildVerificationEmail(verifyLink, user.name);
+
+    await emailService.sendEmail({ to: user.email, ...emailContent });
+
+    res.json({ success: true, message: 'Correo de verificaci\u00f3n reenviado.' });
   }),
 };
 

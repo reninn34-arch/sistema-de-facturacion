@@ -25,6 +25,7 @@ import {
   BuildingOffice2Icon,
 } from '@heroicons/react/24/outline';
 import CookieBanner from '../../../components/CookieBanner';
+import ActivationStatusLookup from '../../../components/public/ActivationStatusLookup';
 import { BUSINESS_TYPES, BusinessType } from '../../../types/types';
 
 const API_URL = import.meta.env.VITE_BACKEND_URL || '';
@@ -946,6 +947,13 @@ const LandingPage: React.FC = () => {
               </div>
             </div>
           </div>
+        </div>
+      </section>
+
+      {/* ===== CONSULTA DE ESTADO ===== */}
+      <section className="py-12 bg-slate-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <ActivationStatusLookup />
         </div>
       </section>
 

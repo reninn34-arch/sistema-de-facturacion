@@ -93,7 +93,7 @@ const ClientLogin = () => {
               <div className="flex flex-col gap-2">
                 <div className="flex justify-between items-center">
                   <label className="text-slate-700 dark:text-slate-200 text-sm font-semibold">Contraseña</label>
-                  <span className="text-slate-400 text-xs">Primer acceso: use su Cédula/RUC</span>
+                  <a href="/portal/reset-password" className="text-sky-500 dark:text-sky-400 text-xs font-bold hover:underline">Olvidaste tu contraseña?</a>
                 </div>
                 <div className="flex w-full items-stretch rounded-lg group">
                   <div className="text-slate-400 flex border border-r-0 border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-700 items-center justify-center px-3 rounded-l-lg">

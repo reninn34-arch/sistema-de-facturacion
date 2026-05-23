@@ -2,7 +2,8 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Product } from '../../../types/types';
 import { TAX_RATES, PRODUCT_CATEGORIES } from '../../../constants';
-import { CameraIcon } from '@heroicons/react/24/outline';
+import { CameraIcon, ArrowDownTrayIcon } from '@heroicons/react/24/outline';
+import CsvImportModal from '../../../components/ui/CsvImportModal';
 
 type InventoryTab = 'all' | 'raw' | 'finished' | 'service';
 
@@ -62,6 +63,7 @@ const ProductManager: React.FC<ProductManagerProps> = ({ products, setProducts, 
   const [editingProd, setEditingProd] = useState<Product | null>(null);
   const [formData, setFormData] = useState<Partial<Product>>({ taxRate: 15, type: 'FISICO', category: 'Otros', unitOfMeasure: 'UNIDAD', isRawMaterial: false });
   const [loading, setLoading] = useState(false);
+  const [showImportModal, setShowImportModal] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleOpenModal = (product?: Product) => {
@@ -203,6 +205,62 @@ const ProductManager: React.FC<ProductManagerProps> = ({ products, setProducts, 
     }
   };
 
+  const handleBulkImportProducts = async (rows: Record<string, any>[]) => {
+    if (isDemoMode) {
+      const newProducts = rows.map((r, i) => ({
+        id: `imp-${Date.now()}-${i}`,
+        code: String(r.codigo || r.code || r.Codigo || `P${i + 1}`).trim(),
+        description: String(r.descripcion || r.description || r.Descripcion || `Producto ${i + 1}`).trim(),
+        price: parseFloat(r.precio || r.price || r.Precio || 0) || 0,
+        wholesalePrice: parseFloat(r.precio_mayorista || r.wholesalePrice || 0) || 0,
+        distributorPrice: parseFloat(r.precio_distribuidor || r.distributorPrice || 0) || 0,
+        stock: parseInt(r.stock || r.Stock || 0) || 0,
+        minStock: parseInt(r.stock_minimo || r.minStock || 0) || 0,
+        taxRate: parseInt(r.iva || r.taxRate || 15) || 15,
+        type: 'BIEN',
+        category: 'Otros',
+        isRawMaterial: false,
+        unitOfMeasure: 'UNIDAD'
+      } as Product));
+      setProducts([...newProducts, ...products]);
+      onNotify(`${newProducts.length} productos importados (Modo Demo)`);
+      return;
+    }
+
+    const token = localStorage.getItem('adminToken');
+    const response = await fetch(`${API_URL}/api/products/bulk`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+      body: JSON.stringify({ products: rows })
+    });
+    const data = await response.json();
+    if (!response.ok) throw new Error(data.message || 'Error al importar');
+
+    const prodResponse = await fetch(`${API_URL}/api/products`, {
+      headers: { 'Authorization': `Bearer ${token}` }
+    });
+    if (prodResponse.ok) {
+      const refreshed = await prodResponse.json();
+      setProducts(refreshed);
+    }
+
+    onNotify(`${data.success} productos importados exitosamente${data.failed > 0 ? `, ${data.failed} errores` : ''}`);
+  };
+
+  const productSampleData = {
+    codigo: 'PROD-001',
+    descripcion: 'Producto Ejemplo',
+    precio: 10.50,
+    precio_mayorista: 8.00,
+    precio_distribuidor: 6.50,
+    stock: 100,
+    stock_minimo: 10,
+    iva: 15,
+    tipo: 'BIEN',
+    categoria: 'Otros',
+    unidad: 'UNIDAD'
+  };
+
   return (
     <div className="space-y-8 animate-in fade-in duration-500 pb-20">
       <div className="flex justify-between items-center">
@@ -210,9 +268,15 @@ const ProductManager: React.FC<ProductManagerProps> = ({ products, setProducts, 
           <h3 className={`text-2xl font-black ${isDarkMode ? 'text-white' : 'text-slate-800'} tracking-tight`}>Catálogo de Suministros</h3>
           <p className={`text-xs ${isDarkMode ? 'text-slate-500' : 'text-slate-400'} font-bold uppercase tracking-widest mt-1`}>Gestión de stock y tarifas multitarifa</p>
         </div>
-        <button onClick={() => handleOpenModal()} className="bg-sky-500 text-white px-8 py-4 rounded-2xl font-black text-xs uppercase tracking-widest shadow-xl hover:scale-105 transition-all">
-          + Nuevo Producto
-        </button>
+        <div className="flex gap-3">
+          <button onClick={() => setShowImportModal(true)} className="bg-slate-100 text-slate-600 px-6 py-4 rounded-2xl font-black text-xs uppercase tracking-widest hover:scale-105 transition-all flex items-center gap-2">
+            <ArrowDownTrayIcon className="w-4 h-4" />
+            Importar
+          </button>
+          <button onClick={() => handleOpenModal()} className="bg-sky-500 text-white px-8 py-4 rounded-2xl font-black text-xs uppercase tracking-widest shadow-xl hover:scale-105 transition-all">
+            + Nuevo Producto
+          </button>
+        </div>
       </div>
 
       {showProductionTabs && (
@@ -445,6 +509,15 @@ const ProductManager: React.FC<ProductManagerProps> = ({ products, setProducts, 
           </div>
         </div>
       )}
+
+      <CsvImportModal
+        isOpen={showImportModal}
+        onClose={() => setShowImportModal(false)}
+        onImport={handleBulkImportProducts}
+        title="Importar Productos"
+        entityType="productos"
+        sampleData={productSampleData}
+      />
     </div>
   );
 };

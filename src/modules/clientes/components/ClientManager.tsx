@@ -1,6 +1,7 @@
 ﻿import React, { useState, useMemo } from 'react';
 import { Client } from '../../../types/types';
 import { validateEcuadorianId, getEntityAvatarColor } from '../../../utils/validation';
+import CsvImportModal from '../../../components/ui/CsvImportModal';
 import {
   IdentificationIcon,
   ShoppingCartIcon,
@@ -13,6 +14,7 @@ import {
   KeyIcon,
   UserIcon,
   XMarkIcon,
+  ArrowDownTrayIcon,
 } from '@heroicons/react/24/outline';
 
 interface ClientManagerProps {
@@ -36,6 +38,7 @@ const ClientManager: React.FC<ClientManagerProps> = ({ clients, setClients, onNo
   const [showResetModal, setShowResetModal] = useState(false);
   const [resetPasswordClient, setResetPasswordClient] = useState<Client | null>(null);
   const [newPassword, setNewPassword] = useState('');
+  const [showImportModal, setShowImportModal] = useState(false);
 
   const safeClients = Array.isArray(clients) ? clients : [];
 
@@ -238,6 +241,51 @@ const ClientManager: React.FC<ClientManagerProps> = ({ clients, setClients, onNo
   };
 
   // --- AQUÍ EMPIEZA EL RENDERIZADO DEL COMPONENTE (ESTABA DENTRO DE handleDelete) ---
+  const handleBulkImportClients = async (rows: Record<string, any>[]) => {
+    if (isDemoMode) {
+      const newClients = rows.map((r, i) => ({
+        id: `imported-${Date.now()}-${i}`,
+        ruc: String(r.ruc || r.RUC || r.Identificacion || '9999999999999').trim(),
+        name: String(r.nombre || r.name || r.Nombre || `Cliente ${i + 1}`).trim(),
+        email: String(r.email || r.Email || '').trim(),
+        phone: String(r.telefono || r.phone || r.Telefono || '').trim(),
+        address: String(r.direccion || r.address || r.Direccion || '').trim(),
+        type: 'CLIENTE'
+      } as Client));
+      setClients([...newClients, ...clients]);
+      onNotify(`${newClients.length} clientes importados (Modo Demo)`);
+      return;
+    }
+
+    const token = localStorage.getItem('adminToken');
+    const response = await fetch(`${API_URL}/api/clients/bulk`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+      body: JSON.stringify({ clients: rows })
+    });
+    const data = await response.json();
+    if (!response.ok) throw new Error(data.message || 'Error al importar');
+
+    const clientResponse = await fetch(`${API_URL}/api/clients`, {
+      headers: { 'Authorization': `Bearer ${token}` }
+    });
+    if (clientResponse.ok) {
+      const refreshedClients = await clientResponse.json();
+      setClients(refreshedClients);
+    }
+
+    onNotify(`${data.success} clientes importados exitosamente${data.failed > 0 ? `, ${data.failed} errores` : ''}`);
+  };
+
+  const clientSampleData = {
+    ruc: '1790012345001',
+    nombre: 'Empresa Ejemplo S.A.',
+    email: 'contacto@ejemplo.com',
+    telefono: '0991234567',
+    direccion: 'Av. Principal 123, Quito',
+    tipo: 'CLIENTE'
+  };
+
   return (
     <div className="space-y-10 animate-in fade-in duration-700 pb-20">
       {/* Cards de Resumen */}
@@ -289,6 +337,13 @@ const ClientManager: React.FC<ClientManagerProps> = ({ clients, setClients, onNo
           className="w-full lg:w-auto bg-sky-500 dark:bg-sky-500 text-white px-6 sm:px-10 py-4 sm:py-5 rounded-[1.5rem] font-black text-[10px] uppercase tracking-widest hover:scale-105 transition-all shadow-xl shadow-sky-100 dark:shadow-slate-900 min-h-[52px]"
         >
           + Agregar Entidad
+        </button>
+        <button
+          onClick={() => setShowImportModal(true)}
+          className="w-full lg:w-auto bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 px-6 sm:px-8 py-4 sm:py-5 rounded-[1.5rem] font-black text-[10px] uppercase tracking-widest hover:scale-105 transition-all flex items-center gap-2 min-h-[52px]"
+        >
+          <ArrowDownTrayIcon className="w-4 h-4" />
+          Importar
         </button>
       </div>
 
@@ -494,6 +549,15 @@ const ClientManager: React.FC<ClientManagerProps> = ({ clients, setClients, onNo
           </div>
         </div>
       )}
+
+      <CsvImportModal
+        isOpen={showImportModal}
+        onClose={() => setShowImportModal(false)}
+        onImport={handleBulkImportClients}
+        title="Importar Clientes"
+        entityType="clientes"
+        sampleData={clientSampleData}
+      />
     </div>
   );
 };

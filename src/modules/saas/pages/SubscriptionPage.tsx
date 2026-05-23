@@ -105,6 +105,7 @@ interface Toast {
 const SubscriptionPage: React.FC = () => {
   const urlParams = new URLSearchParams(window.location.search);
   const planFromUrl = urlParams.get('plan');
+  const refFromUrl = urlParams.get('ref');
 
   const [selectedPlan, setSelectedPlan] = useState<string | null>(planFromUrl);
   const [selectedBusinessType, setSelectedBusinessType] = useState<BusinessType>('GENERAL');
@@ -236,6 +237,8 @@ const SubscriptionPage: React.FC = () => {
   const [transferReference, setTransferReference] = useState('');
   const [paymentProofFile, setPaymentProofFile] = useState<File | null>(null);
   const [paymentProofPreview, setPaymentProofPreview] = useState<string | null>(null);
+  const [kycCedula, setKycCedula] = useState<string | null>(null);
+  const [kycRuc, setKycRuc] = useState<string | null>(null);
   const [uploadingProof, setUploadingProof] = useState(false);
 
   const isValidRuc = (ruc: string) => /^\d{13}$/.test(ruc);
@@ -276,7 +279,9 @@ const SubscriptionPage: React.FC = () => {
           plan: selectedPlan,
           businessType: selectedBusinessType,
           paymentMethod: paymentMethod,
-          paymentId: paymentId
+          paymentId: paymentId,
+          referralCode: refFromUrl || undefined,
+          documents: { cedula: kycCedula, rucDoc: kycRuc }
         })
       });
 
@@ -643,6 +648,27 @@ const SubscriptionPage: React.FC = () => {
 
                     return (
                       <>
+                        <h3 className="text-lg font-extrabold text-slate-900 mb-3">Documentos de Identidad</h3>
+                        <p className="text-xs text-slate-500 mb-4">Estos documentos son necesarios para verificar su identidad (opcional para PayPal, requerido para transferencia).</p>
+                        <div className="grid grid-cols-1 gap-3 mb-6">
+                          <div>
+                            <label className="block text-xs font-bold text-slate-600 mb-1">Cédula / Pasaporte (PDF o imagen)</label>
+                            <input type="file" accept="image/*,.pdf" onChange={e => {
+                              const f = e.target.files?.[0];
+                              if (f) { const r = new FileReader(); r.onload = () => setKycCedula(r.result as string); r.readAsDataURL(f); }
+                            }} className="w-full text-xs file:mr-3 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-sky-50 file:text-sky-600 hover:file:bg-sky-100" />
+                            {kycCedula && <img src={kycCedula} className="mt-2 w-full max-h-32 object-cover rounded-xl border" alt="Previa cedula" />}
+                          </div>
+                          <div>
+                            <label className="block text-xs font-bold text-slate-600 mb-1">RUC / Certificado (PDF o imagen)</label>
+                            <input type="file" accept="image/*,.pdf" onChange={e => {
+                              const f = e.target.files?.[0];
+                              if (f) { const r = new FileReader(); r.onload = () => setKycRuc(r.result as string); r.readAsDataURL(f); }
+                            }} className="w-full text-xs file:mr-3 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-sky-50 file:text-sky-600 hover:file:bg-sky-100" />
+                            {kycRuc && <img src={kycRuc} className="mt-2 w-full max-h-32 object-cover rounded-xl border" alt="Previa RUC" />}
+                          </div>
+                        </div>
+
                         <h3 className="text-lg font-extrabold text-slate-900 mb-3">Método de Pago</h3>
                         {paymentSettings.paypalEnabled && (
                           <div

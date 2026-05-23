@@ -34,6 +34,8 @@ import {
   ShieldExclamationIcon,
   ExclamationTriangleIcon,
   ChevronDownIcon,
+  TrophyIcon,
+  ShoppingCartIcon,
 } from '@heroicons/react/24/outline';
 
 interface LayoutProps {
@@ -50,17 +52,22 @@ interface LayoutProps {
   planHasAIAssistant?: boolean;
   hasModuleControl?: boolean;
   modulePermissions?: { moduleCode: string; granted: boolean }[];
+  pointsProgramEnabled?: boolean;
   onActivateProduction?: () => Promise<void>;
 }
 
 const iconMap: Record<string, React.ReactNode> = {
   'Panel SaaS': <BuildingOffice2Icon className="w-6 h-6" />,
   'Panel Principal': <ChartBarIcon className="w-6 h-6" />,
+  'Dashboard': <ChartBarIcon className="w-6 h-6" />,
   'Emisión': <DocumentTextIcon className="w-6 h-6" />,
+  'Facturación SaaS': <DocumentTextIcon className="w-6 h-6" />,
   'Devoluciones': <ArrowUturnLeftIcon className="w-6 h-6" />,
+  'NC SaaS': <ArrowUturnLeftIcon className="w-6 h-6" />,
   'Activaciones': <DevicePhoneMobileIcon className="w-6 h-6" />,
   'Planes': <CubeIcon className="w-6 h-6" />,
   'Contabilidad': <BookOpenIcon className="w-6 h-6" />,
+  'Libro Ventas SaaS': <BookOpenIcon className="w-6 h-6" />,
   'Suscripción': <CreditCardIcon className="w-6 h-6" />,
   'Panel de Gestión': <UserGroupIcon className="w-6 h-6" />,
   'Notas de Crédito': <ArrowPathIcon className="w-6 h-6" />,
@@ -86,23 +93,44 @@ const iconMap: Record<string, React.ReactNode> = {
   'Cerrar Sesión': <ArrowRightOnRectangleIcon className="w-6 h-6" />,
   'Landing Page': <GlobeAltIcon className="w-5 h-5" />,
   'Seguridad / Dispositivos': <ShieldExclamationIcon className="w-6 h-6" />,
+  'Puntos': <TrophyIcon className="w-6 h-6" />,
+  'Puntos SaaS': <TrophyIcon className="w-6 h-6" />,
+  'Blog': <BookOpenIcon className="w-6 h-6" />,
+  'Compras': <BookOpenIcon className="w-6 h-6" />,
+  'Facturas': <DocumentTextIcon className="w-6 h-6" />,
+  'Proformas': <DocumentTextIcon className="w-6 h-6" />,
+  'Empresas': <BuildingOffice2Icon className="w-6 h-6" />,
 };
 
+const menuItemModuleMap: Record<string, string> = {
+  'invoices': 'invoices', 'credit-notes': 'credit-notes', 'retentions': 'retentions',
+  'remittances': 'remittances', 'settlements': 'settlements',
+  'reports': 'reports', 'sales-book': 'reports', 'ats': 'reports', 'form-104': 'reports',
+  'kardex': 'reports', 'profitability': 'reports', 'quicksale': 'caja', 'pending-sri': 'caja',
+  'clients': 'clients', 'products': 'products', 'recipes': 'production', 'production': 'production',
+  'config': 'config', 'integrations': 'integrations', 'ai-assistant': 'ai-assistant', 'audit': 'audit',
+  'purchases': 'reports', 'security-points': 'reports',
+};
+
+interface MenuItem {
+  id: string;
+  label: string;
+  roles: string[];
+  businessTypes?: string[];
+}
+
+interface MenuGroup {
+  id: string;
+  label: string;
+  roles: string[];
+  items: MenuItem[];
+}
+
 const Layout: React.FC<LayoutProps> = ({
-  children,
-  activeTab,
-  setActiveTab,
-  notifications,
-  onMarkRead,
-  onRemoveNotif,
-  businessInfo,
-  currentUser,
-  subscriptionExpired = false,
-  pendingActivations = 0,
-  planHasAIAssistant = false,
-  hasModuleControl = false,
-  modulePermissions = [],
-  onActivateProduction
+  children, activeTab, setActiveTab, notifications, onMarkRead, onRemoveNotif,
+  businessInfo, currentUser, subscriptionExpired = false, pendingActivations = 0,
+  planHasAIAssistant = false, hasModuleControl = false, modulePermissions = [],
+  pointsProgramEnabled = true, onActivateProduction
 }) => {
   const [showNotifications, setShowNotifications] = useState(false);
   const [isEnvModalOpen, setIsEnvModalOpen] = useState(false);
@@ -110,173 +138,214 @@ const Layout: React.FC<LayoutProps> = ({
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const notificationRef = useRef<HTMLDivElement>(null);
 
+  const unreadCount = notifications.filter(n => !n.read).length;
+
+  const loadCollapsed = () => {
+    try {
+      const saved = localStorage.getItem('menuCollapsedGroups');
+      if (saved) return JSON.parse(saved);
+    } catch { /* ignorar */ }
+    // Default: solo SUPERADMIN abierto
+    return { superadmin: false };
+  };
+
+  const [collapsedGroups, setCollapsedGroups] = useState<Record<string, boolean>>(loadCollapsed);
+
+  const toggleGroup = (groupId: string) => {
+    setCollapsedGroups(prev => {
+      const current = prev[groupId];
+      const next = { ...prev, [groupId]: current === undefined ? true : !current };
+      try { localStorage.setItem('menuCollapsedGroups', JSON.stringify(next)); } catch { /* */ }
+      return next;
+    });
+  };
+
   const handleLogout = async () => {
-    // Avisar al backend que esta sesión se cierra (esperar respuesta antes de recargar)
     const sessionId = localStorage.getItem('sessionId');
     const token = localStorage.getItem('adminToken');
     if (sessionId && token) {
       try {
         await fetch(`${import.meta.env.VITE_BACKEND_URL || ''}/api/business/sessions/${sessionId}/revoke`, {
-          method: 'PUT',
-          headers: { 'Authorization': `Bearer ${token}` }
+          method: 'PUT', headers: { 'Authorization': `Bearer ${token}` }
         });
-      } catch (e) { /* ignorar, cerrar sesión igual */ }
+      } catch (e) { /* ignorar */ }
     }
-
-    localStorage.removeItem('adminToken');
-    localStorage.removeItem('adminUser');
-    localStorage.removeItem('subscriptionExpired');
-    localStorage.removeItem('businessActive');
-    localStorage.removeItem('hasModuleControl');
-    localStorage.removeItem('modulePermissions');
-    localStorage.removeItem('sessionId');
+    localStorage.removeItem('adminToken'); localStorage.removeItem('adminUser');
+    localStorage.removeItem('subscriptionExpired'); localStorage.removeItem('businessActive');
+    localStorage.removeItem('hasModuleControl'); localStorage.removeItem('modulePermissions');
+    localStorage.removeItem('sessionId'); localStorage.removeItem('refreshToken');
     window.location.reload();
   };
 
-  // Mapeo de menuItem ID → module code para control granular de módulos
-  const menuItemModuleMap: Record<string, string> = {
-    'invoices': 'invoices',
-    'credit-notes': 'credit-notes',
-    'retentions': 'retentions',
-    'remittances': 'remittances',
-    'settlements': 'settlements',
-    'reports': 'reports',
-    'sales-book': 'reports',
-    'ats': 'reports',
-    'form-104': 'reports',
-    'kardex': 'reports',
-    'profitability': 'reports',
-    'quicksale': 'caja',
-    'pending-sri': 'caja',
-    'clients': 'clients',
-    'products': 'products',
-    'recipes': 'production',
-    'production': 'production',
-    'config': 'config',
-    'integrations': 'integrations',
-    'ai-assistant': 'ai-assistant',
-    'audit': 'audit',
-  };
-
-  const allMenuItems = [
-    { id: 'saas-admin', label: 'Panel SaaS', roles: ['SUPERADMIN'] },
-    { id: 'dashboard', label: 'Panel Principal', roles: ['ADMIN', 'VENDEDOR', 'CONTADOR', 'SUPERADMIN'] },
-    { id: 'subscription-invoices', label: 'Emisión', roles: ['SUPERADMIN'] },
-    { id: 'saas-credit-notes', label: 'Devoluciones', roles: ['SUPERADMIN'] },
-    { id: 'activation-requests', label: 'Activaciones', roles: ['SUPERADMIN'] },
-    { id: 'subscription-plans', label: 'Planes', roles: ['SUPERADMIN'] },
-    { id: 'landing-editor', label: 'Landing Page', roles: ['SUPERADMIN'] },
-    { id: 'subscription-reports', label: 'Contabilidad', roles: ['SUPERADMIN'] },
-    { id: 'pago-interno', label: 'Suscripción', roles: ['ADMIN'] },
-    { id: 'company-users', label: 'Panel de Gestión', roles: ['ADMIN'] },
-    { id: 'sessions', label: 'Seguridad / Dispositivos', roles: ['ADMIN', 'VENDEDOR', 'CONTADOR', 'SUPERADMIN'] },
-    { id: 'invoices', label: 'Emisión', roles: ['ADMIN', 'VENDEDOR', 'CONTADOR'] },
-    { id: 'quicksale', label: 'Caja', roles: ['ADMIN', 'VENDEDOR'], businessTypes: ['BAKERY', 'RESTAURANT'] },
-    { id: 'pending-sri', label: 'Pendientes SRI', roles: ['ADMIN', 'VENDEDOR', 'CONTADOR'], businessTypes: ['BAKERY', 'RESTAURANT'] },
-    { id: 'credit-notes', label: 'Notas de Crédito', roles: ['ADMIN', 'VENDEDOR', 'CONTADOR'] },
-    { id: 'retentions', label: 'Retenciones', roles: ['ADMIN', 'CONTADOR'] },
-    { id: 'remittances', label: 'Guías de Remisión', roles: ['ADMIN', 'VENDEDOR', 'CONTADOR'] },
-    { id: 'settlements', label: 'Liquidaciones', roles: ['ADMIN', 'CONTADOR'] },
-    { id: 'reports', label: 'Reportes y SRI', roles: ['ADMIN', 'CONTADOR'] },
-    { id: 'sales-book', label: 'Libro de Ventas', roles: ['ADMIN', 'CONTADOR'] },
-    { id: 'ats', label: 'ATS', roles: ['ADMIN', 'CONTADOR'] },
-    { id: 'form-104', label: 'Formulario 104', roles: ['ADMIN', 'CONTADOR'] },
-    { id: 'kardex', label: 'Kardex', roles: ['ADMIN', 'CONTADOR'] },
-    { id: 'profitability', label: 'Rentabilidad', roles: ['ADMIN', 'CONTADOR'] },
-    { id: 'recipes', label: 'Recetas', roles: ['ADMIN'], businessTypes: ['BAKERY', 'RESTAURANT'] },
-    { id: 'production', label: 'Producción', roles: ['ADMIN'], businessTypes: ['BAKERY', 'RESTAURANT'] },
-    { id: 'notifications', label: 'Notificaciones', roles: ['ADMIN', 'VENDEDOR', 'CONTADOR', 'SUPERADMIN'] },
-    { id: 'clients', label: 'Entidades', roles: ['ADMIN', 'VENDEDOR', 'CONTADOR'] },
-    { id: 'products', label: 'Inventario', roles: ['ADMIN'] },
-    { id: 'integrations', label: 'Integración Web', roles: ['ADMIN'] },
-    { id: 'config', label: 'Perfil de Empresa', roles: ['ADMIN', 'SUPERADMIN', 'VENDEDOR', 'CONTADOR'] },
-    { id: 'ai-assistant', label: 'Asistente IA', roles: ['ADMIN', 'SUPERADMIN'] },
-    { id: 'logout_btn', label: 'Cerrar Sesión', roles: ['ADMIN', 'VENDEDOR', 'CONTADOR', 'SUPERADMIN', 'CLIENT'] },
-  ];
-
-  const menuItems = allMenuItems.filter(item => {
-    if (subscriptionExpired && item.id !== 'pago-interno' && item.id !== 'logout_btn') {
-      return false;
-    }
-    if (item.id === 'ai-assistant' && !planHasAIAssistant) {
-      return false;
-    }
-
-    // Si hasModuleControl está activo y el usuario NO es ADMIN/SUPERADMIN,
-    // los permisos explícitos de módulo mandan por encima de role/businessType
-    if (hasModuleControl && currentUser && currentUser.role !== 'ADMIN' && currentUser.role !== 'SUPERADMIN') {
-      const moduleCode = menuItemModuleMap[item.id];
-      if (moduleCode) {
-        // Este ítem tiene mapeo a módulo → solo el permiso explícito decide
-        const perm = modulePermissions.find(p => p.moduleCode === moduleCode);
-        return !!(perm && perm.granted);
-      }
-      // Ítems sin mapeo (dashboard, notifications, logout_btn, etc.) siguen con role check
-    }
-
-    // Comportamiento tradicional: filtrar por rol y businessType
-    const hasRole = !item.roles || (currentUser && item.roles.includes(currentUser.role));
-    if (!hasRole) return false;
-    const userBusinessType = currentUser?.businessType || 'GENERAL';
-    if (item.businessTypes && !item.businessTypes.includes(userBusinessType)) {
-      return false;
-    }
-    return true;
-  });
-
-  const unreadCount = notifications.filter(n => !n.read).length;
-
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (notificationRef.current && !notificationRef.current.contains(event.target as Node)) {
-        setShowNotifications(false);
-      }
-    };
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, []);
-
-  const handleTabClick = (id: string) => {
-    if (id === 'logout_btn') {
-      handleLogout();
-    } else {
-      setActiveTab(id);
-      setIsSidebarOpen(false);
-    }
+  const handleTabClick = (tabId: string) => {
+    if (tabId === 'logout_btn') { handleLogout(); return; }
+    setActiveTab(tabId);
+    if (window.innerWidth < 1024) setIsSidebarOpen(false);
   };
 
   const handleConfirmProduction = async () => {
-    if (!onActivateProduction) return;
     setIsEnvLoading(true);
-    try {
-      await onActivateProduction();
-      setIsEnvModalOpen(false);
-    } finally {
-      setIsEnvLoading(false);
-    }
+    try { await onActivateProduction?.(); }
+    finally { setIsEnvModalOpen(false); setIsEnvLoading(false); }
   };
+
+  const emp = businessInfo as any;
+
+  // ================================================================
+  // DEFINICIÓN DE GRUPOS DE MENÚ (con roles para filtrar grupos)
+  // ================================================================
+  const isSuperAdmin = currentUser?.role === 'SUPERADMIN';
+  const isAdmin = currentUser?.role === 'ADMIN';
+
+  const allGroups: MenuGroup[] = [
+    {
+      id: 'superadmin',
+      label: 'SUPERADMIN',
+      roles: ['SUPERADMIN'],
+      items: [
+        { id: 'saas-admin', label: 'Panel SaaS', roles: ['SUPERADMIN'] },
+        { id: 'dashboard', label: 'Dashboard', roles: ['SUPERADMIN'] },
+        { id: 'activation-requests', label: 'Activaciones', roles: ['SUPERADMIN'] },
+        { id: 'subscription-plans', label: 'Planes', roles: ['SUPERADMIN'] },
+        { id: 'subscription-invoices', label: 'Facturación SaaS', roles: ['SUPERADMIN'] },
+        { id: 'saas-credit-notes', label: 'NC SaaS', roles: ['SUPERADMIN'] },
+        { id: 'subscription-reports', label: 'Libro Ventas SaaS', roles: ['SUPERADMIN'] },
+        { id: 'points-admin', label: 'Puntos SaaS', roles: ['SUPERADMIN'] },
+        { id: 'landing-editor', label: 'Landing Page', roles: ['SUPERADMIN'] },
+        { id: 'blog-editor', label: 'Blog', roles: ['SUPERADMIN'] },
+      ]
+    },
+    {
+      id: 'emision',
+      label: 'Emisión',
+      roles: ['ADMIN', 'VENDEDOR', 'CONTADOR'],
+      items: [
+        { id: 'invoices', label: 'Facturas', roles: ['ADMIN', 'VENDEDOR', 'CONTADOR'] },
+        { id: 'credit-notes', label: 'Notas de Crédito', roles: ['ADMIN', 'VENDEDOR', 'CONTADOR'] },
+        { id: 'retentions', label: 'Retenciones', roles: ['ADMIN', 'CONTADOR'] },
+        { id: 'remittances', label: 'Guías de Remisión', roles: ['ADMIN', 'VENDEDOR', 'CONTADOR'] },
+        { id: 'settlements', label: 'Liquidaciones', roles: ['ADMIN', 'CONTADOR'] },
+      ]
+    },
+    {
+      id: 'operaciones',
+      label: 'Operaciones',
+      roles: ['ADMIN', 'VENDEDOR', 'CONTADOR'],
+      items: [
+        { id: 'quicksale', label: 'Caja', roles: ['ADMIN', 'VENDEDOR'], businessTypes: ['BAKERY', 'RESTAURANT'] },
+        { id: 'pending-sri', label: 'Pendientes SRI', roles: ['ADMIN', 'VENDEDOR', 'CONTADOR'], businessTypes: ['BAKERY', 'RESTAURANT'] },
+        { id: 'purchases', label: 'Compras', roles: ['ADMIN', 'CONTADOR'] },
+      ]
+    },
+    {
+      id: 'gestion',
+      label: 'Gestión',
+      roles: ['ADMIN', 'VENDEDOR', 'CONTADOR'],
+      items: [
+        { id: 'clients', label: 'Entidades', roles: ['ADMIN', 'VENDEDOR', 'CONTADOR'] },
+        { id: 'products', label: 'Inventario', roles: ['ADMIN'] },
+        { id: 'recipes', label: 'Recetas', roles: ['ADMIN'], businessTypes: ['BAKERY', 'RESTAURANT'] },
+        { id: 'production', label: 'Producción', roles: ['ADMIN'], businessTypes: ['BAKERY', 'RESTAURANT'] },
+      ]
+    },
+    {
+      id: 'puntos',
+      label: 'Puntos',
+      roles: ['ADMIN', 'VENDEDOR', 'CONTADOR'],
+      items: [
+        { id: 'security-points', label: 'Puntos', roles: ['ADMIN', 'VENDEDOR', 'CONTADOR'] },
+      ]
+    },
+    {
+      id: 'reportes',
+      label: 'Reportes',
+      roles: ['ADMIN', 'CONTADOR'],
+      items: [
+        { id: 'reports', label: 'Reportes y SRI', roles: ['ADMIN', 'CONTADOR'] },
+        { id: 'sales-book', label: 'Libro de Ventas', roles: ['ADMIN', 'CONTADOR'] },
+        { id: 'ats', label: 'ATS', roles: ['ADMIN', 'CONTADOR'] },
+        { id: 'form-104', label: 'Formulario 104', roles: ['ADMIN', 'CONTADOR'] },
+        { id: 'kardex', label: 'Kardex', roles: ['ADMIN', 'CONTADOR'] },
+        { id: 'profitability', label: 'Rentabilidad', roles: ['ADMIN', 'CONTADOR'] },
+      ]
+    },
+    {
+      id: 'configuracion',
+      label: 'Configuración',
+      roles: ['ADMIN', 'VENDEDOR', 'CONTADOR', 'SUPERADMIN'],
+      items: [
+        { id: 'config', label: 'Perfil de Empresa', roles: ['ADMIN', 'SUPERADMIN', 'VENDEDOR', 'CONTADOR'] },
+        { id: 'pago-interno', label: 'Suscripción', roles: ['ADMIN'] },
+        { id: 'company-users', label: 'Panel de Gestión', roles: ['ADMIN'] },
+        { id: 'sessions', label: 'Seguridad / Dispositivos', roles: ['ADMIN', 'VENDEDOR', 'CONTADOR', 'SUPERADMIN'] },
+        { id: 'notifications', label: 'Notificaciones', roles: ['ADMIN', 'VENDEDOR', 'CONTADOR', 'SUPERADMIN'] },
+        { id: 'integrations', label: 'Integración Web', roles: ['ADMIN'] },
+        { id: 'ai-assistant', label: 'Asistente IA', roles: ['ADMIN', 'SUPERADMIN'] },
+      ]
+    },
+  ];
+
+  const groupIcons: Record<string, React.ReactNode> = {
+    superadmin: <ShieldExclamationIcon className="w-3.5 h-3.5" />,
+    emision: <DocumentTextIcon className="w-3.5 h-3.5" />,
+    operaciones: <ShoppingCartIcon className="w-3.5 h-3.5" />,
+    gestion: <UsersIcon className="w-3.5 h-3.5" />,
+    puntos: <TrophyIcon className="w-3.5 h-3.5" />,
+    reportes: <ChartBarIcon className="w-3.5 h-3.5" />,
+    configuracion: <Cog6ToothIcon className="w-3.5 h-3.5" />,
+  };
+
+  // Filtrar ítems por role, tipo de negocio, suscripción, módulos, plan
+  const filterItem = (item: MenuItem): boolean => {
+    if (!item.roles.includes(currentUser?.role)) return false;
+    if (subscriptionExpired && item.id !== 'pago-interno' && item.id !== 'logout_btn') return false;
+    if (item.id === 'ai-assistant' && !planHasAIAssistant) return false;
+    if (item.id === 'security-points' && !pointsProgramEnabled && !isSuperAdmin) return false;
+    if (item.businessTypes && !item.businessTypes.includes(emp?.businessType)) return false;
+    if (item.id === 'pago-interno' && !isAdmin) return false;
+    if (item.id === 'products' && !isAdmin) return false;
+
+    // Módulos: empleados sin ADMIN/SUPERADMIN
+    if (hasModuleControl && currentUser?.role !== 'ADMIN' && currentUser?.role !== 'SUPERADMIN') {
+      const moduleCode = menuItemModuleMap[item.id];
+      if (moduleCode) {
+        const perm = modulePermissions.find(p => p.moduleCode === moduleCode);
+        if (!perm || !perm.granted) return false;
+      }
+    }
+    return true;
+  };
+
+  // Filtrar grupos que tengan al menos un ítem visible
+  const visibleGroups = allGroups.filter(group => {
+    if (!group.roles.includes(currentUser?.role)) return false;
+    // El grupo SUPERADMIN solo se muestra si hay al menos un item visible
+    if (group.id === 'superadmin' && !isSuperAdmin) return false;
+    const visibleItems = group.items.filter(filterItem);
+    return visibleItems.length > 0;
+  });
+
+  // Dashboard: SUPERADMIN lo ve en grupo SUPERADMIN; usuarios normales lo ven al inicio siempre
+  const showStandaloneDashboard = !isSuperAdmin;
+
+  // Cerrar sesión siempre visible
+  const logoutItem: MenuItem = { id: 'logout_btn', label: 'Cerrar Sesión', roles: [] };
 
   return (
     <div className="flex h-screen bg-[#F6F6F7] dark:bg-[#0F172A] overflow-hidden relative transition-colors duration-300">
-      
-      <EnvironmentModal 
-        isOpen={isEnvModalOpen} 
-        onClose={() => setIsEnvModalOpen(false)} 
-        onConfirm={handleConfirmProduction}
-        loading={isEnvLoading}
+      <EnvironmentModal
+        isOpen={isEnvModalOpen} onClose={() => setIsEnvModalOpen(false)}
+        onConfirm={handleConfirmProduction} loading={isEnvLoading}
       />
 
       {isSidebarOpen && (
-        <div
-          className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[990] lg:hidden"
-          onClick={() => setIsSidebarOpen(false)}
-        />
+        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[990] lg:hidden"
+          onClick={() => setIsSidebarOpen(false)} />
       )}
 
       <aside className={`
         fixed lg:static inset-y-0 left-0 w-72 sm:w-80 md:w-72
-        bg-white dark:bg-slate-800
-        text-slate-800 dark:text-slate-200
+        bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200
         flex flex-col shadow-xl dark:shadow-2xl dark:shadow-black/30
         border-r border-slate-200 dark:border-slate-700/50
         z-[1000] transform transition-all duration-300 ease-in-out
@@ -294,27 +363,22 @@ const Layout: React.FC<LayoutProps> = ({
             </div>
             <p className="text-[10px] text-slate-400 dark:text-slate-500 mt-1.5 uppercase font-bold tracking-widest">Enterprise Edition</p>
           </div>
-          <button
-            onClick={() => setIsSidebarOpen(false)}
-            className="lg:hidden text-slate-400 hover:text-slate-700 dark:hover:text-white p-2 min-w-[44px] min-h-[44px] flex items-center justify-center"
-          >
+          <button onClick={() => setIsSidebarOpen(false)}
+            className="lg:hidden text-slate-400 hover:text-slate-700 dark:hover:text-white p-2 min-w-[44px] min-h-[44px] flex items-center justify-center">
             <XMarkIcon className="w-5 h-5" />
           </button>
         </div>
 
-        {/* --- SRI Environment Toggle --- */}
-        {currentUser?.role !== 'SUPERADMIN' && (
+        {!isSuperAdmin && (
           <div className="px-4 mt-4">
-            {businessInfo?.isProduction ? (
+            {emp?.isProduction ? (
               <div className="w-full flex items-center justify-center gap-2 bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400 py-3 rounded-xl border border-emerald-200 dark:border-emerald-800/50">
                 <ShieldExclamationIcon className="w-5 h-5" />
                 <span className="font-black text-xs uppercase tracking-widest">Ambiente Producción</span>
               </div>
             ) : (
-              <button
-                onClick={() => setIsEnvModalOpen(true)}
-                className="w-full flex items-center justify-between bg-red-500 hover:bg-red-600 text-white py-3 px-4 rounded-xl shadow-lg shadow-red-500/20 transition-colors group"
-              >
+              <button onClick={() => setIsEnvModalOpen(true)}
+                className="w-full flex items-center justify-between bg-red-500 hover:bg-red-600 text-white py-3 px-4 rounded-xl shadow-lg shadow-red-500/20 transition-colors group">
                 <div className="flex items-center gap-2">
                   <ExclamationTriangleIcon className="w-5 h-5 animate-pulse" />
                   <span className="font-black text-xs uppercase tracking-widest">Ambiente Pruebas</span>
@@ -326,41 +390,93 @@ const Layout: React.FC<LayoutProps> = ({
         )}
 
         <nav className="flex-1 p-2 sm:p-4 mt-2 space-y-1 overflow-y-auto">
-          {menuItems.map((item) => (
+          {/* Standalone Dashboard for non-SUPERADMIN */}
+          {showStandaloneDashboard && (
             <button
-              key={item.id}
-              onClick={() => handleTabClick(item.id)}
-              className={`w-full flex items-center space-x-3 px-4 py-3 sm:py-3.5 rounded-xl transition-all duration-200 min-h-[44px] sm:min-h-[48px] text-left border-l-4 group ${
-                activeTab === item.id
+              onClick={() => handleTabClick('dashboard')}
+              className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl transition-all duration-200 min-h-[48px] text-left border-l-4 group mb-3 ${
+                activeTab === 'dashboard'
                   ? 'bg-sky-50 border-sky-500 text-sky-700 font-bold'
-                  : item.id === 'logout_btn'
-                    ? 'border-transparent text-red-500 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-500/20 hover:text-red-600 dark:hover:text-red-300 mt-4 font-bold'
-                    : 'border-transparent text-slate-500 dark:text-slate-400 hover:bg-sky-50/50 hover:text-sky-600 hover:translate-x-1 dark:hover:bg-sky-500/10 font-semibold'
+                  : 'border-transparent text-slate-500 dark:text-slate-400 hover:bg-sky-50/50 hover:text-sky-600 hover:translate-x-1 dark:hover:bg-sky-500/10 font-semibold'
               }`}
             >
-              <span className="flex-shrink-0">{iconMap[item.label] || <CubeIcon className="w-6 h-6" />}</span>
-              <span className="text-sm sm:text-base font-medium flex-1">{item.label}</span>
-              {item.id === 'activation-requests' && pendingActivations > 0 && (
-                <span className="bg-red-500 text-white text-xs font-black px-2 py-0.5 rounded-full min-w-[22px] text-center">
-                  {pendingActivations}
-                </span>
-              )}
+              <span className="flex-shrink-0"><ChartBarIcon className="w-6 h-6" /></span>
+              <span className="text-sm font-medium flex-1">Dashboard</span>
             </button>
-          ))}
+          )}
+
+          {/* Grupos colapsables */}
+          {visibleGroups.map(group => {
+            const visibleItems = group.items.filter(filterItem);
+            const isCollapsed = collapsedGroups[group.id] !== false;
+            const hasActiveTab = visibleItems.some(item => item.id === activeTab);
+            const groupBadge = group.id === 'superadmin' ? pendingActivations : 0;
+
+            return (
+              <div key={group.id} className="mb-1">
+                <button
+                  onClick={(e) => { e.preventDefault(); e.stopPropagation(); toggleGroup(group.id); }}
+                  className={`w-full flex items-center gap-2 px-3 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all cursor-pointer select-none ${
+                    hasActiveTab ? 'text-sky-600 dark:text-sky-400' : 'text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300'
+                  }`}
+                >
+                  <span className="flex-shrink-0">{groupIcons[group.id]}</span>
+                  <span className="flex-1 text-left">{group.label}</span>
+                  {groupBadge > 0 && isCollapsed && (
+                    <span className="bg-red-500 text-white text-[9px] font-black px-1.5 py-0.5 rounded-full min-w-[18px] text-center">{groupBadge}</span>
+                  )}
+                  <ChevronDownIcon className={`w-3.5 h-3.5 flex-shrink-0 transition-transform duration-200 ${!isCollapsed ? 'rotate-180' : ''}`} />
+                </button>
+
+                <div className={`overflow-hidden transition-all duration-300 ease-in-out ${isCollapsed ? 'max-h-0 opacity-0 pointer-events-none' : 'max-h-[2000px] opacity-100'}`}>
+                  <div className="space-y-0.5 mt-1">
+                    {visibleItems.map(item => (
+                      <button
+                        key={item.id}
+                        onClick={() => handleTabClick(item.id)}
+                        className={`w-full flex items-center space-x-3 px-4 py-2.5 rounded-xl transition-all duration-200 min-h-[44px] text-left border-l-4 group ${
+                          activeTab === item.id
+                            ? 'bg-sky-50 border-sky-500 text-sky-700 font-bold'
+                            : 'border-transparent text-slate-500 dark:text-slate-400 hover:bg-sky-50/50 hover:text-sky-600 hover:translate-x-1 dark:hover:bg-sky-500/10 font-semibold'
+                        }`}
+                      >
+                        <span className="flex-shrink-0 scale-90">{iconMap[item.label] || <CubeIcon className="w-5 h-5" />}</span>
+                        <span className="text-xs font-medium flex-1">{item.label}</span>
+                        {item.id === 'activation-requests' && pendingActivations > 0 && (
+                          <span className="bg-red-500 text-white text-[10px] font-black px-1.5 py-0.5 rounded-full min-w-[18px] text-center">
+                            {pendingActivations}
+                          </span>
+                        )}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+
+          {/* Cerrar Sesión */}
+          <button
+            onClick={() => handleTabClick('logout_btn')}
+            className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl transition-all duration-200 min-h-[48px] text-left border-l-4 mt-4 border-transparent text-red-500 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-500/20 hover:text-red-600 dark:hover:text-red-300 font-bold`}
+          >
+            <span className="flex-shrink-0"><ArrowRightOnRectangleIcon className="w-6 h-6" /></span>
+            <span className="text-sm font-medium flex-1">Cerrar Sesión</span>
+          </button>
         </nav>
 
         <div className="p-4 border-t border-slate-200 dark:border-slate-700/50">
           <div className="flex items-center space-x-3 bg-slate-100 dark:bg-slate-900/50 p-3 rounded-xl transition-colors">
             <div className="w-9 h-9 rounded-lg bg-sky-500 flex items-center justify-center font-bold text-white shadow-lg shadow-sky-500/20 overflow-hidden">
-              {businessInfo.logo ? (
-                <img src={businessInfo.logo} className="w-full h-full object-cover" alt="Logo" />
+              {emp?.logo ? (
+                <img src={emp.logo} className="w-full h-full object-cover" alt="Logo" />
               ) : (
-                <span>{businessInfo.name ? businessInfo.name.charAt(0) : 'E'}</span>
+                <span>{emp?.name ? emp.name.charAt(0) : 'E'}</span>
               )}
             </div>
             <div className="overflow-hidden">
-              <p className="text-xs font-semibold truncate text-slate-800 dark:text-slate-200">{businessInfo.name || 'Mi Negocio'}</p>
-              <p className="text-[9px] text-slate-400 dark:text-slate-500 font-mono truncate">RUC: {businessInfo.ruc || 'Sin configurar'}</p>
+              <p className="text-xs font-semibold truncate text-slate-800 dark:text-slate-200">{emp?.name || 'Mi Negocio'}</p>
+              <p className="text-[9px] text-slate-400 dark:text-slate-500 font-mono truncate">RUC: {emp?.ruc || 'Sin configurar'}</p>
             </div>
           </div>
         </div>
@@ -369,27 +485,21 @@ const Layout: React.FC<LayoutProps> = ({
       <main className="flex-1 flex flex-col overflow-hidden w-full">
         <header className="h-14 sm:h-16 bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl border-b border-slate-200 dark:border-slate-700/50 flex items-center justify-between px-3 sm:px-4 lg:px-8 z-10 print:hidden transition-colors duration-300">
           <div className="flex items-center gap-2 sm:gap-4">
-            <button
-              onClick={() => setIsSidebarOpen(true)}
-              className="lg:hidden p-2 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-xl transition-all print:hidden min-w-[44px] min-h-[44px] flex items-center justify-center"
-            >
+            <button onClick={() => setIsSidebarOpen(true)}
+              className="lg:hidden p-2 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-xl transition-all print:hidden min-w-[44px] min-h-[44px] flex items-center justify-center">
               <Bars3Icon className="w-6 h-6" />
             </button>
             <h2 className="text-[10px] sm:text-xs lg:text-sm font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500 truncate print:hidden max-w-[120px] sm:max-w-[200px] lg:max-w-none">
-              {menuItems.find(i => i.id === activeTab)?.label}
+              {visibleGroups.flatMap(g => g.items).find(i => i.id === activeTab)?.label || 'Dashboard'}
             </h2>
           </div>
 
           <div className="flex items-center space-x-1 sm:space-x-2 lg:space-x-4 print:hidden">
             <div className="relative" ref={notificationRef}>
-              <button
-                onClick={() => setShowNotifications(!showNotifications)}
+              <button onClick={() => setShowNotifications(!showNotifications)}
                 className={`relative p-2 rounded-xl transition-all min-w-[44px] min-h-[44px] flex items-center justify-center ${
-                  showNotifications
-                    ? 'bg-sky-100 dark:bg-sky-500/20 text-sky-500 dark:text-sky-400'
-                    : 'text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700'
-                }`}
-              >
+                  showNotifications ? 'bg-sky-100 dark:bg-sky-500/20 text-sky-500 dark:text-sky-400' : 'text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700'
+                }`}>
                 <BellIcon className="w-5 h-5 sm:w-6 sm:h-6" />
                 {unreadCount > 0 && (
                   <span className="absolute -top-1 -right-1 w-4 h-4 bg-rose-500 border-2 border-white dark:border-slate-800 rounded-full text-[9px] text-white flex items-center justify-center font-bold">
@@ -397,7 +507,6 @@ const Layout: React.FC<LayoutProps> = ({
                   </span>
                 )}
               </button>
-
               {showNotifications && (
                 <div className="absolute right-0 mt-3 w-[280px] sm:w-72 lg:w-80 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-600/50 rounded-2xl shadow-2xl dark:shadow-black/40 z-50 overflow-hidden animate-scale-in origin-top-right max-h-[80vh]">
                   <div className="p-3 sm:p-4 bg-slate-50 dark:bg-slate-800/50 border-b border-slate-100 dark:border-slate-700/50 flex justify-between items-center">
@@ -412,11 +521,7 @@ const Layout: React.FC<LayoutProps> = ({
                     ) : (
                       notifications.map(n => (
                         <div key={n.id} className={`p-4 flex gap-3 group relative ${!n.read ? 'bg-sky-50/30 dark:bg-sky-500/5' : ''}`}>
-                          <div className={`w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 ${
-                            n.type === 'success'
-                              ? 'bg-emerald-100 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400'
-                              : 'bg-sky-100 dark:bg-sky-500/10 text-sky-500 dark:text-sky-400'
-                          }`}>
+                          <div className={`w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 ${n.type === 'success' ? 'bg-emerald-100 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400' : 'bg-sky-100 dark:bg-sky-500/10 text-sky-500 dark:text-sky-400'}`}>
                             <div className="w-2 h-2 rounded-full bg-current" />
                           </div>
                           <div className="flex-1 min-w-0">
@@ -441,9 +546,7 @@ const Layout: React.FC<LayoutProps> = ({
                 </div>
                 <div>
                   <h3 className="font-bold text-red-800 dark:text-red-300">Suscripción Vencida</h3>
-                  <p className="text-sm text-red-600 dark:text-red-400">
-                    Su suscripción ha vencido. Renueve para acceder a todas las funciones.
-                  </p>
+                  <p className="text-sm text-red-600 dark:text-red-400">Su suscripción ha vencido. Renueve para acceder a todas las funciones.</p>
                 </div>
               </div>
             </div>

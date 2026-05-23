@@ -377,16 +377,16 @@ const businessController = {
     createDocument: catchAsync(async (req, res) => {
             const { items, id, retentionTaxes, ...docData } = req.body;
             const businessId = req.user.businessId;
+            const isReceivedDocument = docData.source === 'RECEIVED';
 
-            // Validar que haya items para documentos que lo requieran
-            // Tipos de documento que requieren items: factura (01), nota de venta (02)
-            const requiresItems = ['01', '02'].includes(docData.type);
+            // Para documentos recibidos, no requieren items obligatoriamente (pueden ser solo header)
+            const requiresItems = ['01', '02'].includes(docData.type) && !isReceivedDocument;
             if (requiresItems && (!items || items.length === 0)) {
                 return res.status(400).json({ message: 'El documento debe tener al menos un item' });
             }
 
-            // ENFORCE INVOICE LIMIT: Verificar límite de facturas por mes según el plan
-            if (docData.type === '01' && req.user.role !== 'SUPERADMIN') {
+            // ENFORCE INVOICE LIMIT: solo para documentos emitidos, no recibidos
+            if (docData.type === '01' && req.user.role !== 'SUPERADMIN' && !isReceivedDocument) {
                 const business = await prisma.business.findUnique({
                     where: { id: businessId },
                     select: { plan: true }
@@ -427,8 +427,7 @@ const businessController = {
             }
 
             // Validar que los productos existan y pertenezcan al negocio
-            // Facturas (01), notas de venta (02) y notas de crédito (04) requieren productos válidos
-            const requiresProductValidation = ['01', '02', '04'].includes(docData.type);
+            const requiresProductValidation = ['01', '02', '04'].includes(docData.type) && !isReceivedDocument;
             let productIdToUse = new Map(); // Map para convertir productIds inválidos a null
             
             if (requiresProductValidation && items && items.length > 0) {
@@ -743,6 +742,96 @@ const businessController = {
         });
 
         res.json({ success: true, message: 'Ambiente de Producción activado. Documentos de prueba eliminados.' });
+    }),
+
+    // BULK IMPORT: Clientes
+    bulkCreateClients: catchAsync(async (req, res) => {
+        const businessId = req.user.businessId;
+        const { clients: clientsData } = req.body;
+
+        if (!Array.isArray(clientsData) || clientsData.length === 0) {
+            return res.status(400).json({ message: 'Se requiere un arreglo de clientes' });
+        }
+
+        const results = { success: 0, failed: 0, errors: [] };
+
+        for (const c of clientsData) {
+            try {
+                const ruc = String(c.ruc || c.RUC || c.Identificacion || c.identificacion || '').trim();
+                const name = String(c.nombre || c.name || c.Nombre || c['Razon Social'] || c['razon_social'] || '').trim();
+                if (!ruc || !name) {
+                    results.failed++;
+                    results.errors.push(`Fila sin RUC o nombre: ${JSON.stringify(c).substring(0, 80)}`);
+                    continue;
+                }
+
+                const email = String(c.email || c.Email || c.correo || c.Correo || '').trim() || null;
+                const phone = String(c.telefono || c.phone || c.Telefono || c.Phone || '').trim() || null;
+                const address = String(c.direccion || c.address || c.Direccion || c.Address || '').trim() || null;
+                const typeRaw = String(c.tipo || c.type || c.Tipo || c.Type || 'CLIENTE').trim().toUpperCase();
+                const type = ['CLIENTE', 'PROVEEDOR', 'AMBOS'].includes(typeRaw) ? typeRaw : 'CLIENTE';
+
+                await prisma.client.upsert({
+                    where: { ruc_businessId: { ruc, businessId } },
+                    update: { name, email, phone, address, type },
+                    create: { ruc, name, email, phone, address, type, businessId }
+                });
+                results.success++;
+            } catch (err) {
+                results.failed++;
+                results.errors.push(`Error: ${err.message}`.substring(0, 200));
+            }
+        }
+
+        res.json({ success: true, ...results });
+    }),
+
+    // BULK IMPORT: Productos
+    bulkCreateProducts: catchAsync(async (req, res) => {
+        const businessId = req.user.businessId;
+        const { products: productsData } = req.body;
+
+        if (!Array.isArray(productsData) || productsData.length === 0) {
+            return res.status(400).json({ message: 'Se requiere un arreglo de productos' });
+        }
+
+        const results = { success: 0, failed: 0, errors: [] };
+
+        for (const p of productsData) {
+            try {
+                const code = String(p.codigo || p.code || p.Codigo || p.Code || p['Codigo'] || '').trim();
+                const description = String(p.descripcion || p.description || p.Descripcion || p.Description || p['Descripcion'] || '').trim();
+                if (!code || !description) {
+                    results.failed++;
+                    results.errors.push(`Fila sin codigo o descripcion: ${JSON.stringify(p).substring(0, 80)}`);
+                    continue;
+                }
+
+                const price = parseFloat(p.precio || p.price || p.Precio || p.Price || 0) || 0;
+                const wholesalePrice = parseFloat(p.precio_mayorista || p.wholesalePrice || p['Precio Mayorista'] || 0) || 0;
+                const distributorPrice = parseFloat(p.precio_distribuidor || p.distributorPrice || p['Precio Distribuidor'] || 0) || 0;
+                const stock = parseInt(p.stock || p.Stock || 0) || 0;
+                const minStock = parseInt(p.stock_minimo || p.minStock || p['Stock Minimo'] || 0) || 0;
+                const taxRate = parseInt(p.iva || p.taxRate || p.Iva || p.TaxRate || 15) || 15;
+                const rawType = String(p.tipo || p.type || p.Tipo || p.Type || 'BIEN').trim().toUpperCase();
+                const productType = rawType === 'SERVICIO' ? 'SERVICIO' : 'BIEN';
+                const category = String(p.categoria || p.category || p.Categoria || 'Otros').trim();
+                const unitOfMeasure = String(p.unidad || p.unitOfMeasure || p.Unidad || 'UNIDAD').trim().toUpperCase();
+                const isRawMaterial = String(p.materia_prima || p.isRawMaterial || '').toLowerCase() === 'true' || p.isRawMaterial === true;
+
+                await prisma.product.upsert({
+                    where: { code_businessId: { code, businessId } },
+                    update: { description, price, wholesalePrice, distributorPrice, stock, minStock, taxRate, type: productType, category, unitOfMeasure, isRawMaterial },
+                    create: { code, description, price, wholesalePrice, distributorPrice, stock, minStock, taxRate, type: productType, category, unitOfMeasure, isRawMaterial, businessId }
+                });
+                results.success++;
+            } catch (err) {
+                results.failed++;
+                results.errors.push(`Error: ${err.message}`.substring(0, 200));
+            }
+        }
+
+        res.json({ success: true, ...results });
     })
 };
 

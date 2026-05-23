@@ -18,12 +18,14 @@ import ClientManager from './modules/clientes/components/ClientManager';
 import ProductManager from './modules/clientes/components/ProductManager';
 import Reports from './modules/reportes/components/Reports';
 import Integrations from './modules/configuracion/components/Integrations';
-import { Client, Product, AppNotification, Document, DocumentType, SriStatus, BusinessInfo, InvoiceItem, NotificationSettings, BUSINESS_TYPES, BusinessType } from './types/types';
+import { Client, Product, AppNotification, Document, DocumentType, SriStatus, BusinessInfo, InvoiceItem, NotificationSettings, BUSINESS_TYPES, BusinessType, EmissionPoint } from './types/types';
 import { MOCK_CLIENTS, MOCK_PRODUCTS } from './constants';
 
 import Login from './modules/autenticacion/pages/Login';
 import ClientLogin from './modules/autenticacion/pages/ClientLogin';
 import ClientDashboard from './modules/clientes/pages/ClientDashboard';
+import ResetPassword from './modules/autenticacion/pages/ResetPassword';
+import VerifyEmail from './modules/autenticacion/pages/VerifyEmail';
 import AdminUsers from './modules/admin/pages/AdminUsers';
 import { client } from './api/client';
 import SubscriptionPage from './modules/saas/pages/SubscriptionPage';
@@ -43,11 +45,16 @@ import AyudaPage from './modules/landing/pages/AyudaPage';
 import ContactoPage from './modules/landing/pages/ContactoPage';
 import LegalPage from './modules/landing/pages/LegalPage';
 import LandingPageEditor from './modules/admin/pages/LandingPageEditor';
+import BlogEditor from './modules/admin/pages/BlogEditor';
+import BlogPage from './modules/landing/pages/BlogPage';
 import RecipeManager from './modules/produccion/components/RecipeManager';
 import ProductionRecord from './modules/produccion/components/ProductionRecord';
 import QuickSaleForm from './modules/caja/pages/QuickSaleForm';
 import PendingTickets from './modules/caja/pages/PendingTickets';
 import SessionsPage from './modules/admin/pages/SessionsPage';
+import SecurityPoints from './modules/saas/pages/SecurityPoints';
+import PointsAdmin from './modules/admin/pages/PointsAdmin';
+import PurchaseManager from './modules/compras/components/PurchaseManager';
 
 // URL del backend definida en variable de entorno o fallback
 // Usar variable de entorno VITE_BACKEND_URL para producción en Railway
@@ -120,6 +127,9 @@ const App: React.FC = () => {
     taxpayerType: 'PERSONA_NATURAL',
   });
 
+  const [emissionPoints, setEmissionPoints] = useState<EmissionPoint[]>([]);
+  const [selectedEmissionPoint, setSelectedEmissionPoint] = useState<EmissionPoint | null>(null);
+
   // --- ESTADOS DE FIRMA DIGITAL ---
   const [signatureFile, setSignatureFile] = useState<File | null>(null);
   const [signatureBuffer, setSignatureBuffer] = useState<ArrayBuffer | null>(null);
@@ -148,6 +158,8 @@ const App: React.FC = () => {
   const [currentPlanHasAudit, setCurrentPlanHasAudit] = useState(false);
   const [currentPlanDurationDays, setCurrentPlanDurationDays] = useState(30);
   const [currentPlanMaxInvoices, setCurrentPlanMaxInvoices] = useState(999999);
+  const [currentPlanMaxEmissionPoints, setCurrentPlanMaxEmissionPoints] = useState(1);
+  const [pointsProgramEnabled, setPointsProgramEnabled] = useState(true);
 
   // Estado para control de módulos por usuario
   const [hasModuleControl, setHasModuleControl] = useState(() => {
@@ -220,6 +232,7 @@ const App: React.FC = () => {
             setCurrentPlanHasAudit(!!currentPlan.hasAudit);
             setCurrentPlanDurationDays(currentPlan.durationDays ?? 30);
             setCurrentPlanMaxInvoices(currentPlan.maxInvoicesPerMonth ?? 999999);
+            setCurrentPlanMaxEmissionPoints(currentPlan.maxEmissionPoints ?? 1);
           }
         }
       } catch (error) {
@@ -349,8 +362,10 @@ const App: React.FC = () => {
         const loadClients = client.get<{ data: Client[] }>('/api/clients').then(r => r.data).catch(e => { console.error("Error loading clients", e); return []; });
         const loadProducts = client.get<{ data: Product[] }>('/api/products').then(r => r.data).catch(e => { console.error("Error loading products", e); return []; });
         const loadDocs = client.get<{ data: Document[] }>('/api/documents').then(r => r.data).catch(e => { console.error("Error loading documents", e); return []; });
+        const loadEmissionPoints = client.get<EmissionPoint[]>('/api/emission-points').then(r => r.data).catch(e => { console.error("Error loading emission points", e); return [] as EmissionPoint[]; });
+        const loadPointsConfig = client.get<{ programEnabled: boolean }>('/api/referrals/code').then(r => r.data).catch(() => ({ programEnabled: true }));
 
-        const [empresa, clientes, productos, docs] = await Promise.all([loadBusiness, loadClients, loadProducts, loadDocs]);
+        const [empresa, clientes, productos, docs, epoints, pointsCfg] = await Promise.all([loadBusiness, loadClients, loadProducts, loadDocs, loadEmissionPoints, loadPointsConfig]);
 
         if (empresa) {
           setBusinessInfo(empresa as BusinessInfo);
@@ -377,6 +392,9 @@ const App: React.FC = () => {
         setClients(clientes || []);
         setProducts(productos || []);
         setDocuments(docs || []);
+        setEmissionPoints(epoints || []);
+        if (epoints && epoints.length > 0) setSelectedEmissionPoint(epoints[0]);
+        setPointsProgramEnabled(pointsCfg?.programEnabled !== false);
 
         // Siempre cargar documentos aunque la suscripción esté pendiente
         // El usuario puede ver sus facturas existentes aunque no pueda crear nuevas
@@ -841,6 +859,10 @@ const App: React.FC = () => {
   if (window.location.pathname === '/ayuda') return <AyudaPage />;
   if (window.location.pathname === '/contacto') return <ContactoPage />;
   if (window.location.pathname === '/legal') return <LegalPage />;
+  if (window.location.pathname === '/blog') return <BlogPage />;
+  if (window.location.pathname === '/reset-password') return <ResetPassword type="admin" />;
+  if (window.location.pathname === '/portal/reset-password') return <ResetPassword type="client" />;
+  if (window.location.pathname === '/verify-email') return <VerifyEmail />;
 
   // 3. Login explícito - Solo para no autenticados
   if (window.location.pathname === '/login' && !isAuthenticated) {
@@ -916,6 +938,12 @@ const App: React.FC = () => {
       );
     }
 
+    const effectiveBusinessInfo = {
+      ...businessInfo,
+      establishmentCode: selectedEmissionPoint?.establishmentCode || businessInfo.establishmentCode || '001',
+      emissionPointCode: selectedEmissionPoint?.emissionPointCode || businessInfo.emissionPointCode || '001',
+    };
+
     switch (activeTab) {
       case 'pago-interno':
         return (
@@ -952,13 +980,13 @@ const App: React.FC = () => {
           </div>
         );
 
-      case 'invoices': return <InvoiceForm clients={clients} products={products} businessInfo={businessInfo} signatureFile={signatureFile} signaturePassword={signaturePassword} notificationSettings={notificationSettings} onNotify={showNotify} onAuthorize={handleDocumentAuthorized} />;
+      case 'invoices': return <InvoiceForm clients={clients} products={products} businessInfo={effectiveBusinessInfo} signatureFile={signatureFile} signaturePassword={signaturePassword} notificationSettings={notificationSettings} onNotify={showNotify} onAuthorize={handleDocumentAuthorized} emissionPoints={emissionPoints} selectedEmissionPoint={selectedEmissionPoint} onSelectEmissionPoint={setSelectedEmissionPoint} />;
       case 'credit-notes': return (
         <CreditNoteForm
           clients={clients}
           products={products}
           invoices={documents}
-          businessInfo={businessInfo}
+          businessInfo={effectiveBusinessInfo}
           signatureOptions={signatureBuffer && signaturePassword ? {
             p12File: signatureBuffer,
             password: signaturePassword,
@@ -967,16 +995,30 @@ const App: React.FC = () => {
           onDocumentCreated={handleDocumentAuthorized}
         />
       );
-      case 'retentions': return <RetentionForm business={businessInfo} clients={clients} onSubmit={(retention, xml) => showNotify('Retención generada exitosamente')} />;
-      case 'remittances': return <RemittanceForm business={businessInfo} clients={clients} products={products} onSubmit={(guide, xml) => showNotify('Guía de remisión generada exitosamente')} />;
-      case 'settlements': return <SettlementForm business={businessInfo} clients={clients} products={products} onSubmit={(settlement, xml) => showNotify('Liquidación generada exitosamente')} />;
+      case 'retentions': return <RetentionForm business={effectiveBusinessInfo} clients={clients} onSubmit={(retention, xml) => showNotify('Retención generada exitosamente')} />;
+      case 'remittances': return <RemittanceForm business={effectiveBusinessInfo} clients={clients} products={products} onSubmit={(guide, xml) => showNotify('Guía de remisión generada exitosamente')} />;
+      case 'settlements': return <SettlementForm business={effectiveBusinessInfo} clients={clients} products={products} onSubmit={(settlement, xml) => showNotify('Liquidación generada exitosamente')} />;
       case 'sales-book': return <SalesBook documents={documents} business={businessInfo} onNotify={showNotify} />;
       case 'ats': return <ATSReport documents={documents} business={businessInfo} onNotify={showNotify} />;
       case 'form-104': return <Form104 documents={documents} business={businessInfo} onNotify={showNotify} />;
       case 'kardex': return <Kardex products={products} documents={documents} onNotify={showNotify} />;
       case 'profitability': return <ProfitabilityAnalysis products={products} documents={documents} onNotify={showNotify} />;
       case 'notifications': return <NotificationSettingsComponent settings={notificationSettings} onSave={handleSaveNotificationSettings} onNotify={showNotify} />;
-      case 'reports': return <Reports documents={documents} businessInfo={businessInfo} />;
+      case 'reports': return <Reports documents={documents} businessInfo={businessInfo} onConvertProforma={() => {
+        setActiveTab('invoices');
+        toast.success('Cree una nueva factura con los datos de la proforma');
+      }} setActiveTab={setActiveTab} />;
+      case 'purchases': return (
+        <PurchaseManager
+          clients={clients}
+          businessInfo={businessInfo}
+          purchases={documents}
+          onNotify={showNotify}
+          onPurchaseAdded={(doc) => setDocuments(prev => [doc, ...prev])}
+          onPurchaseDeleted={(id) => { setDocuments(prev => prev.filter(d => d.id !== id)); showNotify('Comprobante eliminado'); }}
+          isDemoMode={isDemoMode}
+        />
+      );
       case 'ai-assistant':
         if (!currentPlanHasAI && currentUser?.role !== 'SUPERADMIN') {
           showNotify('El Asistente IA requiere un plan superior. Actualice su suscripción.', 'warning');
@@ -1009,6 +1051,20 @@ const App: React.FC = () => {
           return <Dashboard documents={documents} products={products} setActiveTab={setActiveTab} currentUser={currentUser} />;
         }
         return <SubscriptionPlansManager onNotify={showNotify} />;
+
+      case 'points-admin':
+        if (currentUser?.role !== 'SUPERADMIN') {
+          showNotify('Acceso restringido', 'error');
+          return <Dashboard documents={documents} products={products} setActiveTab={setActiveTab} currentUser={currentUser} />;
+        }
+        return <PointsAdmin />;
+
+      case 'blog-editor':
+        if (currentUser?.role !== 'SUPERADMIN') {
+          showNotify('Acceso restringido', 'error');
+          return <Dashboard documents={documents} products={products} setActiveTab={setActiveTab} currentUser={currentUser} />;
+        }
+        return <BlogEditor />;
 
       case 'activation-requests':
         // Solicitudes de activación de suscripciones para SUPERADMIN
@@ -1080,10 +1136,11 @@ const App: React.FC = () => {
 
       case 'clients': return <ClientManager clients={clients} setClients={setClients} onNotify={showNotify} isDemoMode={isDemoMode} currentUser={currentUser} />;
       case 'products': return <ProductManager products={products} setProducts={setProducts} onNotify={showNotify} isDemoMode={isDemoMode} businessType={businessInfo?.businessType as any} isProduction={businessInfo?.isProduction || false} />;
+      case 'security-points': return <SecurityPoints businessInfo={businessInfo} isDemoMode={isDemoMode} onNotify={showNotify} />;
       case 'recipes': return <RecipeManager products={products} onNotify={showNotify} />;
       case 'production': return <ProductionRecord products={products} setProducts={setProducts} onNotify={showNotify} />;
       case 'quicksale': return <QuickSaleForm products={products} clients={clients} setClients={setClients} businessInfo={businessInfo} onNotify={showNotify} onTicketCreated={(ticket) => setQuicksales(prev => [ticket, ...prev])} />;
-      case 'pending-sri': return <PendingTickets tickets={quicksales} setTickets={setQuicksales} products={products} businessInfo={businessInfo} signatureFile={signatureFile} signaturePassword={signaturePassword} onNotify={showNotify} onAuthorize={handleDocumentAuthorized} />;
+      case 'pending-sri': return <PendingTickets tickets={quicksales} setTickets={setQuicksales} products={products} businessInfo={effectiveBusinessInfo} signatureFile={signatureFile} signaturePassword={signaturePassword} onNotify={showNotify} onAuthorize={handleDocumentAuthorized} />;
       case 'integrations': return <Integrations products={products} clients={clients} businessInfo={businessInfo} onOrderAuthorized={handleDocumentAuthorized} onNotify={showNotify} onUpdateProducts={setProducts} />;
       case 'config':
 
@@ -1218,16 +1275,88 @@ const App: React.FC = () => {
                       </div>
                     </div>
 
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                      <div className="space-y-2">
-                        <label className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest">Estab.</label>
-                        <input type="text" placeholder="001" value={businessInfo.establishmentCode || ''} className="w-full p-4 bg-slate-50 dark:bg-slate-800/50 dark:text-white rounded-2xl font-black text-center text-sm" onChange={e => setBusinessInfo({ ...businessInfo, establishmentCode: e.target.value })} />
+                    <div className="space-y-4">
+                      <div className="flex justify-between items-center">
+                        <h4 className="text-sm font-black text-slate-700 dark:text-slate-300 uppercase tracking-wider">Puntos de Emisión</h4>
+                        <button
+                          onClick={async () => {
+                            const code = prompt('Código del establecimiento (ej: 001):', '001');
+                            if (!code) return;
+                            const ptCode = prompt('Código del punto de emisión (ej: 002):', String(emissionPoints.length + 1).padStart(3, '0'));
+                            if (!ptCode) return;
+                            try {
+                              const token = localStorage.getItem('adminToken');
+                              const res = await fetch(`${API_URL}/api/emission-points`, {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                                body: JSON.stringify({ establishmentCode: code, emissionPointCode: ptCode, description: `Punto ${ptCode}` })
+                              });
+                              const data = await res.json();
+                              if (res.ok) {
+                                setEmissionPoints(prev => [...prev, data]);
+                                showNotify('Punto de emisión agregado');
+                              } else {
+                                showNotify(data.message || 'Error', 'error');
+                              }
+                            } catch { showNotify('Error de conexión', 'error'); }
+                          }}
+                          disabled={emissionPoints.length >= (currentPlanMaxEmissionPoints || 3)}
+                          className="bg-sky-500 text-white px-3 py-2 rounded-xl font-black text-[10px] uppercase disabled:opacity-40 hover:bg-sky-600 transition-all"
+                        >
+                          + Agregar ({emissionPoints.length}/{currentPlanMaxEmissionPoints || 3})
+                        </button>
                       </div>
+                      {emissionPoints.length === 0 ? (
+                        <p className="text-xs text-slate-400 py-4 text-center bg-slate-50 rounded-xl">No hay puntos de emisión configurados</p>
+                      ) : (
+                        <div className="space-y-2">
+                          {emissionPoints.map((ep, i) => (
+                            <div key={ep.id} className="flex items-center gap-3 bg-slate-50 dark:bg-slate-800/50 p-3 rounded-xl">
+                              <span className="w-8 h-8 rounded-lg bg-sky-100 dark:bg-sky-900/30 text-sky-600 dark:text-sky-400 flex items-center justify-center font-black text-xs">{i + 1}</span>
+                              <div className="flex-1">
+                                <p className="text-xs font-bold text-slate-700 dark:text-slate-300">Estab: {ep.establishmentCode} | Pto: {ep.emissionPointCode}</p>
+                                <p className="text-[10px] text-slate-400">{ep.description || 'Sin descripción'}</p>
+                              </div>
+                              <div className="flex gap-1">
+                                <button
+                                  onClick={() => { setSelectedEmissionPoint(ep); showNotify(`Punto ${ep.establishmentCode}-${ep.emissionPointCode} seleccionado`); }}
+                                  className={`px-2 py-1 rounded-lg text-[9px] font-black uppercase transition-all ${selectedEmissionPoint?.id === ep.id ? 'bg-sky-500 text-white' : 'bg-white dark:bg-slate-700 text-slate-500 hover:bg-sky-100'}`}
+                                >
+                                  {selectedEmissionPoint?.id === ep.id ? '✓ Activo' : 'Usar'}
+                                </button>
+                                {emissionPoints.length > 1 && (
+                                  <button
+                                    onClick={async () => {
+                                      if (!confirm('Eliminar este punto de emisión?')) return;
+                                      try {
+                                        const token = localStorage.getItem('adminToken');
+                                        const res = await fetch(`${API_URL}/api/emission-points/${ep.id}`, {
+                                          method: 'DELETE', headers: { 'Authorization': `Bearer ${token}` }
+                                        });
+                                        if (res.ok) {
+                                          setEmissionPoints(prev => prev.filter(p => p.id !== ep.id));
+                                          if (selectedEmissionPoint?.id === ep.id) setSelectedEmissionPoint(null);
+                                          showNotify('Punto de emisión eliminado');
+                                        } else {
+                                          const d = await res.json();
+                                          showNotify(d.message || 'Error', 'error');
+                                        }
+                                      } catch { showNotify('Error de conexión', 'error'); }
+                                    }}
+                                    className="px-2 py-1 bg-rose-50 text-rose-500 rounded-lg text-[9px] font-black uppercase hover:bg-rose-100"
+                                  >
+                                    ✕
+                                  </button>
+                                )}
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div className="space-y-2">
-                        <label className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest">Pto. Emisión</label>
-                        <input type="text" placeholder="001" value={businessInfo.emissionPointCode || ''} className="w-full p-4 bg-slate-50 dark:bg-slate-800/50 dark:text-white rounded-2xl font-black text-center text-sm" onChange={e => setBusinessInfo({ ...businessInfo, emissionPointCode: e.target.value })} />
-                      </div>
-                      <div className="md:col-span-2 space-y-2">
                         <label className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest">Obligado Contabilidad</label>
                         <div className="flex bg-slate-50 dark:bg-slate-800/50 p-1 rounded-2xl h-[52px]">
                           <button onClick={() => setBusinessInfo({ ...businessInfo, isAccountingObliged: true })} className={`flex-1 rounded-xl text-[10px] font-black uppercase transition-all ${businessInfo.isAccountingObliged ? 'bg-white dark:bg-slate-700 shadow-sm text-sky-500 dark:text-sky-400' : 'text-slate-400'}`}>SÍ</button>
@@ -1476,6 +1605,7 @@ const App: React.FC = () => {
       planHasAIAssistant={currentPlanHasAI || currentUser?.role === 'SUPERADMIN'}
       hasModuleControl={hasModuleControl}
       modulePermissions={modulePermissions}
+      pointsProgramEnabled={pointsProgramEnabled}
       onActivateProduction={handleActivateProduction}
     >
       {renderContent()}

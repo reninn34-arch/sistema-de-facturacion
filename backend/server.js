@@ -35,6 +35,11 @@ const quickSaleRoutes = require('./src/routes/quicksale.routes'); // Rutas de ve
 const settingsRoutes = require('./src/routes/settings.routes'); // Configuración global (pagos, banco)
 const modulePermissionsRoutes = require('./src/routes/module-permissions.routes'); // Gestión de módulos por usuario
 const sessionRoutes = require('./src/routes/session.routes'); // Registro de sesiones / dispositivos
+const publicRoutes = require('./src/routes/public.routes'); // Rutas publicas (consulta de estado)
+const emissionPointsRoutes = require('./src/routes/emission-points.routes'); // Puntos de emision
+const referralsRoutes = require('./src/routes/referrals.routes'); // Programa de referidos y puntos
+const pointsAdminRoutes = require('./src/routes/points-admin.routes'); // Panel admin de puntos
+const blogRoutes = require('./src/routes/blog.routes'); // Blog y capacitaciones
 const { errorHandler } = require('./src/middleware/error.handler'); // [NUEVO] Manejador de errores centralizado
 
 // Middleware de seguridad
@@ -877,6 +882,11 @@ app.use(internalPaymentRoutes);
   app.use(settingsRoutes);
   app.use(modulePermissionsRoutes);
   app.use(sessionRoutes);
+  app.use(publicRoutes);
+  app.use(emissionPointsRoutes);
+  app.use(referralsRoutes);
+  app.use(pointsAdminRoutes);
+  app.use(blogRoutes);
 
 // ============================================
 // SERVIR FRONTEND EN PRODUCCIÓN

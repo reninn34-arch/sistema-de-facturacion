@@ -1,12 +1,12 @@
 ﻿
 import React, { useState, useRef, useEffect, useMemo } from 'react';
-import { Client, Product, InvoiceItem, SriStatus, DocumentType, Document, PaymentStatus, BusinessInfo, NotificationSettings } from '../../../types/types';
+import { Client, Product, InvoiceItem, SriStatus, DocumentType, Document, PaymentStatus, BusinessInfo, NotificationSettings, EmissionPoint } from '../../../types/types';
 import { SRI_PAYMENT_METHODS } from '../../../constants';
 import { generateAccessKey } from '../../../utils/sri';
 import { buildInvoiceXml, authorizeWithSRI } from '../../../services/sriService';
 import { getLocalDateISO } from '../../../utils/date';
 import RideViewer from './RideViewer';
-import { DocumentTextIcon, PrinterIcon, EnvelopeIcon, MagnifyingGlassIcon, CubeIcon, Cog6ToothIcon, ShoppingCartIcon } from '@heroicons/react/24/outline';
+import { DocumentTextIcon, PrinterIcon, EnvelopeIcon, MagnifyingGlassIcon, CubeIcon, Cog6ToothIcon, ShoppingCartIcon, BuildingOffice2Icon } from '@heroicons/react/24/outline';
 import { jsPDF } from 'jspdf';
 import autoTable from 'jspdf-autotable';
 
@@ -19,9 +19,12 @@ interface InvoiceFormProps {
   notificationSettings: NotificationSettings;
   onNotify: (msg: string, type?: any) => void;
   onAuthorize: (doc: Document, items: InvoiceItem[]) => void;
+  emissionPoints?: EmissionPoint[];
+  selectedEmissionPoint?: EmissionPoint | null;
+  onSelectEmissionPoint?: (point: EmissionPoint) => void;
 }
 
-const InvoiceForm: React.FC<InvoiceFormProps> = ({ clients, products, businessInfo, signatureFile, signaturePassword, notificationSettings, onNotify, onAuthorize }) => {
+const InvoiceForm: React.FC<InvoiceFormProps> = ({ clients, products, businessInfo, signatureFile, signaturePassword, notificationSettings, onNotify, onAuthorize, emissionPoints, selectedEmissionPoint, onSelectEmissionPoint }) => {
   // Detectar modo oscuro
   const isDarkMode = (businessInfo as any)?.features?.isDarkMode ?? false;
   const [selectedClient, setSelectedClient] = useState<Client | null>(null);
@@ -38,6 +41,7 @@ const InvoiceForm: React.FC<InvoiceFormProps> = ({ clients, products, businessIn
   const [lastDocument, setLastDocument] = useState<Document | null>(null);
   const [showRide, setShowRide] = useState(false);
   const [sendingEmail, setSendingEmail] = useState(false);
+  const [isProforma, setIsProforma] = useState(false);
 
   const searchRef = useRef<HTMLDivElement>(null);
 
@@ -116,8 +120,8 @@ const InvoiceForm: React.FC<InvoiceFormProps> = ({ clients, products, businessIn
           const aspectRatio = imgWidth / imgHeight;
           
           // Definir tamaño máximo y calcular dimensiones proporcionales
-          const maxLogoHeight = 15;
-          const maxLogoWidth = 20;
+          const maxLogoHeight = 40;
+          const maxLogoWidth = 60;
           
           let logoWidth, logoHeight;
           if (aspectRatio > 1) {
@@ -617,13 +621,16 @@ const InvoiceForm: React.FC<InvoiceFormProps> = ({ clients, products, businessIn
     const year = today.getFullYear().toString();
     const dateFormatted = `${day}${month}${year}`;
 
+    const estabCode = selectedEmissionPoint?.establishmentCode || businessInfo.establishmentCode || '001';
+    const emiCode = selectedEmissionPoint?.emissionPointCode || businessInfo.emissionPointCode || '001';
+
     const accessKey = generateAccessKey(
       dateFormatted,
       '01',
       businessInfo.ruc,
       businessInfo.isProduction ? '2' : '1',
-      businessInfo.establishmentCode,
-      businessInfo.emissionPointCode,
+      estabCode,
+      emiCode,
       sequential,
       numericCode,
       '1'
@@ -631,8 +638,8 @@ const InvoiceForm: React.FC<InvoiceFormProps> = ({ clients, products, businessIn
 
     const doc: Document = {
       id: Math.random().toString(36).substr(2, 9),
-      type: DocumentType.INVOICE,
-      number: `${businessInfo.establishmentCode}-${businessInfo.emissionPointCode}-${sequential}`,
+      type: isProforma ? DocumentType.PROFORMA : DocumentType.INVOICE,
+      number: `${estabCode}-${emiCode}-${sequential}`,
       accessKey: accessKey,
       issueDate: getLocalDateISO(),
       entityName: selectedClient?.name || 'CONSUMIDOR FINAL',
@@ -641,11 +648,22 @@ const InvoiceForm: React.FC<InvoiceFormProps> = ({ clients, products, businessIn
       entityPhone: selectedClient?.phone || '',
       entityAddress: selectedClient?.address || '',
       total: totals.total,
-      status: SriStatus.PENDING,
+      status: isProforma ? SriStatus.DRAFT : SriStatus.PENDING,
       paymentStatus: PaymentStatus.PENDING,
       paymentMethod,
       items: [...items]
     };
+
+    if (isProforma) {
+      onAuthorize(doc, items);
+      onNotify('Proforma generada exitosamente. Puede convertirla a factura cuando desee.');
+      setItems([]);
+      setSelectedClient(null);
+      setIsProforma(false);
+      setIsSubmitting(false);
+      setAuthStep('');
+      return;
+    }
 
     const xml = buildInvoiceXml(doc, businessInfo, items);
 
@@ -692,33 +710,51 @@ const InvoiceForm: React.FC<InvoiceFormProps> = ({ clients, products, businessIn
     <div className="grid grid-cols-1 xl:grid-cols-4 gap-6 lg:gap-8 animate-in fade-in duration-700 relative">
       <div className="xl:col-span-3 space-y-6">
         {lastDocument && (
-          <div className="bg-emerald-600 rounded-[2.5rem] lg:rounded-[3.5rem] p-6 lg:p-10 text-white flex flex-col md:flex-row items-center justify-between gap-6 shadow-2xl shadow-emerald-200 print:hidden">
+          <div className={`${lastDocument.type === DocumentType.PROFORMA ? 'bg-amber-600 shadow-amber-200' : 'bg-emerald-600 shadow-emerald-200'} rounded-[2.5rem] lg:rounded-[3.5rem] p-6 lg:p-10 text-white flex flex-col md:flex-row items-center justify-between gap-6 shadow-2xl print:hidden`}>
             <div className="flex items-center gap-4 lg:gap-6 text-center md:text-left flex-col md:flex-row">
               <div className="w-16 h-16 lg:w-20 lg:h-20 bg-white/20 rounded-[1.5rem] lg:rounded-[2rem] flex items-center justify-center"><DocumentTextIcon className="w-8 h-8 lg:w-10 lg:h-10" /></div>
               <div>
-                <h3 className="text-xl lg:text-2xl font-black tracking-tighter uppercase">Factura Autorizada</h3>
-                <p className="text-white/70 font-bold text-[10px] uppercase tracking-widest mt-1">Clave: {lastDocument.accessKey.substring(0, 20)}...</p>
+                <h3 className="text-xl lg:text-2xl font-black tracking-tighter uppercase">{lastDocument.type === DocumentType.PROFORMA ? 'Proforma Generada' : 'Factura Autorizada'}</h3>
+                <p className="text-white/70 font-bold text-[10px] uppercase tracking-widest mt-1">{lastDocument.type === DocumentType.PROFORMA ? `#${lastDocument.number}` : `Clave: ${lastDocument.accessKey.substring(0, 20)}...`}</p>
               </div>
             </div>
             <div className="flex flex-col sm:flex-row gap-3 w-full md:w-auto">
               <button onClick={() => setShowRide(true)} className={`${isDarkMode ? 'bg-slate-700 text-emerald-400' : 'bg-white text-emerald-600'} px-6 py-3 rounded-xl lg:rounded-2xl font-black text-[10px] uppercase tracking-widest hover:scale-105 transition-all inline-flex items-center gap-2`}><PrinterIcon className="w-4 h-4" /> Ver RIDE</button>
-              {lastDocument.entityEmail && (
-                <button
-                  onClick={handleSendEmail}
-                  disabled={sendingEmail}
-                  className={`${isDarkMode ? 'bg-slate-700 text-sky-400' : 'bg-white text-sky-500'} px-6 py-3 rounded-xl lg:rounded-2xl font-black text-[10px] uppercase tracking-widest hover:scale-105 transition-all disabled:opacity-50 disabled:cursor-not-allowed`}
-                >
-                  {sendingEmail ? (
-                    <div className="flex items-center gap-2">
-                      <svg className="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" /><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" /></svg>
-                      Enviando...
-                    </div>
-                  ) : (
-                    <div className="flex items-center gap-2"><EnvelopeIcon className="w-4 h-4" /> Enviar Email</div>
-                  )}
+              {lastDocument.type === DocumentType.PROFORMA ? (
+                <button onClick={() => {
+                  const proformaData = lastDocument;
+                  setLastDocument(null);
+                  if (proformaData.entityRuc) {
+                    const client = clients.find(c => c.ruc === proformaData.entityRuc);
+                    if (client) setSelectedClient(client);
+                  }
+                  if (proformaData.items) setItems(proformaData.items.map(i => ({...i})));
+                  setIsProforma(false);
+                  onNotify('Datos de proforma cargados. Revise y presione "Conectar con SRI" para emitir la factura.', 'info');
+                }} className={`${isDarkMode ? 'bg-slate-700 text-sky-400' : 'bg-white text-sky-500'} px-6 py-3 rounded-xl lg:rounded-2xl font-black text-[10px] uppercase tracking-widest hover:scale-105 transition-all`}>
+                  Convertir a Factura
                 </button>
+              ) : (
+                <>
+                  {lastDocument.entityEmail && (
+                    <button
+                      onClick={handleSendEmail}
+                      disabled={sendingEmail}
+                      className={`${isDarkMode ? 'bg-slate-700 text-sky-400' : 'bg-white text-sky-500'} px-6 py-3 rounded-xl lg:rounded-2xl font-black text-[10px] uppercase tracking-widest hover:scale-105 transition-all disabled:opacity-50 disabled:cursor-not-allowed`}
+                    >
+                      {sendingEmail ? (
+                        <div className="flex items-center gap-2">
+                          <svg className="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" /><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" /></svg>
+                          Enviando...
+                        </div>
+                      ) : (
+                        <div className="flex items-center gap-2"><EnvelopeIcon className="w-4 h-4" /> Enviar Email</div>
+                      )}
+                    </button>
+                  )}
+                </>
               )}
-              <button onClick={() => setLastDocument(null)} className="bg-emerald-700 text-white px-6 py-3 rounded-xl lg:rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-emerald-800 transition-all">Nueva Factura</button>
+              <button onClick={() => setLastDocument(null)} className={`${lastDocument.type === DocumentType.PROFORMA ? 'bg-amber-700 hover:bg-amber-800' : 'bg-emerald-700 hover:bg-emerald-800'} text-white px-6 py-3 rounded-xl lg:rounded-2xl font-black text-[10px] uppercase tracking-widest transition-all`}>{lastDocument.type === DocumentType.PROFORMA ? 'Nueva Proforma' : 'Nueva Factura'}</button>
             </div>
           </div>
         )}
@@ -733,6 +769,23 @@ const InvoiceForm: React.FC<InvoiceFormProps> = ({ clients, products, businessIn
                   {(Array.isArray(clients) ? clients : []).map(c => <option key={c.id} value={c.id}>{c.name} ({c.ruc})</option>)}
                 </select>
               </div>
+              {(emissionPoints && emissionPoints.length > 1) && (
+                <div className="md:w-48 space-y-2">
+                  <label className={`text-[10px] font-black uppercase tracking-widest ${isDarkMode ? 'text-slate-500' : 'text-slate-400'} px-1 block`}>Pto. Emisión</label>
+                  <select
+                    className={`w-full ${isDarkMode ? 'bg-slate-700 text-white border-slate-600' : 'bg-slate-50'} p-3 sm:p-4 rounded-2xl font-bold outline-none border-2 border-transparent focus:border-sky-500 transition-all text-xs min-h-[48px]`}
+                    value={selectedEmissionPoint?.id || ''}
+                    onChange={e => {
+                      const ep = emissionPoints.find(p => p.id === e.target.value);
+                      if (ep && onSelectEmissionPoint) onSelectEmissionPoint(ep);
+                    }}
+                  >
+                    {emissionPoints.map(ep => (
+                      <option key={ep.id} value={ep.id}>{ep.establishmentCode}-{ep.emissionPointCode}</option>
+                    ))}
+                  </select>
+                </div>
+              )}
               <div className="md:w-64 space-y-2">
                 <label className={`text-[10px] font-black uppercase tracking-widest ${isDarkMode ? 'text-slate-500' : 'text-slate-400'} px-1 block`}>Esquema Tarifario</label>
                 <select className={`w-full ${isDarkMode ? 'bg-slate-700 text-blue-300 border-slate-600' : 'bg-sky-50 text-sky-500'} p-3 sm:p-4 rounded-2xl font-black outline-none border-2 text-sm min-h-[48px]`} value={priceTier} onChange={e => setPriceTier(e.target.value as any)}>
@@ -907,6 +960,30 @@ const InvoiceForm: React.FC<InvoiceFormProps> = ({ clients, products, businessIn
             >
               Conectar con SRI
             </button>
+
+            <div className="mt-3 flex items-center justify-between px-1">
+              <label className="flex items-center gap-2 cursor-pointer select-none">
+                <input
+                  type="checkbox"
+                  checked={isProforma}
+                  onChange={(e) => setIsProforma(e.target.checked)}
+                  className="w-4 h-4 rounded border-slate-300 text-amber-500 focus:ring-amber-500"
+                />
+                <span className={`text-xs font-bold ${isProforma ? 'text-amber-600' : 'text-slate-400'}`}>
+                  Es Proforma (sin enviar al SRI)
+                </span>
+              </label>
+            </div>
+
+            {isProforma && (
+              <button
+                disabled={items.length === 0 || isSubmitting}
+                onClick={() => setShowPreview(true)}
+                className="w-full bg-amber-500 text-white font-black py-4 rounded-2xl hover:bg-amber-600 transition-all disabled:opacity-50 text-[10px] uppercase tracking-widest mt-3"
+              >
+                Generar Proforma
+              </button>
+            )}
           </div>
         )}
       </div>

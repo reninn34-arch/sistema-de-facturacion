@@ -109,11 +109,18 @@ const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
             if (data.sessionId) {
                 localStorage.setItem('sessionId', data.sessionId);
             }
+            if (data.refreshToken) {
+                localStorage.setItem('refreshToken', data.refreshToken);
+            }
 
             onLoginSuccess();
 
         } catch (err: any) {
-            setError('Credenciales incorrectas. Intente nuevamente.');
+            if (err.message && err.message.includes('423')) {
+                setError('Cuenta bloqueada por exceso de intentos. Intente de nuevo en 15 minutos.');
+            } else {
+                setError('Credenciales incorrectas. Intente nuevamente.');
+            }
         } finally {
             setLoading(false);
         }

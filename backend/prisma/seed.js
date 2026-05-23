@@ -189,12 +189,12 @@ async function main() {
   // 6. CREAR PLANES DE SUSCRIPCIÓN POR DEFECTO
   // ============================================
   const plans = [
-    { code: 'FREE', name: 'Plan Gratuito', description: 'Plan gratuito para pruebas y micro-emprendedores', price: 0, priceWithTax: 0, period: 'mensual', durationDays: 30, features: ['1_empresa', '10_facturas_mes', 'soporte_email'], maxInvoicesPerMonth: 10, maxBusinesses: 1, maxUsers: 1, hasAIAssistant: false, hasPrioritySupport: false, hasAudit: false, hasModuleControl: false, isActive: true, displayOrder: 1 },
-    { code: 'BASIC', name: 'Plan Básico', description: 'Plan básico para pequeñas empresas', price: 29.99, priceWithTax: 34.49, period: 'mensual', durationDays: 30, features: ['1_empresa', '100_facturas_mes', 'reportes_basicos', 'soporte_email'], maxInvoicesPerMonth: 100, maxBusinesses: 1, maxUsers: 3, hasAIAssistant: false, hasPrioritySupport: false, hasAudit: false, hasModuleControl: false, isActive: true, displayOrder: 2 },
-    { code: 'GASTRONOMICO', name: 'Plan Gastronómico', description: 'Para restaurantes, panaderías, cafeterías y negocios de comida', price: 79.99, priceWithTax: 91.99, period: 'mensual', durationDays: 30, features: ['1_empresa', '300_facturas_mes', 'caja_pos', 'recetas_produccion', 'ai_assistant', 'reportes_avanzados', 'soporte_prioritario'], maxInvoicesPerMonth: 300, maxBusinesses: 1, maxUsers: 5, hasAIAssistant: true, hasPrioritySupport: true, hasAudit: true, hasModuleControl: true, isActive: true, displayOrder: 3 },
-    { code: 'PRO', name: 'Plan Profesional', description: 'Plan profesional para negocios en crecimiento', price: 149.99, priceWithTax: 172.49, period: 'mensual', durationDays: 30, features: ['3_empresas', '500_facturas_mes', 'clientes_ilimitados', 'ai_assistant', 'reportes_avanzados', 'soporte_prioritario'], maxInvoicesPerMonth: 500, maxBusinesses: 3, maxUsers: 10, hasAIAssistant: true, hasPrioritySupport: true, hasAudit: true, hasModuleControl: true, isActive: true, displayOrder: 4 },
-    { code: 'ENTERPRISE', name: 'Plan Empresarial', description: 'Plan empresarial para grandes organizaciones', price: 249.99, priceWithTax: 287.49, period: 'mensual', durationDays: 30, features: ['10_empresas', '2000_facturas_mes', 'clientes_ilimitados', 'ai_assistant', 'reportes_avanzados', 'soporte_prioritario', 'api_access', 'multi_usuarios'], maxInvoicesPerMonth: 2000, maxBusinesses: 10, maxUsers: 50, hasAIAssistant: true, hasPrioritySupport: true, hasAudit: true, hasModuleControl: true, isActive: true, displayOrder: 5 },
-    { code: 'UNLIMITED', name: 'Plan Ilimitado', description: 'Plan ilimitado para superadmins y distribuidores', price: 0, priceWithTax: 0, period: 'indefinido', durationDays: 36500, features: ['empresas_ilimitadas', 'facturas_ilimitadas', 'clientes_ilimitados', 'ai_assistant', 'reportes_avanzados', 'soporte_prioritario', 'api_access', 'multi_usuarios', 'gestion_resellers'], maxInvoicesPerMonth: 999999, maxBusinesses: 999, maxUsers: 999999, hasAIAssistant: true, hasPrioritySupport: true, hasAudit: true, hasModuleControl: true, isActive: true, displayOrder: 6 }
+    { code: 'FREE', name: 'Plan Gratuito', description: 'Plan gratuito para pruebas y micro-emprendedores', price: 0, priceWithTax: 0, period: 'mensual', durationDays: 30, features: ['1_empresa', '10_facturas_mes', 'soporte_email'], maxInvoicesPerMonth: 10, maxBusinesses: 1, maxUsers: 1, maxEmissionPoints: 1, hasAIAssistant: false, hasPrioritySupport: false, hasAudit: false, hasModuleControl: false, isActive: true, displayOrder: 1 },
+    { code: 'BASIC', name: 'Plan Básico', description: 'Plan básico para pequeñas empresas', price: 29.99, priceWithTax: 34.49, period: 'mensual', durationDays: 30, features: ['1_empresa', '100_facturas_mes', 'reportes_basicos', 'soporte_email'], maxInvoicesPerMonth: 100, maxBusinesses: 1, maxUsers: 3, maxEmissionPoints: 1, hasAIAssistant: false, hasPrioritySupport: false, hasAudit: false, hasModuleControl: false, isActive: true, displayOrder: 2 },
+    { code: 'GASTRONOMICO', name: 'Plan Gastronómico', description: 'Para restaurantes, panaderías, cafeterías y negocios de comida', price: 79.99, priceWithTax: 91.99, period: 'mensual', durationDays: 30, features: ['1_empresa', '300_facturas_mes', 'caja_pos', 'recetas_produccion', 'ai_assistant', 'reportes_avanzados', 'soporte_prioritario'], maxInvoicesPerMonth: 300, maxBusinesses: 1, maxUsers: 5, maxEmissionPoints: 2, hasAIAssistant: true, hasPrioritySupport: true, hasAudit: true, hasModuleControl: true, isActive: true, displayOrder: 3 },
+    { code: 'PRO', name: 'Plan Profesional', description: 'Plan profesional para negocios en crecimiento', price: 149.99, priceWithTax: 172.49, period: 'mensual', durationDays: 30, features: ['3_empresas', '500_facturas_mes', 'clientes_ilimitados', 'ai_assistant', 'reportes_avanzados', 'soporte_prioritario'], maxInvoicesPerMonth: 500, maxBusinesses: 3, maxUsers: 10, maxEmissionPoints: 2, hasAIAssistant: true, hasPrioritySupport: true, hasAudit: true, hasModuleControl: true, isActive: true, displayOrder: 4 },
+    { code: 'ENTERPRISE', name: 'Plan Empresarial', description: 'Plan empresarial para grandes organizaciones', price: 249.99, priceWithTax: 287.49, period: 'mensual', durationDays: 30, features: ['10_empresas', '2000_facturas_mes', 'clientes_ilimitados', 'ai_assistant', 'reportes_avanzados', 'soporte_prioritario', 'api_access', 'multi_usuarios'], maxInvoicesPerMonth: 2000, maxBusinesses: 10, maxUsers: 50, maxEmissionPoints: 3, hasAIAssistant: true, hasPrioritySupport: true, hasAudit: true, hasModuleControl: true, isActive: true, displayOrder: 5 },
+    { code: 'UNLIMITED', name: 'Plan Ilimitado', description: 'Plan ilimitado para superadmins y distribuidores', price: 0, priceWithTax: 0, period: 'indefinido', durationDays: 36500, features: ['empresas_ilimitadas', 'facturas_ilimitadas', 'clientes_ilimitados', 'ai_assistant', 'reportes_avanzados', 'soporte_prioritario', 'api_access', 'multi_usuarios', 'gestion_resellers'], maxInvoicesPerMonth: 999999, maxBusinesses: 999, maxUsers: 999999, maxEmissionPoints: 3, hasAIAssistant: true, hasPrioritySupport: true, hasAudit: true, hasModuleControl: true, isActive: true, displayOrder: 6 }
   ];
 
   for (const plan of plans) {
@@ -206,6 +206,33 @@ async function main() {
   }
 
   console.log(`📦 Planes de suscripción creados`);
+
+  // ============================================
+  // 7. CONFIGURACIÓN DE PUNTOS Y PREMIOS
+  // ============================================
+  await prisma.pointsConfig.upsert({
+    where: { id: 'global' },
+    update: {},
+    create: { id: 'global', enabled: true, pointsPerReferral: 50, maxRedemptionsPerMonth: 3 }
+  });
+
+  const prizes = [
+    { name: '1 Mes Adicional Gratis', description: 'Extiende tu suscripcion 30 dias', points: 100, icon: '🎁', displayOrder: 1 },
+    { name: 'Facturas Ilimitadas x 1 Mes', description: 'Sin limite de facturas por 30 dias', points: 200, icon: '📄', displayOrder: 2 },
+    { name: 'Descuento 25% en Renovacion', description: '25% de descuento en tu proxima renovacion', points: 150, icon: '💰', displayOrder: 3 },
+    { name: 'Asistente IA Premium x 3 Meses', description: 'Gemini AI sin restricciones por 3 meses', points: 250, icon: '🤖', displayOrder: 4 },
+    { name: 'Logo Personalizado en PDF', description: 'Diseno de logo para tus facturas', points: 300, icon: '🎨', displayOrder: 5 },
+  ];
+
+  for (const prize of prizes) {
+    await prisma.prize.upsert({
+      where: { id: `prize_${prize.displayOrder}` },
+      update: prize,
+      create: { id: `prize_${prize.displayOrder}`, ...prize }
+    });
+  }
+
+  console.log(`📦 Puntos: configuración y ${prizes.length} premios creados`);
 
   console.log('\n═══════════════════════════════════════');
   console.log('✅ Seed completado exitosamente!');

@@ -53,6 +53,8 @@ router.get('/api/clients', verifyToken, businessController.getClients);
 
 router.post('/api/clients', verifyToken, businessController.createClient);
 
+router.post('/api/clients/bulk', verifyToken, businessController.bulkCreateClients);
+
 router.put('/api/clients/:id', verifyToken, businessController.updateClient);
 
 router.delete('/api/clients/:id', verifyToken, businessController.deleteClient);
@@ -68,6 +70,8 @@ router.get('/api/products', verifyToken, businessController.getProducts);
 
 router.post('/api/products', verifyToken, businessController.createProduct);
 
+router.post('/api/products/bulk', verifyToken, businessController.bulkCreateProducts);
+
 router.put('/api/products/:id', verifyToken, businessController.updateProduct);
 
 router.delete('/api/products/:id', verifyToken, businessController.deleteProduct);
@@ -78,7 +82,51 @@ router.delete('/api/products/:id', verifyToken, businessController.deleteProduct
 
 router.get('/api/documents', verifyToken, businessController.getDocuments);
 
-router.post('/api/documents', verifyToken, businessController.createDocument);
+const invoiceLimitGuard = async (req, res, next) => {
+  try {
+    const prisma = require('../../prisma/client');
+    const businessId = req.user.businessId;
+    if (!businessId) return next();
+
+    const business = await prisma.business.findUnique({
+      where: { id: businessId },
+      include: { _count: { select: { documents: true } } }
+    });
+    if (!business) return next();
+
+    const plan = await prisma.subscriptionPlan.findUnique({ where: { code: business.plan } });
+    if (!plan || plan.maxInvoicesPerMonth <= 0) return next(); // unlimited
+
+    const now = new Date();
+    const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+    const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 1);
+
+    const countThisMonth = await prisma.document.count({
+      where: {
+        businessId,
+        type: '01',
+        createdAt: { gte: startOfMonth, lt: endOfMonth }
+      }
+    });
+
+    if (countThisMonth >= plan.maxInvoicesPerMonth) {
+      return res.status(403).json({
+        success: false,
+        message: `Ha alcanzado el limite de ${plan.maxInvoicesPerMonth} comprobantes este mes. Actualice su plan para continuar.`,
+        limitReached: true,
+        current: countThisMonth,
+        max: plan.maxInvoicesPerMonth
+      });
+    }
+
+    next();
+  } catch (error) {
+    console.error('[LIMIT GUARD] Error:', error.message);
+    next(); // fail open - no bloquear por error de DB
+  }
+};
+
+router.post('/api/documents', verifyToken, invoiceLimitGuard, businessController.createDocument);
 
 // =================================================================
 // RUTAS ALIAS PARA COMPATIBILIDAD CON PRUEBAS BLACK-BOX
@@ -86,7 +134,7 @@ router.post('/api/documents', verifyToken, businessController.createDocument);
 
 // Alias para /api/business/invoices -> /api/documents
 router.get('/api/business/invoices', verifyToken, businessController.getDocuments);
-router.post('/api/business/invoices', verifyToken, businessController.createDocument);
+router.post('/api/business/invoices', verifyToken, invoiceLimitGuard, businessController.createDocument);
 
 // Alias para /api/business/retentions -> /api/documents (tipo retention)
 router.get('/api/business/retentions', verifyToken, businessController.getDocuments);

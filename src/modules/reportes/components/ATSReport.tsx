@@ -31,7 +31,7 @@ export default function ATSReport({ documents, business, onNotify }: ATSReportPr
 
     // Generar ventas del ATS
     const sales: ATSSale[] = filteredDocs
-      .filter(doc => doc.type === '01') // Solo facturas
+      .filter(doc => doc.type === '01' && (doc as any).source !== 'RECEIVED')
       .map(doc => {
         const subtotal0 = doc.items?.filter(i => i.taxRate === 0).reduce((sum, item) => sum + (item.unitPrice * item.quantity - item.discount), 0) || 0;
         const subtotal12 = doc.items?.filter(i => i.taxRate > 0).reduce((sum, item) => sum + (item.unitPrice * item.quantity - item.discount), 0) || 0;
@@ -53,8 +53,34 @@ export default function ATSReport({ documents, business, onNotify }: ATSReportPr
         };
       });
 
-    // Por ahora, compras vacío (se necesitaría módulo de compras)
-    const purchases: ATSPurchase[] = [];
+    // Compras: documentos recibidos (source=RECEIVED)
+    const purchases: ATSPurchase[] = filteredDocs
+      .filter(doc => doc.type === '01' && (doc as any).source === 'RECEIVED')
+      .map(doc => {
+        const subtotal0 = doc.items?.filter(i => i.taxRate === 0).reduce((sum, item) => sum + (item.unitPrice * item.quantity - item.discount), 0) || 0;
+        const subtotal12 = doc.items?.filter(i => i.taxRate > 0).reduce((sum, item) => sum + (item.unitPrice * item.quantity - item.discount), 0) || 0;
+        const iva = subtotal12 * 0.15;
+        const providerId = doc.entityRuc || '9999999999999';
+        const idType = providerId.length === 13 ? '01' : '02';
+
+        return {
+          establishmentType: '01' as const,
+          idProviderType: idType as '01' | '02',
+          providerRuc: providerId,
+          providerName: doc.entityName,
+          authorizationDate: doc.issueDate,
+          documentType: '01',
+          transactionType: '01' as const,
+          documentNumber: doc.number,
+          authorizationNumber: doc.accessKey || 'N/A',
+          subtotal0,
+          subtotal12,
+          iva,
+          ice: 0,
+          retentionPercentage: 0,
+          retentionAmount: 0
+        };
+      });
 
     const xml = generateATSXML({
       ruc: business.ruc,

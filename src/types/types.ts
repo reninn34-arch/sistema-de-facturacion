@@ -3,7 +3,8 @@ export enum SriStatus {
   PENDING = 'PENDIENTE',
   RECEIVED = 'RECIBIDA',
   AUTHORIZED = 'AUTORIZADA',
-  REJECTED = 'RECHAZADA'
+  REJECTED = 'RECHAZADA',
+  DRAFT = 'BORRADOR'
 }
 
 export enum PaymentStatus {
@@ -20,6 +21,7 @@ export enum UserRole {
 
 export enum DocumentType {
   INVOICE = '01',
+  PROFORMA = '00',
   CREDIT_NOTE = '04',
   DEBIT_NOTE = '05',
   RETENTION = '07',
@@ -27,6 +29,15 @@ export enum DocumentType {
 }
 
 export type BusinessCategory = 'RETAIL' | 'SERVICIOS' | 'ALIMENTOS' | 'TECNOLOGIA' | 'SALUD' | 'TIENDA_ONLINE' | 'PROFESIONAL_LIBRE' | 'BAKERY' | 'RESTAURANT' | 'STORE';
+
+export interface EmissionPoint {
+  id: string;
+  businessId: string;
+  establishmentCode: string;
+  emissionPointCode: string;
+  description?: string;
+  isActive: boolean;
+}
 
 export interface BusinessInfo {
   name: string;
