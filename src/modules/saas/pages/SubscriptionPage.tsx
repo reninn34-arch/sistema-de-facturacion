@@ -369,10 +369,7 @@ const SubscriptionPage: React.FC = () => {
       {/* Header */}
       <header className="flex items-center justify-between whitespace-nowrap border-b border-solid border-slate-200 bg-white px-6 py-4 lg:px-40 sticky top-0 z-50 shadow-sm">
         <div className="flex items-center gap-3 cursor-pointer" onClick={() => setStep('plans')}>
-          <div className="w-10 h-10 bg-[#0EA5E9] rounded-xl flex items-center justify-center shadow-lg shadow-[#0EA5E9]/20">
-            <DocumentTextIcon className="w-5 h-5 text-white" />
-          </div>
-          <h2 className="text-slate-900 text-xl font-extrabold leading-tight tracking-tight">Azul</h2>
+          <img src="/logo.png" className="h-12 w-auto max-w-[220px] object-contain object-left" alt="Azul PRO" />
         </div>
         <div className="flex flex-1 justify-end gap-4 lg:gap-8 items-center">
           <nav className="hidden md:flex items-center gap-8">
