@@ -173,6 +173,7 @@ export interface Document {
   reimbursements?: ReimbursementDetail[];
   source?: 'LOCAL' | 'TIENDA_ONLINE';
   authorizedXml?: string; // XML autorizado por el SRI
+  invoiceType?: string; // 'CLIENT' | 'SAAS' | 'MONTHLY' | 'CUSTOM'
   // Para Notas de Crédito
   relatedDocumentNumber?: string; // Factura modificada
   relatedDocumentDate?: string;

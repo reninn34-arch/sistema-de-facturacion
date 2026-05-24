@@ -95,6 +95,36 @@ const PendingTickets: React.FC<PendingTicketsProps> = ({
 
   const selectedTotal = selectedTickets.reduce((sum, t) => sum + t.total, 0);
 
+  // Helper para reservar el siguiente secuencial desde el backend
+  const reserveSequential = async (): Promise<{ sequential: string; docNumber: string; estabCode: string; emiCode: string }> => {
+    const token = localStorage.getItem('adminToken');
+    const seqResponse = await fetch(`${API_URL}/api/documents/next-sequence`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      },
+      body: JSON.stringify({
+        type: '01',
+        establishmentCode: businessInfo.establishmentCode || '001',
+        emissionPointCode: businessInfo.emissionPointCode || '001',
+      })
+    });
+
+    if (!seqResponse.ok) {
+      const err = await seqResponse.json().catch(() => ({}));
+      throw new Error(err.message || 'Error obteniendo secuencial del servidor');
+    }
+
+    const seqData = await seqResponse.json();
+    return {
+      sequential: seqData.sequential,
+      docNumber: seqData.number,
+      estabCode: seqData.establishmentCode,
+      emiCode: seqData.emissionPointCode,
+    };
+  };
+
   // Enviar un ticket individual al SRI como factura
   const sendIndividualToSRI = async (ticket: QuickSaleTicket): Promise<boolean> => {
     const items: InvoiceItem[] = ticket.items.map(item => ({
@@ -108,7 +138,7 @@ const PendingTickets: React.FC<PendingTicketsProps> = ({
       type: 'FISICO' as const,
     }));
 
-    const sequential = Math.floor(Math.random() * 999999999).toString().padStart(9, '0');
+    const { sequential, docNumber, estabCode, emiCode } = await reserveSequential();
     const numericCode = Math.floor(Math.random() * 100000000).toString().padStart(8, '0');
     const now = new Date();
     const dateFormatted = `${String(now.getDate()).padStart(2,'0')}${String(now.getMonth()+1).padStart(2,'0')}${now.getFullYear()}`;
@@ -116,14 +146,14 @@ const PendingTickets: React.FC<PendingTicketsProps> = ({
     const accessKey = generateAccessKey(
       dateFormatted, '01', businessInfo.ruc,
       businessInfo.isProduction ? '2' : '1',
-      businessInfo.establishmentCode, businessInfo.emissionPointCode,
+      estabCode, emiCode,
       sequential, numericCode, '1'
     );
 
     const doc: Document = {
       id: crypto.randomUUID(),
       type: DocumentType.INVOICE,
-      number: `${businessInfo.establishmentCode}-${businessInfo.emissionPointCode}-${sequential}`,
+      number: docNumber,
       accessKey,
       issueDate: getLocalDateISO(),
       entityName: 'CONSUMIDOR FINAL',
@@ -154,6 +184,15 @@ const PendingTickets: React.FC<PendingTicketsProps> = ({
       setTickets(tickets.map(t => t.id === ticket.id ? { ...t, status: 'ENVIADO_SRI', documentId: authorizedDoc.id } : t));
       return true;
     } else {
+      // Guardar documento rechazado para historial
+      const rejectedDoc = {
+        ...doc,
+        status: SriStatus.REJECTED,
+        accessKey: accessKey,
+        additionalInfo: `[RECHAZADA SRI] ${result.message}`
+      };
+      onAuthorize(rejectedDoc, items);
+      setTickets(tickets.map(t => t.id === ticket.id ? { ...t, status: 'ENVIADO_SRI', documentId: rejectedDoc.id } : t));
       onNotify(`Ticket ${ticket.number || String(ticket.sequential).slice(-6)}: ${result.message}`, 'error');
       return false;
     }
@@ -195,7 +234,7 @@ const PendingTickets: React.FC<PendingTicketsProps> = ({
         type: 'FISICO' as const,
       }));
 
-      const sequential = Math.floor(Math.random() * 999999999).toString().padStart(9, '0');
+      const { sequential, docNumber, estabCode, emiCode } = await reserveSequential();
       const numericCode = Math.floor(Math.random() * 100000000).toString().padStart(8, '0');
       const now = new Date();
       const dateFormatted = `${String(now.getDate()).padStart(2,'0')}${String(now.getMonth()+1).padStart(2,'0')}${now.getFullYear()}`;
@@ -203,7 +242,7 @@ const PendingTickets: React.FC<PendingTicketsProps> = ({
       const accessKey = generateAccessKey(
         dateFormatted, '01', businessInfo.ruc,
         businessInfo.isProduction ? '2' : '1',
-        businessInfo.establishmentCode, businessInfo.emissionPointCode,
+        estabCode, emiCode,
         sequential, numericCode, '1'
       );
 
@@ -212,7 +251,7 @@ const PendingTickets: React.FC<PendingTicketsProps> = ({
       const doc: Document = {
         id: crypto.randomUUID(),
         type: DocumentType.INVOICE,
-        number: `${businessInfo.establishmentCode}-${businessInfo.emissionPointCode}-${sequential}`,
+        number: docNumber,
         accessKey,
         issueDate: getLocalDateISO(),
         entityName: 'CONSUMIDOR FINAL',
@@ -251,6 +290,14 @@ const PendingTickets: React.FC<PendingTicketsProps> = ({
         setSelectedIds(new Set());
         onNotify(`Lote de ${selectedTickets.length} tickets enviado al SRI. Factura: ${doc.number}`);
       } else {
+        // Guardar lote rechazado para historial
+        const rejectedDoc = {
+          ...doc,
+          status: SriStatus.REJECTED,
+          accessKey: accessKey,
+          additionalInfo: `[RECHAZADA SRI] ${result.message} | Agrupaba ${selectedTickets.length} tickets`
+        };
+        onAuthorize(rejectedDoc, invoiceItems);
         onNotify(`Error al enviar lote: ${result.message}`, 'error');
       }
     } catch (error) {

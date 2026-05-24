@@ -213,21 +213,24 @@ export const buildCreditNoteXml = (
   const tipoIdComprador = doc.entityPhone?.length === 13 ? '04' :
     doc.entityPhone?.length === 10 ? '05' : '07';
 
-  // Generar clave de acceso (49 dígitos)
-  const [year, month, day] = doc.issueDate.split('-');
-  const fecha = `${day}${month}${year}`; // DDMMYYYY (8 dígitos)
-  const tipoComprobante = '04'; // Nota de Crédito (2 dígitos)
-  const ruc = business.ruc; // 13 dígitos
-  const tipoAmbiente = ambiente; // 1 dígito
-  const serie = business.establishmentCode + business.emissionPointCode; // 6 dígitos
-  const secuencial = doc.number.split('-')[2].padStart(9, '0'); // 9 dígitos
-  const codigoNumerico = Math.floor(Math.random() * 100000000).toString().padStart(8, '0'); // 8 dígitos
-  const tipoEmision = '1'; // Normal (1 dígito)
-
-  // Total: 8+2+13+1+6+9+8+1 = 48 dígitos + 1 verificador = 49 dígitos
-  const claveBase = fecha + tipoComprobante + ruc + tipoAmbiente + serie + secuencial + codigoNumerico + tipoEmision;
-  const digitoVerificador = calcularDigitoVerificador(claveBase);
-  const claveAcceso = claveBase + digitoVerificador;
+  // Generar clave de acceso (49 dígitos) - usar la del documento si existe
+  let claveAcceso: string;
+  if (doc.accessKey && doc.accessKey.length === 49) {
+    claveAcceso = doc.accessKey;
+  } else {
+    const [year, month, day] = doc.issueDate.split('-');
+    const fecha = `${day}${month}${year}`;
+    const tipoComprobante = '04';
+    const ruc = business.ruc;
+    const tipoAmbiente = ambiente;
+    const serie = business.establishmentCode + business.emissionPointCode;
+    const secuencial = doc.number.split('-')[2].padStart(9, '0');
+    const codigoNumerico = Math.floor(Math.random() * 100000000).toString().padStart(8, '0');
+    const tipoEmision = '1';
+    const claveBase = fecha + tipoComprobante + ruc + tipoAmbiente + serie + secuencial + codigoNumerico + tipoEmision;
+    const digitoVerificador = calcularDigitoVerificador(claveBase);
+    claveAcceso = claveBase + digitoVerificador;
+  }
 
   // Descripción del motivo
   const motivoDescripcion = customReason ||

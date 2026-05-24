@@ -82,6 +82,9 @@ router.delete('/api/products/:id', verifyToken, businessController.deleteProduct
 
 router.get('/api/documents', verifyToken, businessController.getDocuments);
 
+// Reservar siguiente secuencial para clave de acceso SRI
+router.post('/api/documents/next-sequence', verifyToken, businessController.reserveNextSequence);
+
 const invoiceLimitGuard = async (req, res, next) => {
   try {
     const prisma = require('../../prisma/client');
@@ -90,12 +93,26 @@ const invoiceLimitGuard = async (req, res, next) => {
 
     const business = await prisma.business.findUnique({
       where: { id: businessId },
-      include: { _count: { select: { documents: true } } }
+      select: { plan: true, isProduction: true }
     });
     if (!business) return next();
 
+    // En ambiente de pruebas no se aplica limite de facturas
+    if (!business.isProduction) return next();
+
     const plan = await prisma.subscriptionPlan.findUnique({ where: { code: business.plan } });
-    if (!plan || plan.maxInvoicesPerMonth <= 0) return next(); // unlimited
+    // PENDING plan explicitly blocks (0 invoices). -1 or null means unlimited.
+    if (!plan || plan.maxInvoicesPerMonth < 0) return next();
+    if (plan.code === 'PENDING' || plan.maxInvoicesPerMonth === 0) {
+      return res.status(403).json({
+        success: false,
+        message: 'Su plan PENDIENTE no permite emitir facturas. Complete el pago para activar su suscripcion.',
+        limitReached: true,
+        current: 0,
+        max: 0
+      });
+    }
+    if (plan.code === 'UNLIMITED') return next();
 
     const now = new Date();
     const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
@@ -105,7 +122,8 @@ const invoiceLimitGuard = async (req, res, next) => {
       where: {
         businessId,
         type: '01',
-        createdAt: { gte: startOfMonth, lt: endOfMonth }
+        status: { not: 'CANCELLED' },
+        issueDate: { gte: startOfMonth, lt: endOfMonth }
       }
     });
 

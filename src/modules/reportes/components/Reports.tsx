@@ -3,18 +3,22 @@ import React, { useState, useMemo } from 'react';
 import { Document, DocumentType, SriStatus, PaymentStatus, BusinessInfo } from '../../../types/types';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from 'recharts';
 import RideViewer from '../../facturacion/components/RideViewer';
-import { ScaleIcon, BanknotesIcon, BuildingOffice2Icon, LightBulbIcon, DocumentTextIcon, TrophyIcon, ArrowPathIcon } from '@heroicons/react/24/outline';
+import { ScaleIcon, BanknotesIcon, BuildingOffice2Icon, LightBulbIcon, DocumentTextIcon, TrophyIcon, ArrowPathIcon, XCircleIcon } from '@heroicons/react/24/outline';
 
 interface ReportsProps {
   documents: Document[];
   businessInfo: BusinessInfo;
   onConvertProforma?: (doc: Document) => void;
   setActiveTab?: (tab: string) => void;
+  initialFilter?: string;
+  onReemitDocument?: (doc: Document) => void;
+  onFilterChange?: (filter: string) => void;
 }
 
-const Reports: React.FC<ReportsProps> = ({ documents, businessInfo, onConvertProforma, setActiveTab }) => {
+const Reports: React.FC<ReportsProps> = ({ documents, businessInfo, onConvertProforma, setActiveTab, initialFilter, onReemitDocument, onFilterChange }) => {
   const [activeSubTab, setActiveSubTab] = useState<'CARTERA' | 'TRIBUTOS' | 'SRI' | 'PROFORMAS'>('TRIBUTOS');
   const [filter, setFilter] = useState<'ALL' | 'PAID' | 'PENDING'>('ALL');
+  const [sriStatusFilter, setSriStatusFilter] = useState<string>(initialFilter || 'ALL');
   const [selectedDocForRide, setSelectedDocForRide] = useState<Document | null>(null);
   const safeDocuments = Array.isArray(documents) ? documents : [];
 
@@ -25,7 +29,6 @@ const Reports: React.FC<ReportsProps> = ({ documents, businessInfo, onConvertPro
     let totalNeto = 0;
     
     safeDocuments.filter(d => d.type === DocumentType.INVOICE && d.status === SriStatus.AUTHORIZED).forEach(doc => {
-      // Si el documento tiene ítems guardados, calculamos sobre ellos
       if (doc.items && doc.items.length > 0) {
         doc.items.forEach(it => {
           const base = it.quantity * it.unitPrice - it.discount;
@@ -37,7 +40,6 @@ const Reports: React.FC<ReportsProps> = ({ documents, businessInfo, onConvertPro
           }
         });
       } else {
-        // Fallback para documentos sin ítems (aproximación)
         const s15 = doc.total / 1.15;
         sub15 += s15;
         totalIva += doc.total - s15;
@@ -78,6 +80,37 @@ const Reports: React.FC<ReportsProps> = ({ documents, businessInfo, onConvertPro
     safeDocuments.filter(d => d.paymentStatus === PaymentStatus.PENDING && d.status === SriStatus.AUTHORIZED && d.type === DocumentType.INVOICE),
   [safeDocuments]);
 
+  const sriFilteredDocs = useMemo(() => {
+    if (sriStatusFilter === 'ALL') return safeDocuments;
+    if (sriStatusFilter === 'AUTHORIZED') return safeDocuments.filter(d => d.status === SriStatus.AUTHORIZED || d.status === 'AUTORIZADO');
+    if (sriStatusFilter === 'REJECTED') return safeDocuments.filter(d => d.status === SriStatus.REJECTED || d.status === 'RECHAZADO' || d.status === 'NO_AUTORIZADO' || d.status === 'DEVUELTO');
+    if (sriStatusFilter === 'PENDING') return safeDocuments.filter(d => d.status === SriStatus.PENDING || d.status === 'PENDIENTE');
+    return safeDocuments;
+  }, [safeDocuments, sriStatusFilter]);
+
+  const getStatusBadge = (doc: Document) => {
+    const status = doc.status;
+    if (status === SriStatus.AUTHORIZED || status === 'AUTORIZADO') {
+      return { color: 'bg-emerald-100 text-emerald-600', label: 'Autorizado' };
+    }
+    if (status === SriStatus.REJECTED || status === 'RECHAZADO' || status === 'NO_AUTORIZADO' || status === 'DEVUELTO') {
+      return { color: 'bg-red-100 text-red-600', label: 'Rechazado' };
+    }
+    if (status === SriStatus.PENDING || status === 'PENDIENTE') {
+      return { color: 'bg-amber-100 text-amber-600', label: 'Pendiente' };
+    }
+    return { color: 'bg-slate-100 text-slate-500', label: status };
+  };
+
+  const isRejected = (doc: Document) =>
+    doc.status === SriStatus.REJECTED || doc.status === 'RECHAZADO' || doc.status === 'NO_AUTORIZADO' || doc.status === 'DEVUELTO';
+
+  const handleReemit = (doc: Document) => {
+    if (onReemitDocument) {
+      onReemitDocument(doc);
+    }
+  };
+
   return (
     <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700 pb-20">
       <div className="flex bg-white p-2 rounded-[2rem] shadow-sm border border-slate-100 max-w-fit mx-auto lg:mx-0">
@@ -109,25 +142,12 @@ const Reports: React.FC<ReportsProps> = ({ documents, businessInfo, onConvertPro
             </div>
             <div className="bg-slate-900 p-8 rounded-[2.5rem] text-white">
               <h5 className="font-black text-sm uppercase tracking-widest mb-4 text-sky-400 flex items-center gap-2"><LightBulbIcon className="w-4 h-4" /> Tip Fiscal</h5>
-              <p className="text-xs leading-relaxed text-slate-400 font-medium">Recuerda que el IVA se declara mensualmente según tu noveno dígito del RUC.</p>
+              <p className="text-xs leading-relaxed text-slate-400 font-medium">Recuerda que el IVA se declara mensualmente segun tu noveno digito del RUC.</p>
             </div>
           </div>
           <div className="lg:col-span-2 bg-white p-10 rounded-[3rem] border border-slate-100 shadow-sm min-h-[400px]">
-            {/* 
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={chartData}>
-                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
-                <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{fontSize: 10, fontWeight: 'black', fill: '#94a3b8'}} />
-                <YAxis hide />
-                <Tooltip />
-                <Bar dataKey="valor" radius={[12, 12, 0, 0]} barSize={60}>
-                  {chartData.map((entry, index) => <Cell key={`cell-${index}`} fill={entry.color} />)}
-                </Bar>
-              </BarChart>
-            </ResponsiveContainer>
-            */}
             <div className="flex items-center justify-center h-full text-slate-400">
-                Gráfico deshabilitado temporalmente (Incompatibilidad detectada)
+                Grafico deshabilitado temporalmente (Incompatibilidad detectada)
             </div>
           </div>
         </div>
@@ -135,46 +155,84 @@ const Reports: React.FC<ReportsProps> = ({ documents, businessInfo, onConvertPro
 
       {activeSubTab === 'SRI' && (
         <div className="bg-white rounded-[3rem] border border-slate-100 shadow-sm overflow-hidden">
-          <div className="p-10 border-b border-slate-50">
-            <h3 className="text-2xl font-black text-slate-800 tracking-tighter">Comprobantes Autorizados</h3>
+          <div className="p-10 border-b border-slate-50 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+            <h3 className="text-2xl font-black text-slate-800 tracking-tighter">
+              {sriStatusFilter === 'REJECTED' ? 'Comprobantes Rechazados' : sriStatusFilter === 'PENDING' ? 'Comprobantes Pendientes' : 'Comprobantes SRI'}
+            </h3>
+            <select
+              value={sriStatusFilter}
+              onChange={e => { setSriStatusFilter(e.target.value); if (onFilterChange) onFilterChange(e.target.value); }}
+              className="p-3 rounded-2xl font-bold text-xs bg-slate-50 border-2 border-slate-100 outline-none cursor-pointer"
+            >
+              <option value="ALL">Todos los estados</option>
+              <option value="AUTHORIZED">Autorizados</option>
+              <option value="REJECTED">Rechazados</option>
+              <option value="PENDING">Pendientes</option>
+            </select>
           </div>
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead className="bg-slate-50/50 text-[10px] font-black uppercase text-slate-400">
-                <tr>
-                  <th className="py-5 px-10 text-left">Nro Documento</th>
-                  <th className="py-5 text-left">Cliente</th>
-                  <th className="py-5 text-center">Estado</th>
-                  <th className="py-5 px-10 text-right">Acciones</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-50">
-                {safeDocuments.map(doc => (
-                  <tr key={doc.id} className="hover:bg-slate-50/50">
-                    <td className="py-6 px-10">
-                      <p className="text-xs font-black text-slate-800">{doc.number}</p>
-                      <p className="text-[9px] text-slate-400 font-mono mt-0.5">{doc.issueDate}</p>
-                    </td>
-                    <td className="py-6 text-sm font-bold text-slate-600">{doc.entityName}</td>
-                    <td className="py-6 text-center">
-                      <span className="bg-emerald-100 text-emerald-600 px-3 py-1 rounded-full text-[9px] font-black uppercase">Autorizado</span>
-                    </td>
-                    <td className="py-6 px-10 text-right">
-                      <div className="flex justify-end gap-2">
-                         <button 
-                          onClick={() => setSelectedDocForRide(doc)}
-                          className="px-4 py-2 bg-sky-500 text-white hover:bg-sky-600 rounded-lg text-[9px] font-black uppercase transition-all"
-                         >
-                           Ver RIDE
-                         </button>
-                         <button className="px-4 py-2 bg-slate-100 hover:bg-slate-200 rounded-lg text-[9px] font-black uppercase transition-all">XML</button>
-                      </div>
-                    </td>
+          {sriFilteredDocs.length > 0 ? (
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead className="bg-slate-50/50 text-[10px] font-black uppercase text-slate-400">
+                  <tr>
+                    <th className="py-5 px-10 text-left">Nro Documento</th>
+                    <th className="py-5 text-left">Cliente</th>
+                    <th className="py-5 text-center">Estado</th>
+                    {sriStatusFilter === 'REJECTED' && <th className="py-5 text-left">Motivo</th>}
+                    <th className="py-5 px-10 text-right">Acciones</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                </thead>
+                <tbody className="divide-y divide-slate-50">
+                  {sriFilteredDocs.map(doc => {
+                    const badge = getStatusBadge(doc);
+                    const rejected = isRejected(doc);
+                    return (
+                    <tr key={doc.id} className={`hover:bg-slate-50/50 ${rejected ? 'bg-red-50/50' : ''}`}>
+                      <td className="py-6 px-10">
+                        <p className="text-xs font-black text-slate-800">{doc.number}</p>
+                        <p className="text-[9px] text-slate-400 font-mono mt-0.5">{doc.issueDate}</p>
+                      </td>
+                      <td className="py-6 text-sm font-bold text-slate-600">{doc.entityName}</td>
+                      <td className="py-6 text-center">
+                        <span className={`${badge.color} px-3 py-1 rounded-full text-[9px] font-black uppercase`}>{badge.label}</span>
+                      </td>
+                      {sriStatusFilter === 'REJECTED' && (
+                        <td className="py-6 text-xs text-red-600 max-w-[300px] truncate" title={doc.additionalInfo || ''}>
+                          {doc.additionalInfo?.replace('[RECHAZADA SRI] ', '') || 'Sin detalle'}
+                        </td>
+                      )}
+                      <td className="py-6 px-10 text-right">
+                        <div className="flex justify-end gap-2">
+                          <button 
+                            onClick={() => setSelectedDocForRide(doc)}
+                            className="px-4 py-2 bg-sky-500 text-white hover:bg-sky-600 rounded-lg text-[9px] font-black uppercase transition-all"
+                          >
+                            Ver RIDE
+                          </button>
+                          {rejected && onReemitDocument && (
+                            <button 
+                              onClick={() => handleReemit(doc)}
+                              className="px-4 py-2 bg-red-500 text-white hover:bg-red-600 rounded-lg text-[9px] font-black uppercase transition-all flex items-center gap-1"
+                            >
+                              <ArrowPathIcon className="w-3 h-3" />
+                              Reemitir
+                            </button>
+                          )}
+                        </div>
+                      </td>
+                    </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          ) : (
+            <div className="text-center py-16 text-slate-400">
+              <XCircleIcon className="w-12 h-12 mx-auto mb-3 text-slate-200" />
+              <p className="font-bold">Sin comprobantes</p>
+              <p className="text-sm">No hay documentos con el filtro seleccionado.</p>
+            </div>
+          )}
         </div>
       )}
 
@@ -198,7 +256,7 @@ const Reports: React.FC<ReportsProps> = ({ documents, businessInfo, onConvertPro
           <div className="bg-white rounded-[3rem] border border-slate-100 shadow-sm p-10">
             <h3 className="text-xl font-black text-slate-800 tracking-tighter mb-6 flex items-center gap-2">
               <TrophyIcon className="w-6 h-6 text-amber-500" />
-              Top 10 Clientes por Facturación
+              Top 10 Clientes por Facturacion
             </h3>
             {topClients.length > 0 ? (
               <div className="space-y-3">
@@ -223,8 +281,8 @@ const Reports: React.FC<ReportsProps> = ({ documents, businessInfo, onConvertPro
             ) : (
               <div className="text-center py-12 text-slate-400">
                 <TrophyIcon className="w-12 h-12 mx-auto mb-3 text-slate-200" />
-                <p className="font-bold">Sin datos de facturación</p>
-                <p className="text-sm">Los clientes aparecerán aquí al emitir facturas autorizadas.</p>
+                <p className="font-bold">Sin datos de facturacion</p>
+                <p className="text-sm">Los clientes apareceran aqui al emitir facturas autorizadas.</p>
               </div>
             )}
           </div>
@@ -285,7 +343,7 @@ const Reports: React.FC<ReportsProps> = ({ documents, businessInfo, onConvertPro
             <div className="text-center py-16 text-slate-400">
               <DocumentTextIcon className="w-12 h-12 mx-auto mb-3 text-slate-200" />
               <p className="font-bold">No hay proformas</p>
-              <p className="text-sm">Genere una factura marcando "Es Proforma" en el panel de emisión.</p>
+              <p className="text-sm">Genere una factura marcando "Es Proforma" en el panel de emision.</p>
             </div>
           )}
         </div>

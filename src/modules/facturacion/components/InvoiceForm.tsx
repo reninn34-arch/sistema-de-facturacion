@@ -25,9 +25,11 @@ interface InvoiceFormProps {
   emissionPoints?: EmissionPoint[];
   selectedEmissionPoint?: EmissionPoint | null;
   onSelectEmissionPoint?: (point: EmissionPoint | null) => void;
+  preloadRejected?: Document | null;
+  onClearPreload?: () => void;
 }
 
-const InvoiceForm: React.FC<InvoiceFormProps> = ({ clients, setClients, isDemoMode, products, businessInfo, signatureFile, signaturePassword, notificationSettings, onNotify, onAuthorize, emissionPoints, selectedEmissionPoint, onSelectEmissionPoint }) => {
+const InvoiceForm: React.FC<InvoiceFormProps> = ({ clients, setClients, isDemoMode, products, businessInfo, signatureFile, signaturePassword, notificationSettings, onNotify, onAuthorize, emissionPoints, selectedEmissionPoint, onSelectEmissionPoint, preloadRejected, onClearPreload }) => {
   // Detectar modo oscuro
   const isDarkMode = (businessInfo as any)?.features?.isDarkMode ?? false;
   const API_URL = import.meta.env.VITE_BACKEND_URL || '';
@@ -249,7 +251,7 @@ const InvoiceForm: React.FC<InvoiceFormProps> = ({ clients, setClients, isDemoMo
       pdf.setFontSize(8);
       pdf.setFont('helvetica', 'normal');
       pdf.text(`No. ${doc.number}`, 107, yPos + 17);
-      pdf.text('NÚMERO DE AUTORIZACIÓN', 107, yPos + 21);
+      pdf.text('CLAVE DE ACCESO', 107, yPos + 21);
       pdf.setFontSize(7);
       pdf.text(doc.accessKey, 107, yPos + 25);
       pdf.setFontSize(8);
@@ -449,9 +451,13 @@ const InvoiceForm: React.FC<InvoiceFormProps> = ({ clients, setClients, isDemoMo
 
       // Adjuntar XML Base64
       if (lastDocument.authorizedXml) {
+        const encoder = new TextEncoder();
+        const xmlBytes = encoder.encode(lastDocument.authorizedXml);
+        let xmlBinary = '';
+        xmlBytes.forEach(byte => xmlBinary += String.fromCharCode(byte));
         attachments.push({
           filename: `factura_${lastDocument.number.replace(/-/g, '_')}.xml`,
-          content: btoa(unescape(encodeURIComponent(lastDocument.authorizedXml))),
+          content: btoa(xmlBinary),
           type: 'application/xml'
         });
       }
@@ -518,9 +524,13 @@ const InvoiceForm: React.FC<InvoiceFormProps> = ({ clients, setClients, isDemoMo
         const pdfBase64 = await generatePdfBase64(doc, items);
         log(pdfBase64 ? '✅ PDF generado correctamente' : '❌ Error generando PDF');
 
+        const encoder = new TextEncoder();
+        const xmlBytes = encoder.encode(result.authorizedXml);
+        let xmlBinary = '';
+        xmlBytes.forEach(byte => xmlBinary += String.fromCharCode(byte));
         const attachments = [{
           filename: `factura_${doc.number.replace(/-/g, '_')}.xml`,
-          content: btoa(unescape(encodeURIComponent(result.authorizedXml))),
+          content: btoa(xmlBinary),
           type: 'application/xml'
         }];
 
@@ -588,6 +598,35 @@ const InvoiceForm: React.FC<InvoiceFormProps> = ({ clients, setClients, isDemoMo
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
+
+  // Cargar documento rechazado para re-emision
+  useEffect(() => {
+    if (!preloadRejected) return;
+    
+    const doc = preloadRejected;
+    if (doc.items && doc.items.length > 0) {
+      setItems(doc.items.map(i => ({ ...i })));
+    }
+    if (doc.entityRuc && doc.entityRuc !== '9999999999999') {
+      const client = clients.find(c => c.ruc === doc.entityRuc);
+      if (client) {
+        setSelectedClient(client);
+      } else {
+        setIsNewClient(true);
+        setNewClientData({
+          ruc: doc.entityRuc || '',
+          name: doc.entityName || '',
+          email: doc.entityEmail || '',
+          phone: doc.entityPhone || '',
+          address: doc.entityAddress || '',
+        });
+      }
+    }
+    if (doc.paymentMethod) setPaymentMethod(doc.paymentMethod);
+    if (doc.additionalInfo) setAdditionalInfo(doc.additionalInfo);
+    if (onClearPreload) onClearPreload();
+    onNotify('Documento rechazado cargado. Corrija los errores y vuelva a emitir.', 'info');
+  }, [preloadRejected]);
 
   const totals = useMemo(() => {
     let sub15 = 0, sub0 = 0, desc = 0, tax = 0;
@@ -710,9 +749,45 @@ const InvoiceForm: React.FC<InvoiceFormProps> = ({ clients, setClients, isDemoMo
       setAuthLogs(prev => [...prev, `[${new Date().toLocaleTimeString()}] ${msg}`]);
     };
 
-    // Generar número secuencial de 9 dígitos
-    const sequential = Math.floor(Math.random() * 999999999).toString().padStart(9, '0');
-    const numericCode = Math.floor(Math.random() * 100000000).toString().padStart(8, '0');
+    // Generar número secuencial desde el backend (DB Sequence)
+    log('Solicitando secuencial al servidor...');
+    let sequential: string;
+    let docNumber: string;
+    let estabCode: string;
+    let emiCode: string;
+
+    try {
+      const token = localStorage.getItem('adminToken');
+      const seqResponse = await fetch(`${API_URL}/api/documents/next-sequence`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          type: '01',
+          establishmentCode: selectedEmissionPoint?.establishmentCode || businessInfo.establishmentCode || '001',
+          emissionPointCode: selectedEmissionPoint?.emissionPointCode || businessInfo.emissionPointCode || '001',
+        })
+      });
+
+      if (!seqResponse.ok) {
+        const err = await seqResponse.json().catch(() => ({}));
+        throw new Error(err.message || 'Error obteniendo secuencial');
+      }
+
+      const seqData = await seqResponse.json();
+      sequential = seqData.sequential;
+      docNumber = seqData.number;
+      estabCode = seqData.establishmentCode;
+      emiCode = seqData.emissionPointCode;
+      log(`Secuencial obtenido: ${docNumber}`);
+    } catch (error: any) {
+      onNotify(error.message || 'Error al obtener secuencial del servidor', 'error');
+      setIsSubmitting(false);
+      setAuthStep('');
+      return;
+    }
 
     // Convertir fecha a formato DDMMYYYY
     const today = new Date();
@@ -721,8 +796,7 @@ const InvoiceForm: React.FC<InvoiceFormProps> = ({ clients, setClients, isDemoMo
     const year = today.getFullYear().toString();
     const dateFormatted = `${day}${month}${year}`;
 
-    const estabCode = selectedEmissionPoint?.establishmentCode || businessInfo.establishmentCode || '001';
-    const emiCode = selectedEmissionPoint?.emissionPointCode || businessInfo.emissionPointCode || '001';
+    const numericCode = Math.floor(Math.random() * 100000000).toString().padStart(8, '0');
 
     const accessKey = generateAccessKey(
       dateFormatted,
@@ -832,7 +906,7 @@ const InvoiceForm: React.FC<InvoiceFormProps> = ({ clients, setClients, isDemoMo
     const doc: Document = {
       id: Math.random().toString(36).substr(2, 9),
       type: isProforma ? DocumentType.PROFORMA : DocumentType.INVOICE,
-      number: `${estabCode}-${emiCode}-${sequential}`,
+      number: docNumber,
       accessKey: accessKey,
       issueDate: getLocalDateISO(),
       entityName: clientToUse?.name || 'CONSUMIDOR FINAL',
@@ -899,7 +973,20 @@ const InvoiceForm: React.FC<InvoiceFormProps> = ({ clients, setClients, isDemoMo
       setNewClientData({ ruc: '', name: '', email: '', phone: '', address: '' });
       setIsNewClient(false);
     } else if (result.status === SriStatus.REJECTED) {
-      onNotify(result.message, 'error');
+      const rejectedDoc = {
+        ...doc,
+        status: SriStatus.REJECTED,
+        accessKey: accessKey,
+        additionalInfo: `[RECHAZADA SRI] ${result.message}` + (additionalInfo ? ` | ${additionalInfo}` : ''),
+        items: items
+      };
+      onAuthorize(rejectedDoc, items);
+      onNotify(result.message || 'Comprobante rechazado por el SRI', 'error');
+
+      setItems([]);
+      setSelectedClient(null);
+      setNewClientData({ ruc: '', name: '', email: '', phone: '', address: '' });
+      setIsNewClient(false);
     } else {
       onNotify(result.message, 'warning');
     }

@@ -374,6 +374,49 @@ const businessController = {
             res.json(docs);
     }),
 
+    reserveNextSequence: catchAsync(async (req, res) => {
+            const { type, establishmentCode, emissionPointCode } = req.body;
+            const businessId = req.user.businessId;
+
+            if (!type) {
+                return res.status(400).json({ message: 'Tipo de documento requerido (01, 04, etc.)' });
+            }
+
+            const estab = establishmentCode || '001';
+            const ptEmi = emissionPointCode || '001';
+
+            const sequential = await prisma.$transaction(async (tx) => {
+                const seq = await tx.sequence.upsert({
+                    where: {
+                        type_establishmentCode_emissionPointCode_businessId: {
+                            type,
+                            establishmentCode: estab,
+                            emissionPointCode: ptEmi,
+                            businessId
+                        }
+                    },
+                    update: { currentValue: { increment: 1 } },
+                    create: {
+                        type,
+                        establishmentCode: estab,
+                        emissionPointCode: ptEmi,
+                        businessId,
+                        currentValue: 1
+                    }
+                });
+                return seq.currentValue;
+            });
+
+            const paddedNumber = sequential.toString().padStart(9, '0');
+            res.json({
+                success: true,
+                sequential: paddedNumber,
+                number: `${estab}-${ptEmi}-${paddedNumber}`,
+                establishmentCode: estab,
+                emissionPointCode: ptEmi
+            });
+    }),
+
     createDocument: catchAsync(async (req, res) => {
             const { items, id, retentionTaxes, ...docData } = req.body;
             const businessId = req.user.businessId;
@@ -385,22 +428,29 @@ const businessController = {
                 return res.status(400).json({ message: 'El documento debe tener al menos un item' });
             }
 
-            // ENFORCE INVOICE LIMIT: solo para documentos emitidos, no recibidos
+            // ENFORCE INVOICE LIMIT: solo para documentos emitidos, no recibidos, solo en produccion
             if (docData.type === '01' && req.user.role !== 'SUPERADMIN' && !isReceivedDocument) {
                 const business = await prisma.business.findUnique({
                     where: { id: businessId },
-                    select: { plan: true }
+                    select: { plan: true, isProduction: true }
                 });
 
-                if (business) {
+                if (business && business.isProduction) {
                     const plan = await prisma.subscriptionPlan.findUnique({
                         where: { code: business.plan },
                         select: { maxInvoicesPerMonth: true, code: true }
                     });
 
-                    const limit = plan?.maxInvoicesPerMonth ?? 999999;
+                    const limit = plan?.maxInvoicesPerMonth ?? 0;
+                    const planCode = plan?.code;
 
-                    if (limit >= 0) {
+                    if (planCode === 'PENDING' || limit <= 0) {
+                        return res.status(403).json({
+                            message: 'Su plan no permite emitir facturas. Complete el pago para activar su suscripcion.'
+                        });
+                    }
+
+                    if (planCode !== 'UNLIMITED') {
                         const now = new Date();
                         const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
                         const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59, 999);

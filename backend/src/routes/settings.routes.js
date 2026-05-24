@@ -102,6 +102,43 @@ router.put('/api/admin/settings', jwtMiddleware, roleMiddleware(['SUPERADMIN']),
   }
 });
 
+// GET /api/settings/landing-logo - Obtener logo de la landing (público, devuelve imagen)
+router.get('/api/settings/landing-logo', async (req, res) => {
+  try {
+    const settings = await prisma.appSettings.findUnique({ where: { id: 'global' } });
+    const logo = settings?.landingLogo;
+    if (!logo) {
+      return res.status(404).end();
+    }
+    const [header, data] = logo.split(',');
+    const mimeMatch = header.match(/:(.*?);/);
+    const mime = mimeMatch ? mimeMatch[1] : 'image/png';
+    const buffer = Buffer.from(data, 'base64');
+    res.set('Content-Type', mime);
+    res.set('Cache-Control', 'public, max-age=86400');
+    res.send(buffer);
+  } catch (error) {
+    console.error('Error al obtener landing logo:', error);
+    res.status(500).end();
+  }
+});
+
+// PUT /api/settings/landing-logo - Guardar logo de la landing (solo SUPERADMIN)
+router.put('/api/settings/landing-logo', jwtMiddleware, roleMiddleware(['SUPERADMIN']), async (req, res) => {
+  try {
+    const { logo } = req.body;
+    await prisma.appSettings.upsert({
+      where: { id: 'global' },
+      update: { landingLogo: logo || null },
+      create: { id: 'global', landingLogo: logo || null }
+    });
+    res.json({ success: true });
+  } catch (error) {
+    console.error('Error al guardar landing logo:', error);
+    res.status(500).json({ error: 'Error al guardar logo' });
+  }
+});
+
 // GET /api/landing-content - Obtener contenido del landing page (público)
 router.get('/api/landing-content', async (req, res) => {
   try {

@@ -161,6 +161,8 @@ const App: React.FC = () => {
   const [currentPlanMaxInvoices, setCurrentPlanMaxInvoices] = useState(999999);
   const [currentPlanMaxEmissionPoints, setCurrentPlanMaxEmissionPoints] = useState(1);
   const [pointsProgramEnabled, setPointsProgramEnabled] = useState(true);
+  const [preloadRejectedDoc, setPreloadRejectedDoc] = useState<Document | null>(null);
+  const [reportsFilter, setReportsFilter] = useState<string>('ALL');
 
   // Estado para control de módulos por usuario
   const [hasModuleControl, setHasModuleControl] = useState(() => {
@@ -988,11 +990,11 @@ const App: React.FC = () => {
           <div className="space-y-6">
             {/* Mostrar resumen de ventas solo a administradores de empresa */}
             {currentUser?.role === 'ADMIN' && <SalesSummary documents={documents} />}
-            <Dashboard documents={documents} products={products} setActiveTab={setActiveTab} currentUser={currentUser} businessInfo={businessInfo} planHasAudit={currentPlanHasAudit || currentUser?.role === 'SUPERADMIN'} planDurationDays={currentPlanDurationDays} planMaxInvoices={currentPlanMaxInvoices} hasModuleControl={hasModuleControl} modulePermissions={modulePermissions} />
+            <Dashboard documents={documents} products={products} setActiveTab={setActiveTab} currentUser={currentUser} businessInfo={businessInfo} planHasAudit={currentPlanHasAudit || currentUser?.role === 'SUPERADMIN'} planDurationDays={currentPlanDurationDays} planMaxInvoices={currentPlanMaxInvoices} hasModuleControl={hasModuleControl} modulePermissions={modulePermissions} onSetReportsFilter={setReportsFilter} />
           </div>
         );
 
-      case 'invoices': return <InvoiceForm clients={clients} setClients={setClients} isDemoMode={isDemoMode} products={products} businessInfo={effectiveBusinessInfo} signatureFile={signatureFile} signaturePassword={signaturePassword} notificationSettings={notificationSettings} onNotify={showNotify} onAuthorize={handleDocumentAuthorized} emissionPoints={emissionPoints} selectedEmissionPoint={selectedEmissionPoint} onSelectEmissionPoint={setSelectedEmissionPoint} />;
+      case 'invoices': return <InvoiceForm clients={clients} setClients={setClients} isDemoMode={isDemoMode} products={products} businessInfo={effectiveBusinessInfo} signatureFile={signatureFile} signaturePassword={signaturePassword} notificationSettings={notificationSettings} onNotify={showNotify} onAuthorize={handleDocumentAuthorized} emissionPoints={emissionPoints} selectedEmissionPoint={selectedEmissionPoint} onSelectEmissionPoint={setSelectedEmissionPoint} preloadRejected={preloadRejectedDoc} onClearPreload={() => setPreloadRejectedDoc(null)} />;
       case 'credit-notes': return (
         <CreditNoteForm
           clients={clients}
@@ -1019,7 +1021,12 @@ const App: React.FC = () => {
       case 'reports': return <Reports documents={documents} businessInfo={businessInfo} onConvertProforma={() => {
         setActiveTab('invoices');
         showNotify('Cree una nueva factura con los datos de la proforma', 'success');
-      }} setActiveTab={setActiveTab} />;
+      }} setActiveTab={setActiveTab} initialFilter={reportsFilter} onFilterChange={setReportsFilter}
+      onReemitDocument={(doc) => {
+        setPreloadRejectedDoc(doc);
+        setReportsFilter('ALL');
+        setActiveTab('invoices');
+      }} />;
       case 'purchases': return (
         <PurchaseManager
           clients={clients}

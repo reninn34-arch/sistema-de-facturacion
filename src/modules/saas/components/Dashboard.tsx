@@ -58,6 +58,7 @@ interface DashboardProps {
   modulePermissions?: { moduleCode: string; granted: boolean }[];
   pointsProgramEnabled?: boolean;
   planMaxInvoices?: number;
+  onSetReportsFilter?: (filter: string) => void;
 }
 
 const planColors: Record<string, string> = {
@@ -73,7 +74,7 @@ const planColors: Record<string, string> = {
   PENDING: 'gray'
 };
 
-const Dashboard: React.FC<DashboardProps> = ({ documents, products, setActiveTab, currentUser, businessInfo, planHasAudit, planDurationDays = 30, planMaxInvoices, hasModuleControl = false, modulePermissions = [], pointsProgramEnabled = true }) => {
+const Dashboard: React.FC<DashboardProps> = ({ documents, products, setActiveTab, currentUser, businessInfo, planHasAudit, planDurationDays = 30, planMaxInvoices, hasModuleControl = false, modulePermissions = [], pointsProgramEnabled = true, onSetReportsFilter }) => {
   const [auditResult, setAuditResult] = useState<AuditResult | null>(null);
   const [auditLoading, setAuditLoading] = useState(true);
   const [auditError, setAuditError] = useState<string | null>(null);
@@ -114,7 +115,7 @@ const Dashboard: React.FC<DashboardProps> = ({ documents, products, setActiveTab
   const safeProducts = Array.isArray(products) ? products : [];
 
   const totalSales = safeDocuments
-    .filter((d: any) => d.type === DocumentType.INVOICE && d.status === SriStatus.AUTHORIZED)
+    .filter((d: any) => d.type === DocumentType.INVOICE && (d.status === SriStatus.AUTHORIZED || d.status === 'AUTORIZADO'))
     .reduce((acc: number, d: any) => acc + (d.total || 0), 0);
 
   const lowStock = safeProducts.filter((p: any) => (p.stock || 0) < (p.minStock || 0) && (p.minStock || 0) > 0);
@@ -354,11 +355,15 @@ const Dashboard: React.FC<DashboardProps> = ({ documents, products, setActiveTab
   const currentYear = now.getFullYear();
   
   const docsThisMonth = safeDocuments.filter(d => {
-    const dDate = new Date(d.createdAt || Date.now());
+    const dDate = new Date(d.createdAt || d.issueDate || Date.now());
     return dDate.getMonth() === currentMonth && dDate.getFullYear() === currentYear;
   });
 
-  const totalEmitted = docsThisMonth.length;
+  const invoiceDocsThisMonth = docsThisMonth.filter(d =>
+    d.type === DocumentType.INVOICE && d.status !== 'CANCELLED'
+  );
+
+  const totalEmitted = invoiceDocsThisMonth.length;
   const totalAuthorized = docsThisMonth.filter(d => d.status === SriStatus.AUTHORIZED || d.status === 'AUTORIZADO').length;
   const totalRejected = docsThisMonth.filter(d => d.status === 'RECHAZADO' || d.status === 'NO_AUTORIZADO' || d.status === 'DEVUELTO').length;
 
@@ -366,13 +371,13 @@ const Dashboard: React.FC<DashboardProps> = ({ documents, products, setActiveTab
   
   const isUnlimitedDocs = maxDocs === -1 || maxDocs === 999999 || businessInfo?.plan === 'UNLIMITED';
   
-  // Si estamos en ambiente de pruebas o demo, no descontamos facturas del plan
-  const isTestEnvironment = !businessInfo?.isProduction || (businessInfo as any)?.isDemo;
-  const consumedDocs = isTestEnvironment ? 0 : totalEmitted;
+  // Solo en produccion se descuenta del plan. En pruebas no hay limite.
+  const isProduction = businessInfo?.isProduction === true;
+  const consumedDocs = isProduction ? totalEmitted : 0;
   
   const docsAvailable = isUnlimitedDocs ? '∞' : Math.max(0, maxDocs - consumedDocs);
-  const docsPercentage = isUnlimitedDocs ? 0 : Math.min(1, consumedDocs / maxDocs);
-  const remainingPercentage = isUnlimitedDocs ? 1 : Math.max(0, 1 - docsPercentage);
+  const docsPercentage = isUnlimitedDocs || !isProduction ? 0 : Math.min(1, consumedDocs / maxDocs);
+  const remainingPercentage = isUnlimitedDocs || !isProduction ? 1 : Math.max(0, 1 - docsPercentage);
 
   return (
     <div className="space-y-8 animate-fade-in">
@@ -537,7 +542,7 @@ const Dashboard: React.FC<DashboardProps> = ({ documents, products, setActiveTab
             </div>
           </div>
           
-          <div className="p-6 md:p-8 flex flex-col justify-center transition-colors hover:bg-slate-50/50 dark:hover:bg-slate-800/30 cursor-pointer" onClick={() => setActiveTab('reports')}>
+          <div className="p-6 md:p-8 flex flex-col justify-center transition-colors hover:bg-slate-50/50 dark:hover:bg-slate-800/30 cursor-pointer" onClick={() => { if (onSetReportsFilter) onSetReportsFilter('REJECTED'); setActiveTab('reports'); }}>
             <p className="text-xs font-bold text-rose-600 dark:text-rose-400 uppercase tracking-widest mb-2 flex items-center gap-2">
               <XCircleIcon className="w-4 h-4" /> No Autorizados
             </p>

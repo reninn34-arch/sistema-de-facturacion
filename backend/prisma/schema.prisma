@@ -509,6 +509,7 @@ model AppSettings {
   paypalEnabled Boolean  @default(true)
   transferEnabled Boolean @default(true)
   cardEnabled   Boolean  @default(false)
+  landingLogo   String?  // Logo de la landing page en base64
   landingContent Json    @default("{}")
   updatedAt    DateTime @updatedAt
 }

@@ -4,6 +4,7 @@
  */
 
 // Generar clave de acceso versión con Date (para servicios)
+// Usa el algoritmo módulo 11 oficial del SRI: factores 2,3,4,5,6,7 de derecha a izquierda
 export const generateAccessKeyFromDate = (
   date: Date,
   docType: string,
@@ -20,21 +21,22 @@ export const generateAccessKeyFromDate = (
   const dateStr = `${day}${month}${year}`;
   
   const base = `${dateStr}${docType}${ruc}${environment}${series}${sequential}${randomCode}${emissionType}`;
+  const verifier = calculateModulo11ForDate(base);
   
-  // Módulo 11 con multiplicador decreciente
+  return base + verifier;
+};
+
+const calculateModulo11ForDate = (key: string): number => {
+  let factor = 2;
   let sum = 0;
-  let multiplier = 7;
-  
-  for (let i = 0; i < base.length; i++) {
-    sum += parseInt(base[i]) * multiplier;
-    multiplier--;
-    if (multiplier < 2) multiplier = 7;
+  for (let i = key.length - 1; i >= 0; i--) {
+    sum += parseInt(key[i]) * factor;
+    factor = factor === 7 ? 2 : factor + 1;
   }
-  
-  const remainder = sum % 11;
-  const checkDigit = remainder === 0 ? 0 : 11 - remainder;
-  
-  return base + checkDigit;
+  const checkDigit = 11 - (sum % 11);
+  if (checkDigit === 11) return 0;
+  if (checkDigit === 10) return 1;
+  return checkDigit;
 };
 
 // Versión original con formato de fecha string (ddmmyyyy)

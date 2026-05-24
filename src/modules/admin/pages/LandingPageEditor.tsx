@@ -7,6 +7,7 @@ import {
   ArrowPathIcon,
   EyeIcon,
   EyeSlashIcon,
+  CameraIcon,
 } from '@heroicons/react/24/outline';
 import RichTextEditor from '../../../components/RichTextEditor';
 
@@ -313,6 +314,8 @@ const LandingPageEditor: React.FC = () => {
   const [error, setError] = useState('');
   const [loadError, setLoadError] = useState('');
   const [showPreview, setShowPreview] = useState(false);
+  const [landingLogo, setLandingLogo] = useState<string | null>(null);
+  const [savingLogo, setSavingLogo] = useState(false);
 
   useEffect(() => {
     const token = localStorage.getItem('adminToken');
@@ -328,6 +331,19 @@ const LandingPageEditor: React.FC = () => {
       })
       .catch(() => setLoadError('No se pudo cargar el contenido actual'))
       .finally(() => setLoading(false));
+  }, []);
+
+  // Cargar logo de la landing
+  useEffect(() => {
+    const token = localStorage.getItem('adminToken');
+    fetch(`${API_URL}/api/admin/settings`, {
+      headers: token ? { Authorization: `Bearer ${token}` } : {},
+    })
+      .then(r => r.json())
+      .then(data => {
+        if (data?.landingLogo) setLandingLogo(data.landingLogo);
+      })
+      .catch(() => {});
   }, []);
 
   const handleSave = async () => {
@@ -1159,6 +1175,85 @@ const LandingPageEditor: React.FC = () => {
               rows={3}
               placeholder="Mensaje sobre el uso de cookies..."
             />
+          </div>
+        </div>
+      </CollapsibleSection>
+
+      {/* Logo de la Landing */}
+      <CollapsibleSection title="Logo de la Landing" icon={<CameraIcon className="w-5 h-5" />}>
+        <div className="flex flex-col gap-4">
+          <p className="text-xs text-slate-400">Sube el logo que aparecera en la barra de navegacion y footer de la landing page.</p>
+          <div className="flex items-start gap-4">
+            <div className="w-32 h-16 bg-slate-100 dark:bg-slate-800 rounded-xl overflow-hidden flex items-center justify-center border-2 border-dashed border-slate-200 dark:border-slate-700 flex-shrink-0">
+              {landingLogo ? (
+                <img src={landingLogo} className="w-full h-full object-contain p-1" alt="Logo preview" />
+              ) : (
+                <CameraIcon className="w-6 h-6 text-slate-400" />
+              )}
+            </div>
+            <div className="flex flex-col gap-2 flex-1">
+              <label className="px-4 py-2 bg-sky-500 text-white rounded-xl font-bold text-xs cursor-pointer hover:bg-sky-600 transition-colors text-center">
+                {landingLogo ? 'Cambiar Logo' : 'Subir Logo'}
+                <input type="file" className="hidden" accept="image/*" onChange={async (e) => {
+                  const file = e.target.files?.[0];
+                  if (!file) return;
+                  if (file.size > 2 * 1024 * 1024) {
+                    alert('La imagen no debe superar 2MB.');
+                    return;
+                  }
+                  const reader = new FileReader();
+                  reader.onloadend = async () => {
+                    const base64 = reader.result as string;
+                    setLandingLogo(base64);
+                    setSavingLogo(true);
+                    try {
+                      const token = localStorage.getItem('adminToken');
+                      const res = await fetch(`${API_URL}/api/settings/landing-logo`, {
+                        method: 'PUT',
+                        headers: {
+                          'Content-Type': 'application/json',
+                          Authorization: `Bearer ${token}`,
+                        },
+                        body: JSON.stringify({ logo: base64 }),
+                      });
+                      if (!res.ok) throw new Error('Error al guardar');
+                    } catch {
+                      alert('Error al guardar el logo. Intente de nuevo.');
+                    } finally {
+                      setSavingLogo(false);
+                    }
+                  };
+                  reader.onerror = () => alert('Error al leer la imagen.');
+                  reader.readAsDataURL(file);
+                  e.target.value = '';
+                }} />
+              </label>
+              {landingLogo && (
+                <button onClick={async () => {
+                  setSavingLogo(true);
+                  try {
+                    const token = localStorage.getItem('adminToken');
+                    await fetch(`${API_URL}/api/settings/landing-logo`, {
+                      method: 'PUT',
+                      headers: {
+                        'Content-Type': 'application/json',
+                        Authorization: `Bearer ${token}`,
+                      },
+                      body: JSON.stringify({ logo: null }),
+                    });
+                    setLandingLogo(null);
+                  } catch {
+                    alert('Error al eliminar el logo.');
+                  } finally {
+                    setSavingLogo(false);
+                  }
+                }}
+                  disabled={savingLogo}
+                  className="px-4 py-2 bg-red-50 text-red-600 rounded-xl font-bold text-xs hover:bg-red-100 transition-colors disabled:opacity-50">
+                  {savingLogo ? 'Eliminando...' : 'Eliminar Logo'}
+                </button>
+              )}
+            </div>
           </div>
         </div>
       </CollapsibleSection>

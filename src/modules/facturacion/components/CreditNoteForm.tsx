@@ -103,10 +103,29 @@ const CreditNoteForm: React.FC<Props> = ({
     setAuthMessage('Iniciando proceso de autorización...');
 
     try {
-      // Generar número de nota de crédito
-      const existingCreditNotes = invoices.filter(d => d.type === DocumentType.CREDIT_NOTE);
-      const sequential = (existingCreditNotes.length + 1).toString().padStart(9, '0');
-      const creditNoteNumber = `${businessInfo.establishmentCode}-${businessInfo.emissionPointCode}-${sequential}`;
+      // Generar número de nota de crédito desde el backend (DB Sequence)
+      const API_URL = import.meta.env.VITE_BACKEND_URL || '';
+      const token = localStorage.getItem('adminToken');
+      const seqResponse = await fetch(`${API_URL}/api/documents/next-sequence`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          type: '04',
+          establishmentCode: businessInfo.establishmentCode || '001',
+          emissionPointCode: businessInfo.emissionPointCode || '001',
+        })
+      });
+
+      if (!seqResponse.ok) {
+        const err = await seqResponse.json().catch(() => ({}));
+        throw new Error(err.message || 'Error obteniendo secuencial');
+      }
+
+      const seqData = await seqResponse.json();
+      const creditNoteNumber = seqData.number;
 
       // Crear documento temporal
       const tempDoc: Document = {
@@ -149,15 +168,20 @@ const CreditNoteForm: React.FC<Props> = ({
         tempDoc.accessKey = result.claveAcceso || '';
         onDocumentCreated(tempDoc);
         setAuthStatus('success');
-        setAuthMessage(`Nota de crédito autorizada. Número de autorización: ${result.authNumber}`);
+        setAuthMessage(`Nota de credito autorizada. Numero de autorizacion: ${result.authNumber}`);
 
         // Limpiar formulario
         setTimeout(() => {
           resetForm();
         }, 3000);
       } else {
+        // Guardar NC rechazada para historial
+        tempDoc.status = SriStatus.REJECTED;
+        tempDoc.accessKey = '';
+        tempDoc.additionalInfo = `[RECHAZADA SRI] ${result.message}` + (additionalInfo ? ` | ${additionalInfo}` : '');
+        onDocumentCreated(tempDoc);
         setAuthStatus('error');
-        setAuthMessage(result.message || 'Error en la autorización');
+        setAuthMessage(result.message || 'Error en la autorizacion');
       }
     } catch (error: any) {
       setAuthStatus('error');
