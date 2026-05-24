@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { DocumentTextIcon, ArrowLeftIcon, PhoneIcon, EnvelopeIcon } from '@heroicons/react/24/outline';
 import CookieBanner from '../../../components/CookieBanner';
 
@@ -84,12 +84,7 @@ const AyudaPage: React.FC = () => {
       <header className="bg-white border-b border-slate-100">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between h-16">
           <div className="flex items-center gap-2.5">
-            <div className="w-10 h-10 bg-[#0EA5E9] rounded-xl flex items-center justify-center shadow-lg shadow-[#0EA5E9]/30">
-              <DocumentTextIcon className="w-5 h-5 text-white" />
-            </div>
-            <span className="text-xl font-extrabold text-slate-900 tracking-tight">
-              Azul <span className="text-[#0EA5E9]">PRO</span>
-            </span>
+            <img src="/logo.png" className="h-12 w-auto max-w-[220px] object-contain object-left" alt="Azul PRO" />
           </div>
           <a
             href="/"
