@@ -136,6 +136,14 @@ const Layout: React.FC<LayoutProps> = ({
   const [isEnvModalOpen, setIsEnvModalOpen] = useState(false);
   const [isEnvLoading, setIsEnvLoading] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [landingLogo, setLandingLogo] = useState<string | null | false>(null);
+
+  useEffect(() => {
+    const img = new Image();
+    img.onload = () => setLandingLogo('/api/settings/landing-logo');
+    img.onerror = () => setLandingLogo(false);
+    img.src = '/api/settings/landing-logo';
+  }, []);
   const notificationRef = useRef<HTMLDivElement>(null);
 
   const unreadCount = notifications.filter(n => !n.read).length;
@@ -358,8 +366,11 @@ const Layout: React.FC<LayoutProps> = ({
         <div className="p-4 sm:p-6 border-b border-slate-200 dark:border-slate-700/50 flex justify-between items-center">
           <div className="min-w-0 flex-1">
             <div className="py-2">
-              <img src="/logo.png" className="h-16 w-auto max-w-full object-contain object-left dark:brightness-0 dark:invert" alt="Azul PRO"
-                onError={(e) => { const el = e.currentTarget; el.style.display = 'none'; }} />
+              {landingLogo ? (
+                <img src={landingLogo} className="h-16 w-auto max-w-full object-contain object-left dark:brightness-0 dark:invert" alt="Logo" />
+              ) : landingLogo === false && emp?.logo ? (
+                <img src={emp.logo} className="h-16 w-auto max-w-full object-contain object-left" alt="Logo" />
+              ) : null}
               <p className="text-[9px] text-slate-400 dark:text-slate-500 mt-1.5 uppercase font-bold tracking-widest">Enterprise Edition</p>
             </div>
           </div>
@@ -487,7 +498,7 @@ const Layout: React.FC<LayoutProps> = ({
       </aside>
 
       <main className="flex-1 flex flex-col overflow-hidden w-full">
-        <header className="h-14 sm:h-16 bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl border-b border-slate-200 dark:border-slate-700/50 flex items-center justify-between px-3 sm:px-4 lg:px-8 z-10 print:hidden transition-colors duration-300">
+        <header className="h-14 sm:h-16 bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl border-b border-slate-200 dark:border-slate-700/50 flex items-center justify-between px-3 sm:px-4 lg:px-8 z-40 print:hidden transition-colors duration-300">
           <div className="flex items-center gap-2 sm:gap-4">
             <button onClick={() => setIsSidebarOpen(true)}
               className="lg:hidden p-2 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-xl transition-all print:hidden min-w-[44px] min-h-[44px] flex items-center justify-center">
@@ -520,7 +531,7 @@ const Layout: React.FC<LayoutProps> = ({
                 )}
               </button>
               {showNotifications && (
-                <div className="absolute right-0 mt-3 w-[280px] sm:w-72 lg:w-80 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-600/50 rounded-2xl shadow-2xl dark:shadow-black/40 z-50 overflow-hidden animate-scale-in origin-top-right max-h-[80vh]">
+                <div className="absolute right-0 mt-3 w-[280px] sm:w-72 lg:w-80 max-w-[calc(100vw-24px)] bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-600/50 rounded-2xl shadow-2xl dark:shadow-black/40 z-50 overflow-hidden animate-scale-in origin-top-right max-h-[80vh]">
                   <div className="p-3 sm:p-4 bg-slate-50 dark:bg-slate-800/50 border-b border-slate-100 dark:border-slate-700/50 flex justify-between items-center">
                     <span className="text-xs font-bold uppercase tracking-tighter text-slate-800 dark:text-white">Notificaciones</span>
                     <button onClick={() => onMarkRead()} className="text-[10px] font-bold text-sky-500 dark:text-sky-400 px-2 py-1 min-h-[32px] hover:underline">

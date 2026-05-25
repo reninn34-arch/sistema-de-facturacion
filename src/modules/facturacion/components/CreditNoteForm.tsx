@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { ArrowPathIcon, MagnifyingGlassIcon, ClockIcon, CheckCircleIcon, XCircleIcon } from '@heroicons/react/24/outline';
 import { Client, Product, Document, DocumentType, SriStatus, PaymentStatus, InvoiceItem, BusinessInfo } from '../../../types/types';
 import { buildCreditNoteXml, authorizeWithSRI } from '../../../services/sriService';
@@ -214,19 +214,19 @@ const CreditNoteForm: React.FC<Props> = ({
 
   return (
     <div className="max-w-7xl mx-auto">
-      <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
+      <div className="bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700/50 rounded-2xl shadow-sm p-6 mb-6">
         <div className="flex items-center gap-3 mb-6">
-          <ArrowPathIcon className="w-12 h-12" />
+          <ArrowPathIcon className="w-12 h-12 text-slate-700 dark:text-slate-300" />
           <div>
-            <h2 className="text-2xl font-bold text-gray-800">Nota de Crédito</h2>
-            <p className="text-gray-600">Devoluciones, anulaciones y correcciones de facturas</p>
+            <h2 className="text-2xl font-bold text-gray-800 dark:text-white">Nota de Crédito</h2>
+            <p className="text-gray-600 dark:text-slate-400">Devoluciones, anulaciones y correcciones de facturas</p>
           </div>
         </div>
 
         {/* Selección de Factura */}
         <div className="mb-6">
-          <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
-            <MagnifyingGlassIcon className="w-5 h-5" />
+          <h3 className="text-lg font-semibold mb-4 flex items-center gap-2 text-gray-800 dark:text-white">
+            <MagnifyingGlassIcon className="w-5 h-5 text-slate-500 dark:text-slate-400" />
             1. Seleccione la Factura a Modificar
           </h3>
 
@@ -236,7 +236,7 @@ const CreditNoteForm: React.FC<Props> = ({
               value={searchInvoice}
               onChange={(e) => setSearchInvoice(e.target.value)}
               placeholder="Buscar por número, cliente o clave de acceso..."
-              className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-transparent"
+              className="w-full p-3 border border-gray-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-transparent bg-white dark:bg-slate-900/50 text-gray-800 dark:text-white placeholder-gray-400 dark:placeholder-slate-550"
             />
           </div>
 
@@ -246,14 +246,14 @@ const CreditNoteForm: React.FC<Props> = ({
                 key={invoice.id}
                 onClick={() => handleInvoiceSelect(invoice.id)}
                 className={`p-4 border-2 rounded-lg cursor-pointer transition-all ${selectedInvoice?.id === invoice.id
-                  ? 'border-sky-500 bg-sky-50'
-                  : 'border-gray-200 hover:border-sky-300'
+                  ? 'border-sky-500 bg-sky-50 dark:bg-sky-950/20 dark:border-sky-450'
+                  : 'border-gray-200 dark:border-slate-700 hover:border-sky-300 dark:hover:border-sky-500 bg-white dark:bg-slate-800/50'
                   }`}
               >
-                <div className="font-semibold text-gray-800">{invoice.number}</div>
-                <div className="text-sm text-gray-600">{invoice.entityName}</div>
-                <div className="text-sm text-gray-500">{invoice.issueDate}</div>
-                <div className="text-lg font-bold text-sky-600 mt-2">
+                <div className="font-semibold text-gray-800 dark:text-white">{invoice.number}</div>
+                <div className="text-sm text-gray-600 dark:text-slate-400">{invoice.entityName}</div>
+                <div className="text-sm text-gray-500 dark:text-slate-500">{invoice.issueDate}</div>
+                <div className="text-lg font-bold text-sky-600 dark:text-sky-400 mt-2">
                   ${invoice.total.toFixed(2)}
                 </div>
               </div>
@@ -261,7 +261,7 @@ const CreditNoteForm: React.FC<Props> = ({
           </div>
 
           {authorizedInvoices.length === 0 && (
-            <div className="text-center py-8 text-gray-500">
+            <div className="text-center py-8 text-gray-500 dark:text-slate-400">
               No hay facturas autorizadas disponibles para crear notas de crédito
             </div>
           )}
@@ -271,14 +271,14 @@ const CreditNoteForm: React.FC<Props> = ({
           <>
             {/* Motivo */}
             <div className="mb-6">
-              <h3 className="text-lg font-semibold mb-4">2. Motivo de la Nota de Crédito</h3>
+              <h3 className="text-lg font-semibold mb-4 text-gray-800 dark:text-white">2. Motivo de la Nota de Crédito</h3>
               <select
                 value={reason}
                 onChange={(e) => setReason(e.target.value)}
-                className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-sky-500 mb-3"
+                className="w-full p-3 border border-gray-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-sky-500 mb-3 bg-white dark:bg-slate-900/50 text-gray-800 dark:text-white"
               >
                 {(Array.isArray(CREDIT_NOTE_REASONS) ? CREDIT_NOTE_REASONS : []).map(r => (
-                  <option key={r.code} value={r.code}>
+                  <option key={r.code} value={r.code} className="dark:bg-slate-800 text-gray-800 dark:text-white">
                     {r.code} - {r.description}
                   </option>
                 ))}
@@ -289,32 +289,32 @@ const CreditNoteForm: React.FC<Props> = ({
                 value={customReason}
                 onChange={(e) => setCustomReason(e.target.value)}
                 placeholder="Descripción adicional del motivo (opcional)"
-                className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-sky-500"
+                className="w-full p-3 border border-gray-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-sky-500 bg-white dark:bg-slate-900/50 text-gray-800 dark:text-white placeholder-gray-400 dark:placeholder-slate-550"
               />
             </div>
 
             {/* Items */}
             <div className="mb-6">
-              <h3 className="text-lg font-semibold mb-4">3. Seleccione los Items a Devolver/Modificar</h3>
+              <h3 className="text-lg font-semibold mb-4 text-gray-800 dark:text-white">3. Seleccione los Items a Devolver/Modificar</h3>
               <div className="overflow-x-auto">
                 <table className="w-full">
-                  <thead className="bg-gray-50">
+                  <thead className="bg-gray-50 dark:bg-slate-900/40">
                     <tr>
-                      <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700">Descripción</th>
-                      <th className="px-4 py-3 text-center text-sm font-semibold text-gray-700">Cant. Factura</th>
-                      <th className="px-4 py-3 text-center text-sm font-semibold text-gray-700">Cant. NC</th>
-                      <th className="px-4 py-3 text-right text-sm font-semibold text-gray-700">P. Unit.</th>
-                      <th className="px-4 py-3 text-right text-sm font-semibold text-gray-700">Subtotal</th>
+                      <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700 dark:text-slate-300">Descripción</th>
+                      <th className="px-4 py-3 text-center text-sm font-semibold text-gray-700 dark:text-slate-300">Cant. Factura</th>
+                      <th className="px-4 py-3 text-center text-sm font-semibold text-gray-700 dark:text-slate-300">Cant. NC</th>
+                      <th className="px-4 py-3 text-right text-sm font-semibold text-gray-700 dark:text-slate-300">P. Unit.</th>
+                      <th className="px-4 py-3 text-right text-sm font-semibold text-gray-700 dark:text-slate-300">Subtotal</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-gray-200">
+                  <tbody className="divide-y divide-gray-200 dark:divide-slate-700">
                     {items.map((item, index) => {
                       const originalItem = selectedInvoice.items?.[index];
                       const subtotal = item.quantity * item.unitPrice - item.discount;
                       return (
-                        <tr key={index}>
-                          <td className="px-4 py-3 text-sm text-gray-800">{item.description}</td>
-                          <td className="px-4 py-3 text-center text-sm text-gray-600">
+                        <tr key={index} className="hover:bg-gray-50/50 dark:hover:bg-slate-900/10">
+                          <td className="px-4 py-3 text-sm text-gray-800 dark:text-slate-200">{item.description}</td>
+                          <td className="px-4 py-3 text-center text-sm text-gray-600 dark:text-slate-400">
                             {originalItem?.quantity || 0}
                           </td>
                           <td className="px-4 py-3">
@@ -324,13 +324,13 @@ const CreditNoteForm: React.FC<Props> = ({
                               max={originalItem?.quantity || 0}
                               value={item.quantity}
                               onChange={(e) => handleItemQuantityChange(index, parseFloat(e.target.value) || 0)}
-                              className="w-20 p-2 border rounded text-center focus:ring-2 focus:ring-sky-500"
+                              className="w-20 p-2 border border-gray-300 dark:border-slate-600 rounded text-center focus:ring-2 focus:ring-sky-500 bg-white dark:bg-slate-900/50 text-gray-800 dark:text-white"
                             />
                           </td>
-                          <td className="px-4 py-3 text-right text-sm text-gray-800">
+                          <td className="px-4 py-3 text-right text-sm text-gray-800 dark:text-slate-200">
                             ${item.unitPrice.toFixed(2)}
                           </td>
-                          <td className="px-4 py-3 text-right text-sm font-semibold text-gray-800">
+                          <td className="px-4 py-3 text-right text-sm font-semibold text-gray-800 dark:text-white">
                             ${subtotal.toFixed(2)}
                           </td>
                         </tr>
@@ -342,21 +342,21 @@ const CreditNoteForm: React.FC<Props> = ({
             </div>
 
             {/* Totales */}
-            <div className="bg-gray-50 rounded-lg p-6 mb-6">
+            <div className="bg-gray-50 dark:bg-slate-900/30 border border-gray-100 dark:border-slate-700/50 rounded-xl p-6 mb-6">
               <div className="max-w-md ml-auto space-y-2">
-                <div className="flex justify-between text-gray-700">
+                <div className="flex justify-between text-gray-700 dark:text-slate-300">
                   <span>Subtotal 0%:</span>
-                  <span className="font-semibold">${subtotal0.toFixed(2)}</span>
+                  <span className="font-semibold text-gray-800 dark:text-white">${subtotal0.toFixed(2)}</span>
                 </div>
-                <div className="flex justify-between text-gray-700">
+                <div className="flex justify-between text-gray-700 dark:text-slate-300">
                   <span>Subtotal 15%:</span>
-                  <span className="font-semibold">${subtotal15.toFixed(2)}</span>
+                  <span className="font-semibold text-gray-800 dark:text-white">${subtotal15.toFixed(2)}</span>
                 </div>
-                <div className="flex justify-between text-gray-700">
+                <div className="flex justify-between text-gray-700 dark:text-slate-300">
                   <span>IVA 15%:</span>
-                  <span className="font-semibold">${iva.toFixed(2)}</span>
+                  <span className="font-semibold text-gray-800 dark:text-white">${iva.toFixed(2)}</span>
                 </div>
-                <div className="flex justify-between text-xl font-bold text-sky-600 pt-2 border-t-2 border-sky-200">
+                <div className="flex justify-between text-xl font-bold text-sky-600 dark:text-sky-400 pt-2 border-t-2 border-sky-200 dark:border-sky-950">
                   <span>TOTAL A DEVOLVER:</span>
                   <span>${total.toFixed(2)}</span>
                 </div>
@@ -365,14 +365,14 @@ const CreditNoteForm: React.FC<Props> = ({
 
             {/* Información Adicional */}
             <div className="mb-6">
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-2">
                 Información Adicional (Opcional)
               </label>
               <textarea
                 value={additionalInfo}
                 onChange={(e) => setAdditionalInfo(e.target.value)}
                 rows={3}
-                className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-sky-500"
+                className="w-full p-3 border border-gray-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-sky-500 bg-white dark:bg-slate-900/50 text-gray-800 dark:text-white placeholder-gray-400 dark:placeholder-slate-550"
                 placeholder="Observaciones adicionales..."
               />
             </div>
@@ -382,7 +382,7 @@ const CreditNoteForm: React.FC<Props> = ({
               <button
                 onClick={handleAuthorize}
                 disabled={isAuthorizing || items.filter(i => i.quantity > 0).length === 0}
-                className="flex-1 bg-sky-600 hover:bg-sky-600 disabled:bg-gray-400 text-white font-semibold py-3 px-6 rounded-lg transition-colors flex items-center justify-center gap-2"
+                className="flex-1 bg-sky-600 hover:bg-sky-700 disabled:bg-gray-400 dark:disabled:bg-slate-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors flex items-center justify-center gap-2"
               >
                 {isAuthorizing ? (
                   <>
@@ -400,7 +400,7 @@ const CreditNoteForm: React.FC<Props> = ({
               <button
                 onClick={resetForm}
                 disabled={isAuthorizing}
-                className="px-6 py-3 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+                className="px-6 py-3 border border-gray-300 dark:border-slate-600 rounded-lg text-gray-700 dark:text-slate-300 hover:bg-gray-50 dark:hover:bg-slate-700/50 transition-colors"
               >
                 Cancelar
               </button>
@@ -411,44 +411,44 @@ const CreditNoteForm: React.FC<Props> = ({
 
       {/* Panel de Autorización */}
       {authStatus !== 'idle' && (
-        <div className="bg-white rounded-lg shadow-sm p-6">
-          <h3 className="text-lg font-semibold mb-4">Estado de Autorización</h3>
+        <div className="bg-white dark:bg-slate-800 rounded-lg border border-slate-100 dark:border-slate-700 shadow-sm p-6">
+          <h3 className="text-lg font-semibold mb-4 text-gray-800 dark:text-white">Estado de Autorización</h3>
 
           <div className="space-y-2 mb-4">
             {authSteps.map((step, index) => (
-              <div key={index} className="flex items-start gap-2 text-sm text-gray-700">
-                <span className="text-sky-600">▸</span>
+              <div key={index} className="flex items-start gap-2 text-sm text-gray-700 dark:text-slate-300">
+                <span className="text-sky-600 dark:text-sky-400">▸</span>
                 <span>{step}</span>
               </div>
             ))}
           </div>
 
           {authStatus === 'success' && (
-            <div className="bg-green-50 border border-green-200 rounded-lg p-4 flex items-start gap-3">
-              <CheckCircleIcon className="w-8 h-8 text-green-600" />
+            <div className="bg-green-50 dark:bg-green-950/20 border border-green-200 dark:border-green-800/30 rounded-lg p-4 flex items-start gap-3">
+              <CheckCircleIcon className="w-8 h-8 text-green-600 dark:text-green-400" />
               <div>
-                <div className="font-semibold text-green-800">¡Nota de Crédito Autorizada!</div>
-                <div className="text-sm text-green-700 mt-1">{authMessage}</div>
+                <div className="font-semibold text-green-800 dark:text-green-300">¡Nota de Crédito Autorizada!</div>
+                <div className="text-sm text-green-700 dark:text-green-400/80 mt-1">{authMessage}</div>
               </div>
             </div>
           )}
 
           {authStatus === 'error' && (
-            <div className="bg-red-50 border border-red-200 rounded-lg p-4 flex items-start gap-3">
-              <XCircleIcon className="w-8 h-8 text-red-600" />
+            <div className="bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-800/30 rounded-lg p-4 flex items-start gap-3">
+              <XCircleIcon className="w-8 h-8 text-red-600 dark:text-red-400" />
               <div>
-                <div className="font-semibold text-red-800">Error en Autorización</div>
-                <div className="text-sm text-red-700 mt-1">{authMessage}</div>
+                <div className="font-semibold text-red-800 dark:text-red-300">Error en Autorización</div>
+                <div className="text-sm text-red-700 dark:text-red-400/80 mt-1">{authMessage}</div>
               </div>
             </div>
           )}
 
           {generatedXml && (
             <details className="mt-4">
-              <summary className="cursor-pointer text-sm font-semibold text-gray-700 hover:text-sky-600">
+              <summary className="cursor-pointer text-sm font-semibold text-gray-700 dark:text-slate-300 hover:text-sky-600 dark:hover:text-sky-400">
                 Ver XML Generado
               </summary>
-              <pre className="mt-2 p-4 bg-gray-50 rounded-lg text-xs overflow-x-auto">
+              <pre className="mt-2 p-4 bg-gray-50 dark:bg-slate-900/60 rounded-lg text-xs overflow-x-auto text-gray-800 dark:text-slate-350 border border-gray-100 dark:border-slate-800">
                 {generatedXml}
               </pre>
             </details>

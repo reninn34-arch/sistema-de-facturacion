@@ -1,4 +1,4 @@
-﻿
+
 import React, { useState, useMemo } from 'react';
 import { Document, DocumentType, SriStatus, PaymentStatus, BusinessInfo } from '../../../types/types';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from 'recharts';
@@ -91,15 +91,15 @@ const Reports: React.FC<ReportsProps> = ({ documents, businessInfo, onConvertPro
   const getStatusBadge = (doc: Document) => {
     const status = doc.status;
     if (status === SriStatus.AUTHORIZED || status === 'AUTORIZADO') {
-      return { color: 'bg-emerald-100 text-emerald-600', label: 'Autorizado' };
+      return { color: 'bg-emerald-100 text-emerald-600 dark:bg-emerald-950/30 dark:text-emerald-400', label: 'Autorizado' };
     }
     if (status === SriStatus.REJECTED || status === 'RECHAZADO' || status === 'NO_AUTORIZADO' || status === 'DEVUELTO') {
-      return { color: 'bg-red-100 text-red-600', label: 'Rechazado' };
+      return { color: 'bg-red-100 text-red-600 dark:bg-red-950/30 dark:text-red-400', label: 'Rechazado' };
     }
     if (status === SriStatus.PENDING || status === 'PENDIENTE') {
-      return { color: 'bg-amber-100 text-amber-600', label: 'Pendiente' };
+      return { color: 'bg-amber-100 text-amber-600 dark:bg-amber-950/30 dark:text-amber-400', label: 'Pendiente' };
     }
-    return { color: 'bg-slate-100 text-slate-500', label: status };
+    return { color: 'bg-slate-100 text-slate-500 dark:bg-slate-800 dark:text-slate-400', label: status };
   };
 
   const isRejected = (doc: Document) =>
@@ -113,7 +113,7 @@ const Reports: React.FC<ReportsProps> = ({ documents, businessInfo, onConvertPro
 
   return (
     <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700 pb-20">
-      <div className="flex bg-white p-2 rounded-[2rem] shadow-sm border border-slate-100 max-w-fit mx-auto lg:mx-0">
+      <div className="flex bg-white dark:bg-slate-800 p-2 rounded-[2rem] shadow-sm border border-slate-100 dark:border-slate-700 max-w-fit mx-auto lg:mx-0">
         {[
           { id: 'TRIBUTOS', label: 'Resumen Fiscal', icon: <ScaleIcon className="w-4 h-4" /> },
           { id: 'CARTERA', label: 'Top Clientes', icon: <TrophyIcon className="w-4 h-4" /> },
@@ -124,7 +124,7 @@ const Reports: React.FC<ReportsProps> = ({ documents, businessInfo, onConvertPro
             key={tab.id}
             onClick={() => setActiveSubTab(tab.id as any)}
             className={`px-8 py-4 rounded-[1.5rem] flex items-center gap-3 text-xs font-black uppercase tracking-widest transition-all ${
-              activeSubTab === tab.id ? 'bg-slate-900 text-white shadow-xl' : 'text-slate-400 hover:bg-slate-50'
+              activeSubTab === tab.id ? 'bg-slate-900 text-white dark:bg-sky-500 shadow-xl' : 'text-slate-400 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700/50'
             }`}
           >
             <span>{tab.icon}</span>
@@ -136,17 +136,17 @@ const Reports: React.FC<ReportsProps> = ({ documents, businessInfo, onConvertPro
       {activeSubTab === 'TRIBUTOS' && (
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           <div className="lg:col-span-1 space-y-6">
-            <div className="bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-sm">
-              <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Total IVA Generado</p>
-              <h4 className="text-4xl font-black text-sky-500 tracking-tighter">${fiscalStats.totalIva.toFixed(2)}</h4>
+            <div className="bg-white dark:bg-slate-800 p-8 rounded-[2.5rem] border border-slate-100 dark:border-slate-700 shadow-sm">
+              <p className="text-[10px] font-black text-slate-400 dark:text-slate-400 uppercase tracking-widest mb-1">Total IVA Generado</p>
+              <h4 className="text-4xl font-black text-sky-500 dark:text-sky-400 tracking-tighter">${fiscalStats.totalIva.toFixed(2)}</h4>
             </div>
-            <div className="bg-slate-900 p-8 rounded-[2.5rem] text-white">
+            <div className="bg-slate-900 dark:bg-slate-900/60 p-8 rounded-[2.5rem] text-white border dark:border-slate-700/50">
               <h5 className="font-black text-sm uppercase tracking-widest mb-4 text-sky-400 flex items-center gap-2"><LightBulbIcon className="w-4 h-4" /> Tip Fiscal</h5>
-              <p className="text-xs leading-relaxed text-slate-400 font-medium">Recuerda que el IVA se declara mensualmente segun tu noveno digito del RUC.</p>
+              <p className="text-xs leading-relaxed text-slate-400 dark:text-slate-450 font-medium">Recuerda que el IVA se declara mensualmente segun tu noveno digito del RUC.</p>
             </div>
           </div>
-          <div className="lg:col-span-2 bg-white p-10 rounded-[3rem] border border-slate-100 shadow-sm min-h-[400px]">
-            <div className="flex items-center justify-center h-full text-slate-400">
+          <div className="lg:col-span-2 bg-white dark:bg-slate-800 p-10 rounded-[3rem] border border-slate-100 dark:border-slate-700 shadow-sm min-h-[400px]">
+            <div className="flex items-center justify-center h-full text-slate-400 dark:text-slate-500">
                 Grafico deshabilitado temporalmente (Incompatibilidad detectada)
             </div>
           </div>
@@ -154,26 +154,26 @@ const Reports: React.FC<ReportsProps> = ({ documents, businessInfo, onConvertPro
       )}
 
       {activeSubTab === 'SRI' && (
-        <div className="bg-white rounded-[3rem] border border-slate-100 shadow-sm overflow-hidden">
-          <div className="p-10 border-b border-slate-50 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-            <h3 className="text-2xl font-black text-slate-800 tracking-tighter">
+        <div className="bg-white dark:bg-slate-800 rounded-[3rem] border border-slate-100 dark:border-slate-700 shadow-sm overflow-hidden">
+          <div className="p-10 border-b border-slate-50 dark:border-slate-700 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+            <h3 className="text-2xl font-black text-slate-800 dark:text-white tracking-tighter">
               {sriStatusFilter === 'REJECTED' ? 'Comprobantes Rechazados' : sriStatusFilter === 'PENDING' ? 'Comprobantes Pendientes' : 'Comprobantes SRI'}
             </h3>
             <select
               value={sriStatusFilter}
               onChange={e => { setSriStatusFilter(e.target.value); if (onFilterChange) onFilterChange(e.target.value); }}
-              className="p-3 rounded-2xl font-bold text-xs bg-slate-50 border-2 border-slate-100 outline-none cursor-pointer"
+              className="p-3 rounded-2xl font-bold text-xs bg-slate-50 dark:bg-slate-900 border-2 border-slate-100 dark:border-slate-700 text-slate-800 dark:text-white outline-none cursor-pointer"
             >
-              <option value="ALL">Todos los estados</option>
-              <option value="AUTHORIZED">Autorizados</option>
-              <option value="REJECTED">Rechazados</option>
-              <option value="PENDING">Pendientes</option>
+              <option value="ALL" className="dark:bg-slate-800">Todos los estados</option>
+              <option value="AUTHORIZED" className="dark:bg-slate-800">Autorizados</option>
+              <option value="REJECTED" className="dark:bg-slate-800">Rechazados</option>
+              <option value="PENDING" className="dark:bg-slate-800">Pendientes</option>
             </select>
           </div>
           {sriFilteredDocs.length > 0 ? (
             <div className="overflow-x-auto">
               <table className="w-full">
-                <thead className="bg-slate-50/50 text-[10px] font-black uppercase text-slate-400">
+                <thead className="bg-slate-50/50 dark:bg-slate-900/40 text-[10px] font-black uppercase text-slate-450 dark:text-slate-400">
                   <tr>
                     <th className="py-5 px-10 text-left">Nro Documento</th>
                     <th className="py-5 text-left">Cliente</th>
@@ -182,22 +182,22 @@ const Reports: React.FC<ReportsProps> = ({ documents, businessInfo, onConvertPro
                     <th className="py-5 px-10 text-right">Acciones</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-50">
+                <tbody className="divide-y divide-slate-50 dark:divide-slate-700">
                   {sriFilteredDocs.map(doc => {
                     const badge = getStatusBadge(doc);
                     const rejected = isRejected(doc);
                     return (
-                    <tr key={doc.id} className={`hover:bg-slate-50/50 ${rejected ? 'bg-red-50/50' : ''}`}>
+                    <tr key={doc.id} className={`hover:bg-slate-50/50 dark:hover:bg-slate-900/10 ${rejected ? 'bg-red-50/50 dark:bg-red-950/20' : ''}`}>
                       <td className="py-6 px-10">
-                        <p className="text-xs font-black text-slate-800">{doc.number}</p>
-                        <p className="text-[9px] text-slate-400 font-mono mt-0.5">{doc.issueDate}</p>
+                        <p className="text-xs font-black text-slate-800 dark:text-white">{doc.number}</p>
+                        <p className="text-[9px] text-slate-400 dark:text-slate-500 font-mono mt-0.5">{doc.issueDate}</p>
                       </td>
-                      <td className="py-6 text-sm font-bold text-slate-600">{doc.entityName}</td>
+                      <td className="py-6 text-sm font-bold text-slate-600 dark:text-slate-300">{doc.entityName}</td>
                       <td className="py-6 text-center">
                         <span className={`${badge.color} px-3 py-1 rounded-full text-[9px] font-black uppercase`}>{badge.label}</span>
                       </td>
                       {sriStatusFilter === 'REJECTED' && (
-                        <td className="py-6 text-xs text-red-600 max-w-[300px] truncate" title={doc.additionalInfo || ''}>
+                        <td className="py-6 text-xs text-red-600 dark:text-red-400 max-w-[300px] truncate" title={doc.additionalInfo || ''}>
                           {doc.additionalInfo?.replace('[RECHAZADA SRI] ', '') || 'Sin detalle'}
                         </td>
                       )}
@@ -227,9 +227,9 @@ const Reports: React.FC<ReportsProps> = ({ documents, businessInfo, onConvertPro
               </table>
             </div>
           ) : (
-            <div className="text-center py-16 text-slate-400">
-              <XCircleIcon className="w-12 h-12 mx-auto mb-3 text-slate-200" />
-              <p className="font-bold">Sin comprobantes</p>
+            <div className="text-center py-16 text-slate-400 dark:text-slate-500">
+              <XCircleIcon className="w-12 h-12 mx-auto mb-3 text-slate-200 dark:text-slate-700" />
+              <p className="font-bold text-slate-800 dark:text-white">Sin comprobantes</p>
               <p className="text-sm">No hay documentos con el filtro seleccionado.</p>
             </div>
           )}
@@ -239,39 +239,39 @@ const Reports: React.FC<ReportsProps> = ({ documents, businessInfo, onConvertPro
       {activeSubTab === 'CARTERA' && (
         <div className="space-y-8">
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <div className="bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-sm">
-              <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Total Facturado</p>
+            <div className="bg-white dark:bg-slate-800 p-8 rounded-[2.5rem] border border-slate-100 dark:border-slate-700 shadow-sm">
+              <p className="text-[10px] font-black text-slate-400 dark:text-slate-400 uppercase tracking-widest mb-1">Total Facturado</p>
               <h4 className="text-3xl font-black text-emerald-500 tracking-tighter">${topClients.reduce((s, c) => s + c.total, 0).toFixed(2)}</h4>
             </div>
-            <div className="bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-sm">
-              <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Clientes Activos</p>
+            <div className="bg-white dark:bg-slate-800 p-8 rounded-[2.5rem] border border-slate-100 dark:border-slate-700 shadow-sm">
+              <p className="text-[10px] font-black text-slate-400 dark:text-slate-400 uppercase tracking-widest mb-1">Clientes Activos</p>
               <h4 className="text-3xl font-black text-sky-500 tracking-tighter">{topClients.length}</h4>
             </div>
-            <div className="bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-sm">
-              <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Pendientes de Cobro</p>
+            <div className="bg-white dark:bg-slate-800 p-8 rounded-[2.5rem] border border-slate-100 dark:border-slate-700 shadow-sm">
+              <p className="text-[10px] font-black text-slate-400 dark:text-slate-400 uppercase tracking-widest mb-1">Pendientes de Cobro</p>
               <h4 className="text-3xl font-black text-amber-500 tracking-tighter">${pendingReceivables.reduce((s, d) => s + (d.total || 0), 0).toFixed(2)}</h4>
             </div>
           </div>
 
-          <div className="bg-white rounded-[3rem] border border-slate-100 shadow-sm p-10">
-            <h3 className="text-xl font-black text-slate-800 tracking-tighter mb-6 flex items-center gap-2">
+          <div className="bg-white dark:bg-slate-800 rounded-[3rem] border border-slate-100 dark:border-slate-700 shadow-sm p-10">
+            <h3 className="text-xl font-black text-slate-800 dark:text-white tracking-tighter mb-6 flex items-center gap-2">
               <TrophyIcon className="w-6 h-6 text-amber-500" />
               Top 10 Clientes por Facturacion
             </h3>
             {topClients.length > 0 ? (
               <div className="space-y-3">
                 {topClients.map((client, idx) => (
-                  <div key={client.name} className="flex items-center gap-4 p-3 rounded-2xl hover:bg-slate-50 transition-colors">
-                    <div className={`w-8 h-8 rounded-xl flex items-center justify-center font-black text-xs ${idx === 0 ? 'bg-amber-500 text-white' : idx < 3 ? 'bg-slate-300 text-slate-700' : 'bg-slate-100 text-slate-400'}`}>
+                  <div key={client.name} className="flex items-center gap-4 p-3 rounded-2xl hover:bg-slate-50 dark:hover:bg-slate-700/30 transition-colors">
+                    <div className={`w-8 h-8 rounded-xl flex items-center justify-center font-black text-xs ${idx === 0 ? 'bg-amber-500 text-white' : idx < 3 ? 'bg-slate-300 dark:bg-slate-600 text-slate-700 dark:text-slate-200' : 'bg-slate-100 dark:bg-slate-900/50 text-slate-400 dark:text-slate-500'}`}>
                       {idx + 1}
                     </div>
                     <div className="flex-1">
-                      <p className="font-bold text-sm text-slate-800">{client.name}</p>
-                      <p className="text-xs text-slate-400">{client.count} factura(s)</p>
+                      <p className="font-bold text-sm text-slate-800 dark:text-white">{client.name}</p>
+                      <p className="text-xs text-slate-400 dark:text-slate-500">{client.count} factura(s)</p>
                     </div>
                     <div className="text-right">
                       <p className="font-black text-sky-500">${client.total.toFixed(2)}</p>
-                      <div className="w-32 h-2 bg-slate-100 rounded-full mt-1 overflow-hidden">
+                      <div className="w-32 h-2 bg-slate-100 dark:bg-slate-900 rounded-full mt-1 overflow-hidden">
                         <div className="h-full bg-sky-500 rounded-full" style={{ width: `${Math.min(100, (client.total / (topClients[0]?.total || 1)) * 100)}%` }} />
                       </div>
                     </div>
@@ -279,9 +279,9 @@ const Reports: React.FC<ReportsProps> = ({ documents, businessInfo, onConvertPro
                 ))}
               </div>
             ) : (
-              <div className="text-center py-12 text-slate-400">
-                <TrophyIcon className="w-12 h-12 mx-auto mb-3 text-slate-200" />
-                <p className="font-bold">Sin datos de facturacion</p>
+              <div className="text-center py-12 text-slate-400 dark:text-slate-500">
+                <TrophyIcon className="w-12 h-12 mx-auto mb-3 text-slate-200 dark:text-slate-700" />
+                <p className="font-bold text-slate-800 dark:text-white">Sin datos de facturacion</p>
                 <p className="text-sm">Los clientes apareceran aqui al emitir facturas autorizadas.</p>
               </div>
             )}
@@ -290,15 +290,15 @@ const Reports: React.FC<ReportsProps> = ({ documents, businessInfo, onConvertPro
       )}
 
       {activeSubTab === 'PROFORMAS' && (
-        <div className="bg-white rounded-[3rem] border border-slate-100 shadow-sm overflow-hidden">
-          <div className="p-10 border-b border-slate-50 flex justify-between items-center">
-            <h3 className="text-2xl font-black text-slate-800 tracking-tighter">Proformas</h3>
-            <span className="bg-amber-100 text-amber-700 px-4 py-1.5 rounded-full text-[10px] font-black uppercase">{proformas.length} pendientes</span>
+        <div className="bg-white dark:bg-slate-800 rounded-[3rem] border border-slate-100 dark:border-slate-700 shadow-sm overflow-hidden">
+          <div className="p-10 border-b border-slate-50 dark:border-slate-700 flex justify-between items-center">
+            <h3 className="text-2xl font-black text-slate-800 dark:text-white tracking-tighter">Proformas</h3>
+            <span className="bg-amber-100 text-amber-700 dark:bg-amber-950/30 dark:text-amber-400 px-4 py-1.5 rounded-full text-[10px] font-black uppercase">{proformas.length} pendientes</span>
           </div>
           {proformas.length > 0 ? (
             <div className="overflow-x-auto">
               <table className="w-full">
-                <thead className="bg-slate-50/50 text-[10px] font-black uppercase text-slate-400">
+                <thead className="bg-slate-50/50 dark:bg-slate-900/40 text-[10px] font-black uppercase text-slate-450 dark:text-slate-400">
                   <tr>
                     <th className="py-5 px-10 text-left">Nro Proforma</th>
                     <th className="py-5 text-left">Cliente</th>
@@ -306,20 +306,20 @@ const Reports: React.FC<ReportsProps> = ({ documents, businessInfo, onConvertPro
                     <th className="py-5 px-10 text-right">Acciones</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-50">
+                <tbody className="divide-y divide-slate-50 dark:divide-slate-700">
                   {proformas.map(doc => (
-                    <tr key={doc.id} className="hover:bg-slate-50/50">
+                    <tr key={doc.id} className="hover:bg-slate-50/50 dark:hover:bg-slate-900/10">
                       <td className="py-6 px-10">
-                        <p className="text-xs font-black text-slate-800">{doc.number}</p>
-                        <p className="text-[9px] text-slate-400 font-mono mt-0.5">{doc.issueDate}</p>
+                        <p className="text-xs font-black text-slate-800 dark:text-white">{doc.number}</p>
+                        <p className="text-[9px] text-slate-405 dark:text-slate-500 font-mono mt-0.5">{doc.issueDate}</p>
                       </td>
-                      <td className="py-6 text-sm font-bold text-slate-600">{doc.entityName}</td>
+                      <td className="py-6 text-sm font-bold text-slate-600 dark:text-slate-300">{doc.entityName}</td>
                       <td className="py-6 text-right font-black text-amber-500">${(doc.total || 0).toFixed(2)}</td>
                       <td className="py-6 px-10 text-right">
                         <div className="flex justify-end gap-2">
                           <button
                             onClick={() => setSelectedDocForRide(doc)}
-                            className="px-4 py-2 bg-slate-100 hover:bg-slate-200 rounded-lg text-[9px] font-black uppercase transition-all"
+                            className="px-4 py-2 bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 rounded-lg text-[9px] font-black uppercase transition-all"
                           >
                             Ver RIDE
                           </button>
@@ -340,9 +340,9 @@ const Reports: React.FC<ReportsProps> = ({ documents, businessInfo, onConvertPro
               </table>
             </div>
           ) : (
-            <div className="text-center py-16 text-slate-400">
-              <DocumentTextIcon className="w-12 h-12 mx-auto mb-3 text-slate-200" />
-              <p className="font-bold">No hay proformas</p>
+            <div className="text-center py-16 text-slate-400 dark:text-slate-500">
+              <DocumentTextIcon className="w-12 h-12 mx-auto mb-3 text-slate-200 dark:text-slate-700" />
+              <p className="font-bold text-slate-800 dark:text-white">No hay proformas</p>
               <p className="text-sm">Genere una factura marcando "Es Proforma" en el panel de emision.</p>
             </div>
           )}

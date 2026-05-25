@@ -160,7 +160,7 @@ const App: React.FC = () => {
   const [currentPlanDurationDays, setCurrentPlanDurationDays] = useState(30);
   const [currentPlanMaxInvoices, setCurrentPlanMaxInvoices] = useState(999999);
   const [currentPlanMaxEmissionPoints, setCurrentPlanMaxEmissionPoints] = useState(1);
-  const [pointsProgramEnabled, setPointsProgramEnabled] = useState(true);
+  const [pointsProgramEnabled, setPointsProgramEnabled] = useState(false);
   const [preloadRejectedDoc, setPreloadRejectedDoc] = useState<Document | null>(null);
   const [reportsFilter, setReportsFilter] = useState<string>('ALL');
 
@@ -377,7 +377,7 @@ const App: React.FC = () => {
         const loadProducts = client.get<{ data: Product[] }>('/api/products').then(r => r.data).catch(e => { console.error("Error loading products", e); return []; });
         const loadDocs = client.get<{ data: Document[] }>('/api/documents').then(r => r.data).catch(e => { console.error("Error loading documents", e); return []; });
         const loadEmissionPoints = client.get<EmissionPoint[]>('/api/emission-points').then(r => r.data).catch(e => { console.error("Error loading emission points", e); return [] as EmissionPoint[]; });
-        const loadPointsConfig = client.get<{ programEnabled: boolean }>('/api/referrals/code').then(r => r.data).catch(() => ({ programEnabled: true }));
+        const loadPointsConfig = client.get<{ programEnabled: boolean }>('/api/referrals/code').then(r => r.data).catch(() => ({ programEnabled: false }));
 
         const [empresa, clientes, productos, docs, epoints, pointsCfg] = await Promise.all([loadBusiness, loadClients, loadProducts, loadDocs, loadEmissionPoints, loadPointsConfig]);
 
@@ -990,7 +990,7 @@ const App: React.FC = () => {
           <div className="space-y-6">
             {/* Mostrar resumen de ventas solo a administradores de empresa */}
             {currentUser?.role === 'ADMIN' && <SalesSummary documents={documents} />}
-            <Dashboard documents={documents} products={products} setActiveTab={setActiveTab} currentUser={currentUser} businessInfo={businessInfo} planHasAudit={currentPlanHasAudit || currentUser?.role === 'SUPERADMIN'} planDurationDays={currentPlanDurationDays} planMaxInvoices={currentPlanMaxInvoices} hasModuleControl={hasModuleControl} modulePermissions={modulePermissions} onSetReportsFilter={setReportsFilter} />
+            <Dashboard documents={documents} products={products} setActiveTab={setActiveTab} currentUser={currentUser} businessInfo={businessInfo} planHasAudit={currentPlanHasAudit || currentUser?.role === 'SUPERADMIN'} planDurationDays={currentPlanDurationDays} planMaxInvoices={currentPlanMaxInvoices} hasModuleControl={hasModuleControl} modulePermissions={modulePermissions} pointsProgramEnabled={pointsProgramEnabled} onSetReportsFilter={setReportsFilter} />
           </div>
         );
 

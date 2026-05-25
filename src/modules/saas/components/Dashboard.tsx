@@ -74,7 +74,7 @@ const planColors: Record<string, string> = {
   PENDING: 'gray'
 };
 
-const Dashboard: React.FC<DashboardProps> = ({ documents, products, setActiveTab, currentUser, businessInfo, planHasAudit, planDurationDays = 30, planMaxInvoices, hasModuleControl = false, modulePermissions = [], pointsProgramEnabled = true, onSetReportsFilter }) => {
+const Dashboard: React.FC<DashboardProps> = ({ documents, products, setActiveTab, currentUser, businessInfo, planHasAudit, planDurationDays = 30, planMaxInvoices, hasModuleControl = false, modulePermissions = [], pointsProgramEnabled = false, onSetReportsFilter }) => {
   const [auditResult, setAuditResult] = useState<AuditResult | null>(null);
   const [auditLoading, setAuditLoading] = useState(true);
   const [auditError, setAuditError] = useState<string | null>(null);

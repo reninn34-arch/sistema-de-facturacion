@@ -116,6 +116,14 @@ const SubscriptionPage: React.FC = () => {
   const [plans, setPlans] = useState<SubscriptionPlan[]>([]);
   const [loadingPlans, setLoadingPlans] = useState(true);
   const [paymentSettings, setPaymentSettings] = useState({ paypalEnabled: true, transferEnabled: true, cardEnabled: false });
+  const [landingLogo, setLandingLogo] = useState<string | null | false>(null);
+
+  useEffect(() => {
+    const img = new Image();
+    img.onload = () => setLandingLogo('/api/settings/landing-logo');
+    img.onerror = () => setLandingLogo(false);
+    img.src = '/api/settings/landing-logo';
+  }, []);
 
   useEffect(() => {
     fetch(`${API_URL}/api/admin/settings`)
@@ -369,7 +377,9 @@ const SubscriptionPage: React.FC = () => {
       {/* Header */}
       <header className="flex items-center justify-between whitespace-nowrap border-b border-solid border-slate-200 bg-white px-6 py-4 lg:px-40 sticky top-0 z-50 shadow-sm">
         <div className="flex items-center gap-3 cursor-pointer" onClick={() => setStep('plans')}>
-          <img src="/logo.png" className="h-12 w-auto max-w-[220px] object-contain object-left" alt="Azul PRO" />
+          {landingLogo && (
+            <img src={landingLogo} className="h-12 w-auto max-w-[220px] object-contain object-left" alt="Logo" />
+          )}
         </div>
         <div className="flex flex-1 justify-end gap-4 lg:gap-8 items-center">
           <nav className="hidden md:flex items-center gap-8">

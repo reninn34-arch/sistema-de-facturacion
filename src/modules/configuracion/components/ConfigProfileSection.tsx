@@ -68,7 +68,7 @@ const ConfigProfileSection: React.FC<ConfigProfileSectionProps> = ({
             {businessInfo.taxpayerType === 'EMPRESA' ? 'Empresa' : 'Persona Natural'}
           </button>
           <button onClick={toggleDarkMode}
-            className={`px-8 py-5 rounded-2xl font-black text-[10px] uppercase tracking-widest transition-all shadow-xl inline-flex items-center gap-2 ${(businessInfo as any).features?.isDarkMode ? 'bg-slate-800 text-white shadow-slate-800/20' : 'bg-amber-500 text-white shadow-amber-500/20'}`}>
+            className={`px-8 py-5 rounded-2xl font-black text-[10px] uppercase tracking-widest transition-all shadow-xl inline-flex items-center gap-2 ${(businessInfo as any).features?.isDarkMode ? 'bg-slate-900 border border-slate-700/50 text-white shadow-black/20 hover:bg-slate-950' : 'bg-amber-500 text-white shadow-amber-500/20 hover:bg-amber-600'}`}>
             {(businessInfo as any).features?.isDarkMode ? <><MoonIcon className="w-4 h-4" /> Modo Oscuro</> : <><SunIcon className="w-4 h-4" /> Modo Claro</>}
           </button>
           {!signatureFile && (

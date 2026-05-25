@@ -22,6 +22,14 @@ const ContactoPage: React.FC = () => {
   const [contact, setContact] = useState<ContactInfo>(defaultContact);
   const [formData, setFormData] = useState({ name: '', email: '', message: '' });
   const [submitted, setSubmitted] = useState(false);
+  const [landingLogo, setLandingLogo] = useState<string | null | false>(null);
+
+  useEffect(() => {
+    const img = new Image();
+    img.onload = () => setLandingLogo('/api/settings/landing-logo');
+    img.onerror = () => setLandingLogo(false);
+    img.src = '/api/settings/landing-logo';
+  }, []);
 
   useEffect(() => {
     fetch(`${API_URL}/api/landing-content`)
@@ -62,7 +70,9 @@ const ContactoPage: React.FC = () => {
       <header className="bg-white border-b border-slate-100">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between h-16">
           <div className="flex items-center gap-2.5">
-            <img src="/logo.png" className="h-12 w-auto max-w-[220px] object-contain object-left" alt="Azul PRO" />
+            {landingLogo && (
+              <img src={landingLogo} className="h-12 w-auto max-w-[220px] object-contain object-left" alt="Logo" />
+            )}
           </div>
           <a
             href="/"

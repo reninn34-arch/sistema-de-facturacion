@@ -1,4 +1,4 @@
-﻿import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo } from 'react';
 import { ChartBarIcon, ArrowDownTrayIcon, LightBulbIcon } from '@heroicons/react/24/outline';
 import { Product, Document, ProductProfitability } from '../../../types/types';
 
@@ -104,13 +104,13 @@ export default function ProfitabilityAnalysis({ products, documents, onNotify }:
 
   return (
     <div className="max-w-7xl mx-auto space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
-      <div className="bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-sm">
+      <div className="bg-white dark:bg-slate-800 p-8 rounded-[2.5rem] border border-slate-100 dark:border-slate-700/50 shadow-sm">
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-3">
-            <ChartBarIcon className="w-10 h-10" />
+            <ChartBarIcon className="w-10 h-10 text-slate-600 dark:text-slate-300" />
             <div>
-              <h2 className="text-2xl font-black text-slate-800 tracking-tight">Análisis de Rentabilidad</h2>
-              <p className="text-sm text-slate-500 font-bold">Utilidad por producto</p>
+              <h2 className="text-2xl font-black text-slate-800 dark:text-white tracking-tight">Análisis de Rentabilidad</h2>
+              <p className="text-sm text-slate-500 dark:text-slate-400 font-bold">Utilidad por producto</p>
             </div>
           </div>
           <button
@@ -124,29 +124,29 @@ export default function ProfitabilityAnalysis({ products, documents, onNotify }:
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
           <div className="space-y-2">
-            <label className="text-xs font-bold text-slate-600 uppercase">Fecha Inicio</label>
+            <label className="text-xs font-bold text-slate-600 dark:text-slate-400 uppercase">Fecha Inicio</label>
             <input
               type="date"
               value={startDate}
               onChange={e => setStartDate(e.target.value)}
-              className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl font-bold text-sm"
+              className="w-full p-3 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-xl font-bold text-sm text-slate-800 dark:text-slate-200"
             />
           </div>
           <div className="space-y-2">
-            <label className="text-xs font-bold text-slate-600 uppercase">Fecha Fin</label>
+            <label className="text-xs font-bold text-slate-600 dark:text-slate-400 uppercase">Fecha Fin</label>
             <input
               type="date"
               value={endDate}
               onChange={e => setEndDate(e.target.value)}
-              className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl font-bold text-sm"
+              className="w-full p-3 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-xl font-bold text-sm text-slate-800 dark:text-slate-200"
             />
           </div>
           <div className="space-y-2">
-            <label className="text-xs font-bold text-slate-600 uppercase">Ordenar Por</label>
+            <label className="text-xs font-bold text-slate-600 dark:text-slate-400 uppercase">Ordenar Por</label>
             <select
               value={sortBy}
               onChange={e => setSortBy(e.target.value as any)}
-              className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl font-bold text-sm"
+              className="w-full p-3 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-xl font-bold text-sm text-slate-800 dark:text-slate-200"
             >
               <option value="profit">Utilidad Bruta</option>
               <option value="revenue">Ingresos</option>
@@ -156,47 +156,47 @@ export default function ProfitabilityAnalysis({ products, documents, onNotify }:
         </div>
 
         <div className="grid grid-cols-4 gap-4 mb-6">
-          <div className="bg-gradient-to-br from-sky-50 to-sky-100 p-5 rounded-2xl border border-sky-200">
-            <p className="text-xs text-sky-500 font-bold uppercase mb-1">Unidades Vendidas</p>
-            <p className="text-2xl font-black text-sky-900">{totals.unitsSold}</p>
+          <div className="bg-gradient-to-br from-sky-50 to-sky-100 dark:from-sky-950/30 dark:to-sky-900/20 p-5 rounded-2xl border border-sky-200 dark:border-sky-800/40">
+            <p className="text-xs text-sky-500 dark:text-sky-400 font-bold uppercase mb-1">Unidades Vendidas</p>
+            <p className="text-2xl font-black text-sky-900 dark:text-sky-200">{totals.unitsSold}</p>
           </div>
-          <div className="bg-gradient-to-br from-emerald-50 to-emerald-100 p-5 rounded-2xl border border-emerald-200">
-            <p className="text-xs text-emerald-600 font-bold uppercase mb-1">Ingresos Totales</p>
-            <p className="text-2xl font-black text-emerald-900">${totals.revenue.toFixed(2)}</p>
+          <div className="bg-gradient-to-br from-emerald-50 to-emerald-100 dark:from-emerald-950/30 dark:to-emerald-900/20 p-5 rounded-2xl border border-emerald-200 dark:border-emerald-800/40">
+            <p className="text-xs text-emerald-600 dark:text-emerald-400 font-bold uppercase mb-1">Ingresos Totales</p>
+            <p className="text-2xl font-black text-emerald-900 dark:text-emerald-200">${totals.revenue.toFixed(2)}</p>
           </div>
-          <div className="bg-gradient-to-br from-red-50 to-red-100 p-5 rounded-2xl border border-red-200">
-            <p className="text-xs text-red-600 font-bold uppercase mb-1">Costos Totales</p>
-            <p className="text-2xl font-black text-red-900">${totals.cost.toFixed(2)}</p>
+          <div className="bg-gradient-to-br from-red-50 to-red-100 dark:from-red-950/30 dark:to-red-900/20 p-5 rounded-2xl border border-red-200 dark:border-red-800/40">
+            <p className="text-xs text-red-600 dark:text-red-400 font-bold uppercase mb-1">Costos Totales</p>
+            <p className="text-2xl font-black text-red-900 dark:text-red-200">${totals.cost.toFixed(2)}</p>
           </div>
-          <div className="bg-gradient-to-br from-purple-50 to-purple-100 p-5 rounded-2xl border border-purple-200">
-            <p className="text-xs text-purple-600 font-bold uppercase mb-1">Utilidad Bruta</p>
-            <p className="text-2xl font-black text-purple-900">${totals.profit.toFixed(2)}</p>
+          <div className="bg-gradient-to-br from-purple-50 to-purple-100 dark:from-purple-950/30 dark:to-purple-900/20 p-5 rounded-2xl border border-purple-200 dark:border-purple-800/40">
+            <p className="text-xs text-purple-600 dark:text-purple-400 font-bold uppercase mb-1">Utilidad Bruta</p>
+            <p className="text-2xl font-black text-purple-900 dark:text-purple-200">${totals.profit.toFixed(2)}</p>
           </div>
         </div>
 
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
-              <tr className="border-b-2 border-slate-200">
-                <th className="text-left p-3 font-black text-slate-700 text-xs uppercase">Código</th>
-                <th className="text-left p-3 font-black text-slate-700 text-xs uppercase">Producto</th>
-                <th className="text-right p-3 font-black text-slate-700 text-xs uppercase">Unidades</th>
-                <th className="text-right p-3 font-black text-slate-700 text-xs uppercase">Ingresos</th>
-                <th className="text-right p-3 font-black text-slate-700 text-xs uppercase">Costos</th>
-                <th className="text-right p-3 font-black text-slate-700 text-xs uppercase">Utilidad</th>
-                <th className="text-right p-3 font-black text-slate-700 text-xs uppercase">Margen %</th>
+              <tr className="border-b-2 border-slate-200 dark:border-slate-700">
+                <th className="text-left p-3 font-black text-slate-700 dark:text-slate-300 text-xs uppercase">Código</th>
+                <th className="text-left p-3 font-black text-slate-700 dark:text-slate-300 text-xs uppercase">Producto</th>
+                <th className="text-right p-3 font-black text-slate-700 dark:text-slate-300 text-xs uppercase">Unidades</th>
+                <th className="text-right p-3 font-black text-slate-700 dark:text-slate-300 text-xs uppercase">Ingresos</th>
+                <th className="text-right p-3 font-black text-slate-700 dark:text-slate-300 text-xs uppercase">Costos</th>
+                <th className="text-right p-3 font-black text-slate-700 dark:text-slate-300 text-xs uppercase">Utilidad</th>
+                <th className="text-right p-3 font-black text-slate-700 dark:text-slate-300 text-xs uppercase">Margen %</th>
               </tr>
             </thead>
             <tbody>
               {profitabilityData.map((item, idx) => (
-                <tr key={idx} className="border-b border-slate-100 hover:bg-slate-50">
-                  <td className="p-3 font-mono text-xs text-slate-600">{item.productCode}</td>
-                  <td className="p-3 font-bold text-slate-800">{item.productName}</td>
-                  <td className="p-3 text-right font-bold text-slate-600">{item.unitsSold}</td>
-                  <td className="p-3 text-right font-bold text-emerald-600">${item.totalRevenue.toFixed(2)}</td>
-                  <td className="p-3 text-right font-bold text-red-600">${item.totalCost.toFixed(2)}</td>
-                  <td className="p-3 text-right font-black text-purple-600">${item.grossProfit.toFixed(2)}</td>
-                  <td className="p-3 text-right font-black text-sky-500">{item.profitMargin.toFixed(1)}%</td>
+                <tr key={idx} className="border-b border-slate-100 dark:border-slate-700/50 hover:bg-slate-50 dark:hover:bg-slate-700/30">
+                  <td className="p-3 font-mono text-xs text-slate-600 dark:text-slate-400">{item.productCode}</td>
+                  <td className="p-3 font-bold text-slate-800 dark:text-slate-200">{item.productName}</td>
+                  <td className="p-3 text-right font-bold text-slate-600 dark:text-slate-400">{item.unitsSold}</td>
+                  <td className="p-3 text-right font-bold text-emerald-600 dark:text-emerald-400">${item.totalRevenue.toFixed(2)}</td>
+                  <td className="p-3 text-right font-bold text-red-600 dark:text-red-400">${item.totalCost.toFixed(2)}</td>
+                  <td className="p-3 text-right font-black text-purple-600 dark:text-purple-400">${item.grossProfit.toFixed(2)}</td>
+                  <td className="p-3 text-right font-black text-sky-500 dark:text-sky-400">{item.profitMargin.toFixed(1)}%</td>
                 </tr>
               ))}
             </tbody>
@@ -205,14 +205,14 @@ export default function ProfitabilityAnalysis({ products, documents, onNotify }:
 
         {profitabilityData.length === 0 && (
           <div className="text-center py-12">
-            <ChartBarIcon className="w-16 h-16 mx-auto opacity-20" />
-            <p className="text-slate-400 font-bold mt-4">No hay ventas en el rango seleccionado</p>
+            <ChartBarIcon className="w-16 h-16 mx-auto text-slate-300 dark:text-slate-600 opacity-60" />
+            <p className="text-slate-400 dark:text-slate-500 font-bold mt-4">No hay ventas en el rango seleccionado</p>
           </div>
         )}
 
-        <div className="mt-6 bg-amber-50 p-4 rounded-xl border border-amber-200">
-          <p className="text-xs text-amber-800 font-bold">
-            <LightBulbIcon className="w-4 h-4 inline text-amber-600" /> Los costos se estiman en 60% del precio de venta. Para mayor precisión, configura costos reales en cada producto.
+        <div className="mt-6 bg-amber-50 dark:bg-amber-950/30 p-4 rounded-xl border border-amber-200 dark:border-amber-800/40">
+          <p className="text-xs text-amber-800 dark:text-amber-400 font-bold">
+            <LightBulbIcon className="w-4 h-4 inline text-amber-600 dark:text-amber-500" /> Los costos se estiman en 60% del precio de venta. Para mayor precisión, configura costos reales en cada producto.
           </p>
         </div>
       </div>

@@ -1,4 +1,4 @@
-﻿import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo } from 'react';
 import { BanknotesIcon, ArrowDownTrayIcon, ExclamationTriangleIcon } from '@heroicons/react/24/outline';
 import { Document, BusinessInfo, Form104Data } from '../../../types/types';
 
@@ -100,22 +100,22 @@ IVA a Pagar / Crédito Tributario: $${form104Data.ivaToPayOrCredit.toFixed(2)}
 
   return (
     <div className="max-w-4xl mx-auto space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
-      <div className="bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-sm">
+      <div className="bg-white dark:bg-slate-800 p-8 rounded-[2.5rem] border border-slate-100 dark:border-slate-700/50 shadow-sm">
         <div className="flex items-center gap-3 mb-8">
-          <BanknotesIcon className="w-10 h-10" />
+          <BanknotesIcon className="w-10 h-10 text-slate-600 dark:text-slate-300" />
           <div>
-            <h2 className="text-2xl font-black text-slate-800 tracking-tight">Formulario 104 - IVA</h2>
-            <p className="text-sm text-slate-500 font-bold">Declaración mensual del Impuesto al Valor Agregado</p>
+            <h2 className="text-2xl font-black text-slate-800 dark:text-white tracking-tight">Formulario 104 - IVA</h2>
+            <p className="text-sm text-slate-500 dark:text-slate-400 font-bold">Declaración mensual del Impuesto al Valor Agregado</p>
           </div>
         </div>
 
         <div className="grid grid-cols-2 gap-4 mb-6">
           <div className="space-y-2">
-            <label className="text-xs font-bold text-slate-600 uppercase">Mes</label>
+            <label className="text-xs font-bold text-slate-600 dark:text-slate-400 uppercase">Mes</label>
             <select
               value={month}
               onChange={e => setMonth(e.target.value)}
-              className="w-full p-4 bg-slate-50 border border-slate-200 rounded-xl font-bold text-sm"
+              className="w-full p-4 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-xl font-bold text-sm text-slate-800 dark:text-slate-200"
             >
               <option value="">Selecciona mes</option>
               <option value="01">Enero</option>
@@ -133,55 +133,55 @@ IVA a Pagar / Crédito Tributario: $${form104Data.ivaToPayOrCredit.toFixed(2)}
             </select>
           </div>
           <div className="space-y-2">
-            <label className="text-xs font-bold text-slate-600 uppercase">Año</label>
+            <label className="text-xs font-bold text-slate-600 dark:text-slate-400 uppercase">Año</label>
             <input
               type="number"
               value={year}
               onChange={e => setYear(e.target.value)}
               min="2020"
               max="2030"
-              className="w-full p-4 bg-slate-50 border border-slate-200 rounded-xl font-bold text-sm"
+              className="w-full p-4 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-xl font-bold text-sm text-slate-800 dark:text-slate-200"
             />
           </div>
         </div>
 
         <div className="space-y-4">
-          <div className="bg-gradient-to-br from-sky-50 to-sky-100 p-6 rounded-2xl border border-sky-200">
-            <h3 className="font-black text-sky-900 mb-4 text-lg">VENTAS</h3>
+          <div className="bg-gradient-to-br from-sky-50 to-sky-100 dark:from-sky-950/30 dark:to-sky-900/20 p-6 rounded-2xl border border-sky-200 dark:border-sky-800/40">
+            <h3 className="font-black text-sky-900 dark:text-sky-300 mb-4 text-lg">VENTAS</h3>
             <div className="space-y-3">
               <div className="flex justify-between items-center">
-                <span className="text-sm font-bold text-sky-500">Base Imponible Tarifa 0%</span>
-                <span className="text-xl font-black text-sky-900">${form104Data.taxableBase0.toFixed(2)}</span>
+                <span className="text-sm font-bold text-sky-600 dark:text-sky-400">Base Imponible Tarifa 0%</span>
+                <span className="text-xl font-black text-sky-900 dark:text-sky-200">${form104Data.taxableBase0.toFixed(2)}</span>
               </div>
               <div className="flex justify-between items-center">
-                <span className="text-sm font-bold text-sky-500">Base Imponible Tarifa 12%</span>
-                <span className="text-xl font-black text-sky-900">${form104Data.taxableBase12.toFixed(2)}</span>
+                <span className="text-sm font-bold text-sky-600 dark:text-sky-400">Base Imponible Tarifa 12%</span>
+                <span className="text-xl font-black text-sky-900 dark:text-sky-200">${form104Data.taxableBase12.toFixed(2)}</span>
               </div>
-              <div className="flex justify-between items-center pt-3 border-t-2 border-blue-300">
-                <span className="text-sm font-bold text-sky-500">IVA Generado (15%)</span>
-                <span className="text-2xl font-black text-sky-500">${form104Data.generatedIva.toFixed(2)}</span>
+              <div className="flex justify-between items-center pt-3 border-t-2 border-sky-300 dark:border-sky-700">
+                <span className="text-sm font-bold text-sky-600 dark:text-sky-400">IVA Generado (15%)</span>
+                <span className="text-2xl font-black text-sky-500 dark:text-sky-400">${form104Data.generatedIva.toFixed(2)}</span>
               </div>
             </div>
           </div>
 
-          <div className="bg-gradient-to-br from-purple-50 to-purple-100 p-6 rounded-2xl border border-purple-200">
-            <h3 className="font-black text-purple-900 mb-4 text-lg">COMPRAS</h3>
+          <div className="bg-gradient-to-br from-purple-50 to-purple-100 dark:from-purple-950/30 dark:to-purple-900/20 p-6 rounded-2xl border border-purple-200 dark:border-purple-800/40">
+            <h3 className="font-black text-purple-900 dark:text-purple-300 mb-4 text-lg">COMPRAS</h3>
             <div className="space-y-3">
               <div className="flex justify-between items-center">
-                <span className="text-sm font-bold text-purple-700">Base con Crédito Tributario</span>
-                <span className="text-xl font-black text-purple-900">${form104Data.purchasesWithCredit.toFixed(2)}</span>
+                <span className="text-sm font-bold text-purple-700 dark:text-purple-400">Base con Crédito Tributario</span>
+                <span className="text-xl font-black text-purple-900 dark:text-purple-200">${form104Data.purchasesWithCredit.toFixed(2)}</span>
               </div>
-              <div className="flex justify-between items-center pt-3 border-t-2 border-purple-300">
-                <span className="text-sm font-bold text-purple-700">IVA en Compras</span>
-                <span className="text-2xl font-black text-purple-600">${form104Data.ivaPurchases.toFixed(2)}</span>
+              <div className="flex justify-between items-center pt-3 border-t-2 border-purple-300 dark:border-purple-700">
+                <span className="text-sm font-bold text-purple-700 dark:text-purple-400">IVA en Compras</span>
+                <span className="text-2xl font-black text-purple-600 dark:text-purple-400">${form104Data.ivaPurchases.toFixed(2)}</span>
               </div>
             </div>
           </div>
 
-          <div className="bg-gradient-to-br from-emerald-50 to-emerald-100 p-6 rounded-2xl border-2 border-emerald-300">
+          <div className="bg-gradient-to-br from-emerald-50 to-emerald-100 dark:from-emerald-950/30 dark:to-emerald-900/20 p-6 rounded-2xl border-2 border-emerald-300 dark:border-emerald-700/50">
             <div className="flex justify-between items-center">
-              <span className="text-lg font-black text-emerald-900">IVA A PAGAR / CRÉDITO TRIBUTARIO</span>
-              <span className="text-3xl font-black text-emerald-600">${form104Data.ivaToPayOrCredit.toFixed(2)}</span>
+              <span className="text-lg font-black text-emerald-900 dark:text-emerald-300">IVA A PAGAR / CRÉDITO TRIBUTARIO</span>
+              <span className="text-3xl font-black text-emerald-600 dark:text-emerald-400">${form104Data.ivaToPayOrCredit.toFixed(2)}</span>
             </div>
           </div>
         </div>
@@ -194,9 +194,9 @@ IVA a Pagar / Crédito Tributario: $${form104Data.ivaToPayOrCredit.toFixed(2)}
           <ArrowDownTrayIcon className="w-4 h-4 inline" /> Exportar Declaración
         </button>
 
-        <div className="mt-6 bg-amber-50 p-4 rounded-xl border border-amber-200">
-          <p className="text-xs text-amber-800 font-bold">
-            <ExclamationTriangleIcon className="w-4 h-4 inline text-amber-600" /> Este es un resumen calculado automáticamente. Verifica los valores antes de presentar la declaración oficial en el SRI.
+        <div className="mt-6 bg-amber-50 dark:bg-amber-950/30 p-4 rounded-xl border border-amber-200 dark:border-amber-800/40">
+          <p className="text-xs text-amber-800 dark:text-amber-400 font-bold">
+            <ExclamationTriangleIcon className="w-4 h-4 inline text-amber-600 dark:text-amber-500" /> Este es un resumen calculado automáticamente. Verifica los valores antes de presentar la declaración oficial en el SRI.
           </p>
         </div>
       </div>

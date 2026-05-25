@@ -1,4 +1,4 @@
-﻿import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo } from 'react';
 import { Document, BusinessInfo, SalesBookEntry } from '../../../types/types';
 import { BookOpenIcon, ArrowDownTrayIcon, EnvelopeIcon } from '@heroicons/react/24/outline';
 
@@ -77,13 +77,13 @@ export default function SalesBook({ documents, business, onNotify }: SalesBookPr
 
   return (
     <div className="max-w-7xl mx-auto space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
-      <div className="bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-sm">
+      <div className="bg-white dark:bg-slate-800 p-8 rounded-[2.5rem] border border-slate-100 dark:border-slate-700/50 shadow-sm">
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-3">
-            <BookOpenIcon className="w-8 h-8 text-slate-400" />
+            <BookOpenIcon className="w-8 h-8 text-slate-400 dark:text-slate-500" />
             <div>
-              <h2 className="text-2xl font-black text-slate-800 tracking-tight">Libro de Ventas</h2>
-              <p className="text-sm text-slate-500 font-bold">Registro detallado de documentos emitidos</p>
+              <h2 className="text-2xl font-black text-slate-800 dark:text-white tracking-tight">Libro de Ventas</h2>
+              <p className="text-sm text-slate-500 dark:text-slate-400 font-bold">Registro detallado de documentos emitidos</p>
             </div>
           </div>
           <button
@@ -97,29 +97,29 @@ export default function SalesBook({ documents, business, onNotify }: SalesBookPr
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
           <div className="space-y-2">
-            <label className="text-xs font-bold text-slate-600 uppercase">Fecha Inicio</label>
+            <label className="text-xs font-bold text-slate-600 dark:text-slate-400 uppercase">Fecha Inicio</label>
             <input
               type="date"
               value={startDate}
               onChange={e => setStartDate(e.target.value)}
-              className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl font-bold text-sm"
+              className="w-full p-3 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-xl font-bold text-sm text-slate-800 dark:text-slate-200"
             />
           </div>
           <div className="space-y-2">
-            <label className="text-xs font-bold text-slate-600 uppercase">Fecha Fin</label>
+            <label className="text-xs font-bold text-slate-600 dark:text-slate-400 uppercase">Fecha Fin</label>
             <input
               type="date"
               value={endDate}
               onChange={e => setEndDate(e.target.value)}
-              className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl font-bold text-sm"
+              className="w-full p-3 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-xl font-bold text-sm text-slate-800 dark:text-slate-200"
             />
           </div>
           <div className="space-y-2">
-            <label className="text-xs font-bold text-slate-600 uppercase">Tipo</label>
+            <label className="text-xs font-bold text-slate-600 dark:text-slate-400 uppercase">Tipo</label>
             <select
               value={filterType}
               onChange={e => setFilterType(e.target.value as any)}
-              className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl font-bold text-sm"
+              className="w-full p-3 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-xl font-bold text-sm text-slate-800 dark:text-slate-200"
             >
               <option value="ALL">Todos</option>
               <option value="01">Facturas</option>
@@ -131,38 +131,38 @@ export default function SalesBook({ documents, business, onNotify }: SalesBookPr
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
-              <tr className="border-b-2 border-slate-200">
-                <th className="text-left p-3 font-black text-slate-700 text-xs uppercase">Fecha</th>
-                <th className="text-left p-3 font-black text-slate-700 text-xs uppercase">Tipo</th>
-                <th className="text-left p-3 font-black text-slate-700 text-xs uppercase">Número</th>
-                <th className="text-left p-3 font-black text-slate-700 text-xs uppercase">Cliente</th>
-                <th className="text-right p-3 font-black text-slate-700 text-xs uppercase">Base 0%</th>
-                <th className="text-right p-3 font-black text-slate-700 text-xs uppercase">Base 12%</th>
-                <th className="text-right p-3 font-black text-slate-700 text-xs uppercase">IVA</th>
-                <th className="text-right p-3 font-black text-slate-700 text-xs uppercase">Total</th>
+              <tr className="border-b-2 border-slate-200 dark:border-slate-700">
+                <th className="text-left p-3 font-black text-slate-700 dark:text-slate-300 text-xs uppercase">Fecha</th>
+                <th className="text-left p-3 font-black text-slate-700 dark:text-slate-300 text-xs uppercase">Tipo</th>
+                <th className="text-left p-3 font-black text-slate-700 dark:text-slate-300 text-xs uppercase">Número</th>
+                <th className="text-left p-3 font-black text-slate-700 dark:text-slate-300 text-xs uppercase">Cliente</th>
+                <th className="text-right p-3 font-black text-slate-700 dark:text-slate-300 text-xs uppercase">Base 0%</th>
+                <th className="text-right p-3 font-black text-slate-700 dark:text-slate-300 text-xs uppercase">Base 12%</th>
+                <th className="text-right p-3 font-black text-slate-700 dark:text-slate-300 text-xs uppercase">IVA</th>
+                <th className="text-right p-3 font-black text-slate-700 dark:text-slate-300 text-xs uppercase">Total</th>
               </tr>
             </thead>
             <tbody>
               {salesEntries.map((entry, idx) => (
-                <tr key={idx} className="border-b border-slate-100 hover:bg-slate-50">
-                  <td className="p-3 font-bold text-slate-600">{new Date(entry.date).toLocaleDateString()}</td>
-                  <td className="p-3 font-bold text-slate-600">{entry.documentType}</td>
-                  <td className="p-3 font-mono text-xs">{entry.documentNumber}</td>
-                  <td className="p-3 font-bold text-slate-800">{entry.clientName}</td>
-                  <td className="p-3 text-right font-bold text-slate-600">${entry.subtotal0.toFixed(2)}</td>
-                  <td className="p-3 text-right font-bold text-slate-600">${entry.subtotal12.toFixed(2)}</td>
-                  <td className="p-3 text-right font-bold text-sky-500">${entry.iva.toFixed(2)}</td>
-                  <td className="p-3 text-right font-black text-slate-800">${entry.total.toFixed(2)}</td>
+                <tr key={idx} className="border-b border-slate-100 dark:border-slate-700/50 hover:bg-slate-50 dark:hover:bg-slate-700/30">
+                  <td className="p-3 font-bold text-slate-600 dark:text-slate-400">{new Date(entry.date).toLocaleDateString()}</td>
+                  <td className="p-3 font-bold text-slate-600 dark:text-slate-400">{entry.documentType}</td>
+                  <td className="p-3 font-mono text-xs text-slate-700 dark:text-slate-300">{entry.documentNumber}</td>
+                  <td className="p-3 font-bold text-slate-800 dark:text-slate-200">{entry.clientName}</td>
+                  <td className="p-3 text-right font-bold text-slate-600 dark:text-slate-400">${entry.subtotal0.toFixed(2)}</td>
+                  <td className="p-3 text-right font-bold text-slate-600 dark:text-slate-400">${entry.subtotal12.toFixed(2)}</td>
+                  <td className="p-3 text-right font-bold text-sky-500 dark:text-sky-400">${entry.iva.toFixed(2)}</td>
+                  <td className="p-3 text-right font-black text-slate-800 dark:text-white">${entry.total.toFixed(2)}</td>
                 </tr>
               ))}
             </tbody>
             <tfoot>
-              <tr className="bg-slate-100 border-t-2 border-slate-300">
-                <td colSpan={4} className="p-3 font-black text-slate-800 uppercase">TOTALES</td>
-                <td className="p-3 text-right font-black text-slate-800">${totals.subtotal0.toFixed(2)}</td>
-                <td className="p-3 text-right font-black text-slate-800">${totals.subtotal12.toFixed(2)}</td>
-                <td className="p-3 text-right font-black text-sky-500">${totals.iva.toFixed(2)}</td>
-                <td className="p-3 text-right font-black text-slate-800">${totals.total.toFixed(2)}</td>
+              <tr className="bg-slate-100 dark:bg-slate-900/50 border-t-2 border-slate-300 dark:border-slate-700">
+                <td colSpan={4} className="p-3 font-black text-slate-800 dark:text-white uppercase">TOTALES</td>
+                <td className="p-3 text-right font-black text-slate-800 dark:text-white">${totals.subtotal0.toFixed(2)}</td>
+                <td className="p-3 text-right font-black text-slate-800 dark:text-white">${totals.subtotal12.toFixed(2)}</td>
+                <td className="p-3 text-right font-black text-sky-500 dark:text-sky-400">${totals.iva.toFixed(2)}</td>
+                <td className="p-3 text-right font-black text-slate-800 dark:text-white">${totals.total.toFixed(2)}</td>
               </tr>
             </tfoot>
           </table>
@@ -171,7 +171,7 @@ export default function SalesBook({ documents, business, onNotify }: SalesBookPr
         {salesEntries.length === 0 && (
           <div className="text-center py-12">
             <EnvelopeIcon className="w-16 h-16 mx-auto text-slate-200 dark:text-slate-700" />
-            <p className="text-slate-400 font-bold mt-4">No hay documentos en el rango seleccionado</p>
+            <p className="text-slate-400 dark:text-slate-500 font-bold mt-4">No hay documentos en el rango seleccionado</p>
           </div>
         )}
       </div>

@@ -1,4 +1,4 @@
-﻿import React, { useState } from 'react';
+import React, { useState } from 'react';
 import { ChartBarIcon, InformationCircleIcon, ArrowDownTrayIcon } from '@heroicons/react/24/outline';
 import { Document, BusinessInfo, ATSPurchase, ATSSale } from '../../../types/types';
 import { generateATSXML } from '../../../services/atsService';
@@ -102,23 +102,23 @@ export default function ATSReport({ documents, business, onNotify }: ATSReportPr
 
   return (
     <div className="max-w-4xl mx-auto space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
-      <div className="bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-sm">
+      <div className="bg-white dark:bg-slate-800 p-8 rounded-[2.5rem] border border-slate-100 dark:border-slate-700/50 shadow-sm">
         <div className="flex items-center gap-3 mb-8">
-          <ChartBarIcon className="w-10 h-10" />
+          <ChartBarIcon className="w-10 h-10 text-slate-600 dark:text-slate-300" />
           <div>
-            <h2 className="text-2xl font-black text-slate-800 tracking-tight">Anexo Transaccional Simplificado</h2>
-            <p className="text-sm text-slate-500 font-bold">Genera el archivo XML para el SRI</p>
+            <h2 className="text-2xl font-black text-slate-800 dark:text-white tracking-tight">Anexo Transaccional Simplificado</h2>
+            <p className="text-sm text-slate-500 dark:text-slate-400 font-bold">Genera el archivo XML para el SRI</p>
           </div>
         </div>
 
         <div className="space-y-6">
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <label className="text-xs font-bold text-slate-600 uppercase">Mes</label>
+              <label className="text-xs font-bold text-slate-600 dark:text-slate-400 uppercase">Mes</label>
               <select
                 value={month}
                 onChange={e => setMonth(e.target.value)}
-                className="w-full p-4 bg-slate-50 border border-slate-200 rounded-xl font-bold text-sm"
+                className="w-full p-4 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-xl font-bold text-sm text-slate-800 dark:text-slate-200"
               >
                 <option value="">Selecciona mes</option>
                 <option value="01">Enero</option>
@@ -136,21 +136,21 @@ export default function ATSReport({ documents, business, onNotify }: ATSReportPr
               </select>
             </div>
             <div className="space-y-2">
-              <label className="text-xs font-bold text-slate-600 uppercase">Año</label>
+              <label className="text-xs font-bold text-slate-600 dark:text-slate-400 uppercase">Año</label>
               <input
                 type="number"
                 value={year}
                 onChange={e => setYear(e.target.value)}
                 min="2020"
                 max="2030"
-                className="w-full p-4 bg-slate-50 border border-slate-200 rounded-xl font-bold text-sm"
+                className="w-full p-4 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-xl font-bold text-sm text-slate-800 dark:text-slate-200"
               />
             </div>
           </div>
 
-          <div className="bg-sky-50 p-6 rounded-2xl border border-sky-100">
-            <h3 className="font-black text-sky-900 text-sm mb-2"><InformationCircleIcon className="w-4 h-4 inline" /> Información</h3>
-            <ul className="text-xs text-sky-500 space-y-1 font-bold">
+          <div className="bg-sky-50 dark:bg-sky-950/30 p-6 rounded-2xl border border-sky-100 dark:border-sky-800/40">
+            <h3 className="font-black text-sky-900 dark:text-sky-300 text-sm mb-2"><InformationCircleIcon className="w-4 h-4 inline" /> Información</h3>
+            <ul className="text-xs text-sky-600 dark:text-sky-400 space-y-1 font-bold">
               <li>• El ATS debe presentarse hasta el día 28 del mes siguiente</li>
               <li>• Incluye todas las transacciones autorizadas del período</li>
               <li>• El archivo XML debe subirse al portal del SRI</li>
@@ -166,20 +166,20 @@ export default function ATSReport({ documents, business, onNotify }: ATSReportPr
           </button>
         </div>
 
-        <div className="mt-8 pt-6 border-t border-slate-200">
-          <h3 className="font-black text-slate-700 mb-4">Resumen del Período</h3>
+        <div className="mt-8 pt-6 border-t border-slate-200 dark:border-slate-700">
+          <h3 className="font-black text-slate-700 dark:text-slate-200 mb-4">Resumen del Período</h3>
           <div className="grid grid-cols-3 gap-4">
-            <div className="bg-slate-50 p-4 rounded-xl">
-              <p className="text-xs text-slate-500 font-bold uppercase mb-1">RUC</p>
-              <p className="font-black text-slate-800">{business.ruc}</p>
+            <div className="bg-slate-50 dark:bg-slate-900/50 p-4 rounded-xl border border-slate-100 dark:border-slate-700/50">
+              <p className="text-xs text-slate-500 dark:text-slate-400 font-bold uppercase mb-1">RUC</p>
+              <p className="font-black text-slate-800 dark:text-white">{business.ruc}</p>
             </div>
-            <div className="bg-slate-50 p-4 rounded-xl">
-              <p className="text-xs text-slate-500 font-bold uppercase mb-1">Razón Social</p>
-              <p className="font-black text-slate-800 text-sm">{business.name}</p>
+            <div className="bg-slate-50 dark:bg-slate-900/50 p-4 rounded-xl border border-slate-100 dark:border-slate-700/50">
+              <p className="text-xs text-slate-500 dark:text-slate-400 font-bold uppercase mb-1">Razón Social</p>
+              <p className="font-black text-slate-800 dark:text-white text-sm">{business.name}</p>
             </div>
-            <div className="bg-slate-50 p-4 rounded-xl">
-              <p className="text-xs text-slate-500 font-bold uppercase mb-1">Período</p>
-              <p className="font-black text-slate-800">{month}/{year}</p>
+            <div className="bg-slate-50 dark:bg-slate-900/50 p-4 rounded-xl border border-slate-100 dark:border-slate-700/50">
+              <p className="text-xs text-slate-500 dark:text-slate-400 font-bold uppercase mb-1">Período</p>
+              <p className="font-black text-slate-800 dark:text-white">{month}/{year}</p>
             </div>
           </div>
         </div>

@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { DocumentTextIcon, UserIcon, CalendarDaysIcon, BanknotesIcon, PlusIcon, TrashIcon } from '@heroicons/react/24/outline';
 import { Retention, RetentionTax, BusinessInfo, Client } from '../../../types/types';
 import { generateRetentionXML, RETENTION_PERCENTAGES } from '../../../services/retentionService';
@@ -122,33 +122,33 @@ export default function RetentionForm({ business, clients, onSubmit }: Retention
 
   return (
     <div className="max-w-5xl mx-auto p-6">
-      <div className="bg-white rounded-lg shadow-md p-6">
+      <div className="bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700/50 rounded-2xl shadow-sm p-6">
         <div className="flex items-center gap-3 mb-6">
-          <DocumentTextIcon className="w-10 h-10" />
-          <h2 className="text-2xl font-bold text-gray-800">Nueva Retención</h2>
+          <DocumentTextIcon className="w-10 h-10 text-slate-700 dark:text-slate-300" />
+          <h2 className="text-2xl font-bold text-gray-800 dark:text-white">Nueva Retención</h2>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* Información del Proveedor */}
-          <div className="border-b pb-4">
-            <h3 className="text-lg font-semibold text-gray-700 mb-4 flex items-center gap-2">
+          <div className="border-b border-gray-100 dark:border-slate-700/50 pb-4">
+            <h3 className="text-lg font-semibold text-gray-700 dark:text-slate-200 mb-4 flex items-center gap-2">
               <UserIcon className="w-5 h-5" />
               Proveedor (Sujeto Retenido)
             </h3>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-2">
                   Seleccionar Proveedor
                 </label>
                 <select
                   value={selectedClient}
                   onChange={(e) => handleClientSelect(e.target.value)}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-4 py-2 border border-gray-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 bg-white dark:bg-slate-900/50 text-gray-800 dark:text-white"
                 >
-                  <option value="">Seleccione o ingrese manualmente</option>
+                  <option value="" className="dark:bg-slate-800">Seleccione o ingrese manualmente</option>
                   {(Array.isArray(clients) ? clients : []).filter(c => c.type !== 'CLIENTE').map(client => (
-                    <option key={client.id} value={client.id}>
+                    <option key={client.id} value={client.id} className="dark:bg-slate-800">
                       {client.name} - {client.ruc}
                     </option>
                   ))}
@@ -156,7 +156,7 @@ export default function RetentionForm({ business, clients, onSubmit }: Retention
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-2">
                   RUC del Proveedor *
                 </label>
                 <input
@@ -166,12 +166,12 @@ export default function RetentionForm({ business, clients, onSubmit }: Retention
                   placeholder="1234567890001"
                   maxLength={13}
                   required
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-4 py-2 border border-gray-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 bg-white dark:bg-slate-900/50 text-gray-800 dark:text-white placeholder-gray-400 dark:placeholder-slate-550"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-2">
                   Razón Social del Proveedor *
                 </label>
                 <input
@@ -179,24 +179,24 @@ export default function RetentionForm({ business, clients, onSubmit }: Retention
                   value={supplierName}
                   onChange={(e) => setSupplierName(e.target.value)}
                   required
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-4 py-2 border border-gray-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 bg-white dark:bg-slate-900/50 text-gray-800 dark:text-white placeholder-gray-400 dark:placeholder-slate-550"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-2">
                   Email del Proveedor
                 </label>
                 <input
                   type="email"
                   value={supplierEmail}
                   onChange={(e) => setSupplierEmail(e.target.value)}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-4 py-2 border border-gray-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 bg-white dark:bg-slate-900/50 text-gray-800 dark:text-white placeholder-gray-400 dark:placeholder-slate-550"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-2">
                   Período Fiscal *
                 </label>
                 <input
@@ -206,38 +206,38 @@ export default function RetentionForm({ business, clients, onSubmit }: Retention
                   placeholder="MM/YYYY"
                   pattern="\d{2}/\d{4}"
                   required
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-4 py-2 border border-gray-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 bg-white dark:bg-slate-900/50 text-gray-800 dark:text-white placeholder-gray-400 dark:placeholder-slate-550"
                 />
               </div>
             </div>
           </div>
 
           {/* Documento Sustento */}
-          <div className="border-b pb-4">
-            <h3 className="text-lg font-semibold text-gray-700 mb-4 flex items-center gap-2">
+          <div className="border-b border-gray-100 dark:border-slate-700/50 pb-4">
+            <h3 className="text-lg font-semibold text-gray-700 dark:text-slate-200 mb-4 flex items-center gap-2">
               <CalendarDaysIcon className="w-5 h-5" />
               Documento Sustento
             </h3>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-2">
                   Tipo de Documento *
                 </label>
                 <select
                   value={sustainingDocType}
                   onChange={(e) => setSustainingDocType(e.target.value)}
                   required
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-4 py-2 border border-gray-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 bg-white dark:bg-slate-900/50 text-gray-800 dark:text-white"
                 >
-                  <option value="01">01 - Factura</option>
-                  <option value="04">04 - Nota de Crédito</option>
-                  <option value="03">03 - Liquidación de Compra</option>
+                  <option value="01" className="dark:bg-slate-800">01 - Factura</option>
+                  <option value="04" className="dark:bg-slate-800">04 - Nota de Crédito</option>
+                  <option value="03" className="dark:bg-slate-800">03 - Liquidación de Compra</option>
                 </select>
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-2">
                   Número del Documento *
                 </label>
                 <input
@@ -246,12 +246,12 @@ export default function RetentionForm({ business, clients, onSubmit }: Retention
                   onChange={(e) => setSustainingDocNumber(e.target.value)}
                   placeholder="001-001-000001234"
                   required
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-4 py-2 border border-gray-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 bg-white dark:bg-slate-900/50 text-gray-800 dark:text-white placeholder-gray-400 dark:placeholder-slate-555"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-2">
                   Fecha de Emisión *
                 </label>
                 <input
@@ -259,12 +259,12 @@ export default function RetentionForm({ business, clients, onSubmit }: Retention
                   value={sustainingDocDate}
                   onChange={(e) => setSustainingDocDate(e.target.value)}
                   required
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-4 py-2 border border-gray-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 bg-white dark:bg-slate-900/50 text-gray-800 dark:text-white"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-2">
                   Total del Documento *
                 </label>
                 <input
@@ -273,7 +273,7 @@ export default function RetentionForm({ business, clients, onSubmit }: Retention
                   value={sustainingDocTotal}
                   onChange={(e) => setSustainingDocTotal(e.target.value)}
                   required
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-4 py-2 border border-gray-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 bg-white dark:bg-slate-900/50 text-gray-800 dark:text-white placeholder-gray-400 dark:placeholder-slate-555"
                 />
               </div>
             </div>
@@ -282,14 +282,14 @@ export default function RetentionForm({ business, clients, onSubmit }: Retention
           {/* Retenciones */}
           <div>
             <div className="flex justify-between items-center mb-4">
-              <h3 className="text-lg font-semibold text-gray-700 flex items-center gap-2">
+              <h3 className="text-lg font-semibold text-gray-700 dark:text-slate-200 flex items-center gap-2">
                 <BanknotesIcon className="w-5 h-5" />
                 Impuestos Retenidos
               </h3>
               <button
                 type="button"
                 onClick={addTax}
-                className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition"
+                className="flex items-center gap-2 px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition"
               >
                 <PlusIcon className="w-5 h-5" />
                 Agregar Impuesto
@@ -297,19 +297,19 @@ export default function RetentionForm({ business, clients, onSubmit }: Retention
             </div>
 
             {taxes.length === 0 ? (
-              <div className="text-center py-8 bg-gray-50 rounded-lg">
-                <p className="text-gray-500">No hay impuestos retenidos. Haga clic en "Agregar Impuesto"</p>
+              <div className="text-center py-8 bg-gray-50 dark:bg-slate-900/30 border border-dashed border-gray-200 dark:border-slate-700 rounded-lg">
+                <p className="text-gray-500 dark:text-slate-400">No hay impuestos retenidos. Haga clic en "Agregar Impuesto"</p>
               </div>
             ) : (
               <div className="space-y-4">
                 {taxes.map((tax, index) => (
-                  <div key={index} className="border rounded-lg p-4 bg-gray-50">
+                  <div key={index} className="border border-gray-250 dark:border-slate-700 rounded-lg p-4 bg-gray-50 dark:bg-slate-900/30">
                     <div className="flex justify-between items-start mb-4">
-                      <h4 className="font-medium text-gray-700">Impuesto {index + 1}</h4>
+                      <h4 className="font-medium text-gray-700 dark:text-slate-300">Impuesto {index + 1}</h4>
                       <button
                         type="button"
                         onClick={() => removeTax(index)}
-                        className="text-red-600 hover:text-red-800 text-lg"
+                        className="text-red-655 hover:text-red-800 text-lg"
                       >
                         <TrashIcon className="w-5 h-5" />
                       </button>
@@ -317,42 +317,42 @@ export default function RetentionForm({ business, clients, onSubmit }: Retention
 
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                        <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-2">
                           Tipo de Impuesto
                         </label>
                         <select
                           value={tax.code}
                           onChange={(e) => updateTax(index, 'code', e.target.value)}
-                          className="w-full px-3 py-2 border rounded-lg"
+                          className="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-900/50 text-gray-800 dark:text-white"
                         >
-                          <option value="1">Renta</option>
-                          <option value="2">IVA</option>
+                          <option value="1" className="dark:bg-slate-800">Renta</option>
+                          <option value="2" className="dark:bg-slate-800">IVA</option>
                         </select>
                       </div>
 
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                        <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-2">
                           Código Porcentaje
                         </label>
                         <select
                           value={tax.percentageCode}
                           onChange={(e) => updateTax(index, 'percentageCode', e.target.value)}
-                          className="w-full px-3 py-2 border rounded-lg"
+                          className="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-900/50 text-gray-800 dark:text-white"
                         >
                           {tax.code === '1' ? (
                             RETENTION_PERCENTAGES.RENTA.map(p => (
-                              <option key={p.code} value={p.code}>{p.label}</option>
+                              <option key={p.code} value={p.code} className="dark:bg-slate-800">{p.label}</option>
                             ))
                           ) : (
                             RETENTION_PERCENTAGES.IVA.map(p => (
-                              <option key={p.code} value={p.code}>{p.label}</option>
+                              <option key={p.code} value={p.code} className="dark:bg-slate-800">{p.label}</option>
                             ))
                           )}
                         </select>
                       </div>
 
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                        <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-2">
                           Base Imponible
                         </label>
                         <input
@@ -360,12 +360,12 @@ export default function RetentionForm({ business, clients, onSubmit }: Retention
                           step="0.01"
                           value={tax.baseImponible}
                           onChange={(e) => updateTax(index, 'baseImponible', e.target.value)}
-                          className="w-full px-3 py-2 border rounded-lg"
+                          className="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-900/50 text-gray-800 dark:text-white"
                         />
                       </div>
 
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                        <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-2">
                           Porcentaje (%)
                         </label>
                         <input
@@ -373,12 +373,12 @@ export default function RetentionForm({ business, clients, onSubmit }: Retention
                           step="0.01"
                           value={tax.percentage}
                           readOnly
-                          className="w-full px-3 py-2 border rounded-lg bg-gray-100"
+                          className="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-lg bg-gray-100 dark:bg-slate-900/70 text-gray-800 dark:text-slate-300"
                         />
                       </div>
 
                       <div className="md:col-span-2">
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                        <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-2">
                           Valor Retenido
                         </label>
                         <input
@@ -386,7 +386,7 @@ export default function RetentionForm({ business, clients, onSubmit }: Retention
                           step="0.01"
                           value={tax.taxValue.toFixed(2)}
                           readOnly
-                          className="w-full px-3 py-2 border rounded-lg bg-gray-100 font-bold text-sky-500"
+                          className="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-lg bg-gray-100 dark:bg-slate-900/70 font-bold text-sky-500 dark:text-sky-400"
                         />
                       </div>
                     </div>
@@ -397,10 +397,10 @@ export default function RetentionForm({ business, clients, onSubmit }: Retention
           </div>
 
           {/* Total */}
-          <div className="bg-sky-50 rounded-lg p-4">
+          <div className="bg-sky-50 dark:bg-slate-900/40 border border-sky-100 dark:border-sky-950 rounded-lg p-4">
             <div className="flex justify-between items-center">
-              <span className="text-lg font-semibold text-gray-700">Total Retenido:</span>
-              <span className="text-2xl font-bold text-sky-500">
+              <span className="text-lg font-semibold text-gray-700 dark:text-slate-300">Total Retenido:</span>
+              <span className="text-2xl font-bold text-sky-500 dark:text-sky-400">
                 ${calculateTotalRetained().toFixed(2)}
               </span>
             </div>
@@ -410,13 +410,13 @@ export default function RetentionForm({ business, clients, onSubmit }: Retention
           <div className="flex gap-4 justify-end">
             <button
               type="button"
-              className="px-6 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition"
+              className="px-6 py-2 border border-gray-300 dark:border-slate-600 rounded-lg text-gray-700 dark:text-slate-300 hover:bg-gray-50 dark:hover:bg-slate-700/50 transition"
             >
               Cancelar
             </button>
             <button
               type="submit"
-              className="px-6 py-2 bg-sky-500 text-white rounded-lg hover:bg-sky-600 transition"
+              className="px-6 py-2 bg-sky-500 hover:bg-sky-600 text-white rounded-lg transition font-semibold"
             >
               Emitir Retención
             </button>

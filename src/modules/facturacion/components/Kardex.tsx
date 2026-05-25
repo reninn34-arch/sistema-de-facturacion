@@ -1,4 +1,4 @@
-﻿import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo } from 'react';
 import { CubeIcon, ArrowDownTrayIcon, InboxIcon } from '@heroicons/react/24/outline';
 import { Product, Document, InventoryMovement } from '../../../types/types';
 
@@ -99,13 +99,13 @@ export default function Kardex({ products, documents, onNotify }: KardexProps) {
 
   return (
     <div className="max-w-7xl mx-auto space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
-      <div className="bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-sm">
+      <div className="bg-white dark:bg-slate-800 p-8 rounded-[2.5rem] border border-slate-100 dark:border-slate-700/50 shadow-sm">
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-3">
-            <CubeIcon className="w-10 h-10" />
+            <CubeIcon className="w-10 h-10 text-slate-700 dark:text-slate-300" />
             <div>
-              <h2 className="text-2xl font-black text-slate-800 tracking-tight">Kardex de Inventario</h2>
-              <p className="text-sm text-slate-500 font-bold">Control de movimientos por producto</p>
+              <h2 className="text-2xl font-black text-slate-800 dark:text-white tracking-tight">Kardex de Inventario</h2>
+              <p className="text-sm text-slate-505 dark:text-slate-450 font-bold">Control de movimientos por producto</p>
             </div>
           </div>
           <button
@@ -119,57 +119,57 @@ export default function Kardex({ products, documents, onNotify }: KardexProps) {
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
           <div className="space-y-2">
-            <label className="text-xs font-bold text-slate-600 uppercase">Producto</label>
+            <label className="text-xs font-bold text-slate-600 dark:text-slate-400 uppercase">Producto</label>
             <select
               value={selectedProductId}
               onChange={e => setSelectedProductId(e.target.value)}
-              className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl font-bold text-sm"
+              className="w-full p-3 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-xl font-bold text-sm text-slate-800 dark:text-white"
             >
-              <option value="">Selecciona producto</option>
+              <option value="" className="dark:bg-slate-800">Selecciona producto</option>
               {(Array.isArray(products) ? products : []).filter(p => p.type === 'FISICO').map(product => (
-                <option key={product.id} value={product.id}>
+                <option key={product.id} value={product.id} className="dark:bg-slate-800">
                   {product.code} - {product.description}
                 </option>
               ))}
             </select>
           </div>
           <div className="space-y-2">
-            <label className="text-xs font-bold text-slate-600 uppercase">Fecha Inicio</label>
+            <label className="text-xs font-bold text-slate-600 dark:text-slate-400 uppercase">Fecha Inicio</label>
             <input
               type="date"
               value={startDate}
               onChange={e => setStartDate(e.target.value)}
-              className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl font-bold text-sm"
+              className="w-full p-3 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-xl font-bold text-sm text-slate-800 dark:text-white"
             />
           </div>
           <div className="space-y-2">
-            <label className="text-xs font-bold text-slate-600 uppercase">Fecha Fin</label>
+            <label className="text-xs font-bold text-slate-600 dark:text-slate-400 uppercase">Fecha Fin</label>
             <input
               type="date"
               value={endDate}
               onChange={e => setEndDate(e.target.value)}
-              className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl font-bold text-sm"
+              className="w-full p-3 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-xl font-bold text-sm text-slate-800 dark:text-white"
             />
           </div>
         </div>
 
         {selectedProduct && (
-          <div className="bg-slate-50 p-6 rounded-2xl mb-6 grid grid-cols-4 gap-4">
+          <div className="bg-slate-50 dark:bg-slate-900/30 border border-slate-100 dark:border-slate-700/50 p-6 rounded-2xl mb-6 grid grid-cols-4 gap-4">
             <div>
-              <p className="text-xs text-slate-500 font-bold uppercase mb-1">Código</p>
-              <p className="font-black text-slate-800">{selectedProduct.code}</p>
+              <p className="text-xs text-slate-500 dark:text-slate-400 font-bold uppercase mb-1">Código</p>
+              <p className="font-black text-slate-800 dark:text-white">{selectedProduct.code}</p>
             </div>
             <div>
-              <p className="text-xs text-slate-500 font-bold uppercase mb-1">Stock Actual</p>
-              <p className="font-black text-slate-800">{selectedProduct.stock} unidades</p>
+              <p className="text-xs text-slate-505 dark:text-slate-400 font-bold uppercase mb-1">Stock Actual</p>
+              <p className="font-black text-slate-800 dark:text-white">{selectedProduct.stock} unidades</p>
             </div>
             <div>
-              <p className="text-xs text-slate-500 font-bold uppercase mb-1">Precio</p>
-              <p className="font-black text-slate-800">${selectedProduct.price.toFixed(2)}</p>
+              <p className="text-xs text-slate-505 dark:text-slate-400 font-bold uppercase mb-1">Precio</p>
+              <p className="font-black text-slate-800 dark:text-white">${selectedProduct.price.toFixed(2)}</p>
             </div>
             <div>
-              <p className="text-xs text-slate-500 font-bold uppercase mb-1">Categoría</p>
-              <p className="font-black text-slate-800">{selectedProduct.category || 'N/A'}</p>
+              <p className="text-xs text-slate-505 dark:text-slate-400 font-bold uppercase mb-1">Categoría</p>
+              <p className="font-black text-slate-800 dark:text-white">{selectedProduct.category || 'N/A'}</p>
             </div>
           </div>
         )}
@@ -177,30 +177,30 @@ export default function Kardex({ products, documents, onNotify }: KardexProps) {
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
-              <tr className="border-b-2 border-slate-200">
-                <th className="text-left p-3 font-black text-slate-700 text-xs uppercase">Fecha</th>
-                <th className="text-left p-3 font-black text-slate-700 text-xs uppercase">Tipo</th>
-                <th className="text-left p-3 font-black text-slate-700 text-xs uppercase">Documento</th>
-                <th className="text-left p-3 font-black text-slate-700 text-xs uppercase">Descripción</th>
-                <th className="text-right p-3 font-black text-emerald-700 text-xs uppercase">Entradas</th>
-                <th className="text-right p-3 font-black text-red-700 text-xs uppercase">Salidas</th>
-                <th className="text-right p-3 font-black text-slate-700 text-xs uppercase">Saldo</th>
-                <th className="text-right p-3 font-black text-slate-700 text-xs uppercase">Costo Unit.</th>
-                <th className="text-right p-3 font-black text-slate-700 text-xs uppercase">Costo Total</th>
+              <tr className="border-b-2 border-slate-200 dark:border-slate-700">
+                <th className="text-left p-3 font-black text-slate-700 dark:text-slate-300 text-xs uppercase">Fecha</th>
+                <th className="text-left p-3 font-black text-slate-750 dark:text-slate-300 text-xs uppercase">Tipo</th>
+                <th className="text-left p-3 font-black text-slate-750 dark:text-slate-300 text-xs uppercase">Documento</th>
+                <th className="text-left p-3 font-black text-slate-750 dark:text-slate-300 text-xs uppercase">Descripción</th>
+                <th className="text-right p-3 font-black text-emerald-700 dark:text-emerald-450 text-xs uppercase">Entradas</th>
+                <th className="text-right p-3 font-black text-red-750 dark:text-red-450 text-xs uppercase">Salidas</th>
+                <th className="text-right p-3 font-black text-slate-750 dark:text-slate-300 text-xs uppercase">Saldo</th>
+                <th className="text-right p-3 font-black text-slate-750 dark:text-slate-300 text-xs uppercase">Costo Unit.</th>
+                <th className="text-right p-3 font-black text-slate-750 dark:text-slate-300 text-xs uppercase">Costo Total</th>
               </tr>
             </thead>
             <tbody>
               {movements.map((mov, idx) => (
-                <tr key={idx} className="border-b border-slate-100 hover:bg-slate-50">
-                  <td className="p-3 font-bold text-slate-600">{new Date(mov.date).toLocaleDateString()}</td>
-                  <td className="p-3 font-bold text-slate-600">{mov.documentType}</td>
-                  <td className="p-3 font-mono text-xs">{mov.documentNumber}</td>
-                  <td className="p-3 font-bold text-slate-800">{mov.description}</td>
-                  <td className="p-3 text-right font-bold text-emerald-600">{mov.quantityIn || '-'}</td>
-                  <td className="p-3 text-right font-bold text-red-600">{mov.quantityOut || '-'}</td>
-                  <td className="p-3 text-right font-black text-slate-800">{mov.balance}</td>
-                  <td className="p-3 text-right font-bold text-slate-600">${mov.unitCost.toFixed(2)}</td>
-                  <td className="p-3 text-right font-black text-sky-500">${mov.totalCost.toFixed(2)}</td>
+                <tr key={idx} className="border-b border-slate-100 dark:border-slate-700/50 hover:bg-slate-50 dark:hover:bg-slate-900/10">
+                  <td className="p-3 font-bold text-slate-600 dark:text-slate-400">{new Date(mov.date).toLocaleDateString()}</td>
+                  <td className="p-3 font-bold text-slate-600 dark:text-slate-400">{mov.documentType}</td>
+                  <td className="p-3 font-mono text-xs text-slate-700 dark:text-slate-300">{mov.documentNumber}</td>
+                  <td className="p-3 font-bold text-slate-800 dark:text-white">{mov.description}</td>
+                  <td className="p-3 text-right font-bold text-emerald-600 dark:text-emerald-400">{mov.quantityIn || '-'}</td>
+                  <td className="p-3 text-right font-bold text-red-600 dark:text-red-405">{mov.quantityOut || '-'}</td>
+                  <td className="p-3 text-right font-black text-slate-800 dark:text-white">{mov.balance}</td>
+                  <td className="p-3 text-right font-bold text-slate-600 dark:text-slate-400">${mov.unitCost.toFixed(2)}</td>
+                  <td className="p-3 text-right font-black text-sky-500 dark:text-sky-400">${mov.totalCost.toFixed(2)}</td>
                 </tr>
               ))}
             </tbody>
@@ -209,8 +209,8 @@ export default function Kardex({ products, documents, onNotify }: KardexProps) {
 
         {movements.length === 0 && (
           <div className="text-center py-12">
-            <InboxIcon className="w-16 h-16 mx-auto opacity-20" />
-            <p className="text-slate-400 font-bold mt-4">
+            <InboxIcon className="w-16 h-16 mx-auto opacity-20 dark:text-slate-400" />
+            <p className="text-slate-400 dark:text-slate-500 font-bold mt-4">
               {selectedProductId ? 'No hay movimientos en el rango seleccionado' : 'Selecciona un producto para ver su kardex'}
             </p>
           </div>

@@ -27,12 +27,12 @@ const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
     const [view, setView] = useState<'login' | 'forgot'>('login');
     const [resetEmail, setResetEmail] = useState('');
     const [resetMessage, setResetMessage] = useState('');
-    const [landingLogo, setLandingLogo] = useState<string | null>(null);
+    const [landingLogo, setLandingLogo] = useState<string | null | false>(null);
 
     useEffect(() => {
         const img = new Image();
         img.onload = () => setLandingLogo('/api/settings/landing-logo');
-        img.onerror = () => {};
+        img.onerror = () => setLandingLogo(false);
         img.src = '/api/settings/landing-logo';
     }, []);
 
@@ -143,17 +143,8 @@ const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
             <div className="relative z-10">
                 <div className="flex items-center gap-2.5 mb-8">
                     {landingLogo ? (
-                      <img src={landingLogo} className="h-14 w-auto max-w-[220px] object-contain brightness-0 invert" alt="Azul PRO" />
-                    ) : (
-                      <>
-                        <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center shadow-lg">
-                            <DocumentTextIcon className="w-6 h-6 text-[#0EA5E9]" />
-                        </div>
-                        <span className="text-2xl font-extrabold tracking-tight">
-                            Azul <span className="text-[#06B6D4]">PRO</span>
-                        </span>
-                      </>
-                    )}
+                      <img src={landingLogo} className="h-14 w-auto max-w-[220px] object-contain brightness-0 invert" alt="Logo" />
+                    ) : null}
                 </div>
 
                 <h2 className="text-3xl xl:text-4xl font-extrabold leading-tight tracking-tight mb-4">
@@ -210,17 +201,8 @@ const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
                     <div className="w-full max-w-md animate-fade-in">
                         <div className="lg:hidden mb-10 text-center">
                             {landingLogo ? (
-                              <img src={landingLogo} className="h-14 w-auto max-w-[220px] object-contain mx-auto mb-4" alt="Azul PRO" />
-                            ) : (
-                              <div className="flex items-center justify-center gap-2 mb-4">
-                                <div className="w-10 h-10 bg-[#0EA5E9] rounded-xl flex items-center justify-center">
-                                    <DocumentTextIcon className="w-6 h-6 text-white" />
-                                </div>
-                                <span className="text-2xl font-extrabold text-slate-900 tracking-tight">
-                                    Azul <span className="text-[#0EA5E9]">PRO</span>
-                                </span>
-                              </div>
-                            )}
+                              <img src={landingLogo} className="h-14 w-auto max-w-[220px] object-contain mx-auto mb-4" alt="Logo" />
+                            ) : null}
                         </div>
 
                         <div className="bg-white rounded-3xl border border-slate-200 shadow-xl shadow-sky-100/50 p-8">
@@ -297,17 +279,8 @@ const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
                 <div className="w-full max-w-md animate-fade-in">
                     <div className="lg:hidden mb-10 text-center">
                         {landingLogo ? (
-                          <img src={landingLogo} className="h-14 w-auto max-w-[220px] object-contain mx-auto mb-3" alt="Azul PRO" />
-                        ) : (
-                          <div className="flex items-center justify-center gap-2 mb-3">
-                            <div className="w-10 h-10 bg-[#0EA5E9] rounded-xl flex items-center justify-center">
-                                <DocumentTextIcon className="w-6 h-6 text-white" />
-                            </div>
-                            <span className="text-2xl font-extrabold text-slate-900 tracking-tight">
-                                Azul <span className="text-[#0EA5E9]">PRO</span>
-                            </span>
-                          </div>
-                        )}
+                          <img src={landingLogo} className="h-14 w-auto max-w-[220px] object-contain mx-auto mb-3" alt="Logo" />
+                        ) : null}
                         <p className="text-sm text-slate-500 font-medium">Sistema de Facturación Electrónica</p>
                     </div>
 

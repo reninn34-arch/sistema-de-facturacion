@@ -1,4 +1,4 @@
-﻿import React, { useState } from 'react';
+import React, { useState } from 'react';
 import { ChartBarIcon, UserIcon, ShoppingCartIcon, PlusIcon, TrashIcon, BanknotesIcon } from '@heroicons/react/24/outline';
 import { PurchaseSettlement, SettlementPayment, InvoiceItem, BusinessInfo, Client, Product } from '../../../types/types';
 import { generateSettlementXML } from '../../../services/settlementService';
@@ -148,17 +148,16 @@ export default function SettlementForm({ business, clients, products, onSubmit }
   };
 
   const totals = calculateSubtotals();
-
   return (
     <div className="max-w-5xl mx-auto p-6">
-      <div className="bg-white rounded-lg shadow-md p-6">
+      <div className="bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700/50 rounded-2xl shadow-sm p-6">
         <div className="flex items-center gap-3 mb-6">
-          <ChartBarIcon className="w-10 h-10" />
-          <h2 className="text-2xl font-bold text-gray-800">Nueva Liquidación de Compra</h2>
+          <ChartBarIcon className="w-10 h-10 text-slate-700 dark:text-slate-300" />
+          <h2 className="text-2xl font-bold text-gray-800 dark:text-white">Nueva Liquidación de Compra</h2>
         </div>
 
-        <div className="bg-sky-50 border-l-4 border-sky-500 p-4 mb-6">
-          <p className="text-sm text-sky-500">
+        <div className="bg-sky-50 dark:bg-sky-950/20 border-l-4 border-sky-500 p-4 mb-6 text-sky-850 dark:text-sky-300 border-sky-500/50">
+          <p className="text-sm text-sky-600 dark:text-sky-400">
             <strong>Nota:</strong> Las liquidaciones de compra se emiten cuando compras bienes o servicios
             a personas sin RUC o que no están obligadas a emitir comprobantes de venta.
           </p>
@@ -166,25 +165,25 @@ export default function SettlementForm({ business, clients, products, onSubmit }
 
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* Información del Proveedor */}
-          <div className="border-b pb-4">
-            <h3 className="text-lg font-semibold text-gray-700 mb-4 flex items-center gap-2">
+          <div className="border-b border-gray-100 dark:border-slate-700/50 pb-4">
+            <h3 className="text-lg font-semibold text-gray-700 dark:text-slate-200 mb-4 flex items-center gap-2">
               <UserIcon className="w-5 h-5" />
               Proveedor (Sin RUC)
             </h3>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-2">
                   Seleccionar Proveedor (Opcional)
                 </label>
                 <select
                   value={selectedClient}
                   onChange={(e) => handleClientSelect(e.target.value)}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500"
+                  className="w-full px-4 py-2 border border-gray-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-purple-500 bg-white dark:bg-slate-900/50 text-gray-800 dark:text-white"
                 >
-                  <option value="">Seleccione o ingrese manualmente</option>
+                  <option value="" className="dark:bg-slate-800">Seleccione o ingrese manualmente</option>
                   {(Array.isArray(clients) ? clients : []).filter(c => c.type !== 'CLIENTE').map(client => (
-                    <option key={client.id} value={client.id}>
+                    <option key={client.id} value={client.id} className="dark:bg-slate-800">
                       {client.name} - {client.ruc}
                     </option>
                   ))}
@@ -192,7 +191,7 @@ export default function SettlementForm({ business, clients, products, onSubmit }
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-2">
                   Cédula o RUC del Proveedor *
                 </label>
                 <input
@@ -202,12 +201,12 @@ export default function SettlementForm({ business, clients, products, onSubmit }
                   placeholder="0912345678 o 0912345678001"
                   maxLength={13}
                   required
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500"
+                  className="w-full px-4 py-2 border border-gray-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-purple-500 bg-white dark:bg-slate-900/50 text-gray-800 dark:text-white placeholder-gray-400 dark:placeholder-slate-550"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-2">
                   Nombre del Proveedor *
                 </label>
                 <input
@@ -215,24 +214,24 @@ export default function SettlementForm({ business, clients, products, onSubmit }
                   value={supplierName}
                   onChange={(e) => setSupplierName(e.target.value)}
                   required
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500"
+                  className="w-full px-4 py-2 border border-gray-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-purple-500 bg-white dark:bg-slate-900/50 text-gray-800 dark:text-white placeholder-gray-400 dark:placeholder-slate-550"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-2">
                   Email del Proveedor
                 </label>
                 <input
                   type="email"
                   value={supplierEmail}
                   onChange={(e) => setSupplierEmail(e.target.value)}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500"
+                  className="w-full px-4 py-2 border border-gray-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-purple-500 bg-white dark:bg-slate-900/50 text-gray-800 dark:text-white placeholder-gray-400 dark:placeholder-slate-550"
                 />
               </div>
 
               <div className="md:col-span-2">
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-2">
                   Dirección del Proveedor *
                 </label>
                 <input
@@ -240,7 +239,7 @@ export default function SettlementForm({ business, clients, products, onSubmit }
                   value={supplierAddress}
                   onChange={(e) => setSupplierAddress(e.target.value)}
                   required
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500"
+                  className="w-full px-4 py-2 border border-gray-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-purple-500 bg-white dark:bg-slate-900/50 text-gray-800 dark:text-white placeholder-gray-400 dark:placeholder-slate-555"
                 />
               </div>
             </div>
@@ -249,14 +248,14 @@ export default function SettlementForm({ business, clients, products, onSubmit }
           {/* Productos/Servicios */}
           <div>
             <div className="flex justify-between items-center mb-4">
-              <h3 className="text-lg font-semibold text-gray-700 flex items-center gap-2">
+              <h3 className="text-lg font-semibold text-gray-700 dark:text-slate-200 flex items-center gap-2">
                 <ShoppingCartIcon className="w-5 h-5" />
                 Productos / Servicios
               </h3>
               <button
                 type="button"
                 onClick={addItem}
-                className="flex items-center gap-2 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition"
+                className="flex items-center gap-2 px-4 py-2 bg-purple-650 hover:bg-purple-700 text-white rounded-lg transition"
               >
                 <PlusIcon className="w-5 h-5" />
                 Agregar Ítem
@@ -264,19 +263,19 @@ export default function SettlementForm({ business, clients, products, onSubmit }
             </div>
 
             {items.length === 0 ? (
-              <div className="text-center py-8 bg-gray-50 rounded-lg">
-                <p className="text-gray-500">No hay ítems. Haga clic en "Agregar Ítem"</p>
+              <div className="text-center py-8 bg-gray-50 dark:bg-slate-900/30 border border-dashed border-gray-200 dark:border-slate-700 rounded-lg">
+                <p className="text-gray-500 dark:text-slate-400">No hay ítems. Haga clic en "Agregar Ítem"</p>
               </div>
             ) : (
               <div className="space-y-4">
                 {items.map((item, index) => (
-                  <div key={index} className="border rounded-lg p-4 bg-gray-50">
+                  <div key={index} className="border border-gray-250 dark:border-slate-700 rounded-lg p-4 bg-gray-50 dark:bg-slate-900/30">
                     <div className="flex justify-between items-start mb-4">
-                      <h4 className="font-medium text-gray-700">Ítem {index + 1}</h4>
+                      <h4 className="font-medium text-gray-700 dark:text-slate-300">Ítem {index + 1}</h4>
                       <button
                         type="button"
                         onClick={() => removeItem(index)}
-                        className="text-red-600 hover:text-red-800 text-lg"
+                        className="text-red-655 hover:text-red-800 text-lg"
                       >
                         <TrashIcon className="w-5 h-5" />
                       </button>
@@ -284,16 +283,16 @@ export default function SettlementForm({ business, clients, products, onSubmit }
 
                     <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                       <div className="md:col-span-4">
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                        <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-2">
                           Seleccionar Producto (Opcional)
                         </label>
                         <select
                           onChange={(e) => selectProduct(index, e.target.value)}
-                          className="w-full px-3 py-2 border rounded-lg"
+                          className="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-900/50 text-gray-800 dark:text-white"
                         >
-                          <option value="">Seleccione o ingrese manualmente</option>
+                          <option value="" className="dark:bg-slate-800">Seleccione o ingrese manualmente</option>
                           {(Array.isArray(products) ? products : []).map(product => (
-                            <option key={product.id} value={product.id}>
+                            <option key={product.id} value={product.id} className="dark:bg-slate-800">
                               {product.code} - {product.description}
                             </option>
                           ))}
@@ -301,19 +300,19 @@ export default function SettlementForm({ business, clients, products, onSubmit }
                       </div>
 
                       <div className="md:col-span-2">
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                        <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-2">
                           Descripción
                         </label>
                         <input
                           type="text"
                           value={item.description}
                           onChange={(e) => updateItem(index, 'description', e.target.value)}
-                          className="w-full px-3 py-2 border rounded-lg"
+                          className="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-900/50 text-gray-800 dark:text-white"
                         />
                       </div>
 
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                        <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-2">
                           Cantidad
                         </label>
                         <input
@@ -321,12 +320,12 @@ export default function SettlementForm({ business, clients, products, onSubmit }
                           step="0.01"
                           value={item.quantity}
                           onChange={(e) => updateItem(index, 'quantity', parseFloat(e.target.value))}
-                          className="w-full px-3 py-2 border rounded-lg"
+                          className="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-900/50 text-gray-800 dark:text-white"
                         />
                       </div>
 
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                        <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-2">
                           Precio Unitario
                         </label>
                         <input
@@ -334,12 +333,12 @@ export default function SettlementForm({ business, clients, products, onSubmit }
                           step="0.01"
                           value={item.unitPrice}
                           onChange={(e) => updateItem(index, 'unitPrice', parseFloat(e.target.value))}
-                          className="w-full px-3 py-2 border rounded-lg"
+                          className="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-900/50 text-gray-800 dark:text-white"
                         />
                       </div>
 
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                        <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-2">
                           Descuento
                         </label>
                         <input
@@ -347,26 +346,26 @@ export default function SettlementForm({ business, clients, products, onSubmit }
                           step="0.01"
                           value={item.discount}
                           onChange={(e) => updateItem(index, 'discount', parseFloat(e.target.value))}
-                          className="w-full px-3 py-2 border rounded-lg"
+                          className="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-900/50 text-gray-800 dark:text-white"
                         />
                       </div>
 
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                        <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-2">
                           IVA (%)
                         </label>
                         <select
                           value={item.taxRate}
                           onChange={(e) => updateItem(index, 'taxRate', parseFloat(e.target.value))}
-                          className="w-full px-3 py-2 border rounded-lg"
+                          className="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-900/50 text-gray-800 dark:text-white"
                         >
-                          <option value={15}>15% IVA</option>
-                          <option value={0}>0% IVA</option>
+                          <option value={15} className="dark:bg-slate-800">15% IVA</option>
+                          <option value={0} className="dark:bg-slate-800">0% IVA</option>
                         </select>
                       </div>
 
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                        <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-2">
                           Total
                         </label>
                         <input
@@ -374,7 +373,7 @@ export default function SettlementForm({ business, clients, products, onSubmit }
                           step="0.01"
                           value={item.total.toFixed(2)}
                           readOnly
-                          className="w-full px-3 py-2 border rounded-lg bg-gray-100 font-bold text-purple-600"
+                          className="w-full px-3 py-2 border border-gray-350 dark:border-slate-600 rounded-lg bg-gray-100 dark:bg-slate-900/70 font-bold text-purple-600 dark:text-purple-400"
                         />
                       </div>
                     </div>
@@ -385,15 +384,15 @@ export default function SettlementForm({ business, clients, products, onSubmit }
           </div>
 
           {/* Forma de Pago */}
-          <div className="border-b pb-4">
-            <h3 className="text-lg font-semibold text-gray-700 mb-4 flex items-center gap-2">
+          <div className="border-b border-gray-100 dark:border-slate-700/50 pb-4">
+            <h3 className="text-lg font-semibold text-gray-700 dark:text-slate-200 mb-4 flex items-center gap-2">
               <BanknotesIcon className="w-5 h-5" />
               Forma de Pago
             </h3>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-2">
                   Método de Pago
                 </label>
                 <select
@@ -403,11 +402,11 @@ export default function SettlementForm({ business, clients, products, onSubmit }
                     newPayments[0].paymentMethodCode = e.target.value;
                     setPayments(newPayments);
                   }}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500"
+                  className="w-full px-4 py-2 border border-gray-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-purple-500 bg-white dark:bg-slate-900/50 text-gray-800 dark:text-white"
                 >
-                  <option value="01">Sin utilización del sistema financiero</option>
-                  <option value="19">Tarjeta de débito</option>
-                  <option value="20">Otros con utilización del sistema financiero</option>
+                  <option value="01" className="dark:bg-slate-800">Sin utilización del sistema financiero</option>
+                  <option value="19" className="dark:bg-slate-800">Tarjeta de débito</option>
+                  <option value="20" className="dark:bg-slate-800">Otros con utilización del sistema financiero</option>
                 </select>
               </div>
             </div>
@@ -415,7 +414,7 @@ export default function SettlementForm({ business, clients, products, onSubmit }
 
           {/* Información Adicional */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-2">
               Información Adicional
             </label>
             <textarea
@@ -423,31 +422,31 @@ export default function SettlementForm({ business, clients, products, onSubmit }
               onChange={(e) => setAdditionalInfo(e.target.value)}
               rows={3}
               placeholder="Observaciones o detalles adicionales..."
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500"
+              className="w-full px-4 py-2 border border-gray-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-purple-500 bg-white dark:bg-slate-900/50 text-gray-800 dark:text-white placeholder-gray-400 dark:placeholder-slate-550"
             />
           </div>
 
           {/* Totales */}
-          <div className="bg-purple-50 rounded-lg p-4 space-y-2">
+          <div className="bg-purple-50 dark:bg-slate-900/40 border border-purple-100 dark:border-purple-955 rounded-lg p-4 space-y-2">
             <div className="flex justify-between">
-              <span className="text-gray-700">Subtotal IVA 15%:</span>
-              <span className="font-semibold">${totals.subtotal12.toFixed(2)}</span>
+              <span className="text-gray-700 dark:text-slate-350">Subtotal IVA 15%:</span>
+              <span className="font-semibold text-gray-800 dark:text-slate-200">${totals.subtotal12.toFixed(2)}</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-gray-700">Subtotal IVA 0%:</span>
-              <span className="font-semibold">${totals.subtotal0.toFixed(2)}</span>
+              <span className="text-gray-700 dark:text-slate-350">Subtotal IVA 0%:</span>
+              <span className="font-semibold text-gray-800 dark:text-slate-200">${totals.subtotal0.toFixed(2)}</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-gray-700">Subtotal:</span>
-              <span className="font-semibold">${totals.subtotal.toFixed(2)}</span>
+              <span className="text-gray-700 dark:text-slate-350">Subtotal:</span>
+              <span className="font-semibold text-gray-800 dark:text-slate-200">${totals.subtotal.toFixed(2)}</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-gray-700">IVA 15%:</span>
-              <span className="font-semibold">${totals.iva.toFixed(2)}</span>
+              <span className="text-gray-700 dark:text-slate-350">IVA 15%:</span>
+              <span className="font-semibold text-gray-800 dark:text-slate-200">${totals.iva.toFixed(2)}</span>
             </div>
-            <div className="flex justify-between items-center pt-2 border-t-2 border-purple-200">
-              <span className="text-xl font-bold text-gray-800">Total:</span>
-              <span className="text-2xl font-bold text-purple-600">
+            <div className="flex justify-between items-center pt-2 border-t-2 border-purple-200 dark:border-purple-950">
+              <span className="text-xl font-bold text-gray-800 dark:text-slate-100">Total:</span>
+              <span className="text-2xl font-bold text-purple-600 dark:text-purple-400">
                 ${totals.total.toFixed(2)}
               </span>
             </div>
@@ -457,13 +456,13 @@ export default function SettlementForm({ business, clients, products, onSubmit }
           <div className="flex gap-4 justify-end">
             <button
               type="button"
-              className="px-6 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition"
+              className="px-6 py-2 border border-gray-300 dark:border-slate-600 rounded-lg text-gray-700 dark:text-slate-300 hover:bg-gray-50 dark:hover:bg-slate-700/50 transition"
             >
               Cancelar
             </button>
             <button
               type="submit"
-              className="px-6 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition"
+              className="px-6 py-2 bg-purple-650 hover:bg-purple-700 text-white rounded-lg transition font-semibold"
             >
               Emitir Liquidación
             </button>
