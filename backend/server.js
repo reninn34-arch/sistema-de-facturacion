@@ -5,7 +5,7 @@ const cors = require('cors');
 const soap = require('soap');
 const forge = require('node-forge');
 const SignedXml = require('xml-crypto').SignedXml;
-const { DOMParser } = require('xmldom');
+const { DOMParser } = require('@xmldom/xmldom');
 const bodyParser = require('body-parser');
 const rateLimit = require('express-rate-limit');
 const helmet = require('helmet');
@@ -389,7 +389,7 @@ ${certBase64}
 </ds:Signature>`;
 
     // Serializar el DOM actualizado (con id="comprobante" agregado)
-    const { XMLSerializer } = require('xmldom');
+    const { XMLSerializer } = require('@xmldom/xmldom');
     const serializer = new XMLSerializer();
     let xmlString = serializer.serializeToString(xmlDoc);
 

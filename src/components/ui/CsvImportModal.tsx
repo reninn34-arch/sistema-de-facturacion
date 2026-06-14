@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import * as XLSX from 'xlsx';
+import Papa from 'papaparse';
 import { DocumentArrowUpIcon, XMarkIcon, CheckCircleIcon, ExclamationTriangleIcon, ArrowDownTrayIcon } from '@heroicons/react/24/outline';
 
 interface CsvImportModalProps {
@@ -35,11 +35,19 @@ const CsvImportModal: React.FC<CsvImportModalProps> = ({ isOpen, onClose, onImpo
     const reader = new FileReader();
     reader.onload = (e) => {
       try {
-        const data = new Uint8Array(e.target?.result as ArrayBuffer);
-        const workbook = XLSX.read(data, { type: 'array' });
-        const sheetName = workbook.SheetNames[0];
-        const sheet = workbook.Sheets[sheetName];
-        const jsonData = XLSX.utils.sheet_to_json<Record<string, any>>(sheet);
+        const text = e.target?.result as string;
+        const result = Papa.parse<Record<string, any>>(text, {
+          header: true,
+          skipEmptyLines: true,
+          dynamicTyping: false,
+        });
+
+        if (result.errors.length > 0) {
+          setErrors([`Error en línea ${result.errors[0].row}: ${result.errors[0].message}`]);
+          return;
+        }
+
+        const jsonData = result.data;
 
         if (jsonData.length === 0) {
           setErrors(['El archivo está vacío o no tiene datos válidos.']);
@@ -54,10 +62,10 @@ const CsvImportModal: React.FC<CsvImportModalProps> = ({ isOpen, onClose, onImpo
         setRows(jsonData);
         setStep('preview');
       } catch {
-        setErrors(['Error al leer el archivo. Verifique que sea un Excel/CSV válido.']);
+        setErrors(['Error al leer el archivo. Verifique que sea un CSV válido.']);
       }
     };
-    reader.readAsArrayBuffer(file);
+    reader.readAsText(file);
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -86,10 +94,14 @@ const CsvImportModal: React.FC<CsvImportModalProps> = ({ isOpen, onClose, onImpo
   };
 
   const downloadSample = () => {
-    const ws = XLSX.utils.json_to_sheet([sampleData]);
-    const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, entityType);
-    XLSX.writeFile(wb, `plantilla_${entityType}.xlsx`);
+    const csv = Papa.unparse([sampleData]);
+    const blob = new Blob(['\ufeff' + csv], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `plantilla_${entityType}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
   };
 
   if (!isOpen) return null;
@@ -119,8 +131,8 @@ const CsvImportModal: React.FC<CsvImportModalProps> = ({ isOpen, onClose, onImpo
                 <DocumentArrowUpIcon className="w-16 h-16 text-slate-300 mx-auto mb-4" />
                 <p className="text-lg font-bold text-slate-700 mb-2">Suelta tu archivo aquí</p>
                 <p className="text-sm text-slate-500 mb-4">o haz clic para seleccionar</p>
-                <span className="text-xs text-slate-400 bg-slate-100 px-4 py-2 rounded-full font-medium">Excel (.xlsx, .xls) o CSV (.csv)</span>
-                <input ref={fileInputRef} type="file" accept=".csv,.xlsx,.xls" className="hidden" onChange={handleFileChange} />
+                <span className="text-xs text-slate-400 bg-slate-100 px-4 py-2 rounded-full font-medium">CSV (.csv)</span>
+                <input ref={fileInputRef} type="file" accept=".csv" className="hidden" onChange={handleFileChange} />
               </div>
 
               <div className="bg-sky-50 rounded-2xl p-5 flex items-start gap-3">
