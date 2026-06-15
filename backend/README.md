@@ -1,43 +1,65 @@
 # 🇪🇨 Backend Proxy SRI Ecuador
 
-Backend Node.js/Express que actúa como proxy entre el frontend y los Web Services del SRI de Ecuador.
+Backend Node.js/Express con arquitectura modular por capas (controller → service → routes).
+Actúa como proxy entre el frontend y los Web Services del SRI de Ecuador.
 
 ## 🚀 Inicio Rápido
 
-### 1. Instalar dependencias
-
 ```bash
 npm install
-```
-
-### 2. Configurar variables de entorno
-
-Copiar `.env.example` a `.env` y ajustar valores:
-
-```bash
 cp .env.example .env
+npm run dev   # Desarrollo (nodemon, puerto 3001)
+npm start     # Producción
 ```
 
-### 3. Iniciar el servidor
+## 📂 Estructura Modular
 
-```bash
-# Modo desarrollo (con nodemon)
-npm run dev
-
-# Modo producción
-npm start
+```
+backend/
+├── prisma/                     # Modelo de datos, migraciones, seed
+├── src/
+│   ├── modules/                # 21 módulos domain-driven
+│   │   ├── admin/              # Panel SUPERADMIN
+│   │   ├── ai/                 # Asistente IA
+│   │   ├── auth/               # Login, registro, recuperación
+│   │   ├── business/           # Empresa, clientes, productos, docs
+│   │   ├── module-permissions/ # Permisos granulares
+│   │   ├── notifications/      # Email (SendGrid, Mailgun, SMTP)
+│   │   ├── production/         # Recetas y producción
+│   │   ├── quicksale/          # Ventas rápidas / POS
+│   │   ├── session/            # Sesiones de usuario
+│   │   ├── sri/                # Firma XML, recepción, autorización
+│   │   ├── system/             # Health check, info, backups
+│   │   ├── payment/            # Pagos PayPal
+│   │   ├── internal-payment/   # Pagos internos
+│   │   ├── subscription-plans/ # Planes de suscripción
+│   │   ├── activation-requests/# Solicitudes de activación
+│   │   ├── settings/           # Configuración global
+│   │   ├── public/             # Rutas públicas
+│   │   ├── emission-points/    # Puntos de emisión
+│   │   ├── referrals/          # Programa de referidos
+│   │   ├── points-admin/       # Admin de puntos
+│   │   └── blog/               # Blog y capacitaciones
+│   ├── middleware/             # JWT, roles, error handler
+│   └── utils/                  # Logger
+├── server.js                   # Entry point (~208 líneas)
+├── sriHelpers.js               # Validación XML, parseo SOAP, backups
+└── tests/                      # Tests unitarios
 ```
 
-El servidor estará disponible en: **http://localhost:3001**
+Cada módulo sigue el patrón:
+```
+module/
+├── module.controller.js   # Manejo de req/res
+├── module.service.js      # Lógica de negocio + Prisma
+└── module.routes.js       # Definición de rutas + middlewares
+```
 
-## 📋 Endpoints Disponibles
+## 📋 Endpoints SRI
 
-### 1. **Firmar XML** 
-`POST /api/sri/sign-xml`
+### POST `/api/sri/sign-xml`
+Firma XML con certificado digital .p12
 
-Firma un XML con certificado digital .p12
-
-**Body:**
 ```json
 {
   "xml": "<factura>...</factura>",
@@ -52,249 +74,63 @@ Firma un XML con certificado digital .p12
 {
   "success": true,
   "signedXml": "<factura>...<ds:Signature>...</ds:Signature></factura>",
-  "certificateInfo": {
-    "subject": "CN=EMPRESA SA, O=EMPRESA",
-    "validFrom": "01/01/2024",
-    "validTo": "31/12/2025"
-  }
+  "certificateInfo": { "subject": "CN=EMPRESA SA", "validFrom": "...", "validTo": "..." }
 }
 ```
 
-### 2. **Enviar a Recepción SRI**
-`POST /api/sri/recepcion`
+### POST `/api/sri/recepcion`
+Envía comprobante firmado al SRI
 
-Envía el comprobante firmado al SRI para validación
-
-**Body:**
 ```json
-{
-  "xmlSigned": "<factura>...<ds:Signature>...</ds:Signature></factura>",
-  "isProduction": false
-}
+{ "xmlSigned": "<factura>...<ds:Signature>...</ds:Signature></factura>", "isProduction": false }
 ```
 
-**Respuesta Exitosa:**
+**Respuesta:** `{ "success": true, "estado": "RECIBIDA", "claveAcceso": "...", "mensaje": "..." }`
+
+### POST `/api/sri/autorizacion`
+Consulta autorización SRI
+
 ```json
-{
-  "success": true,
-  "estado": "RECIBIDA",
-  "claveAcceso": "2912202501179123456700120010010000000011234567818",
-  "mensaje": "Comprobante recibido correctamente por el SRI"
-}
+{ "claveAcceso": "2912202501179123456700120010010000000011234567818", "isProduction": false }
 ```
 
-### 3. **Consultar Autorización**
-`POST /api/sri/autorizacion`
-
-Consulta el estado de autorización de un comprobante
-
-**Body:**
-```json
-{
-  "claveAcceso": "2912202501179123456700120010010000000011234567818",
-  "isProduction": false
-}
-```
-
-**Respuesta Autorizada:**
-```json
-{
-  "success": true,
-  "estado": "AUTORIZADO",
-  "numeroAutorizacion": "2912202501179123456700120010010000000011234567818",
-  "fechaAutorizacion": "2024-12-29T10:30:00.000Z",
-  "mensaje": "Comprobante autorizado exitosamente por el SRI"
-}
-```
-
-### 4. **Health Check**
-`GET /health`
-
-Verifica que el servidor esté funcionando
-
-**Respuesta:**
-```json
-{
-  "status": "OK",
-  "message": "Proxy SRI funcionando correctamente",
-  "timestamp": "2024-12-29T10:00:00.000Z",
-  "environment": "development"
-}
-```
-
-### 5. **Información del Servidor**
-`GET /api/info`
-
-Devuelve información sobre el servidor y endpoints disponibles
+**Respuesta:** `{ "success": true, "estado": "AUTORIZADO", "numeroAutorizacion": "...", ... }`
 
 ## 🔐 Autenticación
 
-En **producción**, todos los endpoints bajo `/api/sri/` requieren el header:
-
+Endpoints SRI requieren header en producción:
 ```
 X-API-Key: tu-clave-secreta
 ```
 
-Configurar en `.env`:
-```
-API_KEY=tu-clave-secreta
-NODE_ENV=production
-```
-
-En **desarrollo**, la autenticación está deshabilitada.
+Endpoints de negocio usan JWT Bearer token.
 
 ## ⚙️ Variables de Entorno
 
-| Variable | Descripción | Valor por defecto |
-|----------|-------------|-------------------|
-| `PORT` | Puerto del servidor | `3001` |
-| `NODE_ENV` | Entorno (development/production) | `development` |
-| `FRONTEND_URL` | URL del frontend para CORS | `http://localhost:3000` |
-| `API_KEY` | Clave de autenticación (producción) | - |
-| `LOG_LEVEL` | Nivel de logs | `info` |
+| Variable | Descripción | Defecto |
+|----------|-------------|---------|
+| `PORT` | Puerto | `3001` |
+| `NODE_ENV` | Entorno | `development` |
+| `DATABASE_URL` | PostgreSQL | - |
+| `JWT_SECRET` | Secreto JWT | - |
+| `API_KEY` | API Key SRI (producción) | - |
+| `FRONTEND_URL` | CORS | `http://localhost:3000` |
+
+## 🚀 Deploy
+
+```bash
+# PM2
+pm2 start server.js --name "sri-proxy"
+
+# Docker
+docker build -t sri-proxy . && docker run -p 3001:3001 --env-file .env sri-proxy
+```
 
 ## 🛡️ Seguridad
 
-- ✅ Helmet para headers de seguridad
-- ✅ Rate limiting (100 requests por 15 minutos)
-- ✅ CORS configurado
-- ✅ Body parser con límite de 10MB
-- ✅ Validación de certificados digitales
-- ✅ Logs de todas las operaciones
-
-## 📊 Logs
-
-El servidor registra todas las operaciones:
-
-```
-📝 Firmando XML con certificado digital...
-✅ XML firmado correctamente
-📡 Conectando a Recepción SRI (PRUEBAS)...
-📤 Enviando comprobante al SRI...
-📋 Estado recepción: RECIBIDA
-✅ Comprobante RECIBIDO por el SRI
-```
-
-## 🐛 Debugging
-
-### Verificar que el servidor esté funcionando:
-
-```bash
-curl http://localhost:3001/health
-```
-
-### Ver información del servidor:
-
-```bash
-curl http://localhost:3001/api/info
-```
-
-### Probar endpoint de firma (con curl):
-
-```bash
-curl -X POST http://localhost:3001/api/sri/sign-xml \
-  -H "Content-Type: application/json" \
-  -d '{
-    "xml": "<factura>...</factura>",
-    "p12Base64": "...",
-    "password": "...",
-    "claveAcceso": "..."
-  }'
-```
-
-## 🚀 Deploy en Producción
-
-### Opción 1: PM2 (VPS)
-
-```bash
-# Instalar PM2
-npm install -g pm2
-
-# Iniciar servidor
-pm2 start server.js --name "sri-proxy"
-
-# Ver logs
-pm2 logs sri-proxy
-
-# Reiniciar
-pm2 restart sri-proxy
-
-# Configurar inicio automático
-pm2 startup
-pm2 save
-```
-
-### Opción 2: Docker
-
-```dockerfile
-FROM node:18-alpine
-WORKDIR /app
-COPY package*.json ./
-RUN npm ci --only=production
-COPY . .
-EXPOSE 3001
-CMD ["node", "server.js"]
-```
-
-```bash
-docker build -t sri-proxy .
-docker run -p 3001:3001 --env-file .env sri-proxy
-```
-
-### Opción 3: Heroku
-
-```bash
-# Crear Procfile
-echo "web: node server.js" > Procfile
-
-# Deploy
-git push heroku main
-```
-
-## 📝 Notas Importantes
-
-1. **Certificados SSL:** El servidor acepta certificados autofirmados del SRI en pruebas
-2. **Timeouts:** Los requests SOAP tienen timeout de 30 segundos
-3. **Rate Limiting:** 100 requests cada 15 minutos por IP
-4. **CORS:** Solo el frontend configurado puede hacer requests
-5. **Logs:** Todos los errores se registran en consola
-
-## 🔄 Flujo Completo
-
-```
-Frontend → POST /api/sri/sign-xml → Backend firma XML
-Backend → POST /api/sri/recepcion → Envía a SRI
-Backend → POST /api/sri/autorizacion → Consulta SRI
-Backend → Respuesta → Frontend muestra resultado
-```
-
-## 🆘 Problemas Comunes
-
-### Error: "ECONNREFUSED"
-- Verificar que el SRI esté disponible
-- Revisar conexión a internet
-- Probar con endpoint de pruebas primero
-
-### Error: "Invalid password"
-- Verificar contraseña del certificado .p12
-- Probar el certificado con otra herramienta
-
-### Error: "Certificado expirado"
-- Renovar certificado digital
-- Verificar fecha del sistema
-
-### Error: "CORS blocked"
-- Verificar `FRONTEND_URL` en `.env`
-- Agregar dominio al array de CORS si es necesario
-
-## 📚 Referencias
-
-- [SRI Ecuador - Facturación Electrónica](https://www.sri.gob.ec/facturacion-electronica)
-- [Web Services SRI](https://cel.sri.gob.ec/comprobantes-electronicos-ws/)
-- [Express.js Documentation](https://expressjs.com/)
-- [Node SOAP Library](https://www.npmjs.com/package/soap)
+- Helmet, rate limiting (100/15min), CORS, body parser 10MB
+- Validación de certificados .p12, logs de todas las operaciones
 
 ---
 
-**Desarrollado para integración con SRI Ecuador**
-**Versión: 1.0.0**
+**Desarrollado para integración con SRI Ecuador — Versión 2.0.0**

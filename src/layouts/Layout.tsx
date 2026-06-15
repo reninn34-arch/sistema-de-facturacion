@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import EnvironmentModal from '../components/EnvironmentModal';
 import { AppNotification, BusinessInfo } from '../types/types';
 import {
@@ -40,8 +41,6 @@ import {
 
 interface LayoutProps {
   children: React.ReactNode;
-  activeTab: string;
-  setActiveTab: (tab: string) => void;
   notifications: AppNotification[];
   onMarkRead: (id?: string) => void;
   onRemoveNotif: (id: string) => void;
@@ -127,11 +126,16 @@ interface MenuGroup {
 }
 
 const Layout: React.FC<LayoutProps> = ({
-  children, activeTab, setActiveTab, notifications, onMarkRead, onRemoveNotif,
+  children, notifications, onMarkRead, onRemoveNotif,
   businessInfo, currentUser, subscriptionExpired = false, pendingActivations = 0,
   planHasAIAssistant = false, hasModuleControl = false, modulePermissions = [],
   pointsProgramEnabled = true, onActivateProduction
 }) => {
+  const location = useLocation();
+  const navigate = useNavigate();
+  const activeTab = location.pathname.startsWith('/app/')
+    ? location.pathname.split('/app/')[1]
+    : 'dashboard';
   const [showNotifications, setShowNotifications] = useState(false);
   const [isEnvModalOpen, setIsEnvModalOpen] = useState(false);
   const [isEnvLoading, setIsEnvLoading] = useState(false);
@@ -187,7 +191,7 @@ const Layout: React.FC<LayoutProps> = ({
 
   const handleTabClick = (tabId: string) => {
     if (tabId === 'logout_btn') { handleLogout(); return; }
-    setActiveTab(tabId);
+    navigate('/app/' + tabId);
     if (window.innerWidth < 1024) setIsSidebarOpen(false);
   };
 

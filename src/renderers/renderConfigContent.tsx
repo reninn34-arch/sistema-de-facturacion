@@ -11,6 +11,7 @@ interface RenderConfigContentProps {
   passwordData: { current: string; new: string; confirm: string };
   showProfilePassword: boolean;
   signatureFile: File | null;
+  signaturePassword: string;
   showSignaturePassword: boolean;
   emissionPoints: EmissionPoint[];
   selectedEmissionPoint: EmissionPoint | null;

@@ -155,11 +155,31 @@ sistema-de-facturacion/
 │   │   ├── setup.js                # Script de configuración completo
 │   │   └── client.js               # Cliente Prisma singleton
 │   ├── src/
-│   │   ├── controllers/            # auth, business, ai, admin, production, etc.
-│   │   ├── routes/                 # 18 archivos de rutas Express
+│   │   │   ├── modules/                # 21 módulos (controller + service + routes)
+│   │   │   ├── admin/              # Panel SUPERADMIN (businesses, users, subscriptions)
+│   │   │   ├── ai/                 # Asistente IA conversacional
+│   │   │   ├── auth/               # Login, registro, recuperación de acceso
+│   │   │   ├── business/           # Empresa/tenant, clientes, productos, documentos
+│   │   │   ├── module-permissions/ # Permisos granulares por módulo
+│   │   │   ├── notifications/      # Email (SendGrid, Mailgun, SMTP)
+│   │   │   ├── production/         # Recetas y producción
+│   │   │   ├── quicksale/          # Ventas rápidas / POS
+│   │   │   ├── session/            # Registro de sesiones
+│   │   │   ├── sri/                # Firma, recepción y autorización SRI
+│   │   │   ├── system/             # Health check, info, backups
+│   │   │   ├── payment/            # Pagos PayPal
+│   │   │   ├── internal-payment/   # Pagos internos por transferencia
+│   │   │   ├── subscription-plans/ # Planes de suscripción
+│   │   │   ├── activation-requests/# Solicitudes de activación
+│   │   │   ├── settings/           # Configuración global
+│   │   │   ├── public/             # Rutas públicas (consulta estado)
+│   │   │   ├── emission-points/    # Puntos de emisión
+│   │   │   ├── referrals/          # Programa de referidos
+│   │   │   ├── points-admin/       # Administración de puntos
+│   │   │   └── blog/               # Blog y capacitaciones
 │   │   ├── middleware/             # JWT, roles, errores, módulos
 │   │   └── utils/                  # Logger
-│   ├── server.js                   # Entry point Express (~960 líneas)
+│   ├── server.js                   # Entry point Express (~208 líneas)
 │   └── sriHelpers.js               # Validación XML, parseo SOAP, backups
 ├── tests/
 │   └── e2e/                        # Tests E2E con Playwright
@@ -227,37 +247,41 @@ GEMINI_API_KEY=tu_gemini_api_key
 
 ---
 
-## API — Backend Proxy SRI
-
-Endpoints del proxy Express (`backend/server.js`):
+## API — Backend (21 módulos en `backend/src/modules/`)
 
 | Método | Ruta | Descripción |
 |--------|------|-------------|
 | POST | `/api/sri/sign-xml` | Firma XML con certificado .p12 (XAdES-BES) |
 | POST | `/api/sri/recepcion` | Envía comprobante a Recepción SRI (SOAP) |
 | POST | `/api/sri/autorizacion` | Consulta Autorización SRI (SOAP) |
-| POST | `/api/auth/*` | Login, registro, refresh token |
-| POST | `/api/business/*` | CRUD de empresa / tenant |
+| POST | `/api/login` | Login ADMIN |
+| POST | `/api/register` | Registro |
+| POST | `/api/forgot-password` | Recuperación de contraseña |
+| POST | `/api/reset-password` | Restablecer contraseña |
+| POST | `/api/auth/client/login` | Login cliente |
+| POST | `/api/business` | Perfil de empresa |
+| GET/POST | `/api/products` | Productos |
+| GET/POST | `/api/clients` | Clientes |
+| GET/POST | `/api/documents` | Documentos electrónicos |
 | POST | `/api/ai/chat` | Asistente IA conversacional |
 | POST | `/api/ai/insights` | Recomendaciones financieras |
-| POST | `/api/ai/audit` | Auditoría en tiempo real del negocio |
+| GET | `/api/ai/audit` | Auditoría en tiempo real del negocio |
+| GET/POST | `/api/admin/*` | Panel SUPERADMIN (empresas, usuarios, suscripciones) |
+| GET/POST | `/api/subscription-plans` | Planes de suscripción |
+| GET/POST | `/api/activation-requests` | Solicitudes de activación |
+| POST | `/api/subscriptions/payment-internal` | Pago interno de suscripción |
+| GET | `/api/subscriptions/status` | Estado de suscripción |
+| POST | `/api/payment/validate-paypal` | Validar pago PayPal |
+| GET/PUT | `/api/admin/settings` | Configuración global |
+| GET/PUT | `/api/settings/landing-logo` | Logo de landing page |
+| GET/PUT | `/api/landing-content` | Contenido de landing page |
 | POST | `/api/notifications/send-email` | Email (SendGrid / Mailgun / SMTP) |
-| POST | `/api/notifications/send-sms` | SMS (Twilio) |
-| POST | `/api/notifications/send-whatsapp` | WhatsApp (Twilio) |
-| POST | `/api/payment/*` | Pagos PayPal |
-| POST | `/api/internal-payment/*` | Solicitudes de activación por transferencia |
-| GET/POST | `/api/subscription-plans/*` | Planes de suscripción |
-| GET/POST | `/api/admin/*` | Panel SUPERADMIN |
-| GET/POST | `/api/production/*` | Recetas y producción |
-| GET/POST | `/api/quicksale/*` | Ventas rápidas / POS |
-| POST | `/api/settings/*` | Configuración global |
-| POST | `/api/module-permissions/*` | Permisos de módulos por usuario |
-| POST | `/api/session/*` | Registro de sesiones |
-| GET/POST | `/api/emission-points/*` | Puntos de emisión |
-| GET/POST | `/api/referrals/*` | Programa de referidos |
-| GET/POST | `/api/points-admin/*` | Administración de puntos |
-| GET/POST | `/api/blog/*` | Blog y capacitaciones |
-| GET | `/api/public/*` | Rutas públicas (consulta estado) |
+| GET/POST | `/api/emission-points` | Puntos de emisión |
+| GET/POST | `/api/referrals` | Programa de referidos y puntos |
+| GET/POST | `/api/admin/points*` | Admin de puntos y premios |
+| GET/POST | `/api/blog/posts` | Blog público |
+| GET/POST | `/api/admin/blog` | Blog admin |
+| GET | `/api/public/activation-status` | Consulta pública de estado |
 | GET | `/health` | Health check |
 | GET | `/api/info` | Información del servidor |
 | GET | `/api/backups/info` | Info de backups XML |

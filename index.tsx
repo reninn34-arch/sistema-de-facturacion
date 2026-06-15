@@ -1,7 +1,9 @@
 import './src/index.css';
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import App from './src/App';
+import { BrowserRouter } from 'react-router-dom';
+import { AppProvider } from './src/context/AppContext';
+import { AppRoutes } from './src/router';
 
 const rootElement = document.getElementById('root');
 if (!rootElement) {
@@ -11,6 +13,10 @@ if (!rootElement) {
 const root = ReactDOM.createRoot(rootElement);
 root.render(
   <React.StrictMode>
-    <App />
+    <BrowserRouter>
+      <AppProvider>
+        <AppRoutes />
+      </AppProvider>
+    </BrowserRouter>
   </React.StrictMode>
 );
