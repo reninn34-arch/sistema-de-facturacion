@@ -1,333 +1,372 @@
-<div align="center">
-<img width="1200" height="475" alt="GHBanner" src="https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6" />
-</div>
+# EcuaFact Pro — Sistema de Facturación Electrónica SRI
 
-# 🇪🇨 EcuaFact Pro - Sistema de Facturación Electrónica SRI
-
-**Sistema completo de facturación electrónica integrado con el SRI de Ecuador**
-
-[![Estado](https://img.shields.io/badge/Estado-Producción%20Ready-success)](/)
-[![SRI](https://img.shields.io/badge/SRI-v1.1.0-blue)](https://www.sri.gob.ec)
-[![React](https://img.shields.io/badge/React-19-61dafb)](https://react.dev)
-[![Node](https://img.shields.io/badge/Node.js-18+-green)](https://nodejs.org)
-
-## ✨ Características Principales
-
-- ✅ **Backend Proxy Implementado** - Comunicación SOAP con SRI
-- 🔐 **Firma Digital XAdES-BES** - Certificados .p12
-- 📄 **XML Estándar SRI** v1.1.0 oficial
-- 🏛️ **Autorización en Tiempo Real** - Recepción + Autorización
-- 📊 **Dashboard Completo** - Métricas y reportes
-- 💳 **Gestión de Clientes/Productos** - CRUD completo
-- 🎨 **Interfaz Moderna** - React 19 + Recharts
-- 🤖 **Asistente IA** - Google Gemini integrado
-
-## 🚀 Inicio Rápido
-
-### Requisitos
-- Node.js 18+ 
-- npm o yarn
-- Certificado digital .p12 (opcional para pruebas)
-
-### Instalación Completa
-
-```bash
-# 1. Clonar o descargar el proyecto
-cd sistema-facturacion
-
-# 2. Instalar dependencias del frontend
-npm install
-
-# 3. Configurar variables de entorno frontend
-cp .env.example .env
-# Editar .env con tus valores
-
-# 4. Instalar dependencias del backend
-cd backend
-npm install
-
-# 5. Configurar variables de entorno backend
-cp .env.example .env
-# Editar .env con tus valores
-cd ..
-```
-
-### Ejecutar Sistema
-
-```bash
-# Terminal 1 - Backend Proxy
-cd backend
-npm start
-# Servidor corriendo en http://localhost:3001
-
-# Terminal 2 - Frontend
-npm run dev
-# Aplicación corriendo en http://localhost:3000
-```
-
-## 🔧 Configuración
-
-### Variables de Entorno
-
-#### Frontend (`.env`)
-```bash
-VITE_BACKEND_URL=http://localhost:3001
-VITE_API_KEY=tu-clave-api-super-secreta-cambiar-en-produccion
-```
-
-#### Backend (`backend/.env`)
-```bash
-PORT=3001
-NODE_ENV=development
-API_KEY=tu-clave-api-super-secreta-cambiar-en-produccion
-FRONTEND_URL=http://localhost:3000
-```
-
-### 1. Datos del Negocio
-Ve a **Dashboard** y configura:
-- RUC (13 dígitos)
-- Nombre del negocio
-- Dirección, teléfono, email
-- **Ambiente**: Pruebas o Producción
-
-### 2. Firma Digital (Opcional para pruebas)
-- Carga tu certificado .p12 en la sección de firma
-- Ingresa la contraseña del certificado
-- El sistema validará automáticamente
-- En ambiente de pruebas, la firma es opcional
-
-### 3. Crear Primera Factura
-1. Ve a **Nueva Factura**
-2. Completa datos del cliente
-3. Agrega productos/servicios
-4. Click en **"Autorizar con SRI"**
-5. El sistema:
-   - Genera XML según estándar v1.1.0
-   - Firma digitalmente (si hay certificado)
-   - Envía a Recepción SRI
-   - Consulta Autorización
-6. Descarga RIDE (PDF) y XML firmado
-
-## 🏗️ Arquitectura
-
-```
-┌─────────────┐         ┌──────────────┐         ┌─────────────┐
-│   Frontend  │◄───────►│Backend Proxy │◄───────►│  SRI API    │
-│   React 19  │  HTTP   │  Node.js +   │  SOAP   │   Ecuador   │
-│             │  REST   │   Express    │         │             │
-└─────────────┘         └──────────────┘         └─────────────┘
-     │                         │
-     │ .env                    │ .env
-     │ VITE_BACKEND_URL        │ PORT=3001
-     │ VITE_API_KEY            │ API_KEY
-     └─────────────────────────┘
-```
-
-### Backend Proxy
-El backend maneja:
-- ✅ Firma digital con certificados .p12
-- ✅ Comunicación SOAP con SRI
-- ✅ Conversión XML a Base64
-- ✅ Validación de certificados
-- ✅ Rate limiting y seguridad
-
-Endpoints:
-- `POST /api/sri/sign-xml` - Firma XML
-- `POST /api/sri/recepcion` - Envía a SRI
-- `POST /api/sri/autorizacion` - Consulta autorización
-
-## 📦 Tecnologías
-
-### Frontend
-- **React 19** + TypeScript - Framework UI
-- **Vite** - Build tool rápido
-- **Recharts** - Gráficos y reportes
-- **Fetch API** - Comunicación con backend
-
-### Backend
-- **Node.js 18+** - Runtime
-- **Express 4.21** - Web framework
-- **soap 1.1.5** - Cliente SOAP para SRI
-- **node-forge 1.3.1** - Firma digital XAdES-BES
-- **xml2js 0.6.2** - Parser XML
-- **helmet** - Seguridad HTTP
-- **express-rate-limit** - Rate limiting
-- **morgan** - HTTP logging
-
-### Integración SRI
-- ✅ XML Schema v1.1.0
-- ✅ SOAP 1.1 Web Services
-- ✅ Firma Digital XAdES-BES
-- ✅ RSA-SHA1 Cryptography
-- ✅ Validaciones oficiales
-
-## 📄 Documentación
-
-- [**GUIA_USO_COMPLETA.md**](GUIA_USO_COMPLETA.md) - Guía paso a paso del usuario
-- [**SISTEMA_COMPLETADO.md**](SISTEMA_COMPLETADO.md) - Estado completo del sistema
-- [**INTEGRACION_SRI.md**](INTEGRACION_SRI.md) - Documentación técnica SRI
-- [**RESUMEN_IMPLEMENTACION.md**](RESUMEN_IMPLEMENTACION.md) - Resumen implementación
-- [**BACKEND_PROXY_SRI.md**](BACKEND_PROXY_SRI.md) - Guía del backend proxy
-- [**backend/README.md**](backend/README.md) - Documentación del backend
-
-## 🎯 Funcionalidades
-
-### Implementadas ✅
-- ✅ Facturas electrónicas (código 01)
-- ✅ **Notas de Crédito (código 04)** ⭐ NUEVO
-- ✅ Backend proxy Node.js
-- ✅ Firma digital XAdES-BES
-- ✅ Autorización en tiempo real con SRI
-- ✅ Gestión de clientes y productos
-- ✅ Reportes y dashboard
-- ✅ Generación de XML v1.1.0
-- ✅ Validaciones oficiales (RUC, Cédula, Clave Acceso)
-- ✅ Rate limiting y seguridad
-- ✅ SOAP Web Services integrados
-- ✅ Devoluciones y anulaciones
-
-### Por Implementar 📋
-- ⏳ Notas de Débito (código 05)
-- ⏳ Guías de Remisión (código 06)
-- ⏳ Retenciones (código 07)
-- ⏳ Envío de email automático
-- ⏳ Base de datos persistente (PostgreSQL)
-- ⏳ Generación de RIDE (PDF)
-
-## 🔐 Seguridad
-
-### Implementado
-- ✅ API Key authentication
-- ✅ Rate limiting (100 req/15min)
-- ✅ CORS configurado
-- ✅ Helmet security headers
-- ✅ Validación de inputs
-- ✅ Logging completo
-- ✅ Certificados en memoria (no persisten)
-
-### Recomendaciones
-- No versionar archivos .env
-- Cambiar API_KEY en producción
-- Usar HTTPS obligatorio
-- Implementar backups automáticos
-
-## 📊 Cumplimiento Normativo
-
-✅ Ficha Técnica Comprobantes Electrónicos v2.21  
-✅ Esquema XSD v1.1.0  
-✅ IVA 15% vigente 2024  
-✅ SOAP 1.1 Web Services  
-✅ Firma Digital XAdES-BES  
-✅ Validación de RUC, Cédula, Clave de Acceso  
-✅ Ambiente Pruebas y Producción
-
-## 🚀 Deploy a Producción
-
-### Backend
-```bash
-# En VPS/Cloud (Railway, Heroku, DigitalOcean, etc.)
-cd backend
-npm install
-npm start
-
-# O usar PM2
-npm install -g pm2
-pm2 start server.js --name sri-backend
-pm2 save
-pm2 startup
-```
-
-### Frontend
-```bash
-# Build para producción
-npm run build
-
-# Subir carpeta dist/ a:
-# - Vercel
-# - Netlify
-# - Firebase Hosting
-# - Servidor propio
-```
-
-### Configuración Producción
-1. Obtener certificado digital de producción (.p12)
-2. Configurar variables de entorno con valores reales
-3. Cambiar ambiente a "Producción"
-4. Generar API Key segura
-5. Configurar dominio con HTTPS
-6. Probar flujo completo en ambiente de pruebas primero
-
-## 🛠️ Scripts Disponibles
-
-### Frontend
-```bash
-npm run dev      # Desarrollo (Vite)
-npm run build    # Build producción
-npm run preview  # Preview build
-npm run lint     # Linter
-```
-
-### Backend
-```bash
-npm start        # Producción
-npm run dev      # Desarrollo (nodemon)
-```
-
-## 🤝 Contribuir
-
-Las contribuciones son bienvenidas. Para cambios importantes:
-1. Fork el proyecto
-2. Crea una rama (`git checkout -b feature/nueva-funcionalidad`)
-3. Commit tus cambios (`git commit -m 'Añadir nueva funcionalidad'`)
-4. Push a la rama (`git push origin feature/nueva-funcionalidad`)
-5. Abre un Pull Request
-
-## 📝 Licencia
-
-Este proyecto es de código abierto y está disponible bajo licencia MIT.
-
-## 🆘 Soporte
-
-### Recursos
-- 📖 [Documentación SRI Oficial](https://www.sri.gob.ec/facturacion-electronica)
-- 📞 Teléfono SRI: 1700 774 774
-- 📧 Email SRI: atencionsri@sri.gob.ec
-
-### Problemas Comunes
-
-#### Backend no conecta
-```bash
-# Verificar que el backend esté corriendo
-cd backend
-npm start
-# Debe mostrar: ✅ Servidor ejecutándose en: http://localhost:3001
-```
-
-#### Error de API Key
-```bash
-# Verificar que coincidan en ambos .env
-# Frontend: VITE_API_KEY=xxx
-# Backend: API_KEY=xxx
-```
-
-#### Certificado inválido
-- Verificar que sea formato .p12
-- Contraseña correcta
-- Certificado vigente
-- Emitido por entidad autorizada (Security Data, ANF, BCE)
+Sistema completo de facturación electrónica integrado con el SRI de Ecuador. Arquitectura SaaS multi-tenant con frontend en React y backend proxy Node.js para comunicación SOAP.
 
 ---
 
-<div align="center">
+## Tecnologías
 
-**🇪🇨 Desarrollado con ❤️ para Ecuador 🇪🇨**
+**Frontend** — React 19, TypeScript, Vite, Tailwind CSS v4, Recharts, Heroicons  
+**Backend** — Node.js, Express 4, Prisma ORM, PostgreSQL, JWT, bcrypt  
+**SRI** — SOAP (node-soap), XML Schema v1.1.0, Firma XAdES-BES, node-forge, xml-crypto  
+**Notificaciones** — SendGrid, Mailgun, SMTP, Twilio  
+**Pagos** — PayPal SDK, transferencias bancarias  
+**Testing** — Playwright (E2E), Jest + Supertest (unitario)  
+**Infra** — Docker, Vercel
 
-**✅ Sistema 100% Funcional - Listo para Producción**
+---
 
-**Cumple con toda la normativa SRI vigente**
+## Características
 
-[Documentación](GUIA_USO_COMPLETA.md) • [Sistema Completado](SISTEMA_COMPLETADO.md) • [Integración SRI](INTEGRACION_SRI.md)
+### Facturación Electrónica
+- Facturas (código 01), Notas de Crédito (04), Retenciones (07), Guías de Remisión (06), Liquidaciones de Compra
+- Generación de XML según esquema XSD v1.1.0 oficial del SRI
+- Firma digital XAdES-BES con certificados .p12
+- Envío SOAP a Recepción SRI
+- Consulta de Autorización con polling automático y backoff exponencial
+- Clave de Acceso de 49 dígitos con dígito verificador módulo 11
+- Modo Demo para pruebas sin conexión al SRI
 
-</div>
-#   s i s t e m a - d e - f a c t u r a c i o n  
- 
+### SaaS Multi-tenant
+- Empresas (tenants) aisladas con sus propios datos
+- Planes de suscripción: FREE, BASIC, PRO, ENTERPRISE, UNLIMITED
+- Roles de usuario: SUPERADMIN, ADMIN, VENDEDOR, CONTADOR
+- Control de acceso granular por módulo por usuario
+- Puntos de emisión múltiples por empresa
+- Programa de referidos y puntos canjeables
+
+### Gestión Comercial
+- Clientes y Proveedores con portal de acceso
+- Productos con control de stock, precios por volumen, unidades de medida
+- Inventario (Kardex) con movimientos por venta, compra, producción, ajuste
+- Secuenciales automáticos por establecimiento y punto de emisión
+- Producción con recetas, ingredientes y costeo unitario
+- Ventas rápidas / POS (punto de venta)
+- Compras
+
+### Reportes Tributarios
+- Libro de Ventas (registro diario)
+- ATS (Anexo Transaccional Simplificado) en XML
+- Formulario 104 (IVA)
+- Rentabilidad por producto
+
+### Notificaciones
+- Email: SendGrid, Mailgun, SMTP
+- SMS: Twilio
+- WhatsApp: Twilio
+- Recordatorios automáticos de pago
+
+### Extras
+- Asistente IA conversacional
+- Portal del cliente para consulta de facturas
+- Blog / capacitaciones con editor de contenido
+- Landing page configurable desde el panel admin
+- Exportación de datos a CSV
+
+---
+
+## Requisitos
+
+- Node.js 18+
+- PostgreSQL
+- npm o yarn
+- Certificado digital .p12 (producción)
+
+---
+
+## Instalación
+
+```bash
+# 1. Clonar el repositorio
+cd sistema-de-facturacion
+
+# 2. Configurar base de datos PostgreSQL
+psql -U postgres -c "CREATE DATABASE facturacion_db;"
+
+# 3. Backend
+cd backend
+npm install
+cp .env.example .env
+# Editar DATABASE_URL en .env con tus credenciales:
+#   DATABASE_URL=postgresql://usuario:password@localhost:5432/facturacion_db
+npm run prisma:generate
+npm run prisma:migrate
+npm run prisma:seed
+cd ..
+
+# 4. Frontend
+npm install
+cp .env.example .env
+```
+
+---
+
+## Ejecución
+
+```bash
+# Terminal 1 — Backend (Express, puerto 3001)
+cd backend
+npm run dev
+
+# Terminal 2 — Frontend (Vite, puerto 3000)
+npm run dev
+
+# O en paralelo:
+npm run dev:full
+```
+
+---
+
+## Estructura del Proyecto
+
+```
+sistema-de-facturacion/
+├── src/                            # Frontend React
+│   ├── api/                        # Cliente Axios + interceptors auth/refresh
+│   ├── components/                 # Componentes compartidos
+│   ├── layouts/                    # Layout principal con menú responsive
+│   ├── modules/
+│   │   ├── admin/                  # Gestión usuarios, sesiones, puntos, landing
+│   │   ├── autenticacion/          # Login, registro, recuperación de acceso
+│   │   ├── caja/                   # POS / ventas rápidas, tickets pendientes
+│   │   ├── clientes/               # CRUD clientes, productos, portal cliente
+│   │   ├── compras/                # Gestión de compras
+│   │   ├── configuracion/          # Ajustes, notificaciones, integraciones
+│   │   ├── facturacion/            # Facturas, NC, retenciones, guías, kardex
+│   │   ├── landing/                # Página pública, blog, contacto, legal
+│   │   ├── produccion/             # Recetas, ingredientes, registros de producción
+│   │   ├── reportes/               # Libro Ventas, ATS, Form 104, rentabilidad
+│   │   └── saas/                   # Suscripciones, admin SaaS, IA, puntos
+│   ├── renderers/                  # Renderizado dinámico de configuración
+│   ├── services/
+│   │   ├── sriService.ts           # Orquestación SRI (firma → recepción → autorización)
+│   │   ├── xmlSigner.ts            # Firma XAdES-BES desde el frontend
+│   │   ├── atsService.ts           # Generación XML ATS
+│   │   ├── retentionService.ts     # Cálculo de retenciones
+│   │   ├── remittanceService.ts    # Guías de remisión
+│   │   └── notificationService.ts  # Email, SMS, WhatsApp
+│   ├── types/                      # Tipos TypeScript (Document, Client, Product, etc.)
+│   └── utils/                      # Validaciones (RUC, CI, email, fechas)
+├── backend/
+│   ├── prisma/
+│   │   ├── schema.prisma           # Modelo de datos (15+ modelos)
+│   │   ├── migrations/             # Migraciones SQL
+│   │   ├── seed.js                 # Datos iniciales
+│   │   ├── setup.js                # Script de configuración completo
+│   │   └── client.js               # Cliente Prisma singleton
+│   ├── src/
+│   │   ├── controllers/            # auth, business, ai, admin, production, etc.
+│   │   ├── routes/                 # 18 archivos de rutas Express
+│   │   ├── middleware/             # JWT, roles, errores, módulos
+│   │   └── utils/                  # Logger
+│   ├── server.js                   # Entry point Express (~960 líneas)
+│   └── sriHelpers.js               # Validación XML, parseo SOAP, backups
+├── tests/
+│   └── e2e/                        # Tests E2E con Playwright
+│       ├── admin-panel.e2e.test.cjs
+│       └── payment-flows.e2e.test.cjs
+├── public/                         # Favicon, logo, imágenes estáticas
+├── backend/tests/                  # Tests unitarios con Jest + Supertest
+│   ├── black-box/                  # Pruebas de caja negra (API)
+│   ├── white-box/                  # Pruebas de caja blanca (lógica)
+│   └── grey-box/                   # Pruebas de integración
+├── docker-compose.yml              # PostgreSQL container
+├── vite.config.ts                  # Vite + React + Tailwind + proxy /api
+├── playwright.config.js
+├── tsconfig.json
+├── vercel.json                     # Config deploy Vercel (frontend + backend)
+└── index.html                      # Entry point HTML con importmap
+```
+
+---
+
+## Variables de Entorno
+
+### Frontend (`/sistema-de-facturacion/.env`)
+
+```env
+VITE_BACKEND_URL=http://localhost:3001
+VITE_API_KEY=your-api-key-here
+
+# PayPal (sandbox)
+VITE_PAYPAL_CLIENT_ID=your-paypal-sandbox-client-id
+VITE_PAYPAL_SANDBOX=true
+```
+
+### Backend (`/sistema-de-facturacion/backend/.env`)
+
+```env
+PORT=3001
+NODE_ENV=development
+
+# Base de datos
+DATABASE_URL=postgresql://user:password@localhost:5432/facturacion_db
+
+# Seguridad
+JWT_SECRET=tu_jwt_secret_aqui
+API_KEY=tu_api_key_aqui
+
+# CORS
+FRONTEND_URL=http://localhost:3000
+
+# SMTP (email)
+SMTP_HOST=
+SMTP_PORT=587
+SMTP_USER=
+SMTP_PASS=
+SMTP_FROM=noreply@azulpro.com
+
+# PayPal
+PAYPAL_CLIENT_ID=tu_paypal_client_id
+PAYPAL_CLIENT_SECRET=tu_paypal_client_secret
+PAYPAL_API_URL=https://api-m.sandbox.paypal.com
+
+# Asistente IA (opcional)
+GEMINI_API_KEY=tu_gemini_api_key
+```
+
+---
+
+## API — Backend Proxy SRI
+
+Endpoints del proxy Express (`backend/server.js`):
+
+| Método | Ruta | Descripción |
+|--------|------|-------------|
+| POST | `/api/sri/sign-xml` | Firma XML con certificado .p12 (XAdES-BES) |
+| POST | `/api/sri/recepcion` | Envía comprobante a Recepción SRI (SOAP) |
+| POST | `/api/sri/autorizacion` | Consulta Autorización SRI (SOAP) |
+| POST | `/api/auth/*` | Login, registro, refresh token |
+| POST | `/api/business/*` | CRUD de empresa / tenant |
+| POST | `/api/ai/chat` | Asistente IA conversacional |
+| POST | `/api/ai/insights` | Recomendaciones financieras |
+| POST | `/api/ai/audit` | Auditoría en tiempo real del negocio |
+| POST | `/api/notifications/send-email` | Email (SendGrid / Mailgun / SMTP) |
+| POST | `/api/notifications/send-sms` | SMS (Twilio) |
+| POST | `/api/notifications/send-whatsapp` | WhatsApp (Twilio) |
+| POST | `/api/payment/*` | Pagos PayPal |
+| POST | `/api/internal-payment/*` | Solicitudes de activación por transferencia |
+| GET/POST | `/api/subscription-plans/*` | Planes de suscripción |
+| GET/POST | `/api/admin/*` | Panel SUPERADMIN |
+| GET/POST | `/api/production/*` | Recetas y producción |
+| GET/POST | `/api/quicksale/*` | Ventas rápidas / POS |
+| POST | `/api/settings/*` | Configuración global |
+| POST | `/api/module-permissions/*` | Permisos de módulos por usuario |
+| POST | `/api/session/*` | Registro de sesiones |
+| GET/POST | `/api/emission-points/*` | Puntos de emisión |
+| GET/POST | `/api/referrals/*` | Programa de referidos |
+| GET/POST | `/api/points-admin/*` | Administración de puntos |
+| GET/POST | `/api/blog/*` | Blog y capacitaciones |
+| GET | `/api/public/*` | Rutas públicas (consulta estado) |
+| GET | `/health` | Health check |
+| GET | `/api/info` | Información del servidor |
+| GET | `/api/backups/info` | Info de backups XML |
+
+---
+
+## Scripts
+
+### Frontend
+
+```bash
+npm run dev            # Desarrollo (Vite, puerto 3000)
+npm run build          # Build producción
+npm run preview        # Preview del build
+npm run test:e2e       # Tests E2E (Playwright)
+```
+
+### Backend
+
+```bash
+npm run dev            # Desarrollo (nodemon, puerto 3001)
+npm start              # Producción
+npm test               # Tests unitarios (Jest)
+npm run test:blackbox  # Pruebas de caja negra
+npm run test:whitebox  # Pruebas de caja blanca
+npm run test:greybox   # Pruebas de integración
+npm run db:setup       # Configurar BD completa (generate + migrate + seed)
+npm run prisma:studio  # Prisma Studio UI
+npm run prisma:reset   # Resetear BD
+npm run prisma:seed    # Ejecutar seed manualmente
+```
+
+---
+
+## Base de Datos
+
+15+ modelos PostgreSQL gestionados con Prisma ORM:
+
+- **Business** — Empresa / tenant (RUC, régimen, plan, suscripción)
+- **User** — Usuarios con roles (SUPERADMIN, ADMIN, VENDEDOR, CONTADOR)
+- **Client** — Clientes y proveedores (único por RUC + empresa)
+- **Product** — Productos y servicios (stock, precios, unidad de medida)
+- **Document** — Documentos electrónicos (facturas, NC, retenciones, guías)
+- **InvoiceItem** — Detalle de items por documento
+- **Sequence** — Secuenciales numéricos por tipo/establecimiento/empresa
+- **InventoryMovement** — Movimientos de kardex
+- **Subscription** — Suscripciones a planes
+- **SubscriptionPlan** — Planes (FREE, PRO, ENTERPRISE)
+- **ActivationRequest** — Solicitudes de activación por transferencia
+- **Recipe / RecipeIngredient / ProductionRecord** — Producción
+- **QuickSale** — Ventas rápidas POS
+- **Session** — Registro de sesiones de usuario
+- **Module / UserModulePermission** — Módulos y permisos granulares
+- **EmissionPoint** — Puntos de emisión por empresa
+- **Referral** — Programa de referidos
+- **PointsConfig / Prize** — Configuración de puntos y premios
+- **BlogPost** — Blog y capacitaciones
+- **AppSettings** — Configuración global
+
+---
+
+## Deploy
+
+### Vercel
+
+El proyecto incluye `vercel.json` con configuración para deploy del frontend (Vite) y backend (Express) en Vercel:
+
+```json
+{
+  "experimentalServices": {
+    "frontend": { "routePrefix": "/", "framework": "vite" },
+    "backend": { "entrypoint": "backend", "routePrefix": "/_/backend" }
+  }
+}
+```
+
+### Servidor propio (VPS)
+
+```bash
+# Backend con PM2
+cd backend
+npm install
+npm install -g pm2
+pm2 start server.js --name ecuafact-api
+pm2 save
+pm2 startup
+
+# Frontend
+npm run build
+# Servir dist/ con nginx, caddy o similar
+```
+
+---
+
+## Documentación Complementaria
+
+- [`GUIA_USO_COMPLETA.md`](GUIA_USO_COMPLETA.md) — Guía de usuario paso a paso
+- [`INTEGRACION_SRI.md`](INTEGRACION_SRI.md) — Documentación técnica SRI
+- [`BACKEND_PROXY_SRI.md`](BACKEND_PROXY_SRI.md) — Guía del backend proxy
+- [`SISTEMA_COMPLETADO.md`](SISTEMA_COMPLETADO.md) — Estado del sistema
+- [`CHANGELOG_SAAS.md`](CHANGELOG_SAAS.md) — Registro de cambios
+- [`NOTAS_CREDITO_IMPLEMENTADAS.md`](NOTAS_CREDITO_IMPLEMENTADAS.md) — Implementación de NC
+- [`RESUMEN_IMPLEMENTACION.md`](RESUMEN_IMPLEMENTACION.md) — Resumen técnico
+- [`backend/README.md`](backend/README.md) — Documentación del backend
+- [`backend/prisma/README.md`](backend/prisma/README.md) — Gestión de BD con Prisma
+- [`backend/tests/README.md`](backend/tests/README.md) — Tests automatizados
+
+---
+
+## Licencia
+
+MIT
