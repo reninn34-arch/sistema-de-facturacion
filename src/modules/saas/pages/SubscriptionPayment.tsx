@@ -91,7 +91,11 @@ const PagoInterno: React.FC<PagoInternoProps> = ({ businessInfo, isExpired = fal
   const [paymentProofPreview, setPaymentProofPreview] = useState<string | null>(null);
   const [showSuccess, setShowSuccess] = useState(false);
   const [showPendingApproval, setShowPendingApproval] = useState(false);
-  const [availablePlans, setAvailablePlans] = useState<any[]>([]);
+  const [availablePlans, setAvailablePlans] = useState<any[]>(() => [
+    { id: 'MONTHLY', name: 'Mensual', price: 34.49, period: 'mes' },
+    { id: 'SEMIANNUAL', name: 'Semestral', price: 172.49, period: '6 meses' },
+    { id: 'YEARLY', name: 'Anual', price: 287.49, period: '1 año' }
+  ]);
   const [paymentSettings, setPaymentSettings] = useState({ paypalEnabled: true, transferEnabled: true, cardEnabled: false });
 
   // Cargar configuración de métodos de pago

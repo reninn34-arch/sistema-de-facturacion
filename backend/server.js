@@ -166,33 +166,55 @@ app.use('*', (req, res) => {
 // [NUEVO] Middleware de manejo de errores centralizado (Debe ser el último app.use)
 app.use(errorHandler);
 
-// Iniciar servidor
-app.listen(PORT, () => {
-  console.log('');
-  console.log('═══════════════════════════════════════════════════');
-  console.log('🇪🇨  PROXY SRI ECUADOR - SERVIDOR INICIADO  🇪🇨');
-  console.log('═══════════════════════════════════════════════════');
-  console.log('');
-  console.log(`✅ Servidor ejecutándose en: http://localhost:${PORT}`);
-  console.log(`🌍 Entorno: ${process.env.NODE_ENV || 'development'}`);
-  console.log(`📡 Frontend URL: ${process.env.FRONTEND_URL || 'http://localhost:3000'}`);
-  console.log('');
-  console.log('📋 Endpoints disponibles:');
-  console.log(`   POST http://localhost:${PORT}/api/sri/sign-xml`);
-  console.log(`   POST http://localhost:${PORT}/api/sri/recepcion`);
-  console.log(`   POST http://localhost:${PORT}/api/sri/autorizacion`);
-  console.log(`   POST http://localhost:${PORT}/api/login`);
-  console.log(`   POST http://localhost:${PORT}/api/auth/client/login`);
-  console.log(`   POST http://localhost:${PORT}/api/forgot-password`);
-  console.log(`   POST http://localhost:${PORT}/api/notifications/send-email`);
-  console.log(`   POST http://localhost:${PORT}/api/notifications/send-sms`);
-  console.log(`   POST http://localhost:${PORT}/api/notifications/send-whatsapp`);
-  console.log(`   GET  http://localhost:${PORT}/health`);
-  console.log(`   GET  http://localhost:${PORT}/api/info`);
-  console.log('');
-  console.log('═══════════════════════════════════════════════════');
-  console.log('');
-});
+const prisma = require('./prisma/client');
+
+// Iniciar servidor verificando la base de datos primero
+async function startServer() {
+  try {
+    // Intentar conectar a la base de datos
+    await prisma.$connect();
+    logger.info('🔌 Conexión exitosa a la base de datos PostgreSQL.');
+  } catch (error) {
+    console.error('');
+    console.error('❌ ═══════════════════════════════════════════════════ ❌');
+    console.error('  ERROR DE CONEXIÓN A LA BASE DE DATOS');
+    console.error('  No se pudo establecer conexión con la base de datos.');
+    console.error('  Por favor, asegúrate de que Docker esté encendido y que');
+    console.error('  el contenedor de PostgreSQL (ecuafact_db) esté en ejecución.');
+    console.error('❌ ═══════════════════════════════════════════════════ ❌');
+    console.error('');
+    process.exit(1);
+  }
+
+  app.listen(PORT, () => {
+    console.log('');
+    console.log('═══════════════════════════════════════════════════');
+    console.log('🇪🇨  PROXY SRI ECUADOR - SERVIDOR INICIADO  🇪🇨');
+    console.log('═══════════════════════════════════════════════════');
+    console.log('');
+    console.log(`✅ Servidor ejecutándose en: http://localhost:${PORT}`);
+    console.log(`🌍 Entorno: ${process.env.NODE_ENV || 'development'}`);
+    console.log(`📡 Frontend URL: ${process.env.FRONTEND_URL || 'http://localhost:3000'}`);
+    console.log('');
+    console.log('📋 Endpoints disponibles:');
+    console.log(`   POST http://localhost:${PORT}/api/sri/sign-xml`);
+    console.log(`   POST http://localhost:${PORT}/api/sri/recepcion`);
+    console.log(`   POST http://localhost:${PORT}/api/sri/autorizacion`);
+    console.log(`   POST http://localhost:${PORT}/api/login`);
+    console.log(`   POST http://localhost:${PORT}/api/auth/client/login`);
+    console.log(`   POST http://localhost:${PORT}/api/forgot-password`);
+    console.log(`   POST http://localhost:${PORT}/api/notifications/send-email`);
+    console.log(`   POST http://localhost:${PORT}/api/notifications/send-sms`);
+    console.log(`   POST http://localhost:${PORT}/api/notifications/send-whatsapp`);
+    console.log(`   GET  http://localhost:${PORT}/health`);
+    console.log(`   GET  http://localhost:${PORT}/api/info`);
+    console.log('');
+    console.log('═══════════════════════════════════════════════════');
+    console.log('');
+  });
+}
+
+startServer();
 
 // Manejo de cierre graceful
 process.on('SIGTERM', () => {

@@ -599,13 +599,13 @@ const InvoiceForm: React.FC<InvoiceFormProps> = ({ clients, setClients, isDemoMo
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  // Cargar documento rechazado para re-emision
-  useEffect(() => {
-    if (!preloadRejected) return;
-    
+  const [prevPreloadRejected, setPrevPreloadRejected] = useState<any>(null);
+
+  if (preloadRejected && preloadRejected !== prevPreloadRejected) {
+    setPrevPreloadRejected(preloadRejected);
     const doc = preloadRejected;
     if (doc.items && doc.items.length > 0) {
-      setItems(doc.items.map(i => ({ ...i })));
+      setItems(doc.items.map((i: any) => ({ ...i })));
     }
     if (doc.entityRuc && doc.entityRuc !== '9999999999999') {
       const client = clients.find(c => c.ruc === doc.entityRuc);
@@ -624,6 +624,11 @@ const InvoiceForm: React.FC<InvoiceFormProps> = ({ clients, setClients, isDemoMo
     }
     if (doc.paymentMethod) setPaymentMethod(doc.paymentMethod);
     if (doc.additionalInfo) setAdditionalInfo(doc.additionalInfo);
+  }
+
+  // Cargar documento rechazado para re-emision
+  useEffect(() => {
+    if (!preloadRejected) return;
     if (onClearPreload) onClearPreload();
     onNotify('Documento rechazado cargado. Corrija los errores y vuelva a emitir.', 'info');
   }, [preloadRejected]);

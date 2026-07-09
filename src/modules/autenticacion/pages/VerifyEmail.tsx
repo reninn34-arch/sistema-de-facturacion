@@ -30,6 +30,8 @@ const VerifyEmail: React.FC = () => {
       return;
     }
 
+    let timerId: NodeJS.Timeout;
+
     fetch(`${API_URL}/api/verify-email`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -40,7 +42,7 @@ const VerifyEmail: React.FC = () => {
         if (data.success) {
           setStatus('success');
           setMessage(data.message || 'Correo verificado correctamente.');
-          setTimeout(() => {
+          timerId = setTimeout(() => {
             window.location.href = '/login';
           }, 4000);
         } else {
@@ -52,6 +54,10 @@ const VerifyEmail: React.FC = () => {
         setStatus('error');
         setMessage('Error de conexión con el servidor.');
       });
+
+    return () => {
+      if (timerId) clearTimeout(timerId);
+    };
   }, [token]);
 
   return (

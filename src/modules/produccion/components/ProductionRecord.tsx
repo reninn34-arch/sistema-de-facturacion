@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { ClipboardDocumentCheckIcon, PlayIcon, ExclamationTriangleIcon } from '@heroicons/react/24/outline';
 import { Recipe, ProductionRecord as ProdRecord, Product, UNITS_OF_MEASURE } from '../../../types/types';
 import { client } from '../../../api/client';
@@ -70,7 +70,7 @@ export default function ProductionRecord({ products, setProducts, onNotify }: Pr
         setProducts(productsRes.data || []);
       } catch (e) { /* silent */ }
     } catch (e: any) {
-      onNotify(e.response?.data?.message || 'Error al registrar producción', 'error');
+      onNotify(e.response?.data?.message || 'Error al registrar producción', 'warning');
     } finally {
       setSubmitting(false);
     }

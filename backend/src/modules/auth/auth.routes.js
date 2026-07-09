@@ -16,5 +16,8 @@ router.post('/api/auth/client/forgot-password', authController.clientForgotPassw
 router.post('/api/auth/client/reset-password', authController.clientResetPassword);
 router.post('/api/auth/client/change-password', verifyToken, authController.changeClientPassword);
 router.get('/api/client/documents', verifyToken, authController.getClientDocuments);
+router.get('/api/auth/verify', verifyToken, (req, res) => {
+  res.json({ success: true, user: req.user });
+});
 
 module.exports = router;

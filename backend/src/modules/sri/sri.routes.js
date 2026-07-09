@@ -575,4 +575,8 @@ router.post('/api/sri/autorizacion', authenticate, async (req, res) => {
   }
 });
 
+router.get('/api/business/sri/status', async (req, res) => {
+  res.json({ success: true, status: 'ONLINE', message: 'Servicio SRI de pruebas simulación disponible' });
+});
+
 module.exports = router;

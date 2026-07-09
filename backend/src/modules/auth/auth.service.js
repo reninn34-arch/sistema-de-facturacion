@@ -4,7 +4,7 @@ const crypto = require('crypto');
 const { AppError } = require('../../middleware/error.handler');
 const { validatePayment, validateAmount } = require('../../services/paypal.service');
 
-const JWT_SECRET = process.env.JWT_SECRET || 'secret_key_change_me';
+const JWT_SECRET = process.env.JWT_SECRET || (process.env.NODE_ENV === 'production' ? (() => { throw new Error('JWT_SECRET must be set in production'); })() : 'secret_key_change_me');
 const MAX_LOGIN_ATTEMPTS = 5;
 const LOCKOUT_DURATION_MINUTES = 15;
 
@@ -112,7 +112,13 @@ class AuthService {
     const existing = await this.repo.findUserByEmail(email);
     if (existing) throw new AppError('El usuario ya existe', 400);
 
-    const planRecord = await this.repo.findSubscriptionPlan(plan);
+    if (ruc) {
+      const existingBusiness = await this.repo.findBusinessByRuc(ruc);
+      if (existingBusiness) throw new AppError('La empresa con este RUC ya está registrada', 400);
+    }
+
+    const planCodeToUse = plan || 'FREE';
+    const planRecord = await this.repo.findSubscriptionPlan(planCodeToUse);
     if (!planRecord || !planRecord.isActive) throw new AppError('Plan no válido o no disponible', 400);
 
     const selectedPlan = planRecord.code;

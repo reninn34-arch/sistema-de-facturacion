@@ -95,7 +95,7 @@ describe('🟦 CAJA NEGRA: Pruebas del Sistema de Autenticación', () => {
      */
     it('debería rechazar login con campos vacíos', async () => {
       const response = await request(API_BASE_URL)
-        .post('/api/auth/login')
+        .post('/api/login')
         .send({
           email: '',
           password: ''
@@ -112,7 +112,7 @@ describe('🟦 CAJA NEGRA: Pruebas del Sistema de Autenticación', () => {
      */
     it('debería rechazar login sin datos en el body', async () => {
       const response = await request(API_BASE_URL)
-        .post('/api/auth/login')
+        .post('/api/login')
         .send({});
 
       expect(response.status).toBe(400);
@@ -129,13 +129,13 @@ describe('🟦 CAJA NEGRA: Pruebas del Sistema de Autenticación', () => {
     it('debería registrar un nuevo usuario exitosamente', async () => {
       const timestamp = Date.now();
       const response = await request(API_BASE_URL)
-        .post('/api/auth/register')
+        .post('/api/register')
         .send({
           email: `test_${timestamp}@ejemplo.com`,
           password: 'Password123!',
           name: 'Usuario de Prueba',
           businessName: 'Empresa de Prueba',
-          ruc: '1791234567001'
+          ruc: '179' + timestamp.toString().substring(0, 10)
         });
 
       // Ajustar según la implementación real
@@ -149,7 +149,7 @@ describe('🟦 CAJA NEGRA: Pruebas del Sistema de Autenticación', () => {
      */
     it('debería rechazar registro con email duplicado', async () => {
       const response = await request(API_BASE_URL)
-        .post('/api/auth/register')
+        .post('/api/register')
         .send({
           email: 'demo@empresa.com',
           password: 'Password123!',
@@ -169,7 +169,7 @@ describe('🟦 CAJA NEGRA: Pruebas del Sistema de Autenticación', () => {
     it('debería rechazar registro con RUC inválido', async () => {
       const timestamp = Date.now();
       const response = await request(API_BASE_URL)
-        .post('/api/auth/register')
+        .post('/api/register')
         .send({
           email: `test_${timestamp}@ejemplo.com`,
           password: 'Password123!',
@@ -188,7 +188,7 @@ describe('🟦 CAJA NEGRA: Pruebas del Sistema de Autenticación', () => {
     beforeAll(async () => {
       // Obtener token para pruebas autenticadas
       const loginResponse = await request(API_BASE_URL)
-        .post('/api/auth/login')
+        .post('/api/login')
         .send({
           email: 'demo@empresa.com',
           password: 'demo123456'
@@ -250,7 +250,7 @@ describe('🟦 CAJA NEGRA: Pruebas de Gestión de Empresas', () => {
 
   beforeAll(async () => {
     const loginResponse = await request(API_BASE_URL)
-      .post('/api/auth/login')
+      .post('/api/login')
       .send({
         email: 'demo@empresa.com',
         password: 'demo123456'
@@ -353,7 +353,7 @@ describe('🟦 CAJA NEGRA: Pruebas de Comprobantes Electrónicos', () => {
 
   beforeAll(async () => {
     const loginResponse = await request(API_BASE_URL)
-      .post('/api/auth/login')
+      .post('/api/login')
       .send({
         email: 'demo@empresa.com',
         password: 'demo123456'
@@ -447,7 +447,7 @@ describe('🟦 CAJA NEGRA: Pruebas de Retenciones', () => {
 
   beforeAll(async () => {
     const loginResponse = await request(API_BASE_URL)
-      .post('/api/auth/login')
+      .post('/api/login')
       .send({
         email: 'demo@empresa.com',
         password: 'demo123456'
@@ -485,7 +485,7 @@ describe('🟦 CAJA NEGRA: Pruebas de Notas de Crédito', () => {
 
   beforeAll(async () => {
     const loginResponse = await request(API_BASE_URL)
-      .post('/api/auth/login')
+      .post('/api/login')
       .send({
         email: 'demo@empresa.com',
         password: 'demo123456'
@@ -523,7 +523,7 @@ describe('🟦 CAJA NEGRA: Pruebas de Clientes', () => {
 
   beforeAll(async () => {
     const loginResponse = await request(API_BASE_URL)
-      .post('/api/auth/login')
+      .post('/api/login')
       .send({
         email: 'demo@empresa.com',
         password: 'demo123456'
@@ -575,7 +575,7 @@ describe('🟦 CAJA NEGRA: Pruebas de Clientes', () => {
         .set('Authorization', `Bearer ${authToken}`)
         .send({
           name: `Cliente Prueba ${timestamp}`,
-          identification: '1791234567001',
+          identification: '179' + timestamp.toString().substring(0, 10),
           email: `cliente_${timestamp}@prueba.com`,
           phone: '0991234567',
           address: 'Dirección de prueba'
@@ -595,15 +595,27 @@ describe('🟦 CAJA NEGRA: Pruebas de Clientes', () => {
         return;
       }
 
+      const timestamp = Date.now();
+      const ruc = `095${timestamp.toString().substring(0, 7)}`;
+
+      // Primero crear el cliente
+      await request(API_BASE_URL)
+        .post('/api/business/clients')
+        .set('Authorization', `Bearer ${authToken}`)
+        .send({
+          name: 'Cliente Original',
+          identification: ruc,
+          email: 'original@prueba.com'
+        });
+
+      // Intentar crearlo de nuevo
       const response = await request(API_BASE_URL)
         .post('/api/business/clients')
         .set('Authorization', `Bearer ${authToken}`)
         .send({
           name: 'Cliente Duplicado',
-          identification: '0953443769', // Ya existe
-          email: 'otro@prueba.com',
-          phone: '0991234567',
-          address: 'Dirección'
+          identification: ruc,
+          email: 'duplicado@prueba.com'
         });
 
       expect(response.status).toBe(400);
@@ -616,7 +628,7 @@ describe('🟦 CAJA NEGRA: Pruebas de Productos', () => {
 
   beforeAll(async () => {
     const loginResponse = await request(API_BASE_URL)
-      .post('/api/auth/login')
+      .post('/api/login')
       .send({
         email: 'demo@empresa.com',
         password: 'demo123456'
@@ -707,7 +719,7 @@ describe('🟦 CAJA NEGRA: Pruebas de Integración SRI', () => {
 
   beforeAll(async () => {
     const loginResponse = await request(API_BASE_URL)
-      .post('/api/auth/login')
+      .post('/api/login')
       .send({
         email: 'demo@empresa.com',
         password: 'demo123456'
@@ -808,7 +820,7 @@ describe('🟦 CAJA NEGRA: Pruebas de Métodos de Pago Internos', () => {
   beforeAll(async () => {
     // Primero obtener token y businessId
     const loginResponse = await request(API_BASE_URL)
-      .post('/api/auth/login')
+      .post('/api/login')
       .send({
         email: 'demo@empresa.com',
         password: 'demo123456'

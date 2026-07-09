@@ -1,4 +1,4 @@
-﻿
+
 import React, { useState, useRef, useEffect } from 'react';
 import { Product } from '../../../types/types';
 import { TAX_RATES, PRODUCT_CATEGORIES } from '../../../constants';
@@ -217,7 +217,7 @@ const ProductManager: React.FC<ProductManagerProps> = ({ products, setProducts, 
         stock: parseInt(r.stock || r.Stock || 0) || 0,
         minStock: parseInt(r.stock_minimo || r.minStock || 0) || 0,
         taxRate: parseInt(r.iva || r.taxRate || 15) || 15,
-        type: 'BIEN',
+        type: 'FISICO',
         category: 'Otros',
         isRawMaterial: false,
         unitOfMeasure: 'UNIDAD'
@@ -393,7 +393,7 @@ const ProductManager: React.FC<ProductManagerProps> = ({ products, setProducts, 
                 className="w-48 h-48 rounded-[2.5rem] bg-white border-2 border-dashed border-slate-200 flex items-center justify-center cursor-pointer overflow-hidden group relative hover:border-indigo-400 transition-all shadow-inner"
               >
                 {formData.imageUrl ? (
-                  <img src={formData.imageUrl} className="w-full h-full object-cover group-hover:opacity-50 transition-opacity" />
+                  <img src={formData.imageUrl} className="w-full h-full object-cover group-hover:opacity-50 transition-opacity" alt="Imagen del producto" />
                 ) : (
                   <div className="text-center p-4">
                     <CameraIcon className="w-10 h-10 mx-auto mb-2 text-slate-300 dark:text-slate-600" />

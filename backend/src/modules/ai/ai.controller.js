@@ -6,8 +6,8 @@ const repository = new AiRepository();
 const service = new AiService(repository);
 
 const chat = catchAsync(async (req, res) => {
-  const { message, context } = req.body;
-  const result = await service.chat(message, context);
+  const { message, context, provider, model } = req.body;
+  const result = await service.chat(message, context, { provider, model });
   res.json(result);
 });
 
@@ -24,4 +24,9 @@ const audit = catchAsync(async (req, res) => {
   res.json(result);
 });
 
-module.exports = { chat, insights, audit };
+const getProviders = catchAsync(async (req, res) => {
+  const providers = service.getAvailableProviders();
+  res.json({ providers });
+});
+
+module.exports = { chat, insights, audit, getProviders };

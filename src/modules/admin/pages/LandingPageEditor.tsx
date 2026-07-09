@@ -513,7 +513,7 @@ const LandingPageEditor: React.FC = () => {
     }));
   };
 
-  const SaveButton = ({ className = '' }: { className?: string }) => (
+  const renderSaveButton = (className = '') => (
     <button
       onClick={handleSave}
       disabled={saving}
@@ -553,7 +553,7 @@ const LandingPageEditor: React.FC = () => {
             {showPreview ? <EyeSlashIcon className="w-4 h-4" /> : <EyeIcon className="w-4 h-4" />}
             {showPreview ? 'Ocultar Preview' : 'Vista Previa'}
           </button>
-          <SaveButton />
+          {renderSaveButton()}
         </div>
       </div>
 
@@ -1260,7 +1260,7 @@ const LandingPageEditor: React.FC = () => {
 
       {/* Bottom save button */}
       <div className="flex justify-end pt-2">
-        <SaveButton />
+        {renderSaveButton()}
       </div>
       </div>
 

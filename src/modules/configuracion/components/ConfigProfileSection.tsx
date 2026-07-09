@@ -36,7 +36,7 @@ const ConfigProfileSection: React.FC<ConfigProfileSectionProps> = ({
             className="w-24 h-24 bg-slate-50 dark:bg-slate-800 border-2 border-dashed border-slate-200 dark:border-slate-600 rounded-[2.5rem] flex items-center justify-center cursor-pointer overflow-hidden group relative"
             onClick={() => isUserAdmin && logoInputRef.current?.click()}
           >
-            {businessInfo.logo ? <img src={businessInfo.logo} className="w-full h-full object-cover" /> : <CameraIcon className="w-8 h-8 text-slate-300 dark:text-slate-600" />}
+            {businessInfo.logo ? <img src={businessInfo.logo} alt="Logo de la empresa" className="w-full h-full object-cover" /> : <CameraIcon className="w-8 h-8 text-slate-300 dark:text-slate-600" />}
             {isUserAdmin && <div className="absolute inset-0 bg-sky-700/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-[10px] font-black text-white uppercase">Editar</div>}
             <input type="file" ref={logoInputRef as any} className="hidden" accept="image/*" onChange={(e) => {
               const file = e.target.files?.[0];

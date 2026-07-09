@@ -50,6 +50,7 @@ class AuthRepository {
   }
 
   async findSubscriptionPlan(code) {
+    if (!code) return null;
     return prisma.subscriptionPlan.findUnique({ where: { code } });
   }
 

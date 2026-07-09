@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { ShieldCheckIcon, BuildingOffice2Icon, UserPlusIcon, CheckCircleIcon, CheckBadgeIcon, UsersIcon, MagnifyingGlassIcon, EyeIcon, XMarkIcon, Cog6ToothIcon, ArrowPathIcon, PauseIcon, PlayIcon, TrashIcon, UserIcon, PencilIcon, PlusIcon, EyeSlashIcon, UserMinusIcon } from '@heroicons/react/24/outline';
 import { BUSINESS_TYPES, BusinessType } from '../../../types/types';
 
@@ -51,7 +51,14 @@ const SaasAdmin: React.FC<SaasAdminProps> = ({ onNotify }) => {
   const [loadingExpiring, setLoadingExpiring] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [processing, setProcessing] = useState(false);
-  const [activeTab, setActiveTab] = useState<'businesses' | 'superadmins' | 'users' | 'subscription-payments' | 'config' | 'expiring'>('businesses');
+  const [activeTab, setActiveTab] = useState<'businesses' | 'superadmins' | 'users' | 'subscription-payments' | 'config' | 'expiring'>(() => {
+    const initialTab = sessionStorage.getItem('saasAdminTab');
+    if (initialTab === 'expiring') {
+      sessionStorage.removeItem('saasAdminTab');
+      return 'expiring';
+    }
+    return 'businesses';
+  });
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
 
   // Estados para historial de pagos de suscripciones
@@ -533,12 +540,7 @@ const SaasAdmin: React.FC<SaasAdminProps> = ({ onNotify }) => {
     loadPlans();
     loadExpiringBusinesses();
 
-    // Leer tab inicial desde sessionStorage (para enlaces desde Dashboard)
-    const initialTab = sessionStorage.getItem('saasAdminTab');
-    if (initialTab === 'expiring') {
-      setActiveTab('expiring');
-      sessionStorage.removeItem('saasAdminTab');
-    }
+
     
     // Escuchar actualizaciones de planes desde otras páginas
     const handlePlansUpdate = () => {

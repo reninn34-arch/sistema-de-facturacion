@@ -118,13 +118,14 @@ class BusinessService {
   }
 
   async createClient(data, businessId) {
-    const { identification, ruc, ...clientData } = data;
+    const { identification, ruc, type, ...clientData } = data;
     const clientRuc = ruc || identification;
+    const clientType = type || 'CLIENTE';
     if (clientRuc) {
       const existingClient = await this.repo.findClientByRucAndBusiness(clientRuc, businessId);
       if (existingClient) throw new AppError('Ya existe un cliente con esta identificación', 400);
     }
-    return this.repo.createClient({ ...clientData, ruc: clientRuc, businessId });
+    return this.repo.createClient({ ...clientData, ruc: clientRuc, type: clientType, businessId });
   }
 
   async updateClient(id, data, businessId) {
@@ -155,6 +156,15 @@ class BusinessService {
     if (productData.stock === undefined || productData.stock === null) {
       productData.stock = 0;
     }
+    // Default required fields
+    if (!productData.description) {
+      productData.description = productData.name || 'Producto sin descripción';
+    }
+    if (!productData.type) {
+      productData.type = 'BIEN';
+    }
+    // Clean up temporary/legacy name attribute
+    delete productData.name;
     return this.repo.createProduct(productData);
   }
 
@@ -193,14 +203,63 @@ class BusinessService {
   async createDocument(data, items, retentionTaxes, user, isProduction, isDemo) {
     const businessId = user.businessId;
     const isReceivedDocument = data.source === 'RECEIVED';
-    const requiresItems = ['01', '02'].includes(data.type) && !isReceivedDocument;
+    
+    const docType = data.type || '01';
+    const requiresItems = ['01', '02'].includes(docType) && !isReceivedDocument;
 
-    if (requiresItems && (!items || items.length === 0)) {
+    const itemsList = items || [];
+    if (requiresItems && itemsList.length === 0) {
       throw new AppError('El documento debe tener al menos un item', 400);
     }
 
+    // Default dates
+    const rawIssueDate = data.issueDate || data.emissionDate || new Date();
+    const issueDateObj = new Date(rawIssueDate);
+    const issueDate = isNaN(issueDateObj.getTime()) ? new Date() : issueDateObj;
+
+    // Fetch or placeholder client details
+    let clientName = data.entityName;
+    let clientRuc = data.entityRuc;
+    let clientEmail = data.entityEmail;
+    let clientPhone = data.entityPhone;
+    let clientAddress = data.entityAddress;
+
+    if (!clientName && data.clientId) {
+      const client = await this.repo.findClientById(data.clientId).catch(() => null);
+      if (client) {
+        clientName = client.name;
+        clientRuc = client.ruc;
+        clientEmail = client.email;
+        clientPhone = client.phone;
+        clientAddress = client.address;
+      } else {
+        clientName = data.clientName || 'Consumidor Final';
+        clientRuc = data.clientRuc || '9999999999999';
+        clientEmail = data.clientEmail || 'consumidor@final.com';
+        clientPhone = data.clientPhone || '';
+        clientAddress = data.clientAddress || 'Quito';
+      }
+    }
+
+    clientName = clientName || 'Consumidor Final';
+    clientRuc = clientRuc || '9999999999999';
+    const status = data.status || 'BORRADOR';
+    const paymentStatus = data.paymentStatus || 'PENDING';
+
+    // Calculate total
+    const calculatedTotal = itemsList.reduce((sum, item) => {
+      const price = item.unitPrice || item.price || 0;
+      const qty = item.quantity || 0;
+      const subtotal = price * qty;
+      const discount = item.discount || 0;
+      const rate = item.taxRate || 0;
+      const itemTotal = (subtotal - discount) * (1 + rate / 100);
+      return sum + (item.total || itemTotal || 0);
+    }, 0);
+    const total = data.total !== undefined ? data.total : calculatedTotal;
+
     // Invoice limit check
-    if (data.type === '01' && user.role !== 'SUPERADMIN' && !isReceivedDocument && !isDemo) {
+    if (docType === '01' && user.role !== 'SUPERADMIN' && !isReceivedDocument && !isDemo) {
       const business = await this.repo.findBusinessById(businessId);
       if (business && business.isProduction) {
         const plan = await this.repo.findSubscriptionPlan(business.plan);
@@ -226,16 +285,16 @@ class BusinessService {
     }
 
     // Product validation
-    const requiresProductValidation = ['01', '02', '04'].includes(data.type) && !isReceivedDocument;
+    const requiresProductValidation = ['01', '02', '04'].includes(docType) && !isReceivedDocument;
     const productIdToUse = new Map();
-    if (requiresProductValidation && items && items.length > 0) {
-      const productIds = items.map(item => item.productId).filter(id => id && !id.startsWith('ITM-') && id !== 'manual');
+    if (requiresProductValidation && itemsList.length > 0) {
+      const productIds = itemsList.map(item => item.productId).filter(id => id && !id.startsWith('ITM-') && id !== 'manual');
       if (productIds.length > 0) {
         const existingProducts = await this.repo.findProductsByIds(productIds, businessId);
         const existingProductIds = new Set(existingProducts.map(p => p.id));
         const invalidProducts = productIds.filter(pid => !existingProductIds.has(pid));
         invalidProducts.forEach(pid => productIdToUse.set(pid, null));
-        if (invalidProducts.length > 0 && ['01', '02'].includes(data.type)) {
+        if (invalidProducts.length > 0 && ['01', '02'].includes(docType)) {
           throw new AppError(`Los siguientes productos no existen o no pertenecen a tu empresa: ${invalidProducts.join(', ')}`, 400);
         }
       }
@@ -243,9 +302,9 @@ class BusinessService {
 
     const result = await this.repo.$transaction(async (tx) => {
       let number = data.number;
-      if (!number && ['01', '03', '04', '05', '06', '07'].includes(data.type)) {
+      if (!number && ['01', '03', '04', '05', '06', '07'].includes(docType)) {
         const seq = await this.repo.upsertSequence(
-          tx, data.type,
+          tx, docType,
           data.establishmentCode || '001',
           data.emissionPointCode || '001',
           businessId
@@ -253,26 +312,56 @@ class BusinessService {
         number = seq.currentValue.toString().padStart(9, '0');
       }
 
+      const {
+        clientId: _clientId,
+        emissionDate: _emissionDate,
+        ...cleanedData
+      } = data;
+
       const doc = await this.repo.createDocument(tx, {
-        ...data, number, businessId, userId: user.id,
-        issueDate: new Date(data.issueDate),
+        ...cleanedData,
+        type: docType,
+        number,
+        businessId,
+        userId: user.id,
+        issueDate,
+        entityName: clientName,
+        entityRuc: clientRuc,
+        entityEmail: clientEmail,
+        entityPhone: clientPhone,
+        entityAddress: clientAddress,
+        total,
+        status,
+        paymentStatus,
         dueDate: data.dueDate ? new Date(data.dueDate) : undefined,
         relatedDocumentDate: data.relatedDocumentDate ? new Date(data.relatedDocumentDate) : null,
         sustainingDocDate: data.sustainingDocDate ? new Date(data.sustainingDocDate) : null,
         retentionTaxes: retentionTaxes || undefined,
-        items: items ? {
-          create: items.map(item => ({
-            productId: (item.productId && item.productId !== 'manual' && !item.productId.startsWith('ITM-'))
-              ? (productIdToUse.has(item.productId) ? null : item.productId) : null,
-            description: item.description, quantity: item.quantity,
-            unitPrice: item.unitPrice, discount: item.discount,
-            taxRate: item.taxRate, total: item.total
-          }))
+        items: itemsList.length > 0 ? {
+          create: itemsList.map(item => {
+            const price = item.unitPrice || item.price || 0;
+            const qty = item.quantity || 0;
+            const subtotal = price * qty;
+            const discount = item.discount || 0;
+            const rate = item.taxRate || 0;
+            const itemTotal = (subtotal - discount) * (1 + rate / 100);
+
+            return {
+              productId: (item.productId && item.productId !== 'manual' && !item.productId.startsWith('ITM-'))
+                ? (productIdToUse.has(item.productId) ? null : item.productId) : null,
+              description: item.description || item.name || 'Item',
+              quantity: qty,
+              unitPrice: price,
+              discount: discount,
+              taxRate: rate,
+              total: item.total !== undefined ? item.total : itemTotal
+            };
+          })
         } : undefined
       });
 
       // Credit note: cancel original document
-      if (data.type === '04' && data.relatedDocumentNumber) {
+      if (docType === '04' && data.relatedDocumentNumber) {
         const originalDoc = await this.repo.findDocument(tx, {
           number: data.relatedDocumentNumber, businessId, type: { in: ['01', 'INVOICE'] }
         });
@@ -287,8 +376,8 @@ class BusinessService {
       }
 
       // Inventory: invoice (VENTA)
-      if (items && data.type === '01') {
-        for (const item of items) {
+      if (itemsList.length > 0 && docType === '01') {
+        for (const item of itemsList) {
           if (item.type === 'FISICO' && item.productId) {
             const product = await this.repo.findProductById(tx, item.productId);
             if (product && product.businessId === businessId) {
@@ -305,8 +394,8 @@ class BusinessService {
       }
 
       // Inventory: credit note (DEVOLUCION)
-      if (items && data.type === '04') {
-        for (const item of items) {
+      if (itemsList.length > 0 && docType === '04') {
+        for (const item of itemsList) {
           if (item.type === 'FISICO' && item.productId) {
             const product = await this.repo.findProductById(tx, item.productId);
             if (product && product.businessId === businessId) {
@@ -323,8 +412,8 @@ class BusinessService {
       }
 
       // Inventory: purchase (COMPRA)
-      if (items && data.type === '03') {
-        for (const item of items) {
+      if (itemsList.length > 0 && docType === '03') {
+        for (const item of itemsList) {
           if (item.type === 'FISICO') {
             const product = await this.repo.findProductById(tx, item.productId);
             if (product && product.businessId === businessId) {

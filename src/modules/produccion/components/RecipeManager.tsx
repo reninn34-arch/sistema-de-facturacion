@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { BeakerIcon, PlusIcon, TrashIcon, PencilIcon, XMarkIcon, ExclamationTriangleIcon } from '@heroicons/react/24/outline';
 import { Recipe, RecipeIngredient, Product, UNITS_OF_MEASURE } from '../../../types/types';
 import { client } from '../../../api/client';
@@ -116,7 +116,7 @@ export default function RecipeManager({ products, onNotify }: RecipeManagerProps
       setShowForm(false);
       fetchRecipes();
     } catch (e: any) {
-      onNotify(e.response?.data?.message || 'Error al guardar receta', 'error');
+      onNotify(e.response?.data?.message || 'Error al guardar receta', 'warning');
     }
   };
 
@@ -127,7 +127,7 @@ export default function RecipeManager({ products, onNotify }: RecipeManagerProps
       onNotify('Receta eliminada');
       fetchRecipes();
     } catch (e: any) {
-      onNotify(e.response?.data?.message || 'Error al eliminar', 'error');
+      onNotify(e.response?.data?.message || 'Error al eliminar', 'warning');
     }
   };
 
