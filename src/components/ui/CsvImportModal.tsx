@@ -113,7 +113,12 @@ const CsvImportModal: React.FC<CsvImportModalProps> = ({ isOpen, onClose, onImpo
       <div className="bg-white rounded-[2.5rem] shadow-2xl w-full max-w-3xl max-h-[85vh] flex flex-col overflow-hidden animate-in zoom-in duration-200">
         <div className="flex justify-between items-center p-6 border-b border-slate-100">
           <h2 className="text-xl font-extrabold text-slate-900">{title}</h2>
-          <button onClick={handleClose} className="p-2 hover:bg-slate-100 rounded-xl transition-colors">
+          <button
+            type="button"
+            onClick={handleClose}
+            aria-label="Cerrar importador de CSV"
+            className="p-2 hover:bg-slate-100 rounded-xl transition-colors"
+          >
             <XMarkIcon className="w-5 h-5 text-slate-500" />
           </button>
         </div>

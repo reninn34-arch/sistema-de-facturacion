@@ -42,7 +42,9 @@ const Modal: React.FC<ModalProps> = ({ open, onClose, title, children, footer, s
           <div className="flex items-center justify-between px-6 py-4 border-b border-slate-200 dark:border-slate-700">
             <h3 className="font-bold text-slate-800 dark:text-white text-base">{title}</h3>
             <button
+              type="button"
               onClick={onClose}
+              aria-label="Cerrar modal"
               className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 p-1 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
             >
               <XMarkIcon className="w-5 h-5" />
