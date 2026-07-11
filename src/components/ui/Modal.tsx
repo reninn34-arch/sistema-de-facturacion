@@ -36,6 +36,12 @@ const Modal: React.FC<ModalProps> = ({ open, onClose, title, children, footer, s
       ref={overlayRef}
       className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-scale-in"
       onClick={(e) => { if (e.target === overlayRef.current) onClose(); }}
+      onKeyDown={(e) => {
+        if (e.target === overlayRef.current && (e.key === 'Enter' || e.key === ' ')) {
+          e.preventDefault();
+          onClose();
+        }
+      }}
     >
       <div className={`w-full ${sizeClasses[size]} bg-white dark:bg-slate-800 rounded-2xl shadow-2xl dark:shadow-black/40 max-h-[90vh] flex flex-col`}>
         {title && (

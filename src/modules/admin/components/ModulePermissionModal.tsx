@@ -30,6 +30,12 @@ interface ModulePermissionModalProps {
   onSaved?: () => void;
 }
 
+const getModuleStatus = (mod: UserModuleState) => {
+  if (mod.inherited) return { label: 'Por defecto', color: 'text-slate-400 bg-slate-100', icon: null };
+  if (mod.granted) return { label: 'Activado', color: 'text-emerald-600 bg-emerald-100', icon: React.createElement(CheckCircleIcon, { className: "w-3 h-3" }) };
+  return { label: 'Desactivado', color: 'text-red-600 bg-red-100', icon: React.createElement(XCircleIcon, { className: "w-3 h-3" }) };
+};
+
 const ModulePermissionModal: React.FC<ModulePermissionModalProps> = ({
   userId,
   userName,
@@ -115,11 +121,7 @@ const ModulePermissionModal: React.FC<ModulePermissionModalProps> = ({
     }
   };
 
-  const getModuleStatus = (mod: UserModuleState) => {
-    if (mod.inherited) return { label: 'Por defecto', color: 'text-slate-400 bg-slate-100', icon: null };
-    if (mod.granted) return { label: 'Activado', color: 'text-emerald-600 bg-emerald-100', icon: <CheckCircleIcon className="w-3 h-3" /> };
-    return { label: 'Desactivado', color: 'text-red-600 bg-red-100', icon: <XCircleIcon className="w-3 h-3" /> };
-  };
+
 
   const activeCount = modules.filter(m => m.granted === true || (m.inherited && m.granted === null)).length;
   const totalCount = modules.length;

@@ -125,6 +125,137 @@ interface MenuGroup {
   items: MenuItem[];
 }
 
+const loadCollapsed = () => {
+  try {
+    const saved = localStorage.getItem('menuCollapsedGroups');
+    if (saved) return JSON.parse(saved);
+  } catch { /* ignorar */ }
+  // Default: solo SUPERADMIN abierto
+  return { superadmin: false };
+};
+
+const handleLogout = async () => {
+  const sessionId = localStorage.getItem('sessionId');
+  const token = localStorage.getItem('adminToken');
+  if (sessionId && token) {
+    try {
+      await fetch(`${import.meta.env.VITE_BACKEND_URL || ''}/api/business/sessions/${sessionId}/revoke`, {
+        method: 'PUT', headers: { 'Authorization': `Bearer ${token}` }
+      });
+    } catch (e) { /* ignorar */ }
+  }
+  localStorage.removeItem('adminToken'); localStorage.removeItem('adminUser');
+  localStorage.removeItem('subscriptionExpired'); localStorage.removeItem('businessActive');
+  localStorage.removeItem('hasModuleControl'); localStorage.removeItem('modulePermissions');
+  localStorage.removeItem('sessionId'); localStorage.removeItem('refreshToken');
+  window.location.reload();
+};
+
+const allGroups: MenuGroup[] = [
+  {
+    id: 'superadmin',
+    label: 'SUPERADMIN',
+    roles: ['SUPERADMIN'],
+    items: [
+      { id: 'saas-admin', label: 'Panel SaaS', roles: ['SUPERADMIN'] },
+      { id: 'dashboard', label: 'Dashboard', roles: ['SUPERADMIN'] },
+      { id: '_div_gestion', label: '──── Gestión ────', roles: ['SUPERADMIN'] },
+      { id: 'activation-requests', label: 'Activaciones', roles: ['SUPERADMIN'] },
+      { id: 'subscription-plans', label: 'Planes', roles: ['SUPERADMIN'] },
+      { id: 'saas-payment-methods', label: 'Métodos de Pago', roles: ['SUPERADMIN'] },
+      { id: '_div_contenido', label: '──── Contenido ────', roles: ['SUPERADMIN'] },
+      { id: 'landing-editor', label: 'Landing Page', roles: ['SUPERADMIN'] },
+      { id: 'blog-editor', label: 'Blog', roles: ['SUPERADMIN'] },
+      { id: '_div_financiero', label: '──── Financiero ────', roles: ['SUPERADMIN'] },
+      { id: 'subscription-invoices', label: 'Facturación SaaS', roles: ['SUPERADMIN'] },
+      { id: 'saas-credit-notes', label: 'NC SaaS', roles: ['SUPERADMIN'] },
+      { id: 'subscription-reports', label: 'Libro Ventas SaaS', roles: ['SUPERADMIN'] },
+      { id: '_div_fidelidad', label: '──── Fidelidad ────', roles: ['SUPERADMIN'] },
+      { id: 'points-admin', label: 'Puntos SaaS', roles: ['SUPERADMIN'] },
+    ]
+  },
+  {
+    id: 'emision',
+    label: 'Emisión',
+    roles: ['ADMIN', 'VENDEDOR', 'CONTADOR'],
+    items: [
+      { id: 'invoices', label: 'Facturas', roles: ['ADMIN', 'VENDEDOR', 'CONTADOR'] },
+      { id: 'credit-notes', label: 'Notas de Crédito', roles: ['ADMIN', 'VENDEDOR', 'CONTADOR'] },
+      { id: 'retentions', label: 'Retenciones', roles: ['ADMIN', 'CONTADOR'] },
+      { id: 'remittances', label: 'Guías de Remisión', roles: ['ADMIN', 'VENDEDOR', 'CONTADOR'] },
+      { id: 'settlements', label: 'Liquidaciones', roles: ['ADMIN', 'CONTADOR'] },
+    ]
+  },
+  {
+    id: 'operaciones',
+    label: 'Operaciones',
+    roles: ['ADMIN', 'VENDEDOR', 'CONTADOR'],
+    items: [
+      { id: 'quicksale', label: 'Caja', roles: ['ADMIN', 'VENDEDOR'], businessTypes: ['BAKERY', 'RESTAURANT'] },
+      { id: 'pending-sri', label: 'Pendientes SRI', roles: ['ADMIN', 'VENDEDOR', 'CONTADOR'], businessTypes: ['BAKERY', 'RESTAURANT'] },
+      { id: 'purchases', label: 'Compras', roles: ['ADMIN', 'CONTADOR'] },
+    ]
+  },
+  {
+    id: 'gestion',
+    label: 'Gestión',
+    roles: ['ADMIN', 'VENDEDOR', 'CONTADOR'],
+    items: [
+      { id: 'clients', label: 'Entidades', roles: ['ADMIN', 'VENDEDOR', 'CONTADOR'] },
+      { id: 'products', label: 'Inventario', roles: ['ADMIN'] },
+      { id: 'recipes', label: 'Recetas', roles: ['ADMIN'], businessTypes: ['BAKERY', 'RESTAURANT'] },
+      { id: 'production', label: 'Producción', roles: ['ADMIN'], businessTypes: ['BAKERY', 'RESTAURANT'] },
+    ]
+  },
+  {
+    id: 'puntos',
+    label: 'Puntos',
+    roles: ['ADMIN', 'VENDEDOR', 'CONTADOR'],
+    items: [
+      { id: 'security-points', label: 'Puntos', roles: ['ADMIN', 'VENDEDOR', 'CONTADOR'] },
+    ]
+  },
+  {
+    id: 'reportes',
+    label: 'Reportes',
+    roles: ['ADMIN', 'CONTADOR'],
+    items: [
+      { id: 'reports', label: 'Reportes y SRI', roles: ['ADMIN', 'CONTADOR'] },
+      { id: 'sales-book', label: 'Libro de Ventas', roles: ['ADMIN', 'CONTADOR'] },
+      { id: 'ats', label: 'ATS', roles: ['ADMIN', 'CONTADOR'] },
+      { id: 'form-104', label: 'Formulario 104', roles: ['ADMIN', 'CONTADOR'] },
+      { id: 'kardex', label: 'Kardex', roles: ['ADMIN', 'CONTADOR'] },
+      { id: 'profitability', label: 'Rentabilidad', roles: ['ADMIN', 'CONTADOR'] },
+    ]
+  },
+  {
+    id: 'configuracion',
+    label: 'Configuración',
+    roles: ['ADMIN', 'VENDEDOR', 'CONTADOR', 'SUPERADMIN'],
+    items: [
+      { id: 'config', label: 'Perfil de Empresa', roles: ['ADMIN', 'SUPERADMIN', 'VENDEDOR', 'CONTADOR'] },
+      { id: 'pago-interno', label: 'Suscripción', roles: ['ADMIN'] },
+      { id: 'company-users', label: 'Panel de Gestión', roles: ['ADMIN'] },
+      { id: 'sessions', label: 'Seguridad / Dispositivos', roles: ['ADMIN', 'VENDEDOR', 'CONTADOR', 'SUPERADMIN'] },
+      { id: 'notifications', label: 'Notificaciones', roles: ['ADMIN', 'VENDEDOR', 'CONTADOR', 'SUPERADMIN'] },
+      { id: 'integrations', label: 'Integración Web', roles: ['ADMIN'] },
+      { id: 'ai-assistant', label: 'Asistente IA', roles: ['ADMIN', 'SUPERADMIN'] },
+    ]
+  },
+];
+
+const groupIcons: Record<string, React.ReactNode> = {
+  superadmin: <ShieldExclamationIcon className="w-3.5 h-3.5" />,
+  emision: <DocumentTextIcon className="w-3.5 h-3.5" />,
+  operaciones: <ShoppingCartIcon className="w-3.5 h-3.5" />,
+  gestion: <UsersIcon className="w-3.5 h-3.5" />,
+  puntos: <TrophyIcon className="w-3.5 h-3.5" />,
+  reportes: <ChartBarIcon className="w-3.5 h-3.5" />,
+  configuracion: <Cog6ToothIcon className="w-3.5 h-3.5" />,
+};
+
+const logoutItem: MenuItem = { id: 'logout_btn', label: 'Cerrar Sesión', roles: [] };
+
 const Layout: React.FC<LayoutProps> = ({
   children, notifications, onMarkRead, onRemoveNotif,
   businessInfo, currentUser, subscriptionExpired = false, pendingActivations = 0,
@@ -152,15 +283,6 @@ const Layout: React.FC<LayoutProps> = ({
 
   const unreadCount = notifications.filter(n => !n.read).length;
 
-  const loadCollapsed = () => {
-    try {
-      const saved = localStorage.getItem('menuCollapsedGroups');
-      if (saved) return JSON.parse(saved);
-    } catch { /* ignorar */ }
-    // Default: solo SUPERADMIN abierto
-    return { superadmin: false };
-  };
-
   const [collapsedGroups, setCollapsedGroups] = useState<Record<string, boolean>>(loadCollapsed);
 
   const toggleGroup = (groupId: string) => {
@@ -170,23 +292,6 @@ const Layout: React.FC<LayoutProps> = ({
       try { localStorage.setItem('menuCollapsedGroups', JSON.stringify(next)); } catch { /* */ }
       return next;
     });
-  };
-
-  const handleLogout = async () => {
-    const sessionId = localStorage.getItem('sessionId');
-    const token = localStorage.getItem('adminToken');
-    if (sessionId && token) {
-      try {
-        await fetch(`${import.meta.env.VITE_BACKEND_URL || ''}/api/business/sessions/${sessionId}/revoke`, {
-          method: 'PUT', headers: { 'Authorization': `Bearer ${token}` }
-        });
-      } catch (e) { /* ignorar */ }
-    }
-    localStorage.removeItem('adminToken'); localStorage.removeItem('adminUser');
-    localStorage.removeItem('subscriptionExpired'); localStorage.removeItem('businessActive');
-    localStorage.removeItem('hasModuleControl'); localStorage.removeItem('modulePermissions');
-    localStorage.removeItem('sessionId'); localStorage.removeItem('refreshToken');
-    window.location.reload();
   };
 
   const handleTabClick = (tabId: string) => {
@@ -208,109 +313,6 @@ const Layout: React.FC<LayoutProps> = ({
   // ================================================================
   const isSuperAdmin = currentUser?.role === 'SUPERADMIN';
   const isAdmin = currentUser?.role === 'ADMIN';
-
-  const allGroups: MenuGroup[] = [
-    {
-      id: 'superadmin',
-      label: 'SUPERADMIN',
-      roles: ['SUPERADMIN'],
-      items: [
-        { id: 'saas-admin', label: 'Panel SaaS', roles: ['SUPERADMIN'] },
-        { id: 'dashboard', label: 'Dashboard', roles: ['SUPERADMIN'] },
-        { id: '_div_gestion', label: '──── Gestión ────', roles: ['SUPERADMIN'] },
-        { id: 'activation-requests', label: 'Activaciones', roles: ['SUPERADMIN'] },
-        { id: 'subscription-plans', label: 'Planes', roles: ['SUPERADMIN'] },
-        { id: 'saas-payment-methods', label: 'Métodos de Pago', roles: ['SUPERADMIN'] },
-        { id: '_div_contenido', label: '──── Contenido ────', roles: ['SUPERADMIN'] },
-        { id: 'landing-editor', label: 'Landing Page', roles: ['SUPERADMIN'] },
-        { id: 'blog-editor', label: 'Blog', roles: ['SUPERADMIN'] },
-        { id: '_div_financiero', label: '──── Financiero ────', roles: ['SUPERADMIN'] },
-        { id: 'subscription-invoices', label: 'Facturación SaaS', roles: ['SUPERADMIN'] },
-        { id: 'saas-credit-notes', label: 'NC SaaS', roles: ['SUPERADMIN'] },
-        { id: 'subscription-reports', label: 'Libro Ventas SaaS', roles: ['SUPERADMIN'] },
-        { id: '_div_fidelidad', label: '──── Fidelidad ────', roles: ['SUPERADMIN'] },
-        { id: 'points-admin', label: 'Puntos SaaS', roles: ['SUPERADMIN'] },
-      ]
-    },
-    {
-      id: 'emision',
-      label: 'Emisión',
-      roles: ['ADMIN', 'VENDEDOR', 'CONTADOR'],
-      items: [
-        { id: 'invoices', label: 'Facturas', roles: ['ADMIN', 'VENDEDOR', 'CONTADOR'] },
-        { id: 'credit-notes', label: 'Notas de Crédito', roles: ['ADMIN', 'VENDEDOR', 'CONTADOR'] },
-        { id: 'retentions', label: 'Retenciones', roles: ['ADMIN', 'CONTADOR'] },
-        { id: 'remittances', label: 'Guías de Remisión', roles: ['ADMIN', 'VENDEDOR', 'CONTADOR'] },
-        { id: 'settlements', label: 'Liquidaciones', roles: ['ADMIN', 'CONTADOR'] },
-      ]
-    },
-    {
-      id: 'operaciones',
-      label: 'Operaciones',
-      roles: ['ADMIN', 'VENDEDOR', 'CONTADOR'],
-      items: [
-        { id: 'quicksale', label: 'Caja', roles: ['ADMIN', 'VENDEDOR'], businessTypes: ['BAKERY', 'RESTAURANT'] },
-        { id: 'pending-sri', label: 'Pendientes SRI', roles: ['ADMIN', 'VENDEDOR', 'CONTADOR'], businessTypes: ['BAKERY', 'RESTAURANT'] },
-        { id: 'purchases', label: 'Compras', roles: ['ADMIN', 'CONTADOR'] },
-      ]
-    },
-    {
-      id: 'gestion',
-      label: 'Gestión',
-      roles: ['ADMIN', 'VENDEDOR', 'CONTADOR'],
-      items: [
-        { id: 'clients', label: 'Entidades', roles: ['ADMIN', 'VENDEDOR', 'CONTADOR'] },
-        { id: 'products', label: 'Inventario', roles: ['ADMIN'] },
-        { id: 'recipes', label: 'Recetas', roles: ['ADMIN'], businessTypes: ['BAKERY', 'RESTAURANT'] },
-        { id: 'production', label: 'Producción', roles: ['ADMIN'], businessTypes: ['BAKERY', 'RESTAURANT'] },
-      ]
-    },
-    {
-      id: 'puntos',
-      label: 'Puntos',
-      roles: ['ADMIN', 'VENDEDOR', 'CONTADOR'],
-      items: [
-        { id: 'security-points', label: 'Puntos', roles: ['ADMIN', 'VENDEDOR', 'CONTADOR'] },
-      ]
-    },
-    {
-      id: 'reportes',
-      label: 'Reportes',
-      roles: ['ADMIN', 'CONTADOR'],
-      items: [
-        { id: 'reports', label: 'Reportes y SRI', roles: ['ADMIN', 'CONTADOR'] },
-        { id: 'sales-book', label: 'Libro de Ventas', roles: ['ADMIN', 'CONTADOR'] },
-        { id: 'ats', label: 'ATS', roles: ['ADMIN', 'CONTADOR'] },
-        { id: 'form-104', label: 'Formulario 104', roles: ['ADMIN', 'CONTADOR'] },
-        { id: 'kardex', label: 'Kardex', roles: ['ADMIN', 'CONTADOR'] },
-        { id: 'profitability', label: 'Rentabilidad', roles: ['ADMIN', 'CONTADOR'] },
-      ]
-    },
-    {
-      id: 'configuracion',
-      label: 'Configuración',
-      roles: ['ADMIN', 'VENDEDOR', 'CONTADOR', 'SUPERADMIN'],
-      items: [
-        { id: 'config', label: 'Perfil de Empresa', roles: ['ADMIN', 'SUPERADMIN', 'VENDEDOR', 'CONTADOR'] },
-        { id: 'pago-interno', label: 'Suscripción', roles: ['ADMIN'] },
-        { id: 'company-users', label: 'Panel de Gestión', roles: ['ADMIN'] },
-        { id: 'sessions', label: 'Seguridad / Dispositivos', roles: ['ADMIN', 'VENDEDOR', 'CONTADOR', 'SUPERADMIN'] },
-        { id: 'notifications', label: 'Notificaciones', roles: ['ADMIN', 'VENDEDOR', 'CONTADOR', 'SUPERADMIN'] },
-        { id: 'integrations', label: 'Integración Web', roles: ['ADMIN'] },
-        { id: 'ai-assistant', label: 'Asistente IA', roles: ['ADMIN', 'SUPERADMIN'] },
-      ]
-    },
-  ];
-
-  const groupIcons: Record<string, React.ReactNode> = {
-    superadmin: <ShieldExclamationIcon className="w-3.5 h-3.5" />,
-    emision: <DocumentTextIcon className="w-3.5 h-3.5" />,
-    operaciones: <ShoppingCartIcon className="w-3.5 h-3.5" />,
-    gestion: <UsersIcon className="w-3.5 h-3.5" />,
-    puntos: <TrophyIcon className="w-3.5 h-3.5" />,
-    reportes: <ChartBarIcon className="w-3.5 h-3.5" />,
-    configuracion: <Cog6ToothIcon className="w-3.5 h-3.5" />,
-  };
 
   // Filtrar ítems por role, tipo de negocio, suscripción, módulos, plan
   const filterItem = (item: MenuItem): boolean => {
@@ -344,9 +346,6 @@ const Layout: React.FC<LayoutProps> = ({
 
   // Dashboard: SUPERADMIN lo ve en grupo SUPERADMIN; usuarios normales lo ven al inicio siempre
   const showStandaloneDashboard = !isSuperAdmin;
-
-  // Cerrar sesión siempre visible
-  const logoutItem: MenuItem = { id: 'logout_btn', label: 'Cerrar Sesión', roles: [] };
 
   return (
     <div className="flex h-screen bg-[#F6F6F7] dark:bg-[#0F172A] overflow-hidden relative transition-colors duration-300">

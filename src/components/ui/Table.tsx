@@ -93,7 +93,15 @@ function Table<T extends Record<string, any>>({
               <tr
                 key={idx}
                 onClick={() => onRowClick?.(row)}
-                className={`${onRowClick ? 'cursor-pointer' : ''} hover:bg-slate-50 dark:hover:bg-slate-800/40 transition-colors`}
+                onKeyDown={(e) => {
+                  if (onRowClick && (e.key === 'Enter' || e.key === ' ')) {
+                    e.preventDefault();
+                    onRowClick(row);
+                  }
+                }}
+                tabIndex={onRowClick ? 0 : undefined}
+                role={onRowClick ? 'button' : undefined}
+                className={`${onRowClick ? 'cursor-pointer' : ''} hover:bg-slate-50 dark:hover:bg-slate-800/40 transition-colors focus:bg-slate-100 dark:focus:bg-slate-800/60 outline-none`}
               >
                 {columns.map((col) => (
                   <td key={col.key} className={`px-4 py-3 text-sm text-slate-700 dark:text-slate-300 ${col.className || ''}`}>

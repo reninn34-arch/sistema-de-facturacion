@@ -15,6 +15,24 @@ interface ActivationStatus {
   adminNotes?: string | null;
 }
 
+const statusBadge = (s?: string) => {
+  if (!s) return null;
+  const config: Record<string, { bg: string; text: string; icon: React.ReactNode; label: string }> = {
+    PENDING: { bg: 'bg-amber-100', text: 'text-amber-700', icon: <ClockIcon className="w-4 h-4" />, label: 'Pendiente' },
+    APPROVED: { bg: 'bg-emerald-100', text: 'text-emerald-700', icon: <CheckCircleIcon className="w-4 h-4" />, label: 'Aprobada' },
+    REJECTED: { bg: 'bg-red-100', text: 'text-red-700', icon: <XCircleIcon className="w-4 h-4" />, label: 'Rechazada' },
+    ACTIVE: { bg: 'bg-emerald-100', text: 'text-emerald-700', icon: <CheckCircleIcon className="w-4 h-4" />, label: 'Activo' },
+    EXPIRED: { bg: 'bg-red-100', text: 'text-red-700', icon: <XCircleIcon className="w-4 h-4" />, label: 'Expirado' },
+    SUSPENDED: { bg: 'bg-slate-100', text: 'text-slate-700', icon: <XCircleIcon className="w-4 h-4" />, label: 'Suspendido' },
+  };
+  const c = config[s] || { bg: 'bg-slate-100', text: 'text-slate-700', icon: <ClockIcon className="w-4 h-4" />, label: s };
+  return (
+    <span className={`${c.bg} ${c.text} px-3 py-1 rounded-full text-[10px] font-black uppercase inline-flex items-center gap-1`}>
+      {c.icon}{c.label}
+    </span>
+  );
+};
+
 const ActivationStatusLookup: React.FC = () => {
   const [ruc, setRuc] = useState('');
   const [status, setStatus] = useState<ActivationStatus | null>(null);
@@ -41,23 +59,7 @@ const ActivationStatusLookup: React.FC = () => {
     }
   };
 
-  const statusBadge = (s?: string) => {
-    if (!s) return null;
-    const config: Record<string, { bg: string; text: string; icon: React.ReactNode; label: string }> = {
-      PENDING: { bg: 'bg-amber-100', text: 'text-amber-700', icon: <ClockIcon className="w-4 h-4" />, label: 'Pendiente' },
-      APPROVED: { bg: 'bg-emerald-100', text: 'text-emerald-700', icon: <CheckCircleIcon className="w-4 h-4" />, label: 'Aprobada' },
-      REJECTED: { bg: 'bg-red-100', text: 'text-red-700', icon: <XCircleIcon className="w-4 h-4" />, label: 'Rechazada' },
-      ACTIVE: { bg: 'bg-emerald-100', text: 'text-emerald-700', icon: <CheckCircleIcon className="w-4 h-4" />, label: 'Activo' },
-      EXPIRED: { bg: 'bg-red-100', text: 'text-red-700', icon: <XCircleIcon className="w-4 h-4" />, label: 'Expirado' },
-      SUSPENDED: { bg: 'bg-slate-100', text: 'text-slate-700', icon: <XCircleIcon className="w-4 h-4" />, label: 'Suspendido' },
-    };
-    const c = config[s] || { bg: 'bg-slate-100', text: 'text-slate-700', icon: <ClockIcon className="w-4 h-4" />, label: s };
-    return (
-      <span className={`${c.bg} ${c.text} px-3 py-1 rounded-full text-[10px] font-black uppercase inline-flex items-center gap-1`}>
-        {c.icon}{c.label}
-      </span>
-    );
-  };
+
 
   return (
     <div className="w-full max-w-lg mx-auto" id="consulta-estado">
