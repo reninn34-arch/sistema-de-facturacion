@@ -58,7 +58,7 @@ const PurchaseManager: React.FC<PurchaseManagerProps> = ({ clients, businessInfo
       discount: 0,
       taxRate: 15,
       total: 0,
-      type: 'BIEN'
+      type: 'FISICO'
     } as InvoiceItem]);
   };
 

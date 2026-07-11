@@ -171,7 +171,7 @@ export interface Document {
   exportDetails?: ExportDetails;
   isReimbursement?: boolean;
   reimbursements?: ReimbursementDetail[];
-  source?: 'LOCAL' | 'TIENDA_ONLINE';
+  source?: 'LOCAL' | 'TIENDA_ONLINE' | 'RECEIVED';
   authorizedXml?: string; // XML autorizado por el SRI
   invoiceType?: string; // 'CLIENT' | 'SAAS' | 'MONTHLY' | 'CUSTOM'
   // Para Notas de Crédito
