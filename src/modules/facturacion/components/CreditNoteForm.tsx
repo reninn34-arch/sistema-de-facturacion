@@ -379,7 +379,7 @@ const CreditNoteForm: React.FC<Props> = ({
 
             {/* Botón Autorizar */}
             <div className="flex gap-4">
-              <button
+              <button type="button"
                 onClick={handleAuthorize}
                 disabled={isAuthorizing || items.filter(i => i.quantity > 0).length === 0}
                 className="flex-1 bg-sky-600 hover:bg-sky-700 disabled:bg-gray-400 dark:disabled:bg-slate-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors flex items-center justify-center gap-2"
@@ -397,7 +397,7 @@ const CreditNoteForm: React.FC<Props> = ({
                 )}
               </button>
 
-              <button
+              <button type="button"
                 onClick={resetForm}
                 disabled={isAuthorizing}
                 className="px-6 py-3 border border-gray-300 dark:border-slate-600 rounded-lg text-gray-700 dark:text-slate-300 hover:bg-gray-50 dark:hover:bg-slate-700/50 transition-colors"

@@ -125,7 +125,7 @@ const AyudaPage: React.FC = () => {
           <div className="space-y-3">
             {content.faqs.map((faq, idx) => (
               <div key={idx} className="bg-white rounded-2xl border border-slate-100 overflow-hidden shadow-sm">
-                <button
+                <button type="button"
                   onClick={() => setOpenFaq(openFaq === idx ? null : idx)}
                   className="w-full flex items-center justify-between p-5 lg:p-6 hover:bg-slate-50 transition-colors text-left"
                 >

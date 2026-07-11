@@ -396,7 +396,7 @@ const UserManagement: React.FC<UserManagementProps> = ({ currentUser, onNotify }
                 : 'Gestiona los administradores de tu empresa. Los clientes se gestionan en "Entidades"'}
             </p>
           </div>
-          <button
+          <button type="button"
             onClick={() => setShowModal(true)}
             className="px-6 py-3 bg-sky-500 text-white rounded-2xl font-bold text-sm hover:bg-sky-600 transition-all shadow-lg shadow-sky-500/20 flex items-center gap-2"
           >
@@ -417,7 +417,7 @@ const UserManagement: React.FC<UserManagementProps> = ({ currentUser, onNotify }
             />
           </div>
           <div className="flex gap-2 flex-wrap">
-            <button
+            <button type="button"
               onClick={() => setFilterRole('ALL')}
               className={`px-4 py-2 rounded-xl text-xs font-bold transition-all ${
                 filterRole === 'ALL'
@@ -431,7 +431,7 @@ const UserManagement: React.FC<UserManagementProps> = ({ currentUser, onNotify }
               const info = roleLabels[role as keyof typeof roleLabels] || { label: role, color: 'slate' };
               const count = users.filter(u => u.role === role).length;
               return (
-                <button
+                <button type="button"
                   key={role}
                   onClick={() => setFilterRole(role)}
                   className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1 ${
@@ -530,7 +530,7 @@ const UserManagement: React.FC<UserManagementProps> = ({ currentUser, onNotify }
                       <td className="px-6 py-4">
                         <div className="flex items-center justify-end gap-2">
                           {/* Reset Password */}
-                          <button
+                          <button type="button"
                             onClick={() => { setSelectedUser(user); setShowResetModal(true); }}
                             className="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700/50 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 transition-colors"
                             title="Restablecer contraseña"
@@ -540,7 +540,7 @@ const UserManagement: React.FC<UserManagementProps> = ({ currentUser, onNotify }
                           
                           {/* Toggle Status (solo ADMIN de empresa) */}
                           {isAdmin && !isCurrentUser && user.isActive !== undefined && (
-                            <button
+                            <button type="button"
                               onClick={() => handleToggleStatus(user)}
                               className={`p-2 rounded-lg transition-colors ${
                                 user.isActive
@@ -555,7 +555,7 @@ const UserManagement: React.FC<UserManagementProps> = ({ currentUser, onNotify }
 
                           {/* Delete */}
                           {!isCurrentUser && (
-                            <button
+                            <button type="button"
                               onClick={() => { setSelectedUser(user); setShowDeleteModal(true); }}
                               className="p-2 rounded-lg hover:bg-red-50 dark:hover:bg-red-500/10 text-slate-400 hover:text-red-500 transition-colors"
                               title="Eliminar administrador"
@@ -566,7 +566,7 @@ const UserManagement: React.FC<UserManagementProps> = ({ currentUser, onNotify }
 
                           {/* Edit - para SUPERADMIN y ADMIN de empresa */}
                           {(isSuperAdmin || isAdmin) && !isCurrentUser && (
-                            <button
+                            <button type="button"
                               onClick={() => openEditModal(user)}
                               className="p-2 rounded-lg hover:bg-sky-50 dark:hover:bg-sky-500/10 text-slate-400 hover:text-sky-500 transition-colors"
                               title="Editar administrador"
@@ -577,7 +577,7 @@ const UserManagement: React.FC<UserManagementProps> = ({ currentUser, onNotify }
 
                           {/* Gestionar Módulos - solo ADMIN de empresa con hasModuleControl */}
                           {isAdmin && hasModuleControl && user.role !== 'ADMIN' && !isCurrentUser && (
-                            <button
+                            <button type="button"
                               onClick={() => { setModuleUser(user); setShowModuleModal(true); }}
                               className="p-2 rounded-lg hover:bg-purple-50 dark:hover:bg-purple-500/10 text-slate-400 hover:text-purple-500 transition-colors"
                               title="Gestionar módulos del usuario"
@@ -622,7 +622,7 @@ const UserManagement: React.FC<UserManagementProps> = ({ currentUser, onNotify }
                 <h3 className="text-lg font-black text-slate-800 dark:text-white flex items-center gap-2">
                   <PlusIcon className="w-5 h-5" /> Nuevo Administrador
                 </h3>
-                <button onClick={() => setShowModal(false)} className="text-slate-400 hover:text-slate-600 dark:hover:text-white"><XMarkIcon className="w-5 h-5" /></button>
+                <button type="button" onClick={() => setShowModal(false)} className="text-slate-400 hover:text-slate-600 dark:hover:text-white"><XMarkIcon className="w-5 h-5" /></button>
               </div>
             </div>
 
@@ -750,13 +750,13 @@ const UserManagement: React.FC<UserManagementProps> = ({ currentUser, onNotify }
               Se eliminará permanentemente a <strong className="text-slate-800 dark:text-white">{selectedUser.email}</strong>. Esta acción no se puede deshacer.
             </p>
             <div className="flex gap-3">
-              <button
+              <button type="button"
                 onClick={() => { setShowDeleteModal(false); setSelectedUser(null); }}
                 className="flex-1 py-3 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 rounded-xl font-bold text-sm hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
               >
                 Cancelar
               </button>
-              <button
+              <button type="button"
                 onClick={handleDeleteUser}
                 className="flex-1 py-3 bg-red-500 text-white rounded-xl font-bold text-sm hover:bg-red-600 transition-colors shadow-lg shadow-red-500/20"
               >
@@ -785,13 +785,13 @@ const UserManagement: React.FC<UserManagementProps> = ({ currentUser, onNotify }
               placeholder="Contraseña temporal..."
             />
             <div className="flex gap-3">
-              <button
+              <button type="button"
                 onClick={() => { setShowResetModal(false); setTempPassword(''); setSelectedUser(null); }}
                 className="flex-1 py-3 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 rounded-xl font-bold text-sm hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
               >
                 Cancelar
               </button>
-              <button
+              <button type="button"
                 onClick={handleResetPassword}
                 disabled={!tempPassword}
                 className="flex-1 py-3 bg-sky-500 text-white rounded-xl font-bold text-sm hover:bg-sky-600 transition-colors shadow-lg shadow-sky-500/20 disabled:opacity-50 disabled:cursor-not-allowed"
@@ -812,7 +812,7 @@ const UserManagement: React.FC<UserManagementProps> = ({ currentUser, onNotify }
                 <h3 className="text-lg font-black text-slate-800 dark:text-white flex items-center gap-2">
                   <PencilIcon className="w-5 h-5" /> Editar Administrador
                 </h3>
-                <button onClick={() => { setShowEditModal(false); setEditingUser(null); }} className="text-slate-400 hover:text-slate-600 dark:hover:text-white"><XMarkIcon className="w-5 h-5" /></button>
+                <button type="button" onClick={() => { setShowEditModal(false); setEditingUser(null); }} className="text-slate-400 hover:text-slate-600 dark:hover:text-white"><XMarkIcon className="w-5 h-5" /></button>
               </div>
             </div>
 
@@ -873,7 +873,7 @@ const UserManagement: React.FC<UserManagementProps> = ({ currentUser, onNotify }
                 >
                   Cancelar
                 </button>
-                <button
+                <button aria-label="Acción"
                   type="submit"
                   className="flex-1 py-3 bg-sky-500 text-white rounded-xl font-bold text-sm hover:bg-sky-600 transition-colors shadow-lg shadow-sky-500/20"
                 >

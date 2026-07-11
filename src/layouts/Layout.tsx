@@ -379,7 +379,7 @@ const Layout: React.FC<LayoutProps> = ({
               <p className="text-[9px] text-slate-400 dark:text-slate-500 mt-1.5 uppercase font-bold tracking-widest">Enterprise Edition</p>
             </div>
           </div>
-          <button onClick={() => setIsSidebarOpen(false)}
+          <button type="button" onClick={() => setIsSidebarOpen(false)}
             className="lg:hidden text-slate-400 hover:text-slate-700 dark:hover:text-white p-2 min-w-[44px] min-h-[44px] flex items-center justify-center">
             <XMarkIcon className="w-5 h-5" />
           </button>
@@ -393,7 +393,7 @@ const Layout: React.FC<LayoutProps> = ({
                 <span className="font-black text-xs uppercase tracking-widest">Ambiente Producción</span>
               </div>
             ) : (
-              <button onClick={() => setIsEnvModalOpen(true)}
+              <button type="button" onClick={() => setIsEnvModalOpen(true)}
                 className="w-full flex items-center justify-between bg-red-500 hover:bg-red-600 text-white py-3 px-4 rounded-xl shadow-lg shadow-red-500/20 transition-colors group">
                 <div className="flex items-center gap-2">
                   <ExclamationTriangleIcon className="w-5 h-5 animate-pulse" />
@@ -408,7 +408,7 @@ const Layout: React.FC<LayoutProps> = ({
         <nav className="flex-1 p-2 sm:p-4 mt-2 space-y-1 overflow-y-auto">
           {/* Standalone Dashboard for non-SUPERADMIN */}
           {showStandaloneDashboard && (
-            <button
+            <button type="button"
               onClick={() => handleTabClick('dashboard')}
               className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl transition-all duration-200 min-h-[48px] text-left border-l-4 group mb-3 ${
                 activeTab === 'dashboard'
@@ -430,7 +430,7 @@ const Layout: React.FC<LayoutProps> = ({
 
             return (
               <div key={group.id} className="mb-1">
-                <button
+                <button type="button"
                   onClick={(e) => { e.preventDefault(); e.stopPropagation(); toggleGroup(group.id); }}
                   className={`w-full flex items-center gap-2 px-3 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all cursor-pointer select-none ${
                     hasActiveTab ? 'text-sky-600 dark:text-sky-400' : 'text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300'
@@ -450,7 +450,7 @@ const Layout: React.FC<LayoutProps> = ({
                         item.id.startsWith('_div_') ? (
                           <div key={item.id} className="px-4 py-1.5 text-[9px] font-black text-slate-300 dark:text-slate-600 uppercase tracking-[0.2em] select-none pointer-events-none">{item.label.replace(/─/g, '')}</div>
                         ) : (
-                        <button
+                        <button type="button"
                           key={item.id}
                           onClick={() => handleTabClick(item.id)}
                         className={`w-full flex items-center space-x-3 px-4 py-2.5 rounded-xl transition-all duration-200 min-h-[44px] text-left border-l-4 group ${
@@ -476,7 +476,7 @@ const Layout: React.FC<LayoutProps> = ({
           })}
 
           {/* Cerrar Sesión */}
-          <button
+          <button type="button"
             onClick={() => handleTabClick('logout_btn')}
             className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl transition-all duration-200 min-h-[48px] text-left border-l-4 mt-4 border-transparent text-red-500 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-500/20 hover:text-red-600 dark:hover:text-red-300 font-bold`}
           >
@@ -505,7 +505,7 @@ const Layout: React.FC<LayoutProps> = ({
       <main className="flex-1 flex flex-col overflow-hidden w-full">
         <header className="h-14 sm:h-16 bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl border-b border-slate-200 dark:border-slate-700/50 flex items-center justify-between px-3 sm:px-4 lg:px-8 z-40 print:hidden transition-colors duration-300">
           <div className="flex items-center gap-2 sm:gap-4">
-            <button onClick={() => setIsSidebarOpen(true)}
+            <button type="button" onClick={() => setIsSidebarOpen(true)}
               className="lg:hidden p-2 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-xl transition-all print:hidden min-w-[44px] min-h-[44px] flex items-center justify-center">
               <Bars3Icon className="w-6 h-6" />
             </button>
@@ -524,7 +524,7 @@ const Layout: React.FC<LayoutProps> = ({
 
           <div className="flex items-center space-x-1 sm:space-x-2 lg:space-x-4 print:hidden">
             <div className="relative" ref={notificationRef}>
-              <button onClick={() => setShowNotifications(!showNotifications)}
+              <button type="button" onClick={() => setShowNotifications(!showNotifications)}
                 className={`relative p-2 rounded-xl transition-all min-w-[44px] min-h-[44px] flex items-center justify-center ${
                   showNotifications ? 'bg-sky-100 dark:bg-sky-500/20 text-sky-500 dark:text-sky-400' : 'text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700'
                 }`}>
@@ -539,7 +539,7 @@ const Layout: React.FC<LayoutProps> = ({
                 <div className="absolute right-0 mt-3 w-[280px] sm:w-72 lg:w-80 max-w-[calc(100vw-24px)] bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-600/50 rounded-2xl shadow-2xl dark:shadow-black/40 z-50 overflow-hidden animate-scale-in origin-top-right max-h-[80vh]">
                   <div className="p-3 sm:p-4 bg-slate-50 dark:bg-slate-800/50 border-b border-slate-100 dark:border-slate-700/50 flex justify-between items-center">
                     <span className="text-xs font-bold uppercase tracking-tighter text-slate-800 dark:text-white">Notificaciones</span>
-                    <button onClick={() => onMarkRead()} className="text-[10px] font-bold text-sky-500 dark:text-sky-400 px-2 py-1 min-h-[32px] hover:underline">
+                    <button type="button" onClick={() => onMarkRead()} className="text-[10px] font-bold text-sky-500 dark:text-sky-400 px-2 py-1 min-h-[32px] hover:underline">
                       Marcar todas leídas
                     </button>
                   </div>

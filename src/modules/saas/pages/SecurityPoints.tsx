@@ -159,7 +159,7 @@ const SecurityPoints: React.FC<SecurityPointsProps> = ({ businessInfo, isDemoMod
           <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4">Tu enlace de referido</p>
           <div className="flex items-center gap-3">
             <code className="flex-1 bg-slate-50 p-4 rounded-2xl text-sm font-mono text-slate-600 border border-slate-200 select-all">{referralLink}</code>
-            <button
+            <button type="button"
               onClick={copyLink}
               className={`p-4 rounded-2xl font-black text-xs uppercase transition-all ${copied ? 'bg-emerald-500 text-white' : 'bg-sky-500 text-white hover:bg-sky-600'}`}
             >
@@ -222,7 +222,7 @@ const SecurityPoints: React.FC<SecurityPointsProps> = ({ businessInfo, isDemoMod
                     <p className="font-bold text-sm text-slate-700">{prize.name}</p>
                     <p className="text-xs text-slate-400">{prize.description}</p>
                   </div>
-                  <button
+                  <button type="button"
                     onClick={() => redeemPrize(prize)}
                     disabled={points < prize.points || redeeming === prize.id}
                     className={`px-4 py-2 rounded-xl font-black text-xs uppercase transition-all ${

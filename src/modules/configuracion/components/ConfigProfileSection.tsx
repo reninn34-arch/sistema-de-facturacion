@@ -59,7 +59,7 @@ const ConfigProfileSection: React.FC<ConfigProfileSectionProps> = ({
         </div>
 
         <div className="flex gap-4 flex-wrap items-center">
-          <button onClick={() => {
+          <button type="button" onClick={() => {
             const newType = businessInfo.taxpayerType === 'EMPRESA' ? 'PERSONA_NATURAL' : 'EMPRESA';
             setBusinessInfo((prev: any) => ({ ...prev, taxpayerType: newType }));
             showNotify(`Cambiado a ${newType === 'EMPRESA' ? 'Empresa' : 'Persona Natural'}`);
@@ -67,7 +67,7 @@ const ConfigProfileSection: React.FC<ConfigProfileSectionProps> = ({
             className={`px-8 py-5 rounded-2xl font-black text-[10px] uppercase tracking-widest transition-all shadow-xl ${businessInfo.taxpayerType === 'EMPRESA' ? 'bg-sky-500 text-white shadow-sky-500/20' : 'bg-purple-600 text-white shadow-purple-600/20'}`}>
             {businessInfo.taxpayerType === 'EMPRESA' ? 'Empresa' : 'Persona Natural'}
           </button>
-          <button onClick={toggleDarkMode}
+          <button type="button" onClick={toggleDarkMode}
             className={`px-8 py-5 rounded-2xl font-black text-[10px] uppercase tracking-widest transition-all shadow-xl inline-flex items-center gap-2 ${(businessInfo as any).features?.isDarkMode ? 'bg-slate-900 border border-slate-700/50 text-white shadow-black/20 hover:bg-slate-950' : 'bg-amber-500 text-white shadow-amber-500/20 hover:bg-amber-600'}`}>
             {(businessInfo as any).features?.isDarkMode ? <><MoonIcon className="w-4 h-4" /> Modo Oscuro</> : <><SunIcon className="w-4 h-4" /> Modo Claro</>}
           </button>
@@ -88,7 +88,7 @@ const ConfigProfileSection: React.FC<ConfigProfileSectionProps> = ({
             <div className="flex gap-2">
               <input type="email" value={personalEmail} onChange={(e) => setPersonalEmail(e.target.value)}
                 className="w-full p-4 bg-slate-50 dark:bg-slate-800/50 dark:text-white rounded-2xl font-bold text-sm outline-none border-2 border-transparent focus:border-purple-500 transition-colors" />
-              <button onClick={handleUpdateProfile} className="px-6 bg-purple-100 dark:bg-purple-500/10 text-purple-600 dark:text-purple-400 rounded-2xl font-bold text-xs hover:bg-purple-200 dark:hover:bg-purple-500/20 transition-colors">Guardar</button>
+              <button type="submit" onClick={handleUpdateProfile} className="px-6 bg-purple-100 dark:bg-purple-500/10 text-purple-600 dark:text-purple-400 rounded-2xl font-bold text-xs hover:bg-purple-200 dark:hover:bg-purple-500/20 transition-colors">Guardar</button>
             </div>
           </div>
           <div className="pt-6 border-t border-slate-50 dark:border-slate-700/50">
@@ -111,7 +111,7 @@ const ConfigProfileSection: React.FC<ConfigProfileSectionProps> = ({
                 value={passwordData.confirm} onChange={(e) => setPasswordData((prev: any) => ({ ...prev, confirm: e.target.value }))}
                 className="w-full p-4 bg-slate-50 dark:bg-slate-800/50 dark:text-white rounded-2xl font-bold text-sm outline-none border-2 border-transparent focus:border-purple-500 transition-colors" />
             </div>
-            <button onClick={handleChangePassword} disabled={!passwordData.current || !passwordData.new}
+            <button type="submit" onClick={handleChangePassword} disabled={!passwordData.current || !passwordData.new}
               className="mt-4 w-full md:w-auto px-8 py-3 bg-slate-800 dark:bg-slate-700 text-white rounded-2xl font-bold text-xs hover:bg-slate-700 dark:hover:bg-slate-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed uppercase tracking-widest">
               Actualizar Contraseña
             </button>

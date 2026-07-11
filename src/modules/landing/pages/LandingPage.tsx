@@ -387,7 +387,7 @@ const LandingPage: React.FC = () => {
               </a>
             </div>
 
-            <button
+            <button type="button"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               className={`lg:hidden p-2 rounded-xl transition-all duration-300 ${scrolled
                   ? 'text-slate-800 hover:bg-slate-100'
@@ -989,7 +989,7 @@ const LandingPage: React.FC = () => {
                       <svg className="w-5 h-5" fill="currentColor" viewBox={social.viewBox}><path d={social.path} /></svg>
                     </a>
                   ) : (
-                    <button key={social.label} className="w-10 h-10 rounded-xl bg-slate-800 flex items-center justify-center hover:bg-slate-700 transition-colors text-slate-400 hover:text-white cursor-default" aria-label={social.label} tabIndex={-1}>
+                    <button type="button" key={social.label} className="w-10 h-10 rounded-xl bg-slate-800 flex items-center justify-center hover:bg-slate-700 transition-colors text-slate-400 hover:text-white cursor-default" aria-label={social.label} tabIndex={-1}>
                       <svg className="w-5 h-5" fill="currentColor" viewBox={social.viewBox}><path d={social.path} /></svg>
                     </button>
                   );
@@ -1011,7 +1011,7 @@ const LandingPage: React.FC = () => {
                 <li><a href="/ayuda" className="hover:text-white transition-colors">Centro de Ayuda</a></li>
                 <li><a href="/contacto" className="hover:text-white transition-colors">Contacto</a></li>
                 <li><a href="/legal" className="hover:text-white transition-colors">Términos y Condiciones</a></li>
-                <li><button onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} className="hover:text-white transition-colors bg-transparent border-none cursor-pointer p-0 text-slate-400">API Docs</button></li>
+                <li><button type="button" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} className="hover:text-white transition-colors bg-transparent border-none cursor-pointer p-0 text-slate-400">API Docs</button></li>
               </ul>
             </div>
             <div>

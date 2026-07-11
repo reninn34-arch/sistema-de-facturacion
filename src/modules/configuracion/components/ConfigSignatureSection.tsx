@@ -73,7 +73,7 @@ const ConfigSignatureSection: React.FC<ConfigSignatureSectionProps> = ({
         </p>
       </section>
 
-      <button onClick={saveBusinessConfig}
+      <button type="submit" onClick={saveBusinessConfig}
         className="w-full py-6 bg-sky-500 hover:bg-sky-600 text-white rounded-[2.5rem] font-black uppercase text-xs tracking-widest shadow-2xl shadow-sky-500/20 transition-all hover:scale-[1.02] active:scale-95">
         Guardar Cambios Legales
       </button>

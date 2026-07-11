@@ -145,7 +145,7 @@ const CsvImportModal: React.FC<CsvImportModalProps> = ({ isOpen, onClose, onImpo
                 <div>
                   <p className="text-sm font-bold text-sky-700 mb-1">Descarga la plantilla</p>
                   <p className="text-xs text-sky-600 mb-3">Usa este formato para asegurar que los datos se importen correctamente.</p>
-                  <button onClick={downloadSample} className="text-xs font-bold bg-sky-500 text-white px-4 py-2 rounded-xl hover:bg-sky-600 transition-colors">
+                  <button type="button" onClick={downloadSample} className="text-xs font-bold bg-sky-500 text-white px-4 py-2 rounded-xl hover:bg-sky-600 transition-colors">
                     Descargar Plantilla
                   </button>
                 </div>
@@ -170,7 +170,7 @@ const CsvImportModal: React.FC<CsvImportModalProps> = ({ isOpen, onClose, onImpo
                   <p className="text-sm font-bold text-slate-700">{rows.length} registros encontrados</p>
                   <p className="text-xs text-slate-400">{headers.length} columnas detectadas</p>
                 </div>
-                <button onClick={() => setStep('upload')} className="text-xs font-bold text-slate-500 hover:text-slate-700">
+                <button type="button" onClick={() => setStep('upload')} className="text-xs font-bold text-slate-500 hover:text-slate-700">
                   Cambiar archivo
                 </button>
               </div>
@@ -205,7 +205,7 @@ const CsvImportModal: React.FC<CsvImportModalProps> = ({ isOpen, onClose, onImpo
                 )}
               </div>
 
-              <button
+              <button type="button"
                 onClick={handleImport}
                 className="w-full py-4 bg-sky-500 text-white font-black rounded-2xl hover:bg-sky-600 transition-all text-sm uppercase tracking-wider"
               >
@@ -229,7 +229,7 @@ const CsvImportModal: React.FC<CsvImportModalProps> = ({ isOpen, onClose, onImpo
               <p className="text-slate-500">
                 <span className="font-bold text-emerald-600">{importResult.success}</span> {entityType} importados exitosamente
               </p>
-              <button
+              <button type="button"
                 onClick={handleClose}
                 className="px-8 py-3 bg-sky-500 text-white font-bold rounded-xl hover:bg-sky-600 transition-colors"
               >

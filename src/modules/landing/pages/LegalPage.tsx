@@ -209,7 +209,7 @@ const LegalPage: React.FC = () => {
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex gap-0 overflow-x-auto">
             {tabs.map(tab => (
-              <button
+              <button type="button"
                 key={tab.key}
                 onClick={() => setActiveTab(tab.key)}
                 className={`relative px-5 py-4 text-sm font-bold transition-colors whitespace-nowrap ${

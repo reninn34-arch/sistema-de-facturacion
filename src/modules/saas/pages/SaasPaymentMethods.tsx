@@ -112,7 +112,7 @@ const SaasPaymentMethods: React.FC<SaasPaymentMethodsProps> = ({ onNotify }) => 
             <div className="border-t border-slate-100 dark:border-slate-800 pt-6">
               <div className="flex justify-between items-center mb-4">
                 <h3 className="font-bold text-slate-700 dark:text-slate-300 text-sm uppercase tracking-wider">Cuentas Bancarias</h3>
-                <button onClick={() => {
+                <button type="button" onClick={() => {
                   setPaymentConfig({
                     ...paymentConfig,
                     bankAccounts: [
@@ -139,7 +139,7 @@ const SaasPaymentMethods: React.FC<SaasPaymentMethodsProps> = ({ onNotify }) => 
                 {paymentConfig.bankAccounts.map((acc, index) => (
                   <div key={acc.id} className="p-5 border border-slate-200 dark:border-slate-800 rounded-xl relative bg-slate-50 dark:bg-slate-800/10">
                     <div className="absolute top-4 right-4">
-                      <button onClick={() => {
+                      <button type="button" onClick={() => {
                         setPaymentConfig({
                           ...paymentConfig,
                           bankAccounts: paymentConfig.bankAccounts.filter(a => a.id !== acc.id)
@@ -200,7 +200,7 @@ const SaasPaymentMethods: React.FC<SaasPaymentMethodsProps> = ({ onNotify }) => 
             </div>
 
             <div className="border-t border-slate-100 dark:border-slate-800 pt-4">
-              <button onClick={savePaymentConfig} disabled={savingConfig} className="w-full py-3.5 bg-sky-500 text-white font-bold rounded-xl hover:bg-sky-600 transition-colors disabled:opacity-50 text-sm uppercase tracking-wider">
+              <button type="submit" onClick={savePaymentConfig} disabled={savingConfig} className="w-full py-3.5 bg-sky-500 text-white font-bold rounded-xl hover:bg-sky-600 transition-colors disabled:opacity-50 text-sm uppercase tracking-wider">
                 {savingConfig ? 'Guardando...' : 'Guardar Configuración'}
               </button>
             </div>

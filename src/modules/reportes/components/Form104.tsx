@@ -186,7 +186,7 @@ IVA a Pagar / Crédito Tributario: $${form104Data.ivaToPayOrCredit.toFixed(2)}
           </div>
         </div>
 
-        <button
+        <button type="button"
           onClick={exportReport}
           disabled={!month || !year}
           className="w-full mt-6 py-4 bg-sky-500 hover:bg-sky-600 text-white rounded-2xl font-black uppercase text-sm tracking-wide shadow-lg shadow-sky-500/20 disabled:opacity-50 disabled:cursor-not-allowed"

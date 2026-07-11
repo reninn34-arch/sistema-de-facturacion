@@ -269,11 +269,11 @@ const ProductManager: React.FC<ProductManagerProps> = ({ products, setProducts, 
           <p className={`text-xs ${isDarkMode ? 'text-slate-500' : 'text-slate-400'} font-bold uppercase tracking-widest mt-1`}>Gestión de stock y tarifas multitarifa</p>
         </div>
         <div className="flex gap-3">
-          <button onClick={() => setShowImportModal(true)} className="bg-slate-100 text-slate-600 px-6 py-4 rounded-2xl font-black text-xs uppercase tracking-widest hover:scale-105 transition-all flex items-center gap-2">
+          <button type="button" onClick={() => setShowImportModal(true)} className="bg-slate-100 text-slate-600 px-6 py-4 rounded-2xl font-black text-xs uppercase tracking-widest hover:scale-105 transition-all flex items-center gap-2">
             <ArrowDownTrayIcon className="w-4 h-4" />
             Importar
           </button>
-          <button onClick={() => handleOpenModal()} className="bg-sky-500 text-white px-8 py-4 rounded-2xl font-black text-xs uppercase tracking-widest shadow-xl hover:scale-105 transition-all">
+          <button type="button" onClick={() => handleOpenModal()} className="bg-sky-500 text-white px-8 py-4 rounded-2xl font-black text-xs uppercase tracking-widest shadow-xl hover:scale-105 transition-all">
             + Nuevo Producto
           </button>
         </div>
@@ -287,7 +287,7 @@ const ProductManager: React.FC<ProductManagerProps> = ({ products, setProducts, 
             { key: 'finished' as InventoryTab, label: 'Productos', emoji: '📦' },
             { key: 'service' as InventoryTab, label: 'Servicios', emoji: '⚡' },
           ]).map(tab => (
-            <button
+            <button type="button"
               key={tab.key}
               onClick={() => setActiveTab(tab.key)}
               className={`flex-1 min-w-[100px] px-4 py-3 rounded-xl text-xs font-black uppercase tracking-wider transition-all ${
@@ -360,7 +360,7 @@ const ProductManager: React.FC<ProductManagerProps> = ({ products, setProducts, 
                   </span>
                   {p.isSynced && <span className={`text-[8px] font-bold ${isDarkMode ? 'text-slate-500' : 'text-slate-400'} uppercase mt-1`}>Web Linked</span>}
                 </div>
-                <button onClick={() => handleOpenModal(p)} className={`${isDarkMode ? 'bg-slate-700 hover:bg-slate-600 text-slate-300' : 'bg-slate-50 hover:bg-slate-100 text-slate-600'} p-3 rounded-xl text-[10px] font-black uppercase transition-all`}>
+                <button type="button" onClick={() => handleOpenModal(p)} className={`${isDarkMode ? 'bg-slate-700 hover:bg-slate-600 text-slate-300' : 'bg-slate-50 hover:bg-slate-100 text-slate-600'} p-3 rounded-xl text-[10px] font-black uppercase transition-all`}>
                   Editar Ficha
                 </button>
               </div>
@@ -415,8 +415,8 @@ const ProductManager: React.FC<ProductManagerProps> = ({ products, setProducts, 
               <div className="flex justify-between items-start mb-10">
                 <h4 className={`text-3xl font-black ${isDarkMode ? 'text-white' : 'text-slate-900'} tracking-tighter`}>Ficha Técnica</h4>
                 <div className="flex gap-2">
-                   <button onClick={() => setFormData({...formData, type: 'FISICO'})} className={`px-4 py-2 rounded-xl text-[10px] font-black uppercase transition-all ${formData.type === 'FISICO' ? 'bg-sky-500 text-white' : (isDarkMode ? 'bg-slate-600 text-slate-300' : 'bg-slate-100 text-slate-400')}`}>Físico</button>
-                   <button onClick={() => setFormData({...formData, type: 'SERVICIO'})} className={`px-4 py-2 rounded-xl text-[10px] font-black uppercase transition-all ${formData.type === 'SERVICIO' ? 'bg-amber-500 text-white' : (isDarkMode ? 'bg-slate-600 text-slate-300' : 'bg-slate-100 text-slate-400')}`}>Servicio</button>
+                   <button type="button" onClick={() => setFormData({...formData, type: 'FISICO'})} className={`px-4 py-2 rounded-xl text-[10px] font-black uppercase transition-all ${formData.type === 'FISICO' ? 'bg-sky-500 text-white' : (isDarkMode ? 'bg-slate-600 text-slate-300' : 'bg-slate-100 text-slate-400')}`}>Físico</button>
+                   <button type="button" onClick={() => setFormData({...formData, type: 'SERVICIO'})} className={`px-4 py-2 rounded-xl text-[10px] font-black uppercase transition-all ${formData.type === 'SERVICIO' ? 'bg-amber-500 text-white' : (isDarkMode ? 'bg-slate-600 text-slate-300' : 'bg-slate-100 text-slate-400')}`}>Servicio</button>
                 </div>
               </div>
 
@@ -499,8 +499,8 @@ const ProductManager: React.FC<ProductManagerProps> = ({ products, setProducts, 
                 </div>
 
                 <div className="flex gap-4 pt-4">
-                  <button onClick={() => setShowModal(false)} className={`flex-1 py-5 font-black ${isDarkMode ? 'text-slate-500 hover:text-slate-300' : 'text-slate-400 hover:text-slate-600'} uppercase text-[10px] tracking-widest transition-colors`}>Descartar</button>
-                  <button onClick={handleSave} disabled={loading} className={`flex-[2] py-5 font-black bg-sky-500 text-white rounded-[1.5rem] shadow-xl shadow-indigo-100 uppercase text-[10px] tracking-widest hover:scale-[1.02] active:scale-95 transition-all ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}>
+                  <button type="button" onClick={() => setShowModal(false)} className={`flex-1 py-5 font-black ${isDarkMode ? 'text-slate-500 hover:text-slate-300' : 'text-slate-400 hover:text-slate-600'} uppercase text-[10px] tracking-widest transition-colors`}>Descartar</button>
+                  <button type="submit" onClick={handleSave} disabled={loading} className={`flex-[2] py-5 font-black bg-sky-500 text-white rounded-[1.5rem] shadow-xl shadow-indigo-100 uppercase text-[10px] tracking-widest hover:scale-[1.02] active:scale-95 transition-all ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}>
                     {loading ? 'Guardando...' : (editingProd ? 'Actualizar Ficha' : 'Registrar Producto')}
                   </button>
                 </div>

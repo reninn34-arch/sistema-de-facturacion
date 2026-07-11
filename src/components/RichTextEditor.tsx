@@ -39,18 +39,18 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({ value, onChange, placeh
   return (
     <div className={`border border-slate-300 rounded-xl overflow-hidden bg-white ${className}`}>
       <div className="flex flex-wrap items-center gap-0.5 px-2 py-1.5 border-b border-slate-200 bg-slate-50">
-        <button onClick={() => exec('bold')} className={btnClass} title="Negrita"><b>B</b></button>
-        <button onClick={() => exec('italic')} className={btnClass} title="Cursiva"><i>I</i></button>
-        <button onClick={() => exec('underline')} className={btnClass} title="Subrayado"><u>U</u></button>
+        <button type="button" onClick={() => exec('bold')} className={btnClass} title="Negrita"><b>B</b></button>
+        <button type="button" onClick={() => exec('italic')} className={btnClass} title="Cursiva"><i>I</i></button>
+        <button type="button" onClick={() => exec('underline')} className={btnClass} title="Subrayado"><u>U</u></button>
         <span className="w-px h-5 bg-slate-300 mx-1" />
-        <button onClick={() => exec('formatBlock', '<h2>')} className={btnClass}>H2</button>
-        <button onClick={() => exec('formatBlock', '<h3>')} className={btnClass}>H3</button>
-        <button onClick={() => exec('formatBlock', '<p>')} className={btnClass}>P</button>
+        <button type="button" onClick={() => exec('formatBlock', '<h2>')} className={btnClass}>H2</button>
+        <button type="button" onClick={() => exec('formatBlock', '<h3>')} className={btnClass}>H3</button>
+        <button type="button" onClick={() => exec('formatBlock', '<p>')} className={btnClass}>P</button>
         <span className="w-px h-5 bg-slate-300 mx-1" />
-        <button onClick={() => exec('insertUnorderedList')} className={btnClass} title="Lista">• Lista</button>
-        <button onClick={() => exec('insertOrderedList')} className={btnClass} title="Lista numerada">1. Lista</button>
+        <button type="button" onClick={() => exec('insertUnorderedList')} className={btnClass} title="Lista">• Lista</button>
+        <button type="button" onClick={() => exec('insertOrderedList')} className={btnClass} title="Lista numerada">1. Lista</button>
         <span className="w-px h-5 bg-slate-300 mx-1" />
-        <button onClick={() => exec('removeFormat')} className={btnClass} title="Limpiar formato">Limpiar</button>
+        <button type="button" onClick={() => exec('removeFormat')} className={btnClass} title="Limpiar formato">Limpiar</button>
       </div>
       <div
         ref={editorRef}

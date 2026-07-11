@@ -137,7 +137,7 @@ const ModulePermissionModal: React.FC<ModulePermissionModalProps> = ({
                 Usuario: <strong className="text-slate-800 dark:text-white">{userName || userEmail}</strong>
               </p>
             </div>
-            <button onClick={onClose} className="text-slate-400 hover:text-slate-600 dark:hover:text-white p-1">
+            <button aria-label="Cerrar" type="button" onClick={onClose} className="text-slate-400 hover:text-slate-600 dark:hover:text-white p-1">
               <XMarkIcon className="w-5 h-5" />
             </button>
           </div>
@@ -172,7 +172,7 @@ const ModulePermissionModal: React.FC<ModulePermissionModalProps> = ({
               {modules.map(mod => {
                 const status = getModuleStatus(mod);
                 return (
-                  <button
+                  <button type="button"
                     key={mod.id}
                     onClick={() => toggleModule(mod.id)}
                     className={`p-4 rounded-2xl border-2 transition-all text-left flex items-center justify-between gap-3 ${
@@ -201,14 +201,14 @@ const ModulePermissionModal: React.FC<ModulePermissionModalProps> = ({
         </div>
 
         <div className="p-6 border-t border-slate-100 dark:border-slate-700/50 flex-shrink-0 flex gap-3">
-          <button
+          <button type="button"
             onClick={() => loadModules()}
             disabled={loading}
             className="flex-1 py-3 bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 rounded-xl font-bold text-sm hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors"
           >
             Restablecer
           </button>
-          <button
+          <button type="submit"
             onClick={handleSave}
             disabled={saving || loading}
             className="flex-1 py-3 bg-sky-500 text-white rounded-xl font-bold text-sm hover:bg-sky-600 transition-colors shadow-lg shadow-sky-500/20 disabled:opacity-50 disabled:cursor-not-allowed"

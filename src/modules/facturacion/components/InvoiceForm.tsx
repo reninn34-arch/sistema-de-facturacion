@@ -1013,9 +1013,9 @@ const InvoiceForm: React.FC<InvoiceFormProps> = ({ clients, setClients, isDemoMo
               </div>
             </div>
             <div className="flex flex-col sm:flex-row gap-3 w-full md:w-auto">
-              <button onClick={() => setShowRide(true)} className={`${isDarkMode ? 'bg-slate-700 text-emerald-400' : 'bg-white text-emerald-600'} px-6 py-3 rounded-xl lg:rounded-2xl font-black text-[10px] uppercase tracking-widest hover:scale-105 transition-all inline-flex items-center gap-2`}><PrinterIcon className="w-4 h-4" /> Ver RIDE</button>
+              <button type="button" onClick={() => setShowRide(true)} className={`${isDarkMode ? 'bg-slate-700 text-emerald-400' : 'bg-white text-emerald-600'} px-6 py-3 rounded-xl lg:rounded-2xl font-black text-[10px] uppercase tracking-widest hover:scale-105 transition-all inline-flex items-center gap-2`}><PrinterIcon className="w-4 h-4" /> Ver RIDE</button>
               {lastDocument.type === DocumentType.PROFORMA ? (
-                <button onClick={() => {
+                <button type="button" onClick={() => {
                   const proformaData = lastDocument;
                   setLastDocument(null);
                   if (proformaData.entityRuc) {
@@ -1031,7 +1031,7 @@ const InvoiceForm: React.FC<InvoiceFormProps> = ({ clients, setClients, isDemoMo
               ) : (
                 <>
                   {lastDocument.entityEmail && (
-                    <button
+                    <button type="submit"
                       onClick={handleSendEmail}
                       disabled={sendingEmail}
                       className={`${isDarkMode ? 'bg-slate-700 text-sky-400' : 'bg-white text-sky-500'} px-6 py-3 rounded-xl lg:rounded-2xl font-black text-[10px] uppercase tracking-widest hover:scale-105 transition-all disabled:opacity-50 disabled:cursor-not-allowed`}
@@ -1048,7 +1048,7 @@ const InvoiceForm: React.FC<InvoiceFormProps> = ({ clients, setClients, isDemoMo
                   )}
                 </>
               )}
-              <button onClick={() => setLastDocument(null)} className={`${lastDocument.type === DocumentType.PROFORMA ? 'bg-amber-700 hover:bg-amber-800' : 'bg-emerald-700 hover:bg-emerald-800'} text-white px-6 py-3 rounded-xl lg:rounded-2xl font-black text-[10px] uppercase tracking-widest transition-all`}>{lastDocument.type === DocumentType.PROFORMA ? 'Nueva Proforma' : 'Nueva Factura'}</button>
+              <button type="button" onClick={() => setLastDocument(null)} className={`${lastDocument.type === DocumentType.PROFORMA ? 'bg-amber-700 hover:bg-amber-800' : 'bg-emerald-700 hover:bg-emerald-800'} text-white px-6 py-3 rounded-xl lg:rounded-2xl font-black text-[10px] uppercase tracking-widest transition-all`}>{lastDocument.type === DocumentType.PROFORMA ? 'Nueva Proforma' : 'Nueva Factura'}</button>
             </div>
           </div>
         )}
@@ -1058,7 +1058,7 @@ const InvoiceForm: React.FC<InvoiceFormProps> = ({ clients, setClients, isDemoMo
             {/* TIPOS DE FACTURA */}
             <div className={`flex flex-wrap gap-2 mb-6 ${isDarkMode ? 'bg-slate-800 border-slate-700' : 'bg-white border-slate-100'} p-3 rounded-2xl shadow-sm border`}>
               {['Factura Simple', 'Factura Básica', 'Factura Exportación', 'Factura Reembolso'].map(type => (
-                <button
+                <button type="button"
                   key={type}
                   onClick={() => setInvoiceType(type)}
                   className={`px-4 py-2 rounded-xl text-xs font-black transition-all ${invoiceType === type ? 'bg-slate-900 text-white dark:bg-sky-500 dark:text-white shadow-md' : (isDarkMode ? 'bg-slate-700 text-slate-300 hover:bg-slate-600' : 'bg-slate-100 text-slate-500 hover:bg-slate-200')}`}
@@ -1291,10 +1291,10 @@ const InvoiceForm: React.FC<InvoiceFormProps> = ({ clients, setClients, isDemoMo
               {invoiceType === 'Factura Reembolso' && (
                 <div className="pt-4 border-t border-slate-100 dark:border-slate-700/50">
                   <div className="flex border-b border-slate-200 dark:border-slate-700 mb-4">
-                    <button onClick={() => setReimbursementTab('PRODUCTO')} className={`flex-1 py-3 text-sm font-black uppercase tracking-widest border-b-2 transition-all ${reimbursementTab === 'PRODUCTO' ? 'border-sky-500 text-sky-500' : 'border-transparent text-slate-400 hover:text-slate-500'}`}>
+                    <button type="button" onClick={() => setReimbursementTab('PRODUCTO')} className={`flex-1 py-3 text-sm font-black uppercase tracking-widest border-b-2 transition-all ${reimbursementTab === 'PRODUCTO' ? 'border-sky-500 text-sky-500' : 'border-transparent text-slate-400 hover:text-slate-500'}`}>
                       Sección Producto
                     </button>
-                    <button onClick={() => setReimbursementTab('REEMBOLSO')} className={`flex-1 py-3 text-sm font-black uppercase tracking-widest border-b-2 transition-all ${reimbursementTab === 'REEMBOLSO' ? 'border-sky-500 text-sky-500' : 'border-transparent text-slate-400 hover:text-slate-500'}`}>
+                    <button type="button" onClick={() => setReimbursementTab('REEMBOLSO')} className={`flex-1 py-3 text-sm font-black uppercase tracking-widest border-b-2 transition-all ${reimbursementTab === 'REEMBOLSO' ? 'border-sky-500 text-sky-500' : 'border-transparent text-slate-400 hover:text-slate-500'}`}>
                       Sección Reembolso
                     </button>
                   </div>
@@ -1319,7 +1319,7 @@ const InvoiceForm: React.FC<InvoiceFormProps> = ({ clients, setClients, isDemoMo
                        )}
                        
                        {!showReimbursementForm ? (
-                         <button onClick={() => setShowReimbursementForm(true)} className="mt-2 bg-sky-50 text-sky-600 px-6 py-2 rounded-xl font-bold hover:bg-sky-100 dark:bg-sky-900/30 dark:hover:bg-sky-900/50 transition-all border border-sky-200 dark:border-sky-800">Añadir Comprobante</button>
+                         <button type="button" onClick={() => setShowReimbursementForm(true)} className="mt-2 bg-sky-50 text-sky-600 px-6 py-2 rounded-xl font-bold hover:bg-sky-100 dark:bg-sky-900/30 dark:hover:bg-sky-900/50 transition-all border border-sky-200 dark:border-sky-800">Añadir Comprobante</button>
                        ) : (
                          <div className={`mt-4 p-4 text-left border rounded-2xl ${isDarkMode ? 'border-slate-600 bg-slate-800 text-white' : 'border-slate-200 bg-white text-slate-800'} shadow-sm`}>
                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -1361,8 +1361,8 @@ const InvoiceForm: React.FC<InvoiceFormProps> = ({ clients, setClients, isDemoMo
                               </div>
                            </div>
                            <div className="mt-6 flex gap-3">
-                             <button onClick={addReimbursement} className="bg-sky-500 hover:bg-sky-600 text-white px-6 py-2.5 rounded-xl font-bold shadow-md transition-all text-sm">Guardar Comprobante</button>
-                             <button onClick={() => setShowReimbursementForm(false)} className="bg-slate-100 hover:bg-slate-200 text-slate-700 dark:bg-slate-700 dark:hover:bg-slate-600 dark:text-slate-300 px-6 py-2.5 rounded-xl font-bold transition-all text-sm">Cancelar</button>
+                             <button type="submit" onClick={addReimbursement} className="bg-sky-500 hover:bg-sky-600 text-white px-6 py-2.5 rounded-xl font-bold shadow-md transition-all text-sm">Guardar Comprobante</button>
+                             <button type="button" onClick={() => setShowReimbursementForm(false)} className="bg-slate-100 hover:bg-slate-200 text-slate-700 dark:bg-slate-700 dark:hover:bg-slate-600 dark:text-slate-300 px-6 py-2.5 rounded-xl font-bold transition-all text-sm">Cancelar</button>
                            </div>
                          </div>
                        )}
@@ -1397,7 +1397,7 @@ const InvoiceForm: React.FC<InvoiceFormProps> = ({ clients, setClients, isDemoMo
                           return (
                             <div className="p-2">
                               {list.map(p => (
-                                <button
+                                <button type="button"
                                   key={p.id}
                                   onClick={() => addItem(p)}
                                   className="w-full text-left p-3 hover:bg-sky-50 rounded-xl flex items-center gap-4 transition-colors group"
@@ -1495,7 +1495,7 @@ const InvoiceForm: React.FC<InvoiceFormProps> = ({ clients, setClients, isDemoMo
                         </td>
                         <td className="py-4 text-right font-black text-sky-500 px-4">${item.total.toFixed(2)}</td>
                         <td className="py-4 px-4 text-right">
-                          <button onClick={() => setItems(items.filter(i => i.productId !== item.productId))} className={`${isDarkMode ? 'text-slate-500 hover:text-rose-400' : 'text-slate-300 hover:text-rose-500'} text-lg`}>✕</button>
+                          <button type="button" onClick={() => setItems(items.filter(i => i.productId !== item.productId))} className={`${isDarkMode ? 'text-slate-500 hover:text-rose-400' : 'text-slate-300 hover:text-rose-500'} text-lg`}>✕</button>
                         </td>
                       </tr>
                     ))}
@@ -1561,7 +1561,7 @@ const InvoiceForm: React.FC<InvoiceFormProps> = ({ clients, setClients, isDemoMo
               </div>
             </div>
 
-            <button
+            <button type="button"
               disabled={items.length === 0 || isSubmitting}
               onClick={() => setShowPreview(true)}
               className="w-full bg-sky-500 text-white font-black py-5 rounded-2xl hover:bg-sky-600 transition-all disabled:opacity-50 text-[10px] uppercase tracking-widest"
@@ -1584,7 +1584,7 @@ const InvoiceForm: React.FC<InvoiceFormProps> = ({ clients, setClients, isDemoMo
             </div>
 
             {isProforma && (
-              <button
+              <button type="button"
                 disabled={items.length === 0 || isSubmitting}
                 onClick={() => setShowPreview(true)}
                 className="w-full bg-amber-500 text-white font-black py-4 rounded-2xl hover:bg-amber-600 transition-all disabled:opacity-50 text-[10px] uppercase tracking-widest mt-3"
@@ -1625,7 +1625,7 @@ const InvoiceForm: React.FC<InvoiceFormProps> = ({ clients, setClients, isDemoMo
           <div className={`${isDarkMode ? 'bg-slate-800 border-slate-700' : 'bg-white rounded-[3.5rem] w-full max-w-2xl shadow-2xl animate-in zoom-in duration-300 overflow-hidden'}`}>
             <div className={`p-10 border-b ${isDarkMode ? 'border-slate-700' : 'border-slate-50'} flex justify-between items-center`}>
               <h2 className={`text-2xl font-black ${isDarkMode ? 'text-white' : 'text-slate-900'} tracking-tighter uppercase`}>Confirmar Comprobante</h2>
-              <button onClick={() => setShowPreview(false)} className={`${isDarkMode ? 'text-slate-400 hover:text-rose-400' : 'text-slate-400 hover:text-rose-500'}`}>✕</button>
+              <button type="button" onClick={() => setShowPreview(false)} className={`${isDarkMode ? 'text-slate-400 hover:text-rose-400' : 'text-slate-400 hover:text-rose-500'}`}>✕</button>
             </div>
             <div className="p-10 space-y-6">
               <div className={`${isDarkMode ? 'bg-slate-700' : 'bg-slate-50'} p-6 rounded-3xl space-y-2`}>
@@ -1639,7 +1639,7 @@ const InvoiceForm: React.FC<InvoiceFormProps> = ({ clients, setClients, isDemoMo
                   <p className={`text-[10px] font-black ${isDarkMode ? 'text-slate-500' : 'text-slate-400'} uppercase tracking-widest`}>A pagar</p>
                   <p className={`text-4xl font-black ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>${(totals.total + tip).toFixed(2)}</p>
                 </div>
-                <button
+                <button type="button"
                   onClick={handleProcess}
                   className="bg-sky-500 text-white px-10 py-5 rounded-2xl font-black text-xs uppercase tracking-widest shadow-xl shadow-indigo-100 hover:scale-105 transition-all"
                 >

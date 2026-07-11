@@ -93,7 +93,7 @@ export default function SalesBook({ documents, business, onNotify }: SalesBookPr
               <p className="text-sm text-slate-500 dark:text-slate-400 font-bold">Registro detallado de documentos emitidos</p>
             </div>
           </div>
-          <button
+          <button type="button"
             onClick={exportToCSV}
             disabled={salesEntries.length === 0}
             className="px-6 py-3 bg-sky-500 text-white rounded-xl font-bold text-sm hover:bg-sky-600 disabled:opacity-50 disabled:cursor-not-allowed inline-flex items-center gap-2"

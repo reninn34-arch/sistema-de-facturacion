@@ -202,7 +202,7 @@ const ActivationRequests: React.FC<ActivationRequestsProps> = ({ onNotify }) => 
             </p>
           </div>
           <div className="flex gap-3">
-            <button
+            <button type="submit"
               onClick={() => loadRequests()}
               className="flex items-center justify-center gap-2 rounded-lg h-10 px-4 bg-sky-500 text-white text-sm font-bold shadow-lg shadow-sky-500/20 hover:bg-sky-400 transition-all"
             >
@@ -213,7 +213,7 @@ const ActivationRequests: React.FC<ActivationRequestsProps> = ({ onNotify }) => 
         </div>
 
         <div className="mb-6 flex border-b border-slate-200 dark:border-slate-800 gap-8">
-          <button
+          <button type="button"
             onClick={() => setActiveTab('PENDING')}
             className={`flex flex-col items-center justify-center border-b-2 pb-3 pt-2 transition-colors ${
               activeTab === 'PENDING' 
@@ -223,7 +223,7 @@ const ActivationRequests: React.FC<ActivationRequestsProps> = ({ onNotify }) => 
           >
             <span className="text-sm font-bold">Pendientes ({pendingCount})</span>
           </button>
-          <button
+          <button type="button"
             onClick={() => setActiveTab('APPROVED')}
             className={`flex flex-col items-center justify-center border-b-2 pb-3 pt-2 transition-colors ${
               activeTab === 'APPROVED' 
@@ -233,7 +233,7 @@ const ActivationRequests: React.FC<ActivationRequestsProps> = ({ onNotify }) => 
           >
             <span className="text-sm font-bold">Aprobados ({approvedCount})</span>
           </button>
-          <button
+          <button type="button"
             onClick={() => setActiveTab('REJECTED')}
             className={`flex flex-col items-center justify-center border-b-2 pb-3 pt-2 transition-colors ${
               activeTab === 'REJECTED' 
@@ -312,7 +312,7 @@ const ActivationRequests: React.FC<ActivationRequestsProps> = ({ onNotify }) => 
                       <td className="px-6 py-4">
                         <div className="flex justify-center">
                           {req.paymentProofUrl && req.paymentProofUrl.length > 10 ? (
-                            <button 
+                            <button type="button" 
                               onClick={(e) => {
                                 e.stopPropagation();
                                 setPaymentProofImage(req.paymentProofUrl || null);
@@ -342,7 +342,7 @@ const ActivationRequests: React.FC<ActivationRequestsProps> = ({ onNotify }) => 
                       <td className="px-6 py-4 text-right">
                         {req.status === 'PENDING' && (
                           <div className="flex justify-end gap-2" onClick={(e) => e.stopPropagation()}>
-                            <button
+                            <button type="button"
                               onClick={() => handleApprove(req)}
                               disabled={actionLoading}
                               className="size-8 flex items-center justify-center rounded-lg bg-emerald-100 text-emerald-600 hover:bg-emerald-600 hover:text-white transition-all disabled:opacity-50"
@@ -350,7 +350,7 @@ const ActivationRequests: React.FC<ActivationRequestsProps> = ({ onNotify }) => 
                             >
                               <CheckIcon className="w-5 h-5" />
                             </button>
-                            <button
+                            <button type="button"
                               onClick={() => handleRejectClick(req)}
                               disabled={actionLoading}
                               className="size-8 flex items-center justify-center rounded-lg bg-rose-100 text-rose-600 hover:bg-rose-600 hover:text-white transition-all disabled:opacity-50"
@@ -374,7 +374,7 @@ const ActivationRequests: React.FC<ActivationRequestsProps> = ({ onNotify }) => 
         <aside className="w-full lg:w-[400px] border-l border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 flex flex-col h-full overflow-y-auto shrink-0">
           <div className="p-6 flex items-center justify-between border-b border-slate-100 dark:border-slate-800">
             <h2 className="text-lg font-bold text-slate-900 dark:text-slate-100">Detalles de Solicitud</h2>
-            <button 
+            <button type="button" 
               onClick={() => setSelectedRequest(null)}
               className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
             >
@@ -499,7 +499,7 @@ const ActivationRequests: React.FC<ActivationRequestsProps> = ({ onNotify }) => 
             {selectedRequest.status === 'PENDING' && (
               <div className="flex flex-col gap-3 mt-auto pt-4 border-t border-slate-100 dark:border-slate-800">
                 <div className="flex gap-3">
-                  <button
+                  <button type="button"
                     onClick={() => handleApprove(selectedRequest)}
                     disabled={actionLoading}
                     className="flex-1 flex items-center justify-center gap-2 h-12 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold transition-all shadow-lg shadow-emerald-200 dark:shadow-none disabled:opacity-50"
@@ -508,7 +508,7 @@ const ActivationRequests: React.FC<ActivationRequestsProps> = ({ onNotify }) => 
                     {actionLoading ? 'Procesando...' : 'Validar y Activar'}
                   </button>
                 </div>
-                <button
+                <button type="button"
                   onClick={() => handleRejectClick(selectedRequest)}
                   disabled={actionLoading}
                   className="flex items-center justify-center gap-2 h-10 rounded-xl bg-slate-100 dark:bg-slate-800 text-rose-600 dark:text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-900/20 text-sm font-bold transition-all disabled:opacity-50"
@@ -541,7 +541,7 @@ const ActivationRequests: React.FC<ActivationRequestsProps> = ({ onNotify }) => 
                   <p className="text-sm text-slate-500 dark:text-slate-400">Ingrese el motivo del rechazo</p>
                 </div>
               </div>
-              <button 
+              <button type="button" 
                 onClick={() => setShowRejectModal(false)}
                 disabled={actionLoading}
                 className="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors disabled:opacity-50"
@@ -576,14 +576,14 @@ const ActivationRequests: React.FC<ActivationRequestsProps> = ({ onNotify }) => 
             
             {/* Footer */}
             <div className="flex gap-3 p-6 border-t border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50">
-              <button
+              <button type="button"
                 onClick={() => setShowRejectModal(false)}
                 disabled={actionLoading}
                 className="flex-1 h-12 rounded-xl bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 text-slate-700 dark:text-slate-200 font-semibold hover:bg-slate-50 dark:hover:bg-slate-600 transition-all disabled:opacity-50"
               >
                 Cancelar
               </button>
-              <button
+              <button type="button"
                 onClick={confirmReject}
                 disabled={actionLoading}
                 className="flex-1 h-12 rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-bold transition-all shadow-lg shadow-rose-200 dark:shadow-none disabled:opacity-50 flex items-center justify-center gap-2"
@@ -624,7 +624,7 @@ const ActivationRequests: React.FC<ActivationRequestsProps> = ({ onNotify }) => 
                   <p className="text-sm text-slate-500 dark:text-slate-400">Imagen del comprobante adjuntado</p>
                 </div>
               </div>
-              <button 
+              <button type="button" 
                 onClick={() => setPaymentProofImage(null)}
                 className="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
               >
@@ -643,7 +643,7 @@ const ActivationRequests: React.FC<ActivationRequestsProps> = ({ onNotify }) => 
             
             {/* Footer */}
             <div className="flex justify-end gap-3 p-4 border-t border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50">
-              <button
+              <button type="button"
                 onClick={() => setPaymentProofImage(null)}
                 className="h-10 px-6 rounded-xl bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-200 font-semibold hover:bg-slate-300 dark:hover:bg-slate-600 transition-all"
               >

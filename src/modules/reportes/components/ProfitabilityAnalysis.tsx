@@ -113,7 +113,7 @@ export default function ProfitabilityAnalysis({ products, documents, onNotify }:
               <p className="text-sm text-slate-500 dark:text-slate-400 font-bold">Utilidad por producto</p>
             </div>
           </div>
-          <button
+          <button type="button"
             onClick={exportToCSV}
             disabled={profitabilityData.length === 0}
             className="px-6 py-3 bg-sky-500 text-white rounded-xl font-bold text-sm hover:bg-sky-600 disabled:opacity-50 disabled:cursor-not-allowed"

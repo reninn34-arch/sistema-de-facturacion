@@ -484,7 +484,7 @@ export default function SaasCreditNote({ businesses, documents, onNotify }: Saas
             
             {/* Tabs */}
             <div className="flex bg-white dark:bg-slate-800 rounded-lg p-1 shadow-md">
-              <button
+              <button type="button"
                 onClick={() => setActiveTab('invoices')}
                 className={`px-4 py-2 rounded-md font-medium transition-all ${
                   activeTab === 'invoices'
@@ -494,7 +494,7 @@ export default function SaasCreditNote({ businesses, documents, onNotify }: Saas
               >
                 <DocumentTextIcon className="w-4 h-4 inline" /> Facturas
               </button>
-              <button
+              <button type="button"
                 onClick={() => setActiveTab('credit-notes')}
                 className={`px-4 py-2 rounded-md font-medium transition-all ${
                   activeTab === 'credit-notes'
@@ -748,7 +748,7 @@ export default function SaasCreditNote({ businesses, documents, onNotify }: Saas
                         {items.length > 0 && (
                           <tr>
                             <td colSpan={7} className="p-3">
-                              <button
+                              <button aria-label="Acción"
                                 type="button"
                                 onClick={() => setItems([...items, {
                                   productId: 'manual',
@@ -808,7 +808,7 @@ export default function SaasCreditNote({ businesses, documents, onNotify }: Saas
 
                 {/* Botones */}
                 <div className="flex gap-4">
-                  <button
+                  <button type="button"
                     onClick={handleProcess}
                     disabled={isProcessing || validItemsCount() === 0}
                     className={`flex-1 py-3 px-6 rounded-lg font-bold text-white transition-all ${
@@ -829,7 +829,7 @@ export default function SaasCreditNote({ businesses, documents, onNotify }: Saas
                       <><CheckCircleIcon className="w-5 h-5 inline" /> Generar Nota de Crédito</>
                     )}
                   </button>
-                  <button
+                  <button type="button"
                     onClick={resetForm}
                     className="px-6 py-3 border border-slate-300 dark:border-slate-600 rounded-lg font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 transition-all"
                   >

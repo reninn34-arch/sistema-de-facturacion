@@ -252,7 +252,7 @@ const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
                             </form>
 
                             <div className="mt-6 text-center">
-                                <button onClick={() => setView('login')} className="inline-flex items-center gap-1.5 text-sm font-bold text-[#0EA5E9] hover:text-[#0369A1]">
+                                <button type="button" onClick={() => setView('login')} className="inline-flex items-center gap-1.5 text-sm font-bold text-[#0EA5E9] hover:text-[#0369A1]">
                                     <ArrowLeftIcon className="w-4 h-4" />
                                     Volver al Inicio de Sesión
                                 </button>

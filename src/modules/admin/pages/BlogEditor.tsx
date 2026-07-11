@@ -89,7 +89,7 @@ const BlogEditor: React.FC = () => {
           <h3 className="text-2xl font-black text-slate-800 tracking-tight">Blog & Capacitaciones</h3>
           <p className="text-xs text-slate-400 font-bold uppercase tracking-widest mt-1">Gestiona articulos, tutoriales y webinars</p>
         </div>
-        <button onClick={() => { setEditing(null); resetForm(); }}
+        <button type="button" onClick={() => { setEditing(null); resetForm(); }}
           className="bg-sky-500 text-white px-6 py-3 rounded-xl font-black text-xs uppercase hover:bg-sky-600 flex items-center gap-2">
           <PlusIcon className="w-4 h-4" /> Nuevo Post
         </button>
@@ -148,8 +148,8 @@ const BlogEditor: React.FC = () => {
               Publicado (visible en el blog)
             </label>
             <div className="flex gap-3">
-              <button onClick={() => { setEditing(undefined as any); resetForm(); }} className="px-6 py-3 bg-slate-100 rounded-xl font-bold text-xs uppercase">Cancelar</button>
-              <button onClick={save} disabled={saving}
+              <button type="button" onClick={() => { setEditing(undefined as any); resetForm(); }} className="px-6 py-3 bg-slate-100 rounded-xl font-bold text-xs uppercase">Cancelar</button>
+              <button type="submit" onClick={save} disabled={saving}
                 className="px-8 py-3 bg-sky-500 text-white rounded-xl font-bold text-xs uppercase hover:bg-sky-600 disabled:opacity-50">
                 {saving ? 'Guardando...' : 'Guardar Post'}
               </button>
@@ -179,8 +179,8 @@ const BlogEditor: React.FC = () => {
                 <td className="py-3 text-center">{post.videoUrl ? '🎥' : '-'}</td>
                 <td className="py-3 text-right text-xs text-slate-400">{new Date(post.createdAt).toLocaleDateString()}</td>
                 <td className="py-3 px-6 text-right flex justify-end gap-2">
-                  <button onClick={() => edit(post)} className="px-3 py-1.5 bg-sky-50 text-sky-500 rounded-lg text-[9px] font-black uppercase"><PencilIcon className="w-3 h-3" /></button>
-                  <button onClick={() => remove(post.id)} className="px-3 py-1.5 bg-rose-50 text-rose-500 rounded-lg text-[9px] font-black uppercase"><TrashIcon className="w-3 h-3" /></button>
+                  <button type="button" onClick={() => edit(post)} className="px-3 py-1.5 bg-sky-50 text-sky-500 rounded-lg text-[9px] font-black uppercase"><PencilIcon className="w-3 h-3" /></button>
+                  <button type="button" onClick={() => remove(post.id)} className="px-3 py-1.5 bg-rose-50 text-rose-500 rounded-lg text-[9px] font-black uppercase"><TrashIcon className="w-3 h-3" /></button>
                 </td>
               </tr>
             ))}

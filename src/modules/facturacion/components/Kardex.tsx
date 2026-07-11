@@ -108,7 +108,7 @@ export default function Kardex({ products, documents, onNotify }: KardexProps) {
               <p className="text-sm text-slate-505 dark:text-slate-450 font-bold">Control de movimientos por producto</p>
             </div>
           </div>
-          <button
+          <button type="button"
             onClick={exportToCSV}
             disabled={movements.length === 0}
             className="px-6 py-3 bg-sky-500 text-white rounded-xl font-bold text-sm hover:bg-sky-600 disabled:opacity-50 disabled:cursor-not-allowed"

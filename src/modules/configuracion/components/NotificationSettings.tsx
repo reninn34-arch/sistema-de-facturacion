@@ -97,7 +97,7 @@ const NotificationSettingsComponent: React.FC<NotificationSettingsProps> = ({ se
             { id: 'whatsapp', label: 'WhatsApp', icon: <DevicePhoneMobileIcon className="w-4 h-4 inline" /> },
             { id: 'reminders', label: 'Recordatorios', icon: <ClockIcon className="w-4 h-4 inline" /> }
           ].map(tab => (
-            <button
+            <button type="button"
               key={tab.id}
               onClick={() => setActiveTab(tab.id as any)}
               className={`px-6 py-3 font-bold text-sm rounded-t-xl ${
@@ -272,7 +272,7 @@ const NotificationSettingsComponent: React.FC<NotificationSettingsProps> = ({ se
                   </div>
                 </div>
 
-                <button
+                <button type="submit"
                   onClick={testEmail}
                   disabled={!localSettings.senderEmail}
                   className="w-full py-3 bg-sky-500 text-white rounded-xl font-bold hover:bg-sky-600 disabled:opacity-50"
@@ -327,7 +327,7 @@ const NotificationSettingsComponent: React.FC<NotificationSettingsProps> = ({ se
                           </ol>
                         </div>
                       </div>
-                      <button
+                      <button type="button"
                         onClick={() => setShowWhatsAppGuide(!showWhatsAppGuide)}
                         className="mt-4 px-4 py-2 bg-emerald-600 text-white rounded-xl font-bold hover:bg-emerald-700"
                       >
@@ -411,7 +411,7 @@ const NotificationSettingsComponent: React.FC<NotificationSettingsProps> = ({ se
                   )}
                 </div>
 
-                <button
+                <button type="submit"
                   onClick={testWhatsApp}
                   disabled={!localSettings.whatsappNumber}
                   className="w-full py-3 bg-emerald-600 text-white rounded-xl font-bold hover:bg-emerald-700 disabled:opacity-50"
@@ -431,7 +431,7 @@ const NotificationSettingsComponent: React.FC<NotificationSettingsProps> = ({ se
         )}
 
         <div className="mt-8 pt-6 border-t">
-          <button
+          <button type="submit"
             onClick={handleSave}
             className="w-full py-4 bg-sky-500 hover:bg-sky-600 text-white rounded-2xl font-black uppercase shadow-lg"
           >

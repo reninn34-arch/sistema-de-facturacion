@@ -200,7 +200,7 @@ const Integrations: React.FC<IntegrationsProps> = ({ products, clients, business
                 className="w-full p-4 bg-slate-50 rounded-2xl font-bold text-xs border border-slate-100 outline-none focus:border-sky-500"
                 placeholder="API Secret Key"
               />
-              <button 
+              <button type="button" 
                 onClick={saveConfiguration}
                 className="w-full py-4 bg-sky-500 text-white rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-sky-600 transition-all"
               >
@@ -208,7 +208,7 @@ const Integrations: React.FC<IntegrationsProps> = ({ products, clients, business
               </button>
             </div>
             <div className="pt-4 border-t border-slate-50">
-               <button 
+               <button type="button" 
                 onClick={syncInventory}
                 disabled={isSyncing || !isConfigured}
                 className="w-full py-4 bg-sky-500 text-white rounded-2xl font-black text-[10px] uppercase tracking-widest shadow-lg shadow-indigo-100 disabled:opacity-30"
@@ -227,7 +227,7 @@ const Integrations: React.FC<IntegrationsProps> = ({ products, clients, business
                   ))
                 }
              </div>
-             <button 
+             <button type="button" 
                 disabled={isSimulating || !isConfigured}
                 onClick={simulateWebhook}
                 className="mt-6 py-4 bg-white/10 hover:bg-white/20 text-white rounded-2xl font-black text-[9px] uppercase tracking-widest disabled:opacity-10"
@@ -296,7 +296,7 @@ const Integrations: React.FC<IntegrationsProps> = ({ products, clients, business
                      </div>
 
                      <div className="flex flex-col justify-center gap-3 md:w-56">
-                       <button 
+                       <button type="button" 
                          onClick={() => setEditingOrder({...order})}
                          className="w-full py-4 bg-slate-50 text-slate-600 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-slate-100 transition-all flex items-center justify-center gap-2"
                        >
@@ -304,7 +304,7 @@ const Integrations: React.FC<IntegrationsProps> = ({ products, clients, business
                        </button>
 
                        {!order.paymentConfirmed && order.paymentMethod === 'TRANSFER' && (
-                         <button 
+                         <button type="submit" 
                            onClick={() => confirmTransferManual(order.id)}
                            className="w-full py-4 bg-emerald-600 text-white rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-emerald-700 transition-all shadow-lg"
                          >
@@ -312,7 +312,7 @@ const Integrations: React.FC<IntegrationsProps> = ({ products, clients, business
                          </button>
                        )}
                        
-                       <button 
+                       <button type="submit" 
                          onClick={() => processOrderToSRI(order)}
                          disabled={!order.paymentConfirmed}
                          className={`w-full py-5 rounded-2xl font-black text-[10px] uppercase tracking-widest transition-all ${order.paymentConfirmed ? 'bg-slate-900 text-white shadow-xl hover:scale-105' : 'bg-slate-100 text-slate-400'}`}
@@ -341,7 +341,7 @@ const Integrations: React.FC<IntegrationsProps> = ({ products, clients, business
                  <h2 className="text-2xl font-black text-slate-900 tracking-tighter uppercase">Corregir Datos del Pedido</h2>
                  <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">Rastreo de pago: {editingOrder.paymentMethod === 'CARD' ? `TARJETA (${editingOrder.transactionId})` : 'TRANSFERENCIA BANCARIA'}</p>
                </div>
-               <button onClick={() => setEditingOrder(null)} className="w-12 h-12 rounded-full bg-white flex items-center justify-center shadow-sm text-slate-400 hover:text-rose-500 transition-all">✕</button>
+               <button type="button" onClick={() => setEditingOrder(null)} className="w-12 h-12 rounded-full bg-white flex items-center justify-center shadow-sm text-slate-400 hover:text-rose-500 transition-all">✕</button>
             </div>
             
             <div className="flex-1 overflow-y-auto p-10 space-y-8">
@@ -440,8 +440,8 @@ const Integrations: React.FC<IntegrationsProps> = ({ products, clients, business
                   </div>
                </div>
                <div className="flex gap-4">
-                  <button onClick={() => setEditingOrder(null)} className="px-8 py-4 font-black text-[10px] uppercase text-slate-400 hover:text-white transition-colors">Cancelar</button>
-                  <button 
+                  <button type="button" onClick={() => setEditingOrder(null)} className="px-8 py-4 font-black text-[10px] uppercase text-slate-400 hover:text-white transition-colors">Cancelar</button>
+                  <button type="submit" 
                     onClick={saveEditedOrder}
                     className="px-10 py-4 bg-sky-500 text-white rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-sky-500 transition-all shadow-xl shadow-indigo-900/40"
                   >

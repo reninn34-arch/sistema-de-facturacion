@@ -690,7 +690,7 @@ export default function SaasEmission({ businesses, subscriptions, onNotify }: Sa
 
             {/* Botones de emitir */}
             <div className="flex gap-4 mt-2">
-              <button
+              <button type="button"
                 className="flex-1 py-4 bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-200 font-bold rounded-xl hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors"
                 onClick={() => {
                   setSelectedBusiness(null);
@@ -701,7 +701,7 @@ export default function SaasEmission({ businesses, subscriptions, onNotify }: Sa
               </button>
               
               {emissionMode === 'LOCAL' ? (
-                <button
+                <button type="button"
                   onClick={handleEmitInvoiceLocal}
                   disabled={loading || !selectedBusiness || !selectedSubscription}
                   className={`flex-[2] py-4 font-bold rounded-xl shadow-lg transition-all ${
@@ -719,7 +719,7 @@ export default function SaasEmission({ businesses, subscriptions, onNotify }: Sa
                   )}
                 </button>
               ) : (
-                <button
+                <button type="submit"
                   onClick={handleEmitInvoiceSRI}
                   disabled={loading || !selectedBusiness || !selectedSubscription}
                   className={`flex-[2] py-4 font-bold rounded-xl shadow-lg transition-all ${

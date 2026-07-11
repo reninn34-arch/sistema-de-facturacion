@@ -366,7 +366,7 @@ const SubscriptionPlansManager: React.FC<SubscriptionPlansManagerProps> = ({ onN
             <h1 className="text-3xl font-black text-slate-800 dark:text-white">Gestión de Planes</h1>
             <p className="text-slate-500 dark:text-slate-400 mt-1">Administra los planes de suscripción del SaaS</p>
           </div>
-          <button
+          <button type="button"
             onClick={() => handleOpenModal()}
             className="px-6 py-3 bg-sky-500 text-white font-bold rounded-xl hover:bg-sky-600 transition-colors shadow-lg"
           >
@@ -466,20 +466,20 @@ const SubscriptionPlansManager: React.FC<SubscriptionPlansManagerProps> = ({ onN
 
                   {/* Acciones */}
                   <div className="flex gap-2 pt-4 border-t border-slate-100 dark:border-slate-700">
-                    <button
+                    <button type="button"
                       onClick={() => handleOpenModal(plan)}
                       className="flex-1 py-2 bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-200 font-medium rounded-lg hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors"
                     >
                       Editar
                     </button>
-                    <button
+                    <button type="button"
                       onClick={() => handleToggleActive(plan)}
                       className={`flex-1 py-2 text-xs font-bold rounded-lg transition-colors ${plan.isActive ? 'bg-amber-100 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400 hover:bg-amber-200 dark:hover:bg-amber-900/50' : 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-200 dark:hover:bg-emerald-900/50'}`}
                       title={plan.isActive ? 'Desactivar plan' : 'Activar plan'}
                     >
                       {plan.isActive ? <PauseCircleIcon className="w-4 h-4" /> : <PlayCircleIcon className="w-4 h-4" />}
                     </button>
-                    <button
+                    <button type="button"
                       onClick={() => handleDelete(plan.id, plan.name)}
                       className="px-3 py-2 bg-red-50 dark:bg-red-900/30 text-red-600 dark:text-red-400 rounded-lg hover:bg-red-100 dark:hover:bg-red-900/50 transition-colors"
                     >
@@ -750,13 +750,13 @@ const SubscriptionPlansManager: React.FC<SubscriptionPlansManagerProps> = ({ onN
 
               {/* Footer del Modal */}
               <div className="p-6 border-t border-slate-200 dark:border-slate-700 flex gap-4">
-                <button
+                <button type="button"
                   onClick={() => setShowModal(false)}
                   className="flex-1 py-3 bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-200 font-bold rounded-xl hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors"
                 >
                   Cancelar
                 </button>
-                <button
+                <button type="submit"
                   onClick={handleSave}
                   className="flex-[2] py-3 bg-sky-500 text-white font-bold rounded-xl hover:bg-sky-600 transition-colors"
                 >
@@ -783,13 +783,13 @@ const SubscriptionPlansManager: React.FC<SubscriptionPlansManagerProps> = ({ onN
                 ¿Estás seguro de eliminar el plan <span className="font-semibold text-red-600">{confirmModal.planName}</span>? Esta acción no se puede deshacer.
               </p>
               <div className="flex gap-3">
-                <button
+                <button type="submit"
                   onClick={() => setConfirmModal({show: false, planId: null, planName: ''})}
                   className="flex-1 py-3 bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-200 font-bold rounded-xl hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors"
                 >
                   Cancelar
                 </button>
-                <button
+                <button type="button"
                   onClick={confirmDelete}
                   className="flex-1 py-3 bg-red-600 text-white font-bold rounded-xl hover:bg-red-700 transition-colors"
                 >

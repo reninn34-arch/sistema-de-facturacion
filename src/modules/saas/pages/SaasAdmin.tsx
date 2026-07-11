@@ -726,31 +726,31 @@ const SaasAdmin: React.FC<SaasAdminProps> = ({ onNotify }) => {
                 </div>
                 {/* Tabs */}
                 <div className="hidden md:flex gap-1">
-                  <button 
+                  <button type="button" 
                     className={`px-3 py-1 text-sm font-medium transition-colors rounded-lg ${activeTab === 'businesses' ? 'bg-sky-50 dark:bg-sky-500/20 text-sky-500 dark:text-sky-300' : 'text-[#4c669a] dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'}`}
                     onClick={() => setActiveTab('businesses')}
                   >
                     Empresas
                   </button>
-                  <button 
+                  <button type="button" 
                     className={`px-3 py-1 text-sm font-medium transition-colors rounded-lg ${activeTab === 'superadmins' ? 'bg-sky-50 dark:bg-sky-500/20 text-sky-500 dark:text-sky-300' : 'text-[#4c669a] dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'}`}
                     onClick={() => setActiveTab('superadmins')}
                   >
                     Superadmins
                   </button>
-                  <button 
+                  <button type="button" 
                     className={`px-3 py-1 text-sm font-medium transition-colors rounded-lg ${activeTab === 'users' ? 'bg-sky-50 dark:bg-sky-500/20 text-sky-500 dark:text-sky-300' : 'text-[#4c669a] dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'}`}
                     onClick={() => setActiveTab('users')}
                   >
                     Usuarios
                   </button>
-                  <button 
+                  <button type="button" 
                     className={`px-3 py-1 text-sm font-medium transition-colors rounded-lg ${activeTab === 'subscription-payments' ? 'bg-sky-50 dark:bg-sky-500/20 text-sky-500 dark:text-sky-300' : 'text-[#4c669a] dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'}`}
                     onClick={() => setActiveTab('subscription-payments')}
                   >
                     Pagos
                   </button>
-                  <button 
+                  <button type="button" 
                     className={`px-3 py-1 text-sm font-medium transition-colors rounded-lg inline-flex items-center gap-1.5 ${activeTab === 'expiring' ? 'bg-amber-100 dark:bg-amber-500/20 text-amber-700 dark:text-amber-400' : 'text-[#4c669a] dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'}`}
                     onClick={() => setActiveTab('expiring')}
                   >
@@ -764,14 +764,14 @@ const SaasAdmin: React.FC<SaasAdminProps> = ({ onNotify }) => {
                 </div>
               </div>
               <div className="flex items-center gap-2">
-                <button 
+                <button type="button" 
                   onClick={() => setShowBusinessModal(true)}
                   className="flex items-center gap-1 md:gap-2 px-2 md:px-4 py-2 bg-[#0ea5e9] text-white text-xs md:text-sm font-medium rounded-lg hover:opacity-90 transition-opacity"
                 >
                   <BuildingOffice2Icon className="w-[18px] h-[18px] md:w-5 md:h-5" />
                   <span className="hidden sm:inline">Nueva Empresa</span>
                 </button>
-                <button 
+                <button type="button" 
                   onClick={() => setShowUserModal(true)}
                   className="flex items-center gap-1 md:gap-2 px-2 md:px-4 py-2 bg-slate-100 dark:bg-slate-800 text-[#0d121b] dark:text-white text-xs md:text-sm font-medium rounded-lg hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
                 >
@@ -782,31 +782,31 @@ const SaasAdmin: React.FC<SaasAdminProps> = ({ onNotify }) => {
             </div>
             {/* Mobile Tabs */}
             <div className="flex md:hidden gap-2 overflow-x-auto -mx-4 px-4 pb-2" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
-              <button 
+              <button type="button" 
                 className={`flex-shrink-0 px-3 py-1 text-sm font-medium transition-colors rounded-lg whitespace-nowrap ${activeTab === 'businesses' ? 'bg-[#0ea5e9]/10 text-[#0ea5e9]' : 'text-[#4c669a] dark:text-slate-400'}`}
                 onClick={() => setActiveTab('businesses')}
               >
                 Empresas
               </button>
-              <button 
+              <button type="button" 
                 className={`flex-shrink-0 px-3 py-1 text-sm font-medium transition-colors rounded-lg whitespace-nowrap ${activeTab === 'superadmins' ? 'bg-[#0ea5e9]/10 text-[#0ea5e9]' : 'text-[#4c669a] dark:text-slate-400'}`}
                 onClick={() => setActiveTab('superadmins')}
               >
                 Superadmins
               </button>
-              <button 
+              <button type="button" 
                 className={`flex-shrink-0 px-3 py-1 text-sm font-medium transition-colors rounded-lg whitespace-nowrap ${activeTab === 'users' ? 'bg-[#0ea5e9]/10 text-[#0ea5e9]' : 'text-[#4c669a] dark:text-slate-400'}`}
                 onClick={() => setActiveTab('users')}
               >
                 Usuarios
               </button>
-              <button 
+              <button type="button" 
                 className={`flex-shrink-0 px-3 py-1 text-sm font-medium transition-colors rounded-lg whitespace-nowrap ${activeTab === 'subscription-payments' ? 'bg-[#0ea5e9]/10 text-[#0ea5e9]' : 'text-[#4c669a] dark:text-slate-400'}`}
                 onClick={() => setActiveTab('subscription-payments')}
               >
                 Pagos
               </button>
-              <button 
+              <button type="button" 
                 className={`flex-shrink-0 px-3 py-1 text-sm font-medium transition-colors rounded-lg whitespace-nowrap inline-flex items-center gap-1 ${activeTab === 'expiring' ? 'bg-amber-100 dark:bg-amber-500/20 text-amber-700 dark:text-amber-400' : 'text-[#4c669a] dark:text-slate-400'}`}
                 onClick={() => setActiveTab('expiring')}
               >
@@ -925,7 +925,7 @@ const SaasAdmin: React.FC<SaasAdminProps> = ({ onNotify }) => {
                               </span>
                             </td>
                             <td className="px-4 py-3 text-right">
-                              <button 
+                              <button type="button" 
                                 onClick={() => setSelectedBusiness(b)}
                                 className="p-1.5 rounded-lg bg-[#0ea5e9]/10 text-[#0ea5e9] hover:bg-[#0ea5e9] hover:text-white transition-all" 
                                 title="Ver detalles"
@@ -968,7 +968,7 @@ const SaasAdmin: React.FC<SaasAdminProps> = ({ onNotify }) => {
                           <span className="text-xs text-[#4c669a] dark:text-slate-400">
                             {b.plan || 'Básico'} • {b.subscriptionEnd ? new Date(b.subscriptionEnd).toLocaleDateString() : 'Sin fecha'}
                           </span>
-                          <button onClick={() => setSelectedBusiness(b)} className="p-1 rounded bg-[#0ea5e9]/10 text-[#0ea5e9]">
+                          <button type="button" onClick={() => setSelectedBusiness(b)} className="p-1 rounded bg-[#0ea5e9]/10 text-[#0ea5e9]">
                             <EyeIcon className="w-4 h-4" />
                           </button>
                         </div>
@@ -998,7 +998,7 @@ const SaasAdmin: React.FC<SaasAdminProps> = ({ onNotify }) => {
                   <h2 className="text-[#0d121b] dark:text-white text-lg md:text-xl font-bold">Por Vencer</h2>
                   <span className="text-sm text-[#4c669a] dark:text-slate-400 font-medium">Próximos 30 días</span>
                 </div>
-                <button
+                <button type="submit"
                   onClick={loadExpiringBusinesses}
                   className="px-3 py-1.5 text-xs font-medium bg-slate-100 dark:bg-slate-800 text-[#4c669a] dark:text-slate-400 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
                 >
@@ -1067,7 +1067,7 @@ const SaasAdmin: React.FC<SaasAdminProps> = ({ onNotify }) => {
                                 </span>
                               </td>
                               <td className="px-4 py-3 text-right">
-                                <button
+                                <button type="button"
                                   onClick={() => setSelectedBusiness(b)}
                                   className="p-1.5 rounded-lg bg-[#0ea5e9]/10 text-[#0ea5e9] hover:bg-[#0ea5e9] hover:text-white transition-all"
                                   title="Ver detalles"
@@ -1163,7 +1163,7 @@ const SaasAdmin: React.FC<SaasAdminProps> = ({ onNotify }) => {
                                   </span>
                                 </td>
                                 <td className="px-4 py-3 text-right">
-                                  <button 
+                                  <button type="button" 
                                     onClick={() => setSelectedUser(user)}
                                     className="p-1.5 rounded-lg bg-[#0ea5e9]/10 text-[#0ea5e9] hover:bg-[#0ea5e9] hover:text-white transition-all"
                                   >
@@ -1196,7 +1196,7 @@ const SaasAdmin: React.FC<SaasAdminProps> = ({ onNotify }) => {
                             </span>
                           </div>
                           <div className="flex justify-end">
-                            <button onClick={() => setSelectedUser(user)} className="p-1 rounded bg-[#0ea5e9]/10 text-[#0ea5e9]">
+                            <button type="button" onClick={() => setSelectedUser(user)} className="p-1 rounded bg-[#0ea5e9]/10 text-[#0ea5e9]">
                               <EyeIcon className="w-4 h-4" />
                             </button>
                           </div>
@@ -1211,7 +1211,7 @@ const SaasAdmin: React.FC<SaasAdminProps> = ({ onNotify }) => {
                 <div className="mt-6">
                   <div className="flex items-center justify-between mb-4">
                     <h2 className="text-[#0d121b] dark:text-white text-lg md:text-xl font-bold">Detalles del Superadmin</h2>
-                    <button onClick={() => setSelectedUser(null)} className="text-[#4c669a] hover:text-[#0ea5e9]">
+                    <button type="button" onClick={() => setSelectedUser(null)} className="text-[#4c669a] hover:text-[#0ea5e9]">
                       <XMarkIcon className="w-5 h-5" />
                     </button>
                   </div>
@@ -1248,21 +1248,21 @@ const SaasAdmin: React.FC<SaasAdminProps> = ({ onNotify }) => {
                         Acciones
                       </h3>
                       <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
-                        <button
+                        <button type="button"
                           onClick={() => { setSelectedUserToReset(selectedUser); setTempPassword(''); setShowResetUserModal(true); }}
                           className="flex items-center justify-center gap-2 py-2 px-3 bg-slate-100 dark:bg-slate-800 text-[#0d121b] dark:text-white rounded-lg text-sm font-medium hover:bg-[#0ea5e9] hover:text-white transition-all"
                         >
                           <ArrowPathIcon className="w-[18px] h-[18px]" />
                           Password
                         </button>
-                        <button
+                        <button type="button"
                           onClick={() => handleToggleUserStatus(selectedUser)}
                           className={`flex items-center justify-center gap-2 py-2 px-3 rounded-lg text-sm font-medium transition-all ${selectedUser.isActive ? 'bg-amber-100 text-amber-600 hover:bg-amber-600 hover:text-white' : 'bg-emerald-100 text-emerald-600 hover:bg-emerald-600 hover:text-white'}`}
                         >
                           {selectedUser.isActive ? <PauseIcon className="w-[18px] h-[18px]" /> : <PlayIcon className="w-[18px] h-[18px]" />}
                           {selectedUser.isActive ? 'Desactivar' : 'Activar'}
                         </button>
-                        <button
+                        <button type="button"
                           onClick={() => { setUserToDelete(selectedUser); setShowUserDeleteModal(true); }}
                           className="flex items-center justify-center gap-2 py-2 px-3 bg-red-100 text-red-600 rounded-lg text-sm font-medium hover:bg-red-600 hover:text-white transition-all"
                         >
@@ -1329,7 +1329,7 @@ const SaasAdmin: React.FC<SaasAdminProps> = ({ onNotify }) => {
                                 </span>
                               </td>
                               <td className="px-4 py-3 text-right">
-                                <button 
+                                <button type="button" 
                                   onClick={() => setSelectedUser(user)}
                                   className="p-1.5 rounded-lg bg-[#0ea5e9]/10 text-[#0ea5e9] hover:bg-[#0ea5e9] hover:text-white transition-all"
                                 >
@@ -1368,7 +1368,7 @@ const SaasAdmin: React.FC<SaasAdminProps> = ({ onNotify }) => {
                           </div>
                           <div className="flex justify-between items-center">
                             <span className="text-xs text-[#4c669a] dark:text-slate-400">{user.role}</span>
-                            <button onClick={() => setSelectedUser(user)} className="p-1 rounded bg-[#0ea5e9]/10 text-[#0ea5e9]">
+                            <button type="button" onClick={() => setSelectedUser(user)} className="p-1 rounded bg-[#0ea5e9]/10 text-[#0ea5e9]">
                               <EyeIcon className="w-4 h-4" />
                             </button>
                           </div>
@@ -1384,7 +1384,7 @@ const SaasAdmin: React.FC<SaasAdminProps> = ({ onNotify }) => {
                 <div className="mt-6">
                   <div className="flex items-center justify-between mb-4">
                     <h2 className="text-[#0d121b] dark:text-white text-lg md:text-xl font-bold">Detalles del Usuario</h2>
-                    <button onClick={() => setSelectedUser(null)} className="text-[#4c669a] hover:text-[#0ea5e9]">
+                    <button type="button" onClick={() => setSelectedUser(null)} className="text-[#4c669a] hover:text-[#0ea5e9]">
                       <XMarkIcon className="w-5 h-5" />
                     </button>
                   </div>
@@ -1429,28 +1429,28 @@ const SaasAdmin: React.FC<SaasAdminProps> = ({ onNotify }) => {
                         Acciones
                       </h3>
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                        <button
+                        <button type="button"
                           onClick={() => { setSelectedUserToEdit(selectedUser); setEditUserForm({ name: selectedUser.name || '', role: selectedUser.role }); setShowEditUserModal(true); }}
                           className="flex items-center justify-center gap-2 py-2 px-3 bg-purple-100 text-purple-600 rounded-lg text-sm font-medium hover:bg-purple-600 hover:text-white transition-all"
                         >
                           <PencilIcon className="w-[18px] h-[18px]" />
                           Editar
                         </button>
-                        <button
+                        <button type="button"
                           onClick={() => { setSelectedUserToReset(selectedUser); setTempPassword(''); setShowResetUserModal(true); }}
                           className="flex items-center justify-center gap-2 py-2 px-3 bg-slate-100 dark:bg-slate-800 text-[#0d121b] dark:text-white rounded-lg text-sm font-medium hover:bg-[#0ea5e9] hover:text-white transition-all"
                         >
                           <ArrowPathIcon className="w-[18px] h-[18px]" />
                           Password
                         </button>
-                        <button
+                        <button type="button"
                           onClick={() => handleToggleUserStatus(selectedUser)}
                           className={`flex items-center justify-center gap-2 py-2 px-3 rounded-lg text-sm font-medium transition-all ${selectedUser.isActive ? 'bg-amber-100 text-amber-600 hover:bg-amber-600 hover:text-white' : 'bg-emerald-100 text-emerald-600 hover:bg-emerald-600 hover:text-white'}`}
                         >
                           {selectedUser.isActive ? <PauseIcon className="w-[18px] h-[18px]" /> : <PlayIcon className="w-[18px] h-[18px]" />}
                           {selectedUser.isActive ? 'Desactivar' : 'Activar'}
                         </button>
-                        <button
+                        <button type="button"
                           onClick={() => { setUserToDelete(selectedUser); setShowUserDeleteModal(true); }}
                           className="flex items-center justify-center gap-2 py-2 px-3 bg-red-100 text-red-600 rounded-lg text-sm font-medium hover:bg-red-600 hover:text-white transition-all"
                         >
@@ -1530,7 +1530,7 @@ const SaasAdmin: React.FC<SaasAdminProps> = ({ onNotify }) => {
                               </span>
                             </td>
                             <td className="px-4 py-3 text-right">
-                              <button
+                              <button type="button"
                                 onClick={() => { setPaymentToDelete(payment); setShowDeletePaymentModal(true); }}
                                 className="p-2 text-red-600 hover:bg-red-100 dark:hover:bg-red-900/30 rounded-lg transition-colors"
                                 title="Eliminar"
@@ -1587,7 +1587,7 @@ const SaasAdmin: React.FC<SaasAdminProps> = ({ onNotify }) => {
                           </div>
                         </div>
                         <div className="mt-3 flex justify-end">
-                          <button
+                          <button type="button"
                             onClick={() => { setPaymentToDelete(payment); setShowDeletePaymentModal(true); }}
                             className="p-2 text-red-600 hover:bg-red-100 dark:hover:bg-red-900/30 rounded-lg transition-colors"
                           >
@@ -1607,7 +1607,7 @@ const SaasAdmin: React.FC<SaasAdminProps> = ({ onNotify }) => {
             <div className="mt-6">
               <div className="flex items-center justify-between mb-4">
                 <h2 className="text-[#0d121b] dark:text-white text-lg md:text-xl font-bold">Detalles de {selectedBusiness.name}</h2>
-                <button onClick={() => setSelectedBusiness(null)} className="text-[#4c669a] hover:text-[#0ea5e9]">
+                <button type="button" onClick={() => setSelectedBusiness(null)} className="text-[#4c669a] hover:text-[#0ea5e9]">
                   <XMarkIcon className="w-5 h-5" />
                 </button>
               </div>
@@ -1656,7 +1656,7 @@ const SaasAdmin: React.FC<SaasAdminProps> = ({ onNotify }) => {
                       <UsersIcon className="w-5 h-5 text-[#0ea5e9]" />
                       Usuarios ({businessUsers.length})
                     </h3>
-                    <button
+                    <button type="button"
                       onClick={() => setShowNewUserModal(true)}
                       className="text-xs flex items-center gap-1 px-2 py-1 bg-[#0ea5e9] text-white rounded-lg"
                     >
@@ -1693,7 +1693,7 @@ const SaasAdmin: React.FC<SaasAdminProps> = ({ onNotify }) => {
                     Acciones
                   </h3>
                   <div className="grid grid-cols-1 sm:grid-cols-4 gap-2">
-                    <button
+                    <button type="button"
                       onClick={() => {
                         if (selectedBusiness) {
                           setEditBusinessForm({
@@ -1712,14 +1712,14 @@ const SaasAdmin: React.FC<SaasAdminProps> = ({ onNotify }) => {
                       <PencilIcon className="w-[18px] h-[18px]" />
                       Editar
                     </button>
-                    <button
+                    <button type="button"
                       onClick={() => handleResetAdminPassword()}
                       className="flex items-center justify-center gap-2 py-2 px-3 bg-[#0ea5e9]/10 text-[#0ea5e9] rounded-lg text-sm font-medium hover:bg-[#0ea5e9] hover:text-white transition-all"
                     >
                       <ArrowPathIcon className="w-[18px] h-[18px]" />
                       Resetear Password
                     </button>
-                    <button
+                    <button type="button"
                       onClick={() => toggleBusinessStatus(selectedBusiness.id, selectedBusiness.isActive)}
                       className={`flex items-center justify-center gap-2 py-2 px-3 rounded-lg text-sm font-medium transition-all ${
                         selectedBusiness.isActive 
@@ -1730,7 +1730,7 @@ const SaasAdmin: React.FC<SaasAdminProps> = ({ onNotify }) => {
                       {selectedBusiness.isActive ? <PauseIcon className="w-[18px] h-[18px]" /> : <PlayIcon className="w-[18px] h-[18px]" />}
                       {selectedBusiness.isActive ? 'Pausar' : 'Activar'}
                     </button>
-                    <button
+                    <button type="button"
                       onClick={() => setShowDeleteModal(true)}
                       className="flex items-center justify-center gap-2 py-2 px-3 bg-red-100 text-red-600 rounded-lg text-sm font-medium hover:bg-red-600 hover:text-white transition-all"
                     >
@@ -1928,7 +1928,7 @@ const SaasAdmin: React.FC<SaasAdminProps> = ({ onNotify }) => {
                       </div>
                       <div className="flex gap-2 pt-2">
                           <button type="button" onClick={() => setShowEditBusinessModal(false)} className="flex-1 py-2.5 rounded-lg text-sm font-medium text-[#4c669a] hover:bg-slate-100 dark:hover:bg-slate-800">Cancelar</button>
-                          <button type="submit" className="flex-1 py-2.5 bg-[#0ea5e9] text-white rounded-lg text-sm font-medium hover:opacity-90">Guardar</button>
+                          <button aria-label="Acción" type="submit" className="flex-1 py-2.5 bg-[#0ea5e9] text-white rounded-lg text-sm font-medium hover:opacity-90">Guardar</button>
                       </div>
                   </form>
               </div>
@@ -1945,8 +1945,8 @@ const SaasAdmin: React.FC<SaasAdminProps> = ({ onNotify }) => {
               <h3 className="text-lg font-bold text-[#0d121b] dark:text-white mb-2">¿Eliminar?</h3>
               <p className="text-xs text-[#4c669a] dark:text-slate-400 mb-4">¿Eliminar <strong>{selectedBusiness.name}</strong>?</p>
               <div className="flex gap-2">
-                <button onClick={() => setShowDeleteModal(false)} className="flex-1 py-2.5 rounded-lg text-sm font-medium text-[#4c669a] hover:bg-slate-100 dark:hover:bg-slate-800">Cancelar</button>
-                <button onClick={handleDeleteBusiness} className="flex-1 py-2.5 bg-red-600 text-white rounded-lg text-sm font-medium hover:bg-red-700">Eliminar</button>
+                <button type="button" aria-label="Acción" onClick={() => setShowDeleteModal(false)} className="flex-1 py-2.5 rounded-lg text-sm font-medium text-[#4c669a] hover:bg-slate-100 dark:hover:bg-slate-800">Cancelar</button>
+                <button type="button" onClick={handleDeleteBusiness} className="flex-1 py-2.5 bg-red-600 text-white rounded-lg text-sm font-medium hover:bg-red-700">Eliminar</button>
               </div>
             </div>
           </div>
@@ -1964,8 +1964,8 @@ const SaasAdmin: React.FC<SaasAdminProps> = ({ onNotify }) => {
                 ¿Eliminar el pago de <strong>{paymentToDelete.business?.name}</strong> por <strong>${paymentToDelete.amount?.toFixed(2)}</strong>?
               </p>
               <div className="flex gap-2">
-                <button onClick={() => { setShowDeletePaymentModal(false); setPaymentToDelete(null); }} className="flex-1 py-2.5 rounded-lg text-sm font-medium text-[#4c669a] hover:bg-slate-100 dark:hover:bg-slate-800">Cancelar</button>
-                <button onClick={handleDeletePayment} disabled={processing} className="flex-1 py-2.5 bg-red-600 text-white rounded-lg text-sm font-medium hover:bg-red-700 disabled:opacity-50">Eliminar</button>
+                <button type="button" onClick={() => { setShowDeletePaymentModal(false); setPaymentToDelete(null); }} className="flex-1 py-2.5 rounded-lg text-sm font-medium text-[#4c669a] hover:bg-slate-100 dark:hover:bg-slate-800">Cancelar</button>
+                <button type="button" onClick={handleDeletePayment} disabled={processing} className="flex-1 py-2.5 bg-red-600 text-white rounded-lg text-sm font-medium hover:bg-red-700 disabled:opacity-50">Eliminar</button>
               </div>
             </div>
           </div>
@@ -2000,7 +2000,7 @@ const SaasAdmin: React.FC<SaasAdminProps> = ({ onNotify }) => {
                           </select>
                       </div>
                       <div className="flex gap-2 pt-2">
-                          <button type="button" onClick={() => setShowNewUserModal(false)} className="flex-1 py-2.5 rounded-lg text-sm font-medium text-[#4c669a] hover:bg-slate-100 dark:hover:bg-slate-800">Cancelar</button>
+                          <button aria-label="Acción" type="button" onClick={() => setShowNewUserModal(false)} className="flex-1 py-2.5 rounded-lg text-sm font-medium text-[#4c669a] hover:bg-slate-100 dark:hover:bg-slate-800">Cancelar</button>
                           <button type="submit" className="flex-1 py-2.5 bg-[#0ea5e9] text-white rounded-lg text-sm font-medium hover:opacity-90">Crear</button>
                       </div>
                   </form>
@@ -2018,8 +2018,8 @@ const SaasAdmin: React.FC<SaasAdminProps> = ({ onNotify }) => {
               <h3 className="text-lg font-bold text-[#0d121b] dark:text-white mb-2">¿Eliminar usuario?</h3>
               <p className="text-xs text-[#4c669a] dark:text-slate-400 mb-4">{userToDelete.email}</p>
               <div className="flex gap-2">
-                <button onClick={() => setShowUserDeleteModal(false)} className="flex-1 py-2.5 rounded-lg text-sm font-medium text-[#4c669a] hover:bg-slate-100 dark:hover:bg-slate-800">Cancelar</button>
-                <button onClick={handleDeleteUser} className="flex-1 py-2.5 bg-red-600 text-white rounded-lg text-sm font-medium hover:bg-red-700">Eliminar</button>
+                <button type="button" onClick={() => setShowUserDeleteModal(false)} className="flex-1 py-2.5 rounded-lg text-sm font-medium text-[#4c669a] hover:bg-slate-100 dark:hover:bg-slate-800">Cancelar</button>
+                <button type="button" aria-label="Acción" onClick={handleDeleteUser} className="flex-1 py-2.5 bg-red-600 text-white rounded-lg text-sm font-medium hover:bg-red-700">Eliminar</button>
               </div>
             </div>
           </div>
@@ -2206,13 +2206,13 @@ const SaasAdmin: React.FC<SaasAdminProps> = ({ onNotify }) => {
           </div>
           
           <div className="flex gap-3 mt-6">
-            <button
+            <button type="button"
               onClick={() => setShowSubscriptionModal(false)}
               className="flex-1 px-4 py-2 bg-slate-200 dark:bg-slate-700 rounded-lg font-medium hover:bg-slate-300 dark:hover:bg-slate-600 transition-colors"
             >
               Cancelar
             </button>
-            <button
+            <button type="submit"
               onClick={() => {
                 if (!subscriptionForm.code || !subscriptionForm.name) {
                   onNotify('Código y nombre son obligatorios', 'error');

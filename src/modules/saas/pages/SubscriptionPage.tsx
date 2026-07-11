@@ -390,10 +390,10 @@ const SubscriptionPage: React.FC = () => {
             <a className="text-slate-600 text-sm font-semibold hover:text-[#0EA5E9] transition-colors" href="#">Soporte</a>
           </nav>
           <div className="flex gap-2">
-            <button onClick={() => window.location.href = '/'} className="flex min-w-[100px] cursor-pointer items-center justify-center rounded-xl h-10 px-4 bg-[#0EA5E9] text-white text-sm font-bold tracking-tight hover:bg-[#0369A1] transition-all shadow-md shadow-[#0EA5E9]/20">
+            <button type="button" onClick={() => window.location.href = '/'} className="flex min-w-[100px] cursor-pointer items-center justify-center rounded-xl h-10 px-4 bg-[#0EA5E9] text-white text-sm font-bold tracking-tight hover:bg-[#0369A1] transition-all shadow-md shadow-[#0EA5E9]/20">
               Inicio
             </button>
-            <button onClick={() => window.location.href = '/login'} className="flex cursor-pointer items-center justify-center rounded-xl h-10 px-4 border border-slate-200 text-slate-700 text-sm font-bold hover:bg-slate-50 transition-all">
+            <button type="button" onClick={() => window.location.href = '/login'} className="flex cursor-pointer items-center justify-center rounded-xl h-10 px-4 border border-slate-200 text-slate-700 text-sm font-bold hover:bg-slate-50 transition-all">
               Iniciar Sesión
             </button>
           </div>
@@ -480,7 +480,7 @@ const SubscriptionPage: React.FC = () => {
                             {plan.ctaWhatsapp?.buttonLabel || '💬 Hablar por WhatsApp'}
                           </a>
                         ) : (
-                          <button
+                          <button type="button"
                             onClick={() => handlePlanSelect(plan.code)}
                             disabled={!plan.isActive}
                             className={`w-full flex items-center justify-center rounded-xl h-12 font-bold transition-all ${
@@ -540,7 +540,7 @@ const SubscriptionPage: React.FC = () => {
                   const { Icon, color, bg, activeBg } = btIcon;
                   const isSelected = selectedBusinessType === key;
                   return (
-                    <button
+                    <button type="button"
                       key={key}
                       onClick={() => handleBusinessTypeSelect(key)}
                       className={`group relative bg-white rounded-3xl p-6 border-2 transition-all duration-300 text-center hover:-translate-y-1 cursor-pointer ${
@@ -560,7 +560,7 @@ const SubscriptionPage: React.FC = () => {
               </div>
 
               <div className="text-center mt-4">
-                <button
+                <button type="button"
                   onClick={() => setStep('plans')}
                   className="text-sm text-slate-500 hover:text-[#0EA5E9] inline-flex items-center gap-1 font-semibold"
                 >
@@ -572,7 +572,7 @@ const SubscriptionPage: React.FC = () => {
             <div className="flex flex-col lg:flex-row gap-8">
               <div className="flex-1 bg-white rounded-2xl p-8 border border-slate-200 shadow-sm">
                 <div className="mb-6">
-                  <button onClick={() => setStep('businessType')} className="text-sm text-slate-500 hover:text-[#0EA5E9] mb-4 flex items-center gap-1 font-semibold">
+                  <button type="button" onClick={() => setStep('businessType')} className="text-sm text-slate-500 hover:text-[#0EA5E9] mb-4 flex items-center gap-1 font-semibold">
                     <ArrowLeftIcon className="w-4 h-4" /> Volver a tipo de negocio
                   </button>
                   <h2 className="text-2xl font-extrabold text-slate-900">Crea tu cuenta de Empresa</h2>
@@ -638,7 +638,7 @@ const SubscriptionPage: React.FC = () => {
                             <p className="text-sm font-extrabold text-emerald-700">Plan Gratuito</p>
                             <p className="text-xs text-emerald-600 mt-1 font-medium">No se requiere pago. Su cuenta se activará inmediatamente con {currentPlan?.durationDays || 30} días de acceso.</p>
                           </div>
-                          <button
+                          <button type="button"
                             onClick={async () => {
                               setPaymentMethod('FREE' as any);
                               await handleRegister();
@@ -814,7 +814,7 @@ const SubscriptionPage: React.FC = () => {
                       {paymentProofPreview && (
                         <div className="mt-2 relative">
                           <img src={paymentProofPreview} alt="Comprobante" className="w-full max-h-40 object-cover rounded-xl border border-slate-200" />
-                          <button
+                          <button type="button"
                             onClick={() => { setPaymentProofFile(null); setPaymentProofPreview(null); }}
                             className="absolute top-1 right-1 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold"
                           >x</button>
@@ -822,7 +822,7 @@ const SubscriptionPage: React.FC = () => {
                       )}
                     </div>
 
-                    <button
+                    <button type="submit"
                       onClick={handleTransferRegister}
                       disabled={loading || uploadingProof || !isFormValid}
                       className={`w-full flex items-center justify-center gap-2 rounded-xl h-12 font-bold transition-colors ${loading || uploadingProof || !isFormValid

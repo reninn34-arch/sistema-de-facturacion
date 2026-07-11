@@ -278,7 +278,7 @@ function CollapsibleSection({
 
   return (
     <div className={sectionCard}>
-      <button
+      <button type="button"
         onClick={() => setOpen(!open)}
         className="w-full flex items-center justify-between gap-2"
       >
@@ -514,7 +514,7 @@ const LandingPageEditor: React.FC = () => {
   };
 
   const renderSaveButton = (className = '') => (
-    <button
+    <button type="submit"
       onClick={handleSave}
       disabled={saving}
       className={`px-6 py-3 bg-sky-500 text-white rounded-xl font-bold text-sm hover:bg-sky-600 transition-all shadow-lg shadow-sky-500/20 disabled:opacity-60 disabled:cursor-not-allowed flex items-center gap-2 ${className}`}
@@ -546,7 +546,7 @@ const LandingPageEditor: React.FC = () => {
           Contenido de la Landing Page
         </h1>
         <div className="flex gap-3">
-          <button
+          <button type="button"
             onClick={() => setShowPreview(!showPreview)}
             className={`px-4 py-2 rounded-xl font-bold text-xs uppercase flex items-center gap-2 transition-all ${showPreview ? 'bg-sky-500 text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'}`}
           >
@@ -1229,7 +1229,7 @@ const LandingPageEditor: React.FC = () => {
                 }} />
               </label>
               {landingLogo && (
-                <button onClick={async () => {
+                <button type="button" onClick={async () => {
                   setSavingLogo(true);
                   try {
                     const token = localStorage.getItem('adminToken');

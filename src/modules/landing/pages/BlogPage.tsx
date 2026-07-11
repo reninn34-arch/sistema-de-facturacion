@@ -46,7 +46,7 @@ const BlogPage: React.FC = () => {
     return (
       <div className="min-h-screen bg-slate-50">
         <div className="max-w-4xl mx-auto px-4 py-12">
-          <button onClick={() => setSelectedPost(null)} className="flex items-center gap-2 text-sky-500 font-bold text-sm mb-8 hover:underline">
+          <button type="button" onClick={() => setSelectedPost(null)} className="flex items-center gap-2 text-sky-500 font-bold text-sm mb-8 hover:underline">
             <ArrowLeftIcon className="w-4 h-4" /> Volver al Blog
           </button>
 
@@ -83,7 +83,7 @@ const BlogPage: React.FC = () => {
 
         <div className="flex gap-2 mb-10 justify-center flex-wrap">
           {categories.map(cat => (
-            <button key={cat}
+            <button type="button" key={cat}
               onClick={() => setActiveCategory(cat)}
               className={`px-4 py-2 rounded-xl text-xs font-black uppercase transition-all ${activeCategory === cat ? 'bg-slate-900 text-white' : 'bg-white text-slate-500 hover:bg-slate-100 border border-slate-200'}`}
             >

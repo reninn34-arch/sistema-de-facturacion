@@ -181,7 +181,7 @@ const PointsAdmin: React.FC = () => {
           { id: 'referrals', label: 'Referidos', icon: <ArrowPathIcon className="w-4 h-4" /> },
           { id: 'prizes', label: 'Premios', icon: <GiftIcon className="w-4 h-4" /> },
         ].map(tab => (
-          <button key={tab.id} onClick={() => setActiveTab(tab.id as any)}
+          <button type="button" key={tab.id} onClick={() => setActiveTab(tab.id as any)}
             className={`px-6 py-4 rounded-[1.5rem] flex items-center gap-3 text-xs font-black uppercase tracking-widest transition-all ${activeTab === tab.id ? 'bg-slate-900 text-white shadow-xl' : 'text-slate-400 hover:bg-slate-50'}`}>
             <span>{tab.icon}</span> {tab.label}
           </button>
@@ -196,7 +196,7 @@ const PointsAdmin: React.FC = () => {
                 <h4 className="text-lg font-black text-slate-800">Programa de Puntos</h4>
                 <p className="text-xs text-slate-400">Activar o desactivar el programa completo</p>
               </div>
-              <button onClick={() => setConfig({ ...config, enabled: !config.enabled })}
+              <button type="button" onClick={() => setConfig({ ...config, enabled: !config.enabled })}
                 className={`w-14 h-7 rounded-full transition-all relative ${config.enabled ? 'bg-emerald-500' : 'bg-slate-300'}`}>
                 <div className={`w-5 h-5 bg-white rounded-full absolute top-1 transition-all ${config.enabled ? 'right-1' : 'left-1'}`} />
               </button>
@@ -214,7 +214,7 @@ const PointsAdmin: React.FC = () => {
                 className="w-full p-4 bg-slate-50 rounded-2xl font-bold outline-none border-2 border-transparent focus:border-sky-500" />
             </div>
 
-            <button onClick={saveConfig} disabled={saving}
+            <button type="submit" onClick={saveConfig} disabled={saving}
               className="w-full py-4 bg-sky-500 text-white font-black rounded-2xl hover:bg-sky-600 transition-all disabled:opacity-50 text-sm uppercase">
               {saving ? 'Guardando...' : 'Guardar Configuracion'}
             </button>
@@ -249,7 +249,7 @@ const PointsAdmin: React.FC = () => {
                     <td className="py-3 text-center font-black text-amber-500">{b.points}</td>
                     <td className="py-3 text-xs font-mono text-slate-400">{b.referralCode || '-'}</td>
                     <td className="py-3 px-6 text-right">
-                      <button onClick={() => setAdjustBusiness({ id: b.id, name: b.name, amount: 0, reason: '' })}
+                      <button type="button" onClick={() => setAdjustBusiness({ id: b.id, name: b.name, amount: 0, reason: '' })}
                         className="px-3 py-1.5 bg-sky-50 text-sky-500 rounded-lg text-[9px] font-black uppercase hover:bg-sky-100">+/-</button>
                     </td>
                   </tr>
@@ -263,7 +263,7 @@ const PointsAdmin: React.FC = () => {
               <div className="bg-white rounded-[2.5rem] p-8 w-full max-w-md shadow-2xl">
                 <div className="flex justify-between items-center mb-6">
                   <h4 className="font-black text-slate-800">Ajustar Puntos: {adjustBusiness.name}</h4>
-                  <button onClick={() => setAdjustBusiness(null)} className="text-slate-400 hover:text-slate-600"><XMarkIcon className="w-5 h-5" /></button>
+                  <button type="button" onClick={() => setAdjustBusiness(null)} className="text-slate-400 hover:text-slate-600"><XMarkIcon className="w-5 h-5" /></button>
                 </div>
                 <div className="space-y-4">
                   <div><label className="text-[10px] font-black text-slate-400 uppercase">Cantidad (+ suma, - resta)</label>
@@ -271,8 +271,8 @@ const PointsAdmin: React.FC = () => {
                   <div><label className="text-[10px] font-black text-slate-400 uppercase">Motivo</label>
                     <input value={adjustBusiness.reason} onChange={e => setAdjustBusiness({ ...adjustBusiness, reason: e.target.value })} className="w-full p-3 bg-slate-50 rounded-xl font-bold" placeholder="Ej: Ajuste manual, promocion..." /></div>
                   <div className="flex gap-3">
-                    <button onClick={() => setAdjustBusiness(null)} className="flex-1 py-3 bg-slate-100 rounded-xl font-bold text-xs uppercase">Cancelar</button>
-                    <button onClick={adjustBusinessPoints} className="flex-1 py-3 bg-sky-500 text-white rounded-xl font-bold text-xs uppercase">Aplicar</button>
+                    <button type="button" onClick={() => setAdjustBusiness(null)} className="flex-1 py-3 bg-slate-100 rounded-xl font-bold text-xs uppercase">Cancelar</button>
+                    <button type="button" onClick={adjustBusinessPoints} className="flex-1 py-3 bg-sky-500 text-white rounded-xl font-bold text-xs uppercase">Aplicar</button>
                   </div>
                 </div>
               </div>
@@ -318,7 +318,7 @@ const PointsAdmin: React.FC = () => {
         <div className="space-y-6">
           <div className="flex justify-between items-center">
             <h4 className="text-lg font-black text-slate-800">Catálogo de Premios</h4>
-            <button onClick={() => { setEditingPrize(null); setPrizeForm({ name: '', description: '', points: 100, icon: '🎁' }); }}
+            <button type="button" onClick={() => { setEditingPrize(null); setPrizeForm({ name: '', description: '', points: 100, icon: '🎁' }); }}
               className="bg-sky-500 text-white px-6 py-3 rounded-xl font-black text-xs uppercase hover:bg-sky-600 flex items-center gap-2">
               <PlusIcon className="w-4 h-4" /> Agregar Premio
             </button>
@@ -335,8 +335,8 @@ const PointsAdmin: React.FC = () => {
                   <input value={prizeForm.icon} onChange={e => setPrizeForm({ ...prizeForm, icon: e.target.value })} placeholder="Icono (emoji)" className="p-3 bg-slate-50 rounded-xl font-bold text-sm" maxLength={2} />
                 </div>
                 <div className="flex gap-3">
-                  <button onClick={() => setEditingPrize(undefined as any)} className="flex-1 py-3 bg-slate-100 rounded-xl font-bold text-xs uppercase">Cancelar</button>
-                  <button onClick={savePrize} className="flex-1 py-3 bg-sky-500 text-white rounded-xl font-bold text-xs uppercase">Guardar</button>
+                  <button type="button" onClick={() => setEditingPrize(undefined as any)} className="flex-1 py-3 bg-slate-100 rounded-xl font-bold text-xs uppercase">Cancelar</button>
+                  <button type="submit" onClick={savePrize} className="flex-1 py-3 bg-sky-500 text-white rounded-xl font-bold text-xs uppercase">Guardar</button>
                 </div>
               </div>
             </div>
@@ -361,9 +361,9 @@ const PointsAdmin: React.FC = () => {
                     <td className="py-3 text-center font-black text-amber-500">{p.points}</td>
                     <td className="py-3 text-center"><span className={`px-2 py-1 rounded-lg text-[9px] font-black uppercase ${p.isActive ? 'bg-emerald-100 text-emerald-600' : 'bg-slate-100 text-slate-400'}`}>{p.isActive ? 'Si' : 'No'}</span></td>
                     <td className="py-3 px-6 text-right flex justify-end gap-2">
-                      <button onClick={() => { setEditingPrize(p); setPrizeForm({ name: p.name, description: p.description || '', points: p.points, icon: p.icon }); }}
+                      <button type="button" onClick={() => { setEditingPrize(p); setPrizeForm({ name: p.name, description: p.description || '', points: p.points, icon: p.icon }); }}
                         className="px-3 py-1.5 bg-sky-50 text-sky-500 rounded-lg text-[9px] font-black uppercase hover:bg-sky-100"><PencilIcon className="w-3 h-3" /></button>
-                      <button onClick={() => deletePrize(p.id)}
+                      <button type="button" onClick={() => deletePrize(p.id)}
                         className="px-3 py-1.5 bg-rose-50 text-rose-500 rounded-lg text-[9px] font-black uppercase hover:bg-rose-100"><TrashIcon className="w-3 h-3" /></button>
                     </td>
                   </tr>

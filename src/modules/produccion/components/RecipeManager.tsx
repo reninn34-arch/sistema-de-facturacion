@@ -151,7 +151,7 @@ export default function RecipeManager({ products, onNotify }: RecipeManagerProps
                 <p className="text-sm text-slate-500 font-bold">Gestiona las recetas y fórmulas de producción</p>
               </div>
             </div>
-            <button
+            <button type="button"
               onClick={openNewForm}
               className="px-6 py-3 bg-amber-600 text-white rounded-xl font-bold text-sm hover:bg-amber-700 transition-all shadow-lg shadow-amber-600/20 inline-flex items-center gap-2"
             >
@@ -188,10 +188,10 @@ export default function RecipeManager({ products, onNotify }: RecipeManagerProps
                       <td className="p-4 text-center text-slate-500 font-semibold">{recipe.ingredients?.length || 0}</td>
                       <td className="p-4 text-right">
                         <div className="flex items-center gap-1 justify-end">
-                          <button onClick={() => openEditForm(recipe)} className="p-2 text-slate-400 hover:text-sky-500 hover:bg-sky-50 rounded-lg transition-all">
+                          <button type="button" onClick={() => openEditForm(recipe)} className="p-2 text-slate-400 hover:text-sky-500 hover:bg-sky-50 rounded-lg transition-all">
                             <PencilIcon className="w-4 h-4" />
                           </button>
-                          <button onClick={() => handleDelete(recipe.id)} className="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all">
+                          <button type="button" onClick={() => handleDelete(recipe.id)} className="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all">
                             <TrashIcon className="w-4 h-4" />
                           </button>
                         </div>

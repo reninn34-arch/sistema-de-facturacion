@@ -57,8 +57,8 @@ const ConfigFiscalSection: React.FC<ConfigFiscalSectionProps> = ({ businessInfo,
           <div className="space-y-2">
             <label className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest">Obligado Contabilidad</label>
             <div className="flex bg-slate-50 dark:bg-slate-800/50 p-1 rounded-2xl h-[52px]">
-              <button onClick={() => setBusinessInfo((prev: any) => ({ ...prev, isAccountingObliged: true }))} className={`flex-1 rounded-xl text-[10px] font-black uppercase transition-all ${businessInfo.isAccountingObliged ? 'bg-white dark:bg-slate-700 shadow-sm text-sky-500 dark:text-sky-400' : 'text-slate-400'}`}>SÍ</button>
-              <button onClick={() => setBusinessInfo((prev: any) => ({ ...prev, isAccountingObliged: false }))} className={`flex-1 rounded-xl text-[10px] font-black uppercase transition-all ${!businessInfo.isAccountingObliged ? 'bg-white dark:bg-slate-700 shadow-sm text-sky-500 dark:text-sky-400' : 'text-slate-400'}`}>NO</button>
+              <button type="submit" onClick={() => setBusinessInfo((prev: any) => ({ ...prev, isAccountingObliged: true }))} className={`flex-1 rounded-xl text-[10px] font-black uppercase transition-all ${businessInfo.isAccountingObliged ? 'bg-white dark:bg-slate-700 shadow-sm text-sky-500 dark:text-sky-400' : 'text-slate-400'}`}>SÍ</button>
+              <button type="button" onClick={() => setBusinessInfo((prev: any) => ({ ...prev, isAccountingObliged: false }))} className={`flex-1 rounded-xl text-[10px] font-black uppercase transition-all ${!businessInfo.isAccountingObliged ? 'bg-white dark:bg-slate-700 shadow-sm text-sky-500 dark:text-sky-400' : 'text-slate-400'}`}>NO</button>
             </div>
           </div>
         </div>
@@ -101,7 +101,7 @@ const ConfigFiscalSection: React.FC<ConfigFiscalSectionProps> = ({ businessInfo,
         </h3>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
           {Object.entries(BUSINESS_TYPES).map(([key, val]) => (
-            <button key={key}
+            <button type="button" key={key}
               onClick={() => setBusinessInfo((prev: any) => ({ ...prev, businessType: key as BusinessType }))}
               className={`p-4 rounded-2xl font-bold text-sm transition-all border-2 text-left ${(businessInfo as any).businessType === key || (!(businessInfo as any).businessType && key === 'GENERAL') ? 'border-sky-500 bg-sky-50 dark:bg-sky-500/10' : 'border-slate-200 dark:border-slate-700 hover:border-slate-300'}`}>
               <span className="text-lg">{val.icon}</span>

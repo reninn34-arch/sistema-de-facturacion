@@ -347,7 +347,7 @@ const PagoInterno: React.FC<PagoInternoProps> = ({ businessInfo, isExpired = fal
               <EnvelopeIcon className="w-4 h-4 inline" /> Se notificará a su correo electrónico una vez approveda la transferencia.
             </p>
           </div>
-          <button
+          <button type="button"
             onClick={() => {
               // Recargar la página para verificar estado
               window.location.reload();
@@ -399,7 +399,7 @@ const PagoInterno: React.FC<PagoInternoProps> = ({ businessInfo, isExpired = fal
               </div>
             </div>
             {!isExpired && (
-              <button onClick={onBack} className="text-white/80 hover:text-white">
+              <button aria-label="Acción" type="button" onClick={onBack} className="text-white/80 hover:text-white">
                 <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                 </svg>
@@ -431,7 +431,7 @@ const PagoInterno: React.FC<PagoInternoProps> = ({ businessInfo, isExpired = fal
               
               <div className="space-y-3">
                 {availablePlans.map((plan) => (
-                  <button
+                  <button type="button"
                     key={plan.id}
                     onClick={() => setSelectedPlan(plan.id)}
                     className={`w-full p-4 rounded-2xl border-2 transition-all text-left ${
@@ -477,7 +477,7 @@ const PagoInterno: React.FC<PagoInternoProps> = ({ businessInfo, isExpired = fal
               {/* Selector de método */}
               <div className="flex gap-2 mb-6">
                 {paymentSettings.transferEnabled && (
-                <button
+                <button type="button"
                   onClick={() => { setPaymentMethod('TRANSFER'); setPaymentData({...paymentData, cardNumber: '', cardName: '', cardExpiry: '', cardCvv: ''}); }}
                   className={`flex-1 py-2 px-4 rounded-xl text-sm font-bold transition-all ${
                     paymentMethod === 'TRANSFER'
@@ -489,7 +489,7 @@ const PagoInterno: React.FC<PagoInternoProps> = ({ businessInfo, isExpired = fal
                 </button>
                 )}
                 {paymentSettings.cardEnabled && (
-                <button
+                <button type="button"
                   onClick={() => { setPaymentMethod('CARD'); setPaymentData({...paymentData, transferReference: ''}); }}
                   className={`flex-1 py-2 px-4 rounded-xl text-sm font-bold transition-all ${
                     paymentMethod === 'CARD'
@@ -501,7 +501,7 @@ const PagoInterno: React.FC<PagoInternoProps> = ({ businessInfo, isExpired = fal
                 </button>
                 )}
                 {paymentSettings.paypalEnabled && (
-                <button
+                <button type="button"
                   onClick={() => { setPaymentMethod('PAYPAL'); setPaymentData({...paymentData, transferReference: ''}); }}
                   className={`flex-1 py-2 px-4 rounded-xl text-sm font-bold transition-all ${
                     paymentMethod === 'PAYPAL'
@@ -549,7 +549,7 @@ const PagoInterno: React.FC<PagoInternoProps> = ({ businessInfo, isExpired = fal
                             alt="Comprobante" 
                             className="max-h-40 mx-auto rounded-lg"
                           />
-                          <button
+                          <button type="button"
                             onClick={() => { setPaymentProof(null); setPaymentProofPreview(null); }}
                             className="absolute top-0 right-0 bg-red-500 text-white rounded-full p-1 hover:bg-red-600"
                           >
@@ -757,7 +757,7 @@ const PagoInterno: React.FC<PagoInternoProps> = ({ businessInfo, isExpired = fal
 
               {/* Botón de pago - solo para TRANSFER y CARD */}
               {paymentMethod !== 'PAYPAL' && (
-                <button
+                <button type="button"
                   onClick={handlePayment}
                   disabled={isProcessing || (paymentMethod === 'TRANSFER' && (!paymentData.transferReference || !paymentProof)) || (paymentMethod === 'CARD' && (!paymentData.cardNumber || !paymentData.cardName || !paymentData.cardExpiry || !paymentData.cardCvv))}
                   className="w-full mt-6 py-4 bg-gradient-to-r from-sky-500 to-sky-600 hover:from-sky-600 hover:to-sky-700 text-white font-black uppercase tracking-widest rounded-xl shadow-lg shadow-sky-500/25 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"

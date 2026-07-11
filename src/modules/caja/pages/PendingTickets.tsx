@@ -359,7 +359,7 @@ const PendingTickets: React.FC<PendingTicketsProps> = ({
               <option value="individual">Factura individual por ticket</option>
               <option value="grouped">Agrupar en una sola factura (Consumidor Final)</option>
             </select>
-            <button
+            <button type="submit"
               onClick={handleProcess}
               disabled={isProcessing}
               className="px-6 py-3 rounded-2xl font-black text-xs uppercase bg-amber-600 text-white hover:bg-amber-500 disabled:bg-slate-300 shadow-lg transition-colors flex items-center gap-2"

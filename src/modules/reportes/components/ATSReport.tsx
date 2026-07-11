@@ -178,7 +178,7 @@ export default function ATSReport({ documents, business, onNotify }: ATSReportPr
             </ul>
           </div>
 
-          <button
+          <button type="button"
             onClick={generateATS}
             className="w-full py-4 bg-sky-500 hover:bg-sky-600 text-white rounded-2xl font-black uppercase text-sm tracking-wide shadow-lg shadow-sky-500/20"
           >
