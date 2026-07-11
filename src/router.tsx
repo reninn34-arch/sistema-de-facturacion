@@ -37,6 +37,7 @@ const SaasAdmin = React.lazy(() => import('./modules/saas/pages/SaasAdmin'));
 const SaasEmission = React.lazy(() => import('./modules/saas/pages/SaasEmission'));
 const SubscriptionPlansManager = React.lazy(() => import('./modules/saas/pages/SubscriptionPlansManager'));
 const SaasCreditNote = React.lazy(() => import('./modules/saas/pages/SaasCreditNote'));
+const SaasPaymentMethods = React.lazy(() => import('./modules/saas/pages/SaasPaymentMethods'));
 const SalesSummary = React.lazy(() => import('./modules/saas/pages/SalesSummary'));
 const PagoInterno = React.lazy(() => import('./modules/saas/pages/SubscriptionPayment'));
 const ActivationRequests = React.lazy(() => import('./modules/admin/pages/ActivationRequests'));
@@ -262,6 +263,13 @@ const AppShell: React.FC = () => {
           return <Dashboard documents={documents} products={products} setActiveTab={setActiveTab} currentUser={currentUser} />;
         }
         return <SubscriptionPlansManager onNotify={showNotify} />;
+
+      case 'saas-payment-methods':
+        if (currentUser?.role !== 'SUPERADMIN') {
+          showNotify('Acceso restringido', 'error');
+          return <Dashboard documents={documents} products={products} setActiveTab={setActiveTab} currentUser={currentUser} />;
+        }
+        return <SaasPaymentMethods onNotify={showNotify} />;
 
       case 'points-admin':
         if (currentUser?.role !== 'SUPERADMIN') {

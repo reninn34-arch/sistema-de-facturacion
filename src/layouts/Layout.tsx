@@ -220,6 +220,7 @@ const Layout: React.FC<LayoutProps> = ({
         { id: '_div_gestion', label: '──── Gestión ────', roles: ['SUPERADMIN'] },
         { id: 'activation-requests', label: 'Activaciones', roles: ['SUPERADMIN'] },
         { id: 'subscription-plans', label: 'Planes', roles: ['SUPERADMIN'] },
+        { id: 'saas-payment-methods', label: 'Métodos de Pago', roles: ['SUPERADMIN'] },
         { id: '_div_contenido', label: '──── Contenido ────', roles: ['SUPERADMIN'] },
         { id: 'landing-editor', label: 'Landing Page', roles: ['SUPERADMIN'] },
         { id: 'blog-editor', label: 'Blog', roles: ['SUPERADMIN'] },
