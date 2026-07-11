@@ -69,6 +69,7 @@ interface SubscriptionPlan {
   name: string;
   description: string;
   price: number;
+  priceWithTax?: number;
   period: string;
   durationDays: number;
   features: string[];
@@ -104,10 +105,10 @@ interface Toast {
 
 const getDefaultPlans = (): SubscriptionPlan[] => [
   { id: '1', code: 'FREE', name: 'Plan Gratuito', description: 'Plan gratuito para pruebas y micro-emprendedores', price: 0, period: 'mensual', durationDays: 30, features: ['1 empresa', '10 facturas/mes'], maxBusinesses: 1, maxInvoicesPerMonth: 10, hasAIAssistant: false, hasPrioritySupport: false, isActive: true },
-  { id: '2', code: 'BASIC', name: 'Plan Básico', description: 'Plan básico para pequeñas empresas', price: 34.49, period: 'mensual', durationDays: 30, features: ['1 empresa', '100 facturas/mes', 'Reportes básicos'], maxBusinesses: 1, maxInvoicesPerMonth: 100, hasAIAssistant: false, hasPrioritySupport: false, isActive: true },
-  { id: '3', code: 'GASTRONOMICO', name: 'Plan Gastronómico', description: 'Para restaurantes, panaderías y cafeterías', price: 91.99, period: 'mensual', durationDays: 30, features: ['1 empresa', '300 facturas/mes', 'Caja POS', 'Recetas', 'Asistente IA'], maxBusinesses: 1, maxInvoicesPerMonth: 300, hasAIAssistant: true, hasPrioritySupport: true, isActive: true },
-  { id: '4', code: 'PRO', name: 'Plan Profesional', description: 'Plan profesional para negocios en crecimiento', price: 172.49, period: 'mensual', durationDays: 30, features: ['3 empresas', '500 facturas/mes', 'Asistente IA', 'Soporte prioritario'], maxBusinesses: 3, maxInvoicesPerMonth: 500, hasAIAssistant: true, hasPrioritySupport: true, isActive: true },
-  { id: '5', code: 'ENTERPRISE', name: 'Plan Empresarial', description: 'Plan empresarial para grandes organizaciones', price: 287.49, period: 'mensual', durationDays: 30, features: ['10 empresas', '2000 facturas/mes', 'API Access', 'Soporte 24/7'], maxBusinesses: 10, maxInvoicesPerMonth: 2000, hasAIAssistant: true, hasPrioritySupport: true, isActive: true }
+  { id: '2', code: 'BASIC', name: 'Plan Básico', description: 'Plan básico para pequeñas empresas', price: 35.00, period: 'mensual', durationDays: 30, features: ['1 empresa', '100 facturas/mes', 'Reportes básicos'], maxBusinesses: 1, maxInvoicesPerMonth: 100, hasAIAssistant: false, hasPrioritySupport: false, isActive: true },
+  { id: '3', code: 'GASTRONOMICO', name: 'Plan Gastronómico', description: 'Para restaurantes, panaderías y cafeterías', price: 90.00, period: 'mensual', durationDays: 30, features: ['1 empresa', '300 facturas/mes', 'Caja POS', 'Recetas', 'Asistente IA'], maxBusinesses: 1, maxInvoicesPerMonth: 300, hasAIAssistant: true, hasPrioritySupport: true, isActive: true },
+  { id: '4', code: 'PRO', name: 'Plan Profesional', description: 'Plan profesional para negocios en crecimiento', price: 150.00, period: 'mensual', durationDays: 30, features: ['3 empresas', '500 facturas/mes', 'Asistente IA', 'Soporte prioritario'], maxBusinesses: 3, maxInvoicesPerMonth: 500, hasAIAssistant: true, hasPrioritySupport: true, isActive: true },
+  { id: '5', code: 'ENTERPRISE', name: 'Plan Empresarial', description: 'Plan empresarial para grandes organizaciones', price: 250.00, period: 'mensual', durationDays: 30, features: ['10 empresas', '2000 facturas/mes', 'API Access', 'Soporte 24/7'], maxBusinesses: 10, maxInvoicesPerMonth: 2000, hasAIAssistant: true, hasPrioritySupport: true, isActive: true }
 ];
 
 const SubscriptionPage: React.FC = () => {
@@ -215,7 +216,7 @@ const SubscriptionPage: React.FC = () => {
         if (response.ok) {
           const data = await response.json();
           if (data.plans && data.plans.length > 0) {
-            const filteredPlans = data.plans.filter((p: SubscriptionPlan) => p.isActive);
+            const filteredPlans = data.plans.filter((p: SubscriptionPlan) => p.isActive && p.code !== 'UNLIMITED' && p.code !== 'PENDING');
             setPlans(filteredPlans);
             setLoadingPlans(false);
             return;
@@ -445,9 +446,9 @@ const SubscriptionPage: React.FC = () => {
                             <span className={`text-5xl font-extrabold tracking-tighter ${plan.ctaType === 'WHATSAPP' ? 'text-amber-500' : 'text-slate-900'}`}>
                               {plan.ctaType === 'WHATSAPP'
                                 ? (plan.ctaWhatsapp?.priceLabel || 'Precio a medida')
-                                : plan.price === 0 ? 'Gratis' : `$${plan.price.toFixed(2)}`}
+                                : (plan.priceWithTax !== undefined ? plan.priceWithTax : plan.price) === 0 ? 'Gratis' : `$${(plan.priceWithTax !== undefined ? plan.priceWithTax : plan.price).toFixed(2)}`}
                             </span>
-                            {plan.price > 0 && plan.ctaType !== 'WHATSAPP' && (
+                            {(plan.priceWithTax !== undefined ? plan.priceWithTax : plan.price) > 0 && plan.ctaType !== 'WHATSAPP' && (
                               <span className="text-slate-400 text-lg font-semibold">
                                 /{plan.period}
                               </span>

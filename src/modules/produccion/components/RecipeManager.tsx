@@ -255,11 +255,17 @@ export default function RecipeManager({ products, onNotify }: RecipeManagerProps
                         required
                       >
                         <option value="">Selecciona producto</option>
-                        {safeProducts
-                          .filter((p) => p.type === 'FISICO' && !(p as any).isRawMaterial)
-                          .map((p) => (
+                        {(() => {
+                          const list = [];
+                          for (const p of safeProducts) {
+                            if (p.type === 'FISICO' && !(p as any).isRawMaterial) {
+                              list.push(p);
+                            }
+                          }
+                          return list.map((p) => (
                             <option key={p.id} value={p.id}>{p.code} - {p.description} ({p.unitOfMeasure || 'u'})</option>
-                          ))}
+                          ));
+                        })()}
                       </select>
                     </div>
                     <div>
@@ -323,13 +329,19 @@ export default function RecipeManager({ products, onNotify }: RecipeManagerProps
                                 required
                               >
                                 <option value="">Selecciona insumo</option>
-                                {safeProducts
-                                  .filter((p) => p.type === 'FISICO')
-                                  .map((p) => (
-                                    <option key={p.id} value={p.id}>
-                                      {p.code} - {p.description} ({p.unitOfMeasure || 'N/D'}) - ${(p.price || 0).toFixed(2)}
-                                    </option>
-                                  ))}
+                                 {(() => {
+                                   const list = [];
+                                   for (const p of safeProducts) {
+                                     if (p.type === 'FISICO') {
+                                       list.push(p);
+                                     }
+                                   }
+                                   return list.map((p) => (
+                                     <option key={p.id} value={p.id}>
+                                       {p.code} - {p.description} ({p.unitOfMeasure || 'N/D'}) - ${(p.price || 0).toFixed(2)}
+                                     </option>
+                                   ));
+                                 })()}
                               </select>
                             </div>
                             <div>

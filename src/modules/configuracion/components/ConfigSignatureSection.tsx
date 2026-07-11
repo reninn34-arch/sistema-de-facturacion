@@ -58,9 +58,9 @@ const ConfigSignatureSection: React.FC<ConfigSignatureSectionProps> = ({
             <button type="button" onClick={() => {
               setSignatureFile(null); setSignatureBuffer(null); setSignaturePassword('');
               const clearedFeatures = { ...((businessInfo as any).features || {}), signatureP12: null, signaturePassword: '' };
-              setBusinessInfo((prev: any) => ({ ...prev, features: clearedFeatures }));
+              setBusinessInfo((prev: any) => ({ ...prev, features: clearedFeatures, isProduction: false }));
               saveBusinessField({ features: clearedFeatures });
-              showNotify('Firma digital eliminada. Puedes activar el modo demo.');
+              showNotify('Firma eliminada. El sistema volvió a modo pruebas automáticamente.');
             }}
               className="w-full py-3 bg-red-500/20 hover:bg-red-500/30 text-red-400 rounded-2xl font-bold text-xs uppercase tracking-widest transition-all inline-flex items-center justify-center gap-2">
               <TrashIcon className="w-4 h-4" /> Eliminar Firma Digital

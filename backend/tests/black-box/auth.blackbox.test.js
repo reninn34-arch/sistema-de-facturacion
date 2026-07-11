@@ -320,6 +320,14 @@ describe('🟦 CAJA NEGRA: Pruebas de Gestión de Empresas', () => {
         });
 
       expect([200, 201]).toContain(response.status);
+
+      // Clean up: delete the user so we don't pollute the database or hit limits
+      const createdUser = response.body.user;
+      if (createdUser && createdUser.id) {
+        await request(API_BASE_URL)
+          .delete(`/api/business/users/${createdUser.id}`)
+          .set('Authorization', `Bearer ${authToken}`);
+      }
     });
 
     /**

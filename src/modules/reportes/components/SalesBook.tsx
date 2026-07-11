@@ -16,36 +16,43 @@ export default function SalesBook({ documents, business, onNotify }: SalesBookPr
   const salesEntries = useMemo((): SalesBookEntry[] => {
     if (!Array.isArray(documents)) return [];
     
-    return documents
-      .filter(doc => {
-        if (doc.status !== 'AUTORIZADA') return false;
-        if (filterType !== 'ALL' && doc.type !== filterType) return false;
-        
-        const docDate = new Date(doc.issueDate);
-        if (startDate && docDate < new Date(startDate)) return false;
-        if (endDate && docDate > new Date(endDate)) return false;
-        
-        return true;
-      })
-      .map(doc => {
-        const subtotal = doc.items?.reduce((sum, item) => sum + (item.unitPrice * item.quantity - item.discount), 0) || 0;
-        const subtotal0 = doc.items?.filter(i => i.taxRate === 0).reduce((sum, item) => sum + (item.unitPrice * item.quantity - item.discount), 0) || 0;
-        const subtotal12 = doc.items?.filter(i => i.taxRate > 0).reduce((sum, item) => sum + (item.unitPrice * item.quantity - item.discount), 0) || 0;
-        const iva = subtotal12 * 0.15;
-        
-        return {
-          date: doc.issueDate,
-          documentType: doc.type === '01' ? 'FACTURA' : doc.type === '04' ? 'NOTA DE CRÉDITO' : 'OTRO',
-          documentNumber: doc.number,
-          authorizationNumber: doc.accessKey,
-          clientRuc: doc.entityName.split(' - ')[0] || '',
-          clientName: doc.entityName,
-          subtotal0,
-          subtotal12,
-          iva,
-          total: doc.total
-        };
+    const entries: SalesBookEntry[] = [];
+    for (const doc of documents) {
+      if (doc.status !== 'AUTORIZADA') continue;
+      if (filterType !== 'ALL' && doc.type !== filterType) continue;
+      
+      const docDate = new Date(doc.issueDate);
+      if (startDate && docDate < new Date(startDate)) continue;
+      if (endDate && docDate > new Date(endDate)) continue;
+      
+      let subtotal0 = 0;
+      let subtotal12 = 0;
+      if (doc.items) {
+        for (const item of doc.items) {
+          const base = item.unitPrice * item.quantity - item.discount;
+          if (item.taxRate === 0) {
+            subtotal0 += base;
+          } else {
+            subtotal12 += base;
+          }
+        }
+      }
+      const iva = subtotal12 * 0.15;
+      
+      entries.push({
+        date: doc.issueDate,
+        documentType: doc.type === '01' ? 'FACTURA' : doc.type === '04' ? 'NOTA DE CRÉDITO' : 'OTRO',
+        documentNumber: doc.number,
+        authorizationNumber: doc.accessKey,
+        clientRuc: doc.entityName.split(' - ')[0] || '',
+        clientName: doc.entityName,
+        subtotal0,
+        subtotal12,
+        iva,
+        total: doc.total
       });
+    }
+    return entries;
   }, [documents, startDate, endDate, filterType]);
 
   const totals = useMemo(() => {

@@ -229,8 +229,8 @@ const Dashboard: React.FC<DashboardProps> = ({ documents, products, setActiveTab
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
               {(subscriptionStats?.planDistribution || []).map((plan, i) => {
                 const planPrices: Record<string, number> = {
-                  FREE: 0, BASIC: 29.99, GASTRONOMICO: 79.99, PRO: 149.99, ENTERPRISE: 249.99,
-                  MONTHLY: 29.99, SEMIANNUAL: 149.99, YEARLY: 249.99, UNLIMITED: 0, PENDING: 0
+                  FREE: 0, BASIC: 30.43, GASTRONOMICO: 78.26, PRO: 130.43, ENTERPRISE: 217.39,
+                  MONTHLY: 30.43, SEMIANNUAL: 130.43, YEARLY: 217.39, UNLIMITED: 0, PENDING: 0
                 };
                 const revenue = (planPrices[plan.plan] || 0) * plan.count;
                 return (
@@ -602,11 +602,13 @@ const Dashboard: React.FC<DashboardProps> = ({ documents, products, setActiveTab
       {(() => {
         const topClientsDashboard = (() => {
           const map: Record<string, { name: string; total: number; count: number }> = {};
-          safeDocuments.filter((d: any) => d.type === '01' && (d.status === 'AUTORIZADA' || d.status === 'AUTORIZADO')).forEach((doc: any) => {
-            const key = doc.entityName || 'CONSUMIDOR FINAL';
-            if (!map[key]) map[key] = { name: key, total: 0, count: 0 };
-            map[key].total += doc.total || 0;
-            map[key].count += 1;
+          safeDocuments.forEach((doc: any) => {
+            if (doc.type === '01' && (doc.status === 'AUTORIZADA' || doc.status === 'AUTORIZADO')) {
+              const key = doc.entityName || 'CONSUMIDOR FINAL';
+              if (!map[key]) map[key] = { name: key, total: 0, count: 0 };
+              map[key].total += doc.total || 0;
+              map[key].count += 1;
+            }
           });
           return Object.values(map).sort((a, b) => b.total - a.total).slice(0, 5);
         })();

@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Product, BusinessInfo, InvoiceItem, SriStatus, DocumentType, Document, PaymentStatus } from '../../../types/types';
 import { generateAccessKey } from '../../../utils/sri';
 import { buildInvoiceXml, authorizeWithSRI } from '../../../services/sriService';
@@ -317,11 +317,9 @@ const PendingTickets: React.FC<PendingTicketsProps> = ({
     setIsProcessing(true);
     setProcessLog([]);
 
-    let success = 0, failed = 0;
-    for (const ticket of selectedTickets) {
-      const ok = await sendIndividualToSRI(ticket);
-      if (ok) success++; else failed++;
-    }
+    const results = await Promise.all(selectedTickets.map(ticket => sendIndividualToSRI(ticket)));
+    const success = results.filter(Boolean).length;
+    const failed = selectedTickets.length - success;
 
     onNotify(`Procesados: ${success} exitosos, ${failed} fallidos`);
     setIsProcessing(false);

@@ -1387,46 +1387,48 @@ const InvoiceForm: React.FC<InvoiceFormProps> = ({ clients, setClients, isDemoMo
                   />
                   {showProductDropdown && searchTerm && (
                     <div className={`absolute top-full left-0 right-0 ${isDarkMode ? 'bg-slate-800 border-slate-600' : 'bg-white border-sky-200'} rounded-2xl mt-2 shadow-2xl z-[100] max-h-64 sm:max-h-96 overflow-y-auto`}>
-                      {(Array.isArray(products) ? products : []).filter(p =>
-                        !p.isRawMaterial && (
-                        p.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                        p.code.toLowerCase().includes(searchTerm.toLowerCase()))
-                      ).length > 0 ? (
-                        <div className="p-2">
-                          {(Array.isArray(products) ? products : []).filter(p =>
-                            !p.isRawMaterial && (
-                            p.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                            p.code.toLowerCase().includes(searchTerm.toLowerCase()))
-                          ).map(p => (
-                            <button
-                              key={p.id}
-                              onClick={() => addItem(p)}
-                              className="w-full text-left p-3 hover:bg-sky-50 rounded-xl flex items-center gap-4 transition-colors group"
-                            >
-                              {p.imageUrl ? (
-                                <img src={p.imageUrl} alt={p.description} className="w-14 h-14 rounded-lg object-cover border border-slate-200 group-hover:border-indigo-400" />
-                              ) : (
-                                <div className="w-14 h-14 rounded-lg bg-slate-100 flex items-center justify-center"><CubeIcon className="w-6 h-6 text-slate-400" /></div>
-                              )}
-                              <div className="flex-1 min-w-0">
-                                <p className={`font-bold text-sm ${isDarkMode ? 'text-white' : 'text-slate-800'} truncate`}>{p.description}</p>
-                                <div className="flex items-center gap-3 mt-1">
-                                  <span className={`text-xs ${isDarkMode ? 'text-slate-400' : 'text-slate-500'}`}>{p.code}</span>
-                                  <span className={`text-xs font-bold ${isDarkMode ? 'text-sky-400' : 'text-sky-500'}`}>${p[priceTier].toFixed(2)}</span>
-                                  <span className={`text-xs ${isDarkMode ? 'text-slate-500' : 'text-slate-400'}`}>Stock: {p.stock}</span>
-                                </div>
-                              </div>
-                              <span className="text-sky-500 text-xl opacity-0 group-hover:opacity-100 transition-opacity">+</span>
-                            </button>
-                          ))}
-                        </div>
-                      ) : (
-                        <div className={`p-8 text-center ${isDarkMode ? 'text-slate-500' : 'text-slate-400'}`}>
-                          <p className="text-3xl mb-2"><MagnifyingGlassIcon className="w-10 h-10 mx-auto text-slate-300 dark:text-slate-600" /></p>
-                          <p className="font-bold">No se encontraron productos</p>
-                          <p className="text-sm">Intenta con otro término de búsqueda</p>
-                        </div>
-                      )}
+                      {(() => {
+                        const list = (Array.isArray(products) ? products : []).filter(p =>
+                          !p.isRawMaterial && (
+                          p.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                          p.code.toLowerCase().includes(searchTerm.toLowerCase()))
+                        );
+                        if (list.length > 0) {
+                          return (
+                            <div className="p-2">
+                              {list.map(p => (
+                                <button
+                                  key={p.id}
+                                  onClick={() => addItem(p)}
+                                  className="w-full text-left p-3 hover:bg-sky-50 rounded-xl flex items-center gap-4 transition-colors group"
+                                >
+                                  {p.imageUrl ? (
+                                    <img src={p.imageUrl} alt={p.description} className="w-14 h-14 rounded-lg object-cover border border-slate-200 group-hover:border-indigo-400" />
+                                  ) : (
+                                    <div className="w-14 h-14 rounded-lg bg-slate-100 flex items-center justify-center"><CubeIcon className="w-6 h-6 text-slate-400" /></div>
+                                  )}
+                                  <div className="flex-1 min-w-0">
+                                    <p className={`font-bold text-sm ${isDarkMode ? 'text-white' : 'text-slate-800'} truncate`}>{p.description}</p>
+                                    <div className="flex items-center gap-3 mt-1">
+                                      <span className={`text-xs ${isDarkMode ? 'text-slate-400' : 'text-slate-500'}`}>{p.code}</span>
+                                      <span className={`text-xs font-bold ${isDarkMode ? 'text-sky-400' : 'text-sky-500'}`}>${p[priceTier].toFixed(2)}</span>
+                                      <span className={`text-xs ${isDarkMode ? 'text-slate-500' : 'text-slate-400'}`}>Stock: {p.stock}</span>
+                                    </div>
+                                  </div>
+                                  <span className="text-sky-500 text-xl opacity-0 group-hover:opacity-100 transition-opacity">+</span>
+                                </button>
+                              ))}
+                            </div>
+                          );
+                        }
+                        return (
+                          <div className={`p-8 text-center ${isDarkMode ? 'text-slate-500' : 'text-slate-400'}`}>
+                            <p className="text-3xl mb-2"><MagnifyingGlassIcon className="w-10 h-10 mx-auto text-slate-300 dark:text-slate-600" /></p>
+                            <p className="font-bold">No se encontraron productos</p>
+                            <p className="text-sm">Intenta con otro término de búsqueda</p>
+                          </div>
+                        );
+                      })()}
                     </div>
                   )}
                 </div>

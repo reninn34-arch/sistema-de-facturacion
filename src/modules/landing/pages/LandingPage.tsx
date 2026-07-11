@@ -36,6 +36,7 @@ interface ApiPlan {
   name: string;
   description: string;
   price: number;
+  priceWithTax?: number;
   period: string;
   durationDays: number;
   features: string[];
@@ -292,7 +293,7 @@ const LandingPage: React.FC = () => {
       .then(r => r.json())
       .then(data => {
         const rawPlans: ApiPlan[] = data.plans || data || [];
-        const filtered = rawPlans.filter((p) => p.isActive);
+        const filtered = rawPlans.filter((p) => p.isActive && p.code !== 'UNLIMITED' && p.code !== 'PENDING');
         const withHighlight = filtered.map((p, i) => ({
           ...p,
           highlighted: i === 1
@@ -301,11 +302,11 @@ const LandingPage: React.FC = () => {
       })
       .catch(() => {
         setPlans([
-          { id: '1', code: 'FREE', name: 'Gratuito', description: 'Para pruebas y micro-emprendedores', price: 0, period: 'mensual', durationDays: 30, features: ['1 empresa', '10 facturas/mes'], isActive: true, highlighted: false },
-          { id: '2', code: 'BASIC', name: 'Básico', description: 'Para pequenas empresas', price: 34.49, period: 'mensual', durationDays: 30, features: ['1 empresa', '100 facturas/mes', 'Reportes básicos'], isActive: true, highlighted: true },
-          { id: '3', code: 'GASTRONOMICO', name: 'Gastronómico', description: 'Para restaurantes, panaderías y cafeterías', price: 91.99, period: 'mensual', durationDays: 30, features: ['1 empresa', '300 facturas/mes', 'Caja POS', 'Recetas', 'Asistente IA'], isActive: true, highlighted: false },
-          { id: '4', code: 'PRO', name: 'Profesional', description: 'Para negocios en crecimiento', price: 172.49, period: 'mensual', durationDays: 30, features: ['3 empresas', '500 facturas/mes', 'Asistente IA', 'Soporte prioritario'], isActive: true, highlighted: false },
-          { id: '5', code: 'ENTERPRISE', name: 'Empresarial', description: 'Para grandes organizaciones', price: 287.49, period: 'mensual', durationDays: 30, features: ['10 empresas', '2000 facturas/mes', 'API Access', 'Soporte 24/7'], isActive: true, highlighted: false },
+          { id: '1', code: 'FREE', name: 'Plan Gratuito', description: 'Plan gratuito para pruebas y micro-emprendedores', price: 0, period: 'mensual', durationDays: 30, features: ['1 empresa', '10 facturas/mes'], isActive: true, highlighted: false },
+          { id: '2', code: 'BASIC', name: 'Plan Básico', description: 'Plan básico para pequeñas empresas', price: 35.00, period: 'mensual', durationDays: 30, features: ['1 empresa', '100 facturas/mes', 'Reportes básicos'], isActive: true, highlighted: true },
+          { id: '3', code: 'GASTRONOMICO', name: 'Plan Gastronómico', description: 'Para restaurantes, panaderías y cafeterías', price: 90.00, period: 'mensual', durationDays: 30, features: ['1 empresa', '300 facturas/mes', 'Caja POS', 'Recetas', 'Asistente IA'], isActive: true, highlighted: false },
+          { id: '4', code: 'PRO', name: 'Plan Profesional', description: 'Plan profesional para negocios en crecimiento', price: 150.00, period: 'mensual', durationDays: 30, features: ['3 empresas', '500 facturas/mes', 'Asistente IA', 'Soporte prioritario'], isActive: true, highlighted: false },
+          { id: '5', code: 'ENTERPRISE', name: 'Plan Empresarial', description: 'Plan empresarial para grandes organizaciones', price: 250.00, period: 'mensual', durationDays: 30, features: ['10 empresas', '2000 facturas/mes', 'API Access', 'Soporte 24/7'], isActive: true, highlighted: false }
         ]);
       })
       .finally(() => setLoadingPlans(false));
@@ -837,9 +838,9 @@ const LandingPage: React.FC = () => {
                       <span className={`text-3xl lg:text-4xl font-extrabold ${plan.ctaType === 'WHATSAPP' ? 'text-amber-500' : 'text-slate-900'}`}>
                         {plan.ctaType === 'WHATSAPP'
                           ? (plan.ctaWhatsapp?.priceLabel || 'Precio a medida')
-                          : plan.price === 0 ? 'Gratis' : `$${plan.price.toFixed(2)}`}
+                          : (plan.priceWithTax !== undefined ? plan.priceWithTax : plan.price) === 0 ? 'Gratis' : `$${(plan.priceWithTax !== undefined ? plan.priceWithTax : plan.price).toFixed(2)}`}
                       </span>
-                      {plan.price > 0 && plan.ctaType !== 'WHATSAPP' && <span className="text-slate-400 font-semibold text-sm">/{plan.period}</span>}
+                      {(plan.priceWithTax !== undefined ? plan.priceWithTax : plan.price) > 0 && plan.ctaType !== 'WHATSAPP' && <span className="text-slate-400 font-semibold text-sm">/{plan.period}</span>}
                     </div>
 
                     <ul className="mt-6 space-y-2.5 flex-1">

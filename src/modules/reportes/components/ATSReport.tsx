@@ -30,15 +30,24 @@ export default function ATSReport({ documents, business, onNotify }: ATSReportPr
     });
 
     // Generar ventas del ATS
-    const sales: ATSSale[] = filteredDocs
-      .filter(doc => doc.type === '01' && (doc as any).source !== 'RECEIVED')
-      .map(doc => {
-        const subtotal0 = doc.items?.filter(i => i.taxRate === 0).reduce((sum, item) => sum + (item.unitPrice * item.quantity - item.discount), 0) || 0;
-        const subtotal12 = doc.items?.filter(i => i.taxRate > 0).reduce((sum, item) => sum + (item.unitPrice * item.quantity - item.discount), 0) || 0;
+    const sales: ATSSale[] = [];
+    for (const doc of filteredDocs) {
+      if (doc.type === '01' && (doc as any).source !== 'RECEIVED') {
+        let subtotal0 = 0;
+        let subtotal12 = 0;
+        if (doc.items) {
+          for (const item of doc.items) {
+            const amount = item.unitPrice * item.quantity - item.discount;
+            if (item.taxRate === 0) {
+              subtotal0 += amount;
+            } else {
+              subtotal12 += amount;
+            }
+          }
+        }
         const iva = subtotal12 * 0.15;
         const clientId = doc.entityName.split(' - ')[0] || '';
-        
-        return {
+        sales.push({
           establishmentType: '01' as const,
           documentType: doc.type,
           documentNumber: doc.number,
@@ -50,20 +59,30 @@ export default function ATSReport({ documents, business, onNotify }: ATSReportPr
           subtotal0,
           subtotal12,
           iva
-        };
-      });
+        });
+      }
+    }
 
     // Compras: documentos recibidos (source=RECEIVED)
-    const purchases: ATSPurchase[] = filteredDocs
-      .filter(doc => doc.type === '01' && (doc as any).source === 'RECEIVED')
-      .map(doc => {
-        const subtotal0 = doc.items?.filter(i => i.taxRate === 0).reduce((sum, item) => sum + (item.unitPrice * item.quantity - item.discount), 0) || 0;
-        const subtotal12 = doc.items?.filter(i => i.taxRate > 0).reduce((sum, item) => sum + (item.unitPrice * item.quantity - item.discount), 0) || 0;
+    const purchases: ATSPurchase[] = [];
+    for (const doc of filteredDocs) {
+      if (doc.type === '01' && (doc as any).source === 'RECEIVED') {
+        let subtotal0 = 0;
+        let subtotal12 = 0;
+        if (doc.items) {
+          for (const item of doc.items) {
+            const amount = item.unitPrice * item.quantity - item.discount;
+            if (item.taxRate === 0) {
+              subtotal0 += amount;
+            } else {
+              subtotal12 += amount;
+            }
+          }
+        }
         const iva = subtotal12 * 0.15;
         const providerId = doc.entityRuc || '9999999999999';
         const idType = providerId.length === 13 ? '01' : '02';
-
-        return {
+        purchases.push({
           establishmentType: '01' as const,
           idProviderType: idType as '01' | '02',
           providerRuc: providerId,
@@ -79,8 +98,9 @@ export default function ATSReport({ documents, business, onNotify }: ATSReportPr
           ice: 0,
           retentionPercentage: 0,
           retentionAmount: 0
-        };
-      });
+        });
+      }
+    }
 
     const xml = generateATSXML({
       ruc: business.ruc,

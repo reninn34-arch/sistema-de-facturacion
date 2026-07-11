@@ -133,16 +133,20 @@ const PagoInterno: React.FC<PagoInternoProps> = ({ businessInfo, isExpired = fal
           const data = await response.json();
           // Filtrar planes: excluir PENDING, UNLIMITED y FREE (solo para superadmins)
           // El precio del backend ya incluye IVA
-          const filteredPlans = (data.plans || data)
-            .filter((plan: any) => plan.code !== 'PENDING' && plan.code !== 'UNLIMITED' && plan.code !== 'FREE')
-            .map((plan: any) => ({
-              id: plan.code,
-              name: plan.name,
-              price: plan.price, // Ya es el precio final con IVA
-              period: plan.period,
-              durationDays: plan.durationDays,
-              features: plan.features
-            }));
+          const raw = data.plans || data || [];
+          const filteredPlans = [];
+          for (const plan of raw) {
+            if (plan.code !== 'PENDING' && plan.code !== 'UNLIMITED' && plan.code !== 'FREE') {
+              filteredPlans.push({
+                id: plan.code,
+                name: plan.name,
+                price: plan.priceWithTax !== undefined && plan.priceWithTax !== null ? plan.priceWithTax : plan.price, // Usar precio con IVA (15%)
+                period: plan.period,
+                durationDays: plan.durationDays,
+                features: plan.features
+              });
+            }
+          }
           setAvailablePlans(filteredPlans);
           
           // Seleccionar primer plan disponible por defecto

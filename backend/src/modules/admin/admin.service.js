@@ -499,19 +499,19 @@ class AdminService {
   async getSubscriptionStats() {
     const now = new Date();
 
-    // Total de empresas
-    const totalBusinesses = await this.repo.countBusinesses();
-    
-    // Empresas activas
-    const activeBusinesses = await this.repo.countBusinesses({ isActive: true });
+    // Obtener estadísticas de empresas y planes en paralelo
+    const [
+      totalBusinesses,
+      activeBusinesses,
+      expiredBusinesses,
+      plansForThreshold
+    ] = await Promise.all([
+      this.repo.countBusinesses(),
+      this.repo.countBusinesses({ isActive: true }),
+      this.repo.countBusinesses({ subscriptionEnd: { lt: now } }),
+      this.repo.findAllPlans({ code: true, durationDays: true })
+    ]);
 
-    // Empresas con suscripción expirada
-    const expiredBusinesses = await this.repo.countBusinesses({
-      subscriptionEnd: { lt: now }
-    });
-
-    // Empresas por vencer (cálculo dinámico según plan: ≤50% de durationDays)
-    const plansForThreshold = await this.repo.findAllPlans({ code: true, durationDays: true });
     const planThresholdMap = {};
     plansForThreshold.forEach(p => {
       const duration = p.durationDays || 30;
@@ -533,34 +533,35 @@ class AdminService {
       return daysLeft <= threshold;
     }).length;
 
-    // Distribución por plan
-    const planDistribution = await this.repo.groupBusinessesByPlan({
-      by: ['plan'],
-      _count: { id: true }
-    });
-
-    // Total de usuarios en el sistema
-    const totalUsers = await this.repo.countUsers();
-    
-    // Usuarios por rol
-    const usersByRole = await this.repo.groupUsersByRole({
-      by: ['role'],
-      _count: { id: true }
-    });
-
-    // Empresas recientes (últimas 5)
-    const recentBusinesses = await this.repo.findRecentBusinesses({
-      take: 5,
-      orderBy: { createdAt: 'desc' },
-      select: {
-        id: true, name: true, ruc: true, plan: true,
-        isActive: true, subscriptionEnd: true, createdAt: true,
-        _count: { select: { users: true } }
-      }
-    });
+    // Obtener el resto de estadísticas en paralelo
+    const [
+      planDistribution,
+      totalUsers,
+      usersByRole,
+      recentBusinesses
+    ] = await Promise.all([
+      this.repo.groupBusinessesByPlan({
+        by: ['plan'],
+        _count: { id: true }
+      }),
+      this.repo.countUsers(),
+      this.repo.groupUsersByRole({
+        by: ['role'],
+        _count: { id: true }
+      }),
+      this.repo.findRecentBusinesses({
+        take: 5,
+        orderBy: { createdAt: 'desc' },
+        select: {
+          id: true, name: true, ruc: true, plan: true,
+          isActive: true, subscriptionEnd: true, createdAt: true,
+          _count: { select: { users: true } }
+        }
+      })
+    ]);
 
     // Ingresos estimados por plan (simulado basado en planes)
-    const planPrices = { FREE: 0, BASIC: 29.99, GASTRONOMICO: 79.99, PRO: 149.99, ENTERPRISE: 249.99, MONTHLY: 29.99, SEMIANNUAL: 149.99, YEARLY: 249.99, UNLIMITED: 0, PENDING: 0 };
+    const planPrices = { FREE: 0, BASIC: 30.43, GASTRONOMICO: 78.26, PRO: 130.43, ENTERPRISE: 217.39, MONTHLY: 30.43, SEMIANNUAL: 130.43, YEARLY: 217.39, UNLIMITED: 0, PENDING: 0 };
     const monthlyRevenue = planDistribution.reduce((acc, p) => {
       return acc + (planPrices[p.plan] || 0) * Number(p._count.id);
     }, 0);
@@ -798,23 +799,24 @@ class AdminService {
       if (endDate) where.createdAt.lte = new Date(endDate);
     }
     
-    // Ingresos totales
-    const totalRevenue = await this.repo.aggregateSubscriptionAmount({ ...where, amount: { not: null } });
-    
-    // Ingresos por plan
-    const revenueByPlan = await this.repo.groupSubscriptionsBy('plan', where);
-    
-    // Ingresos por método de pago
-    const revenueByPaymentMethod = await this.repo.groupSubscriptionsBy('paymentMethod', where);
-    
-    // Suscripciones por estado
-    const subscriptionsByStatus = await this.repo.groupSubscriptionsBy('status', where);
-    
     // Suscripciones activas por mes (últimos 12 meses)
     const twelveMonthsAgo = new Date();
     twelveMonthsAgo.setMonth(twelveMonthsAgo.getMonth() - 12);
-    
-    const subscriptionsByMonthRaw = await this.repo.rawSubscriptionsByMonth(twelveMonthsAgo);
+
+    // Obtener estadísticas de ingresos en paralelo
+    const [
+      totalRevenue,
+      revenueByPlan,
+      revenueByPaymentMethod,
+      subscriptionsByStatus,
+      subscriptionsByMonthRaw
+    ] = await Promise.all([
+      this.repo.aggregateSubscriptionAmount({ ...where, amount: { not: null } }),
+      this.repo.groupSubscriptionsBy('plan', where),
+      this.repo.groupSubscriptionsBy('paymentMethod', where),
+      this.repo.groupSubscriptionsBy('status', where),
+      this.repo.rawSubscriptionsByMonth(twelveMonthsAgo)
+    ]);
     
     // Convertir BigInt a Number
     const subscriptionsByMonth = subscriptionsByMonthRaw.map(s => ({
@@ -887,46 +889,46 @@ class AdminService {
     // Determinar estado según el modo
     const invoiceStatus = sriAuthorized ? 'AUTORIZADA' : (emissionMode === 'LOCAL' ? 'LOCAL' : 'PENDIENTE');
 
-    // Actualizar la empresa con la nueva suscripción
-    const updatedBusiness = await this.repo.updateBusiness(String(businessId), {
-      plan: plan,
-      subscriptionStart: now,
-      subscriptionEnd: newEndDate,
-      subscriptionStatus: 'ACTIVE',
-      isActive: true
-    });
-
-    // Crear registro de suscripción
-    const subscription = await this.repo.createSubscription({
-      businessId: String(businessId),
-      plan: plan,
-      status: 'ACTIVE',
-      startDate: now,
-      endDate: newEndDate,
-      paymentMethod: paymentMethod || (emissionMode === 'SRI' ? 'SRI' : 'LOCAL'),
-      amount: parseFloat(amount) || 0,
-      currency: 'USD',
-      invoiceNumber: invoiceNumber,
-      notes: `Factura emitida - Plan: ${plan}, Duración: ${durationDays} días - Modo: ${emissionMode}`
-    });
-
     // Crear documento para que aparezca en Devoluciones
     const documentStatus = emissionMode === 'SRI' ? 'AUTHORIZED' : 'LOCAL';
-    await this.repo.createDocument({
-      businessId: String(businessId),
-      type: 'INVOICE',
-      number: invoiceNumber,
-      accessKey: accessKey,
-      issueDate: now,
-      status: documentStatus,
-      total: parseFloat(amount) || 0,
-      entityName: business.name,
-      entityRuc: business.ruc,
-      entityEmail: business.email,
-      paymentStatus: 'PAGADO',
-      source: 'WEB',
-      invoiceType: 'SaaS'  // Indica que es una factura de suscripción SaaS
-    });
+
+    // Ejecutar actualizaciones y creaciones en paralelo
+    const [updatedBusiness, subscription] = await Promise.all([
+      this.repo.updateBusiness(String(businessId), {
+        plan: plan,
+        subscriptionStart: now,
+        subscriptionEnd: newEndDate,
+        subscriptionStatus: 'ACTIVE',
+        isActive: true
+      }),
+      this.repo.createSubscription({
+        businessId: String(businessId),
+        plan: plan,
+        status: 'ACTIVE',
+        startDate: now,
+        endDate: newEndDate,
+        paymentMethod: paymentMethod || (emissionMode === 'SRI' ? 'SRI' : 'LOCAL'),
+        amount: parseFloat(amount) || 0,
+        currency: 'USD',
+        invoiceNumber: invoiceNumber,
+        notes: `Factura emitida - Plan: ${plan}, Duración: ${durationDays} días - Modo: ${emissionMode}`
+      }),
+      this.repo.createDocument({
+        businessId: String(businessId),
+        type: 'INVOICE',
+        number: invoiceNumber,
+        accessKey: accessKey,
+        issueDate: now,
+        status: documentStatus,
+        total: parseFloat(amount) || 0,
+        entityName: business.name,
+        entityRuc: business.ruc,
+        entityEmail: business.email,
+        paymentStatus: 'PAGADO',
+        source: 'WEB',
+        invoiceType: 'SaaS'
+      })
+    ]);
 
     return {
       success: true,
@@ -991,15 +993,15 @@ class AdminService {
     const newEndDate = new Date(currentEnd);
     newEndDate.setDate(newEndDate.getDate() - actualDaysToRefund);
 
-    // Actualizar la empresa
-    const updatedBusiness = await this.repo.updateBusiness(String(businessId), {
-      subscriptionEnd: newEndDate,
-      subscriptionStatus: newEndDate > now ? 'ACTIVE' : 'EXPIRED',
-      isActive: newEndDate > now
-    });
-
-    // Generar número de nota de crédito
-    const lastSubscription = await this.repo.findFirstSubscription({ createdAt: 'desc' });
+    // Actualizar la empresa y buscar última suscripción en paralelo
+    const [updatedBusiness, lastSubscription] = await Promise.all([
+      this.repo.updateBusiness(String(businessId), {
+        subscriptionEnd: newEndDate,
+        subscriptionStatus: newEndDate > now ? 'ACTIVE' : 'EXPIRED',
+        isActive: newEndDate > now
+      }),
+      this.repo.findFirstSubscription({ createdAt: 'desc' })
+    ]);
     const nextNumber = lastSubscription ? parseInt(lastSubscription.invoiceNumber?.split('-')[2] || '0') + 1 : 1;
     const creditNoteNumber = `001-002-${String(nextNumber).padStart(7, '0')}`;
     const accessKey = this._generateDemoAccessKey();

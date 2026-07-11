@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Product, InvoiceItem, BusinessInfo } from '../../../types/types';
 import { MagnifyingGlassIcon, TicketIcon, XMarkIcon, MinusIcon, PlusIcon, BanknotesIcon, CreditCardIcon, ArrowPathIcon } from '@heroicons/react/24/outline';
 
@@ -442,14 +442,18 @@ const QuickSaleForm: React.FC<QuickSaleFormProps> = ({ products, clients = [], s
                 </div>
               ) : (
                 <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 overflow-y-auto max-h-[500px] pr-2 custom-scrollbar pb-10">
-                  {recentProductIds
-                    .map(id => sellableProducts.find(p => p.id === id))
-                    .filter(p => p && (p.stock > 0 || p.type === 'SERVICIO'))
-                    .map(product => product!)
-                    .map(product => (
-                    <button
-                      key={product.id}
-                      onClick={() => addToCart(product)}
+                  {(() => {
+                    const productsList: typeof sellableProducts = [];
+                    for (const id of recentProductIds) {
+                      const p = sellableProducts.find(prod => prod.id === id);
+                      if (p && (p.stock > 0 || p.type === 'SERVICIO')) {
+                        productsList.push(p);
+                      }
+                    }
+                    return productsList.map(product => (
+                      <button
+                        key={product.id}
+                        onClick={() => addToCart(product)}
                       className="bg-white dark:bg-slate-800 rounded-[1.5rem] p-3 border border-slate-200 dark:border-slate-700 hover:border-sky-500 hover:shadow-lg hover:shadow-indigo-500/10 transition-all text-left flex flex-col items-center group relative overflow-hidden"
                     >
                       <div className="w-full aspect-square rounded-xl overflow-hidden bg-slate-50 dark:bg-slate-700/50 mb-3 relative flex items-center justify-center">
@@ -473,7 +477,7 @@ const QuickSaleForm: React.FC<QuickSaleFormProps> = ({ products, clients = [], s
                       <p className="text-[9px] text-slate-400 font-bold mt-1">{product.code}</p>
                       <p className="font-black text-sm text-sky-500 dark:text-sky-400 mt-1">${product.price.toFixed(2)}</p>
                     </button>
-                  ))}
+                  ))})()}
                 </div>
               )}
             </div>

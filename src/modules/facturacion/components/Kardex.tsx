@@ -126,11 +126,20 @@ export default function Kardex({ products, documents, onNotify }: KardexProps) {
               className="w-full p-3 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-xl font-bold text-sm text-slate-800 dark:text-white"
             >
               <option value="" className="dark:bg-slate-800">Selecciona producto</option>
-              {(Array.isArray(products) ? products : []).filter(p => p.type === 'FISICO').map(product => (
-                <option key={product.id} value={product.id} className="dark:bg-slate-800">
-                  {product.code} - {product.description}
-                </option>
-              ))}
+              {(() => {
+                const list = [];
+                const orig = Array.isArray(products) ? products : [];
+                for (const p of orig) {
+                  if (p.type === 'FISICO') {
+                    list.push(p);
+                  }
+                }
+                return list.map(product => (
+                  <option key={product.id} value={product.id} className="dark:bg-slate-800">
+                    {product.code} - {product.description}
+                  </option>
+                ));
+              })()}
             </select>
           </div>
           <div className="space-y-2">

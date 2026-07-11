@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Document, DocumentType, SriStatus, InvoiceItem } from '../../../types/types';
 import {
   MagnifyingGlassIcon,
@@ -336,9 +336,9 @@ export default function SaasCreditNote({ businesses, documents, onNotify }: Saas
       const businessId = selectedInvoice.businessId;
       
       // Calcular los días a devolver basándose en el monto
-      const planPrices: Record<string, number> = { 'FREE': 0, 'BASIC': 34.49, 'GASTRONOMICO': 91.99, 'PRO': 172.49, 'ENTERPRISE': 287.49, 'UNLIMITED': 0 };
+      const planPrices: Record<string, number> = { 'FREE': 0, 'BASIC': 35.00, 'GASTRONOMICO': 90.00, 'PRO': 150.00, 'ENTERPRISE': 250.00, 'UNLIMITED': 0 };
       const businessPlan = (selectedInvoice as any).plan || (selectedInvoice as any).business?.plan || 'BASIC';
-      const monthlyPrice = planPrices[businessPlan] || 34.49;
+      const monthlyPrice = planPrices[businessPlan] || 35.00;
       const dailyRate = monthlyPrice / 30;
       const daysToRefund = Math.ceil(total / dailyRate);
       

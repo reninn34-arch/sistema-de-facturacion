@@ -16,8 +16,10 @@ class ModuleService {
       throw new AppError('Usuario no encontrado en tu empresa', 404);
     }
 
-    const allModules = await this.repository.findAllActive();
-    const userPermissions = await this.repository.findUserPermissions(userId);
+    const [allModules, userPermissions] = await Promise.all([
+      this.repository.findAllActive(),
+      this.repository.findUserPermissions(userId)
+    ]);
 
     const permMap = {};
     for (const p of userPermissions) {

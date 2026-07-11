@@ -43,6 +43,8 @@ interface SaasAdminProps {
 
 const SaasAdmin: React.FC<SaasAdminProps> = ({ onNotify }) => {
   const [users, setUsers] = useState<User[]>([]);
+  const superadmins = useMemo(() => users.filter(u => u.role === 'SUPERADMIN'), [users]);
+  const businessUsersList = useMemo(() => users.filter(u => u.role !== 'SUPERADMIN'), [users]);
   const [businesses, setBusinesses] = useState<Business[]>([]);
   const [selectedBusiness, setSelectedBusiness] = useState<Business | null>(null);
   const [businessUsers, setBusinessUsers] = useState<User[]>([]);
@@ -1228,9 +1230,7 @@ const SaasAdmin: React.FC<SaasAdminProps> = ({ onNotify }) => {
                         {loading ? (
                           <tr><td colSpan={4} className="p-8 text-center text-slate-400">Cargando...</td></tr>
                         ) : (
-                          users
-                            .filter(u => u.role === 'SUPERADMIN')
-                            .map(user => (
+                          superadmins.map(user => (
                               <tr key={user.id} className={`hover:bg-[#0ea5e9]/5 transition-colors ${selectedUser?.id === user.id ? 'bg-[#0ea5e9]/10' : ''}`}>
                                 <td className="px-4 py-3">
                                   <div className="flex items-center gap-3">
@@ -1263,9 +1263,7 @@ const SaasAdmin: React.FC<SaasAdminProps> = ({ onNotify }) => {
                   
                   {/* Mobile View */}
                   <div className="md:hidden divide-y divide-[#cfd7e7] dark:divide-slate-800">
-                    {users
-                      .filter(u => u.role === 'SUPERADMIN')
-                      .map(user => (
+                    {superadmins.map(user => (
                         <div key={user.id} className={`p-3 flex flex-col gap-2 ${selectedUser?.id === user.id ? 'bg-[#0ea5e9]/10' : ''}`}>
                           <div className="flex justify-between items-start">
                             <div className="flex items-center gap-3">
@@ -1385,10 +1383,10 @@ const SaasAdmin: React.FC<SaasAdminProps> = ({ onNotify }) => {
                       <tbody className="divide-y divide-[#cfd7e7] dark:divide-slate-800">
                         {loading ? (
                           <tr><td colSpan={5} className="p-8 text-center text-slate-400">Cargando...</td></tr>
-                        ) : users.filter(u => u.role !== 'SUPERADMIN').length === 0 ? (
+                        ) : businessUsersList.length === 0 ? (
                           <tr><td colSpan={5} className="p-8 text-center text-slate-400">No se encontraron usuarios de empresas</td></tr>
                         ) : (
-                          users.filter(u => u.role !== 'SUPERADMIN').map(user => (
+                          businessUsersList.map(user => (
                             <tr key={user.id} className={`hover:bg-[#0ea5e9]/5 transition-colors ${selectedUser?.id === user.id ? 'bg-[#0ea5e9]/10' : ''}`}>
                               <td className="px-4 py-3">
                                 <div className="flex items-center gap-3">
@@ -1433,10 +1431,10 @@ const SaasAdmin: React.FC<SaasAdminProps> = ({ onNotify }) => {
                   <div className="md:hidden divide-y divide-[#cfd7e7] dark:divide-slate-800">
                     {loading ? (
                       <div className="p-6 text-center text-slate-400">Cargando...</div>
-                    ) : users.filter(u => u.role !== 'SUPERADMIN').length === 0 ? (
+                    ) : businessUsersList.length === 0 ? (
                       <div className="p-6 text-center text-slate-400">No se encontraron usuarios de empresas</div>
                     ) : (
-                      users.filter(u => u.role !== 'SUPERADMIN').map(user => (
+                      businessUsersList.map(user => (
                         <div key={user.id} className={`p-3 flex flex-col gap-2 ${selectedUser?.id === user.id ? 'bg-[#0ea5e9]/10' : ''}`}>
                           <div className="flex justify-between items-start">
                             <div className="flex items-center gap-3">

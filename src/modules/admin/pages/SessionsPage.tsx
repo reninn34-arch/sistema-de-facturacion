@@ -138,17 +138,21 @@ const SessionsPage: React.FC<SessionsPageProps> = ({ currentUser, onNotify }) =>
 
   const executeRevokeAll = async () => {
     const otherSessions = sessions.filter(s => s.status === 'ACTIVE' && s.id !== currentSessionId);
-    let revoked = 0;
-    for (const s of otherSessions) {
-      try {
-        const token = localStorage.getItem('adminToken');
-        const response = await fetch(`${API_URL}/api/business/sessions/${s.id}/revoke`, {
-          method: 'PUT',
-          headers: { 'Authorization': `Bearer ${token}` }
-        });
-        if (response.ok) revoked++;
-      } catch (e) {}
-    }
+    const token = localStorage.getItem('adminToken');
+    const results = await Promise.all(
+      otherSessions.map(async (s) => {
+        try {
+          const response = await fetch(`${API_URL}/api/business/sessions/${s.id}/revoke`, {
+            method: 'PUT',
+            headers: { 'Authorization': `Bearer ${token}` }
+          });
+          return response.ok;
+        } catch (e) {
+          return false;
+        }
+      })
+    );
+    const revoked = results.filter(Boolean).length;
     onNotify(`${revoked} sesiones cerradas`, 'success');
     loadSessions();
   };
@@ -242,7 +246,15 @@ const SessionsPage: React.FC<SessionsPageProps> = ({ currentUser, onNotify }) =>
             <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">IPs Únicas</span>
           </div>
           <p className="text-2xl font-black text-slate-800 dark:text-white">
-            {new Set(sessions.filter(s => s.status === 'ACTIVE').map(s => s.ipAddress).filter(Boolean)).size}
+            {(() => {
+              const uniqueIps = new Set<string>();
+              for (const s of sessions) {
+                if (s.status === 'ACTIVE' && s.ipAddress) {
+                  uniqueIps.add(s.ipAddress);
+                }
+              }
+              return uniqueIps.size;
+            })()}
           </p>
         </div>
       </div>

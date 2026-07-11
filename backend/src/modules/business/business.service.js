@@ -15,6 +15,9 @@ class BusinessService {
     if (!email || !password) throw new AppError('Email y contraseña requeridos', 400);
     if (password.length < 6) throw new AppError('La contraseña debe tener al menos 6 caracteres', 400);
 
+    const existing = await this.repo.findUserByEmail(email);
+    if (existing) throw new AppError('El usuario ya existe', 400);
+
     if (currentUser.role !== 'SUPERADMIN') {
       const business = await this.repo.findBusinessById(currentUser.businessId);
       if (business) {
@@ -28,9 +31,6 @@ class BusinessService {
         }
       }
     }
-
-    const existing = await this.repo.findUserByEmail(email);
-    if (existing) throw new AppError('El usuario ya existe', 400);
 
     const hashedPassword = await bcrypt.hash(password, 10);
     const newUser = await this.repo.createUser({
@@ -109,6 +109,22 @@ class BusinessService {
     const updateData = { ...data };
     if (updateData.address === '') updateData.address = null;
     if (updateData.phone === '') updateData.phone = null;
+
+    // Si se está eliminando la firma digital, revocar automáticamente el modo producción.
+    // Sin .p12 no es posible firmar XML → mantener producción activa sería un estado inválido.
+    if (
+      updateData.features &&
+      (updateData.features.signatureP12 === null || updateData.features.signatureP12 === undefined)
+    ) {
+      const business = await this.repo.findBusinessById(businessId);
+      if (business?.isProduction) {
+        updateData.isProduction = false;
+        if (updateData.features) {
+          updateData.features = { ...updateData.features, isDemo: true };
+        }
+      }
+    }
+
     return this.repo.updateBusiness(businessId, updateData);
   }
 
@@ -288,7 +304,13 @@ class BusinessService {
     const requiresProductValidation = ['01', '02', '04'].includes(docType) && !isReceivedDocument;
     const productIdToUse = new Map();
     if (requiresProductValidation && itemsList.length > 0) {
-      const productIds = itemsList.map(item => item.productId).filter(id => id && !id.startsWith('ITM-') && id !== 'manual');
+      const productIds = [];
+      for (const item of itemsList) {
+        const id = item.productId;
+        if (id && !id.startsWith('ITM-') && id !== 'manual') {
+          productIds.push(id);
+        }
+      }
       if (productIds.length > 0) {
         const existingProducts = await this.repo.findProductsByIds(productIds, businessId);
         const existingProductIds = new Set(existingProducts.map(p => p.id));
@@ -377,7 +399,7 @@ class BusinessService {
 
       // Inventory: invoice (VENTA)
       if (itemsList.length > 0 && docType === '01') {
-        for (const item of itemsList) {
+        await Promise.all(itemsList.map(async (item) => {
           if (item.type === 'FISICO' && item.productId) {
             const product = await this.repo.findProductById(tx, item.productId);
             if (product && product.businessId === businessId) {
@@ -390,12 +412,12 @@ class BusinessService {
               });
             }
           }
-        }
+        }));
       }
 
       // Inventory: credit note (DEVOLUCION)
       if (itemsList.length > 0 && docType === '04') {
-        for (const item of itemsList) {
+        await Promise.all(itemsList.map(async (item) => {
           if (item.type === 'FISICO' && item.productId) {
             const product = await this.repo.findProductById(tx, item.productId);
             if (product && product.businessId === businessId) {
@@ -408,12 +430,12 @@ class BusinessService {
               });
             }
           }
-        }
+        }));
       }
 
       // Inventory: purchase (COMPRA)
       if (itemsList.length > 0 && docType === '03') {
-        for (const item of itemsList) {
+        await Promise.all(itemsList.map(async (item) => {
           if (item.type === 'FISICO') {
             const product = await this.repo.findProductById(tx, item.productId);
             if (product && product.businessId === businessId) {
@@ -426,7 +448,7 @@ class BusinessService {
               });
             }
           }
-        }
+        }));
       }
 
       return doc;
@@ -477,13 +499,12 @@ class BusinessService {
     if (!Array.isArray(clientsData) || clientsData.length === 0) {
       throw new AppError('Se requiere un arreglo de clientes', 400);
     }
-    const results = { success: 0, failed: 0, errors: [] };
-    for (const c of clientsData) {
+    const outcomes = await Promise.all(clientsData.map(async (c) => {
       try {
         const ruc = String(c.ruc || c.RUC || c.Identificacion || c.identificacion || '').trim();
         const name = String(c.nombre || c.name || c.Nombre || c['Razon Social'] || c['razon_social'] || '').trim();
         if (!ruc || !name) {
-          results.failed++; results.errors.push(`Fila sin RUC o nombre: ${JSON.stringify(c).substring(0, 80)}`); continue;
+          return { success: false, error: `Fila sin RUC o nombre: ${JSON.stringify(c).substring(0, 80)}` };
         }
         const email = String(c.email || c.Email || c.correo || c.Correo || '').trim() || null;
         const phone = String(c.telefono || c.phone || c.Telefono || c.Phone || '').trim() || null;
@@ -495,9 +516,19 @@ class BusinessService {
           update: { name, email, phone, address, type },
           create: { ruc, name, email, phone, address, type, businessId }
         });
-        results.success++;
+        return { success: true };
       } catch (err) {
-        results.failed++; results.errors.push(`Error: ${err.message}`.substring(0, 200));
+        return { success: false, error: `Error: ${err.message}`.substring(0, 200) };
+      }
+    }));
+
+    const results = { success: 0, failed: 0, errors: [] };
+    for (const outcome of outcomes) {
+      if (outcome.success) {
+        results.success++;
+      } else {
+        results.failed++;
+        results.errors.push(outcome.error);
       }
     }
     return results;
@@ -507,13 +538,12 @@ class BusinessService {
     if (!Array.isArray(productsData) || productsData.length === 0) {
       throw new AppError('Se requiere un arreglo de productos', 400);
     }
-    const results = { success: 0, failed: 0, errors: [] };
-    for (const p of productsData) {
+    const outcomes = await Promise.all(productsData.map(async (p) => {
       try {
         const code = String(p.codigo || p.code || '').trim();
         const description = String(p.descripcion || p.description || '').trim();
         if (!code || !description) {
-          results.failed++; results.errors.push(`Fila sin código o descripción: ${JSON.stringify(p).substring(0, 80)}`); continue;
+          return { success: false, error: `Fila sin código o descripción: ${JSON.stringify(p).substring(0, 80)}` };
         }
         const price = parseFloat(p.precio || p.price || 0) || 0;
         const wholesalePrice = parseFloat(p.precio_mayorista || p.wholesalePrice || 0) || 0;
@@ -531,9 +561,19 @@ class BusinessService {
           update: { description, price, wholesalePrice, distributorPrice, stock, minStock, taxRate, type: productType, category, unitOfMeasure, isRawMaterial },
           create: { code, description, price, wholesalePrice, distributorPrice, stock, minStock, taxRate, type: productType, category, unitOfMeasure, isRawMaterial, businessId }
         });
-        results.success++;
+        return { success: true };
       } catch (err) {
-        results.failed++; results.errors.push(`Error: ${err.message}`.substring(0, 200));
+        return { success: false, error: `Error: ${err.message}`.substring(0, 200) };
+      }
+    }));
+
+    const results = { success: 0, failed: 0, errors: [] };
+    for (const outcome of outcomes) {
+      if (outcome.success) {
+        results.success++;
+      } else {
+        results.failed++;
+        results.errors.push(outcome.error);
       }
     }
     return results;

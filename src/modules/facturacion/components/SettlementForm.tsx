@@ -182,11 +182,20 @@ export default function SettlementForm({ business, clients, products, onSubmit }
                   className="w-full px-4 py-2 border border-gray-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-purple-500 bg-white dark:bg-slate-900/50 text-gray-800 dark:text-white"
                 >
                   <option value="" className="dark:bg-slate-800">Seleccione o ingrese manualmente</option>
-                  {(Array.isArray(clients) ? clients : []).filter(c => c.type !== 'CLIENTE').map(client => (
-                    <option key={client.id} value={client.id} className="dark:bg-slate-800">
-                      {client.name} - {client.ruc}
-                    </option>
-                  ))}
+                  {(() => {
+                    const list = [];
+                    const orig = Array.isArray(clients) ? clients : [];
+                    for (const c of orig) {
+                      if (c.type !== 'CLIENTE') {
+                        list.push(c);
+                      }
+                    }
+                    return list.map(client => (
+                      <option key={client.id} value={client.id} className="dark:bg-slate-800">
+                        {client.name} - {client.ruc}
+                      </option>
+                    ));
+                  })()}
                 </select>
               </div>
 
