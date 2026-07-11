@@ -106,21 +106,20 @@ async function deletePrize(id) {
 }
 
 async function getStats() {
-  const [totalPoints, totalReferrals, completedReferrals, totalRedeemedPoints] = await Promise.all([
+  const [totalPoints, totalReferrals, completedReferrals, totalRedeemedPoints, topReferrers] = await Promise.all([
     prisma.business.aggregate({ _sum: { points: true } }),
     prisma.referral.count(),
     prisma.referral.count({ where: { status: 'COMPLETED' } }),
-    prisma.referral.aggregate({ _sum: { pointsAwarded: true } })
+    prisma.referral.aggregate({ _sum: { pointsAwarded: true } }),
+    prisma.referral.groupBy({
+      by: ['referrerBusinessId'],
+      _count: { id: true },
+      _sum: { pointsAwarded: true },
+      where: { status: 'COMPLETED' },
+      orderBy: { _count: { id: 'desc' } },
+      take: 5
+    })
   ]);
-
-  const topReferrers = await prisma.referral.groupBy({
-    by: ['referrerBusinessId'],
-    _count: { id: true },
-    _sum: { pointsAwarded: true },
-    where: { status: 'COMPLETED' },
-    orderBy: { _count: { id: 'desc' } },
-    take: 5
-  });
 
   const topReferrerDetails = await Promise.all(
     topReferrers.map(async (r) => {
