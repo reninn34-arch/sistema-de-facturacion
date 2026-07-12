@@ -1,4 +1,4 @@
-﻿import React, { useState } from 'react';
+import React, { useState } from 'react';
 import { EnvelopeIcon, LockClosedIcon, EyeIcon, EyeSlashIcon, ShieldCheckIcon, ExclamationCircleIcon, DocumentTextIcon } from '@heroicons/react/24/outline';
 
 const ClientLogin = () => {
@@ -24,7 +24,7 @@ const ClientLogin = () => {
       const data = await response.json();
 
       if (data.success) {
-        localStorage.setItem('clientToken', data.token);
+        localStorage.setItem('clientToken', 'cookie_authenticated');
         localStorage.setItem('clientUser', JSON.stringify(data.user));
         if (data.requirePasswordChange) {
           localStorage.setItem('requirePasswordChange', 'true');

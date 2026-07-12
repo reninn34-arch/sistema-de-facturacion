@@ -85,27 +85,26 @@ const QuickSaleForm: React.FC<QuickSaleFormProps> = ({ products, clients = [], s
   // Agregar al carrito
   const addToCart = (product: Product) => {
     // Actualizar productos recientes
-    setRecentProductIds(prev => {
-      const filtered = prev.filter(id => id !== product.id);
-      const updated = [product.id, ...filtered].slice(0, 12);
+    const filtered = recentProductIds.filter(id => id !== product.id);
+    const updated = [product.id, ...filtered].slice(0, 12);
+    setRecentProductIds(updated);
+    try {
       localStorage.setItem('recentCajaProducts', JSON.stringify(updated));
-      return updated;
-    });
+    } catch { /* */ }
 
-    setCart(prev => {
-      const existing = prev.find(p => p.productId === product.id);
-      if (existing) {
-        if (existing.quantity >= existing.stock && existing.stock > 0) {
-          onNotify('Stock insuficiente', 'error');
-          return prev;
-        }
-        return prev.map(p =>
-          p.productId === product.id
-            ? { ...p, quantity: p.quantity + 1, total: (p.quantity + 1) * p.unitPrice }
-            : p
-        );
+    const existing = cart.find(p => p.productId === product.id);
+    if (existing) {
+      if (existing.quantity >= existing.stock && existing.stock > 0) {
+        onNotify('Stock insuficiente', 'error');
+        return;
       }
-      return [...prev, {
+      setCart(prev => prev.map(p =>
+        p.productId === product.id
+          ? { ...p, quantity: p.quantity + 1, total: (p.quantity + 1) * p.unitPrice }
+          : p
+      ));
+    } else {
+      setCart(prev => [...prev, {
         productId: product.id,
         description: product.description,
         code: product.code,
@@ -116,8 +115,8 @@ const QuickSaleForm: React.FC<QuickSaleFormProps> = ({ products, clients = [], s
         total: product.price,
         stock: product.stock,
         imageUrl: product.imageUrl,
-      }];
-    });
+      }]);
+    }
     setSearchTerm('');
     setShowSearchResults(false);
   };

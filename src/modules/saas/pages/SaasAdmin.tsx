@@ -716,9 +716,9 @@ const SaasAdmin: React.FC<SaasAdminProps> = ({ onNotify }) => {
         {/* Header */}
         <header className="sticky top-0 z-50 w-full bg-white dark:bg-slate-900 border-b border-solid border-[#e7ebf3] dark:border-slate-800 px-4 py-3">
           <div className="max-w-7xl mx-auto">
-            <div className="flex items-center justify-between whitespace-nowrap mb-3">
-              <div className="flex items-center gap-6">
-                <div className="flex items-center gap-2 text-sky-500">
+            <div className="flex items-center justify-between gap-3 whitespace-nowrap mb-3 md:mb-0">
+              <div className="flex items-center gap-4 lg:gap-6 min-w-0">
+                <div className="flex items-center gap-2 text-sky-500 flex-shrink-0">
                   <div className="size-8 flex items-center justify-center bg-sky-500 rounded-lg text-white">
                     <ShieldCheckIcon className="w-5 h-5" />
                   </div>
@@ -727,31 +727,31 @@ const SaasAdmin: React.FC<SaasAdminProps> = ({ onNotify }) => {
                 {/* Tabs */}
                 <div className="hidden md:flex gap-1">
                   <button type="button" 
-                    className={`px-3 py-1 text-sm font-medium transition-colors rounded-lg ${activeTab === 'businesses' ? 'bg-sky-50 dark:bg-sky-500/20 text-sky-500 dark:text-sky-300' : 'text-[#4c669a] dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'}`}
+                    className={`px-3 py-1.5 text-sm font-medium transition-colors rounded-lg ${activeTab === 'businesses' ? 'bg-sky-50 dark:bg-sky-500/20 text-sky-500 dark:text-sky-300' : 'text-[#4c669a] dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'}`}
                     onClick={() => setActiveTab('businesses')}
                   >
                     Empresas
                   </button>
                   <button type="button" 
-                    className={`px-3 py-1 text-sm font-medium transition-colors rounded-lg ${activeTab === 'superadmins' ? 'bg-sky-50 dark:bg-sky-500/20 text-sky-500 dark:text-sky-300' : 'text-[#4c669a] dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'}`}
+                    className={`px-3 py-1.5 text-sm font-medium transition-colors rounded-lg ${activeTab === 'superadmins' ? 'bg-sky-50 dark:bg-sky-500/20 text-sky-500 dark:text-sky-300' : 'text-[#4c669a] dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'}`}
                     onClick={() => setActiveTab('superadmins')}
                   >
                     Superadmins
                   </button>
                   <button type="button" 
-                    className={`px-3 py-1 text-sm font-medium transition-colors rounded-lg ${activeTab === 'users' ? 'bg-sky-50 dark:bg-sky-500/20 text-sky-500 dark:text-sky-300' : 'text-[#4c669a] dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'}`}
+                    className={`px-3 py-1.5 text-sm font-medium transition-colors rounded-lg ${activeTab === 'users' ? 'bg-sky-50 dark:bg-sky-500/20 text-sky-500 dark:text-sky-300' : 'text-[#4c669a] dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'}`}
                     onClick={() => setActiveTab('users')}
                   >
                     Usuarios
                   </button>
                   <button type="button" 
-                    className={`px-3 py-1 text-sm font-medium transition-colors rounded-lg ${activeTab === 'subscription-payments' ? 'bg-sky-50 dark:bg-sky-500/20 text-sky-500 dark:text-sky-300' : 'text-[#4c669a] dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'}`}
+                    className={`px-3 py-1.5 text-sm font-medium transition-colors rounded-lg ${activeTab === 'subscription-payments' ? 'bg-sky-50 dark:bg-sky-500/20 text-sky-500 dark:text-sky-300' : 'text-[#4c669a] dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'}`}
                     onClick={() => setActiveTab('subscription-payments')}
                   >
                     Pagos
                   </button>
                   <button type="button" 
-                    className={`px-3 py-1 text-sm font-medium transition-colors rounded-lg inline-flex items-center gap-1.5 ${activeTab === 'expiring' ? 'bg-amber-100 dark:bg-amber-500/20 text-amber-700 dark:text-amber-400' : 'text-[#4c669a] dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'}`}
+                    className={`px-3 py-1.5 text-sm font-medium transition-colors rounded-lg inline-flex items-center gap-1.5 ${activeTab === 'expiring' ? 'bg-amber-100 dark:bg-amber-500/20 text-amber-700 dark:text-amber-400' : 'text-[#4c669a] dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'}`}
                     onClick={() => setActiveTab('expiring')}
                   >
                     Por Vencer
@@ -763,51 +763,51 @@ const SaasAdmin: React.FC<SaasAdminProps> = ({ onNotify }) => {
                   </button>
                 </div>
               </div>
-              <div className="flex items-center gap-2">
-                <button type="button" 
+              <div className="flex items-center gap-2 flex-shrink-0">
+                <button type="button"
                   onClick={() => setShowBusinessModal(true)}
                   className="flex items-center gap-1 md:gap-2 px-2 md:px-4 py-2 bg-[#0ea5e9] text-white text-xs md:text-sm font-medium rounded-lg hover:opacity-90 transition-opacity"
                 >
                   <BuildingOffice2Icon className="w-[18px] h-[18px] md:w-5 md:h-5" />
-                  <span className="hidden sm:inline">Nueva Empresa</span>
+                  <span className="hidden lg:inline">Nueva Empresa</span>
                 </button>
                 <button type="button" 
                   onClick={() => setShowUserModal(true)}
                   className="flex items-center gap-1 md:gap-2 px-2 md:px-4 py-2 bg-slate-100 dark:bg-slate-800 text-[#0d121b] dark:text-white text-xs md:text-sm font-medium rounded-lg hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
                 >
                   <UserPlusIcon className="w-[18px] h-[18px] md:w-5 md:h-5" />
-                  <span className="hidden sm:inline">Nuevo Admin</span>
+                  <span className="hidden lg:inline">Nuevo Admin</span>
                 </button>
               </div>
             </div>
             {/* Mobile Tabs */}
             <div className="flex md:hidden gap-2 overflow-x-auto -mx-4 px-4 pb-2" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
               <button type="button" 
-                className={`flex-shrink-0 px-3 py-1 text-sm font-medium transition-colors rounded-lg whitespace-nowrap ${activeTab === 'businesses' ? 'bg-[#0ea5e9]/10 text-[#0ea5e9]' : 'text-[#4c669a] dark:text-slate-400'}`}
+                className={`flex-shrink-0 px-3 py-1.5 text-sm font-medium transition-colors rounded-lg whitespace-nowrap ${activeTab === 'businesses' ? 'bg-[#0ea5e9]/10 text-[#0ea5e9]' : 'text-[#4c669a] dark:text-slate-400'}`}
                 onClick={() => setActiveTab('businesses')}
               >
                 Empresas
               </button>
               <button type="button" 
-                className={`flex-shrink-0 px-3 py-1 text-sm font-medium transition-colors rounded-lg whitespace-nowrap ${activeTab === 'superadmins' ? 'bg-[#0ea5e9]/10 text-[#0ea5e9]' : 'text-[#4c669a] dark:text-slate-400'}`}
+                className={`flex-shrink-0 px-3 py-1.5 text-sm font-medium transition-colors rounded-lg whitespace-nowrap ${activeTab === 'superadmins' ? 'bg-[#0ea5e9]/10 text-[#0ea5e9]' : 'text-[#4c669a] dark:text-slate-400'}`}
                 onClick={() => setActiveTab('superadmins')}
               >
                 Superadmins
               </button>
               <button type="button" 
-                className={`flex-shrink-0 px-3 py-1 text-sm font-medium transition-colors rounded-lg whitespace-nowrap ${activeTab === 'users' ? 'bg-[#0ea5e9]/10 text-[#0ea5e9]' : 'text-[#4c669a] dark:text-slate-400'}`}
+                className={`flex-shrink-0 px-3 py-1.5 text-sm font-medium transition-colors rounded-lg whitespace-nowrap ${activeTab === 'users' ? 'bg-[#0ea5e9]/10 text-[#0ea5e9]' : 'text-[#4c669a] dark:text-slate-400'}`}
                 onClick={() => setActiveTab('users')}
               >
                 Usuarios
               </button>
               <button type="button" 
-                className={`flex-shrink-0 px-3 py-1 text-sm font-medium transition-colors rounded-lg whitespace-nowrap ${activeTab === 'subscription-payments' ? 'bg-[#0ea5e9]/10 text-[#0ea5e9]' : 'text-[#4c669a] dark:text-slate-400'}`}
+                className={`flex-shrink-0 px-3 py-1.5 text-sm font-medium transition-colors rounded-lg whitespace-nowrap ${activeTab === 'subscription-payments' ? 'bg-[#0ea5e9]/10 text-[#0ea5e9]' : 'text-[#4c669a] dark:text-slate-400'}`}
                 onClick={() => setActiveTab('subscription-payments')}
               >
                 Pagos
               </button>
               <button type="button" 
-                className={`flex-shrink-0 px-3 py-1 text-sm font-medium transition-colors rounded-lg whitespace-nowrap inline-flex items-center gap-1 ${activeTab === 'expiring' ? 'bg-amber-100 dark:bg-amber-500/20 text-amber-700 dark:text-amber-400' : 'text-[#4c669a] dark:text-slate-400'}`}
+                className={`flex-shrink-0 px-3 py-1.5 text-sm font-medium transition-colors rounded-lg whitespace-nowrap inline-flex items-center gap-1 ${activeTab === 'expiring' ? 'bg-amber-100 dark:bg-amber-500/20 text-amber-700 dark:text-amber-400' : 'text-[#4c669a] dark:text-slate-400'}`}
                 onClick={() => setActiveTab('expiring')}
               >
                 Por Vencer
@@ -828,7 +828,7 @@ const SaasAdmin: React.FC<SaasAdminProps> = ({ onNotify }) => {
             <div className="flex flex-col gap-2 rounded-xl p-4 md:p-6 bg-white dark:bg-slate-900 border border-[#cfd7e7] dark:border-slate-800 shadow-sm">
               <div className="flex items-center justify-between">
                 <p className="text-[#4c669a] dark:text-slate-400 text-xs md:text-sm font-medium">Total Empresas</p>
-                <BuildingOffice2Icon className="w-[18px] h-[18px] md:w-5 md:h-5 text-[#0ea5e9] bg-[#0ea5e9]/10 p-1.5 md:p-2 rounded-lg" />
+                <BuildingOffice2Icon className="w-8 h-8 md:w-9 md:h-9 text-[#0ea5e9] bg-[#0ea5e9]/10 p-1.5 md:p-2 rounded-lg flex-shrink-0" />
               </div>
               <p className="text-[#0d121b] dark:text-white text-2xl md:text-3xl font-bold">{businesses.length}</p>
               <p className="text-[#07883b] text-xs md:text-sm font-medium flex items-center gap-1">
@@ -838,7 +838,7 @@ const SaasAdmin: React.FC<SaasAdminProps> = ({ onNotify }) => {
             <div className="flex flex-col gap-2 rounded-xl p-4 md:p-6 bg-white dark:bg-slate-900 border border-[#cfd7e7] dark:border-slate-800 shadow-sm">
               <div className="flex items-center justify-between">
                 <p className="text-[#4c669a] dark:text-slate-400 text-xs md:text-sm font-medium">Empresas Activas</p>
-                <CheckBadgeIcon className="w-[18px] h-[18px] md:w-5 md:h-5 text-[#07883b] bg-[#07883b]/10 p-1.5 md:p-2 rounded-lg" />
+                <CheckBadgeIcon className="w-8 h-8 md:w-9 md:h-9 text-[#07883b] bg-[#07883b]/10 p-1.5 md:p-2 rounded-lg flex-shrink-0" />
               </div>
               <p className="text-[#0d121b] dark:text-white text-2xl md:text-3xl font-bold">
                 {businesses.filter(b => b.isActive).length}
@@ -850,7 +850,7 @@ const SaasAdmin: React.FC<SaasAdminProps> = ({ onNotify }) => {
             <div className="flex flex-col gap-2 rounded-xl p-4 md:p-6 bg-white dark:bg-slate-900 border border-[#cfd7e7] dark:border-slate-800 shadow-sm sm:col-span-2 lg:col-span-1">
               <div className="flex items-center justify-between">
                 <p className="text-[#4c669a] dark:text-slate-400 text-xs md:text-sm font-medium">Usuarios Totales</p>
-                <UsersIcon className="w-[18px] h-[18px] md:w-5 md:h-5 text-[#0ea5e9] bg-[#0ea5e9]/10 p-1.5 md:p-2 rounded-lg" />
+                <UsersIcon className="w-8 h-8 md:w-9 md:h-9 text-[#0ea5e9] bg-[#0ea5e9]/10 p-1.5 md:p-2 rounded-lg flex-shrink-0" />
               </div>
               <p className="text-[#0d121b] dark:text-white text-2xl md:text-3xl font-bold">{users.length}</p>
               <p className="text-[#4c669a] dark:text-slate-400 text-xs md:text-sm font-medium">Registrados</p>
@@ -1817,7 +1817,7 @@ const SaasAdmin: React.FC<SaasAdminProps> = ({ onNotify }) => {
                           <input required className="mt-1 w-full p-2.5 border border-[#cfd7e7] dark:border-slate-700 dark:bg-slate-800 dark:text-white rounded-lg text-sm focus:border-[#0ea5e9] outline-none"
                               value={businessFormData.name} onChange={e => setBusinessFormData({...businessFormData, name: e.target.value})} />
                       </div>
-                      <div className="grid grid-cols-2 gap-3">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                         <div>
                             <label className="text-xs font-semibold text-[#4c669a] dark:text-slate-400">RUC</label>
                             <input required className="mt-1 w-full p-2.5 border border-[#cfd7e7] dark:border-slate-700 dark:bg-slate-800 dark:text-white rounded-lg text-sm focus:border-[#0ea5e9] outline-none"
@@ -1837,7 +1837,7 @@ const SaasAdmin: React.FC<SaasAdminProps> = ({ onNotify }) => {
                               {showPassword ? <EyeSlashIcon className="w-[18px] h-[18px]" /> : <EyeIcon className="w-[18px] h-[18px]" />}
                           </button>
                       </div>
-                      <div className="grid grid-cols-2 gap-3">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                         <div>
                             <label className="text-xs font-semibold text-[#4c669a] dark:text-slate-400">Teléfono</label>
                             <input className="mt-1 w-full p-2.5 border border-[#cfd7e7] dark:border-slate-700 dark:bg-slate-800 dark:text-white rounded-lg text-sm focus:border-[#0ea5e9] outline-none"
@@ -1878,7 +1878,7 @@ const SaasAdmin: React.FC<SaasAdminProps> = ({ onNotify }) => {
                           <input required className="mt-1 w-full p-2.5 border border-[#cfd7e7] dark:border-slate-700 dark:bg-slate-800 dark:text-white rounded-lg text-sm focus:border-[#0ea5e9] outline-none"
                               value={editBusinessForm.name} onChange={e => setEditBusinessForm({...editBusinessForm, name: e.target.value})} />
                       </div>
-                      <div className="grid grid-cols-2 gap-3">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                         <div>
                             <label className="text-xs font-semibold text-[#4c669a] dark:text-slate-400">RUC</label>
                             <input required className="mt-1 w-full p-2.5 border border-[#cfd7e7] dark:border-slate-700 dark:bg-slate-800 dark:text-white rounded-lg text-sm focus:border-[#0ea5e9] outline-none"
@@ -1905,7 +1905,7 @@ const SaasAdmin: React.FC<SaasAdminProps> = ({ onNotify }) => {
                           <input type="email" required className="mt-1 w-full p-2.5 border border-[#cfd7e7] dark:border-slate-700 dark:bg-slate-800 dark:text-white rounded-lg text-sm focus:border-[#0ea5e9] outline-none"
                               value={editBusinessForm.email} onChange={e => setEditBusinessForm({...editBusinessForm, email: e.target.value})} />
                       </div>
-                      <div className="grid grid-cols-2 gap-3">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                         <div>
                             <label className="text-xs font-semibold text-[#4c669a] dark:text-slate-400">Teléfono</label>
                             <input className="mt-1 w-full p-2.5 border border-[#cfd7e7] dark:border-slate-700 dark:bg-slate-800 dark:text-white rounded-lg text-sm focus:border-[#0ea5e9] outline-none"
@@ -2144,7 +2144,7 @@ const SaasAdmin: React.FC<SaasAdminProps> = ({ onNotify }) => {
               />
             </div>
             
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium mb-1">Precio ($)</label>
                 <input

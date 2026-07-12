@@ -3,6 +3,7 @@ const router = express.Router();
 const authController = require('./auth.controller');
 const verifyToken = require('../../middleware/jwt.middleware');
 router.post('/api/login', authController.login);
+router.post('/api/logout', authController.logout);
 router.post('/api/refresh-token', authController.refreshToken);
 router.post('/api/register', authController.register);
 router.post('/api/verify-email', authController.verifyEmail);

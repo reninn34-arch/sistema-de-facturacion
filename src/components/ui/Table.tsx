@@ -19,6 +19,8 @@ interface TableProps<T> {
   emptyAction?: { label: string; onClick: () => void };
   onRowClick?: (row: T) => void;
   className?: string;
+  /** Devuelve una key estable por fila (por defecto usa row.id si existe). */
+  rowKey?: (row: T, index: number) => string | number;
 }
 
 function Table<T extends Record<string, any>>({
@@ -31,7 +33,11 @@ function Table<T extends Record<string, any>>({
   emptyAction,
   onRowClick,
   className = '',
+  rowKey,
 }: TableProps<T>) {
+  const getRowKey = (row: T, index: number): string | number =>
+    rowKey ? rowKey(row, index) : (row.id ?? index);
+
   if (loading) {
     return (
       <div className={`bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 overflow-hidden ${className}`}>
@@ -91,7 +97,7 @@ function Table<T extends Record<string, any>>({
           <tbody className="divide-y divide-slate-100 dark:divide-slate-700/50">
             {data.map((row, idx) => (
               <tr
-                key={idx}
+                key={getRowKey(row, idx)}
                 onClick={() => onRowClick?.(row)}
                 onKeyDown={(e) => {
                   if (onRowClick && (e.key === 'Enter' || e.key === ' ')) {

@@ -1303,7 +1303,7 @@ const InvoiceForm: React.FC<InvoiceFormProps> = ({ clients, setClients, isDemoMo
                        {reimbursements.length > 0 ? (
                          <div className="mb-4 space-y-2">
                            {reimbursements.map((r, idx) => (
-                             <div key={idx} className={`p-4 rounded-xl text-left border ${isDarkMode ? 'bg-slate-700 border-slate-600 text-slate-200' : 'bg-slate-50 border-slate-200 text-slate-800'} flex justify-between items-center`}>
+                             <div key={`${r.estabDocReembolso}-${r.ptoEmiDocReembolso}-${r.secuencialDocReembolso}-${idx}`} className={`p-4 rounded-xl text-left border ${isDarkMode ? 'bg-slate-700 border-slate-600 text-slate-200' : 'bg-slate-50 border-slate-200 text-slate-800'} flex justify-between items-center`}>
                                <div>
                                  <div className="font-bold text-sm">Factura: {r.estabDocReembolso}-{r.ptoEmiDocReembolso}-{r.secuencialDocReembolso}</div>
                                  <div className="text-xs opacity-70">RUC: {r.identificacionProveedorReembolso}</div>

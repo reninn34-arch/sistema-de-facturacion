@@ -40,7 +40,7 @@ const PendingTickets: React.FC<PendingTicketsProps> = ({
 }) => {
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [isProcessing, setIsProcessing] = useState(false);
-  const [processLog, setProcessLog] = useState<string[]>([]);
+  const [processLog, setProcessLog] = useState<{ id: string; text: string }[]>([]);
   const [emissionMode, setEmissionMode] = useState<'individual' | 'grouped'>('individual');
   const [loadingTickets, setLoadingTickets] = useState(false);
 
@@ -173,7 +173,7 @@ const PendingTickets: React.FC<PendingTicketsProps> = ({
       claveAcceso: accessKey
     } : null;
 
-    const log = (msg: string) => setProcessLog(prev => [...prev, `[${ticket.number || String(ticket.sequential).slice(-6)}] ${msg}`]);
+    const log = (msg: string) => setProcessLog(prev => [...prev, { id: `${Date.now()}-${Math.random()}`, text: `[${ticket.number || String(ticket.sequential).slice(-6)}] ${msg}` }]);
     const isDemo = (businessInfo as any).isDemo || false;
 
     const result = await authorizeWithSRI(xml, businessInfo.isProduction, signatureOptions, log, isDemo);
@@ -272,7 +272,7 @@ const PendingTickets: React.FC<PendingTicketsProps> = ({
         claveAcceso: accessKey
       } : null;
 
-      const log = (msg: string) => setProcessLog(prev => [...prev, `[LOTE] ${msg}`]);
+      const log = (msg: string) => setProcessLog(prev => [...prev, { id: `${Date.now()}-${Math.random()}`, text: `[LOTE] ${msg}` }]);
       const isDemo = (businessInfo as any).isDemo || false;
 
       const result = await authorizeWithSRI(xml, businessInfo.isProduction, signatureOptions, log, isDemo);
@@ -386,8 +386,8 @@ const PendingTickets: React.FC<PendingTicketsProps> = ({
       {/* Logs de proceso */}
       {processLog.length > 0 && (
         <div className="bg-slate-900 dark:bg-slate-950 rounded-2xl p-4 font-mono text-xs text-emerald-400 max-h-48 overflow-y-auto">
-          {processLog.map((line, i) => (
-            <div key={i} className="py-0.5">{line}</div>
+          {processLog.map((log) => (
+            <div key={log.id} className="py-0.5">{log.text}</div>
           ))}
         </div>
       )}

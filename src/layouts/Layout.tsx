@@ -286,12 +286,10 @@ const Layout: React.FC<LayoutProps> = ({
   const [collapsedGroups, setCollapsedGroups] = useState<Record<string, boolean>>(loadCollapsed);
 
   const toggleGroup = (groupId: string) => {
-    setCollapsedGroups(prev => {
-      const current = prev[groupId];
-      const next = { ...prev, [groupId]: current === undefined ? true : !current };
-      try { localStorage.setItem('menuCollapsedGroups', JSON.stringify(next)); } catch { /* */ }
-      return next;
-    });
+    const current = collapsedGroups[groupId];
+    const next = { ...collapsedGroups, [groupId]: current === undefined ? true : !current };
+    setCollapsedGroups(next);
+    try { localStorage.setItem('menuCollapsedGroups', JSON.stringify(next)); } catch { /* */ }
   };
 
   const handleTabClick = (tabId: string) => {
@@ -356,7 +354,14 @@ const Layout: React.FC<LayoutProps> = ({
 
       {isSidebarOpen && (
         <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[990] lg:hidden"
-          onClick={() => setIsSidebarOpen(false)} />
+          role="presentation"
+          onClick={() => setIsSidebarOpen(false)}
+          onKeyDown={(e) => {
+            if (e.key === 'Escape') {
+              setIsSidebarOpen(false);
+            }
+          }}
+        />
       )}
 
       <aside className={`

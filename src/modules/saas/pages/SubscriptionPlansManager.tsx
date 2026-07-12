@@ -361,14 +361,14 @@ const SubscriptionPlansManager: React.FC<SubscriptionPlansManagerProps> = ({ onN
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-sky-50 dark:from-slate-900 dark:to-slate-800 p-4 md:p-8">
       <div className="max-w-6xl mx-auto">
         {/* Header */}
-        <div className="flex justify-between items-center mb-8">
+        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-8">
           <div>
-            <h1 className="text-3xl font-black text-slate-800 dark:text-white">Gestión de Planes</h1>
-            <p className="text-slate-500 dark:text-slate-400 mt-1">Administra los planes de suscripción del SaaS</p>
+            <h1 className="text-2xl md:text-3xl font-black text-slate-800 dark:text-white">Gestión de Planes</h1>
+            <p className="text-sm md:text-base text-slate-500 dark:text-slate-400 mt-1">Administra los planes de suscripción del SaaS</p>
           </div>
           <button type="button"
             onClick={() => handleOpenModal()}
-            className="px-6 py-3 bg-sky-500 text-white font-bold rounded-xl hover:bg-sky-600 transition-colors shadow-lg"
+            className="px-6 py-3 bg-sky-500 text-white font-bold rounded-xl hover:bg-sky-600 transition-colors shadow-lg self-start sm:self-auto flex-shrink-0"
           >
             + Nuevo Plan
           </button>
@@ -391,13 +391,13 @@ const SubscriptionPlansManager: React.FC<SubscriptionPlansManagerProps> = ({ onN
               >
                 {/* Header del Plan */}
                 <div className={`p-6 ${plan.isActive ? 'bg-gradient-to-r from-sky-700 to-sky-700' : 'bg-red-400'}`}>
-                  <div className="flex justify-between items-start">
-                    <div>
-                      <h3 className="text-xl font-black text-white">{plan.name}</h3>
+                  <div className="flex justify-between items-start gap-3">
+                    <div className="min-w-0">
+                      <h3 className="text-lg md:text-xl font-black text-white truncate" title={plan.name}>{plan.name}</h3>
                       <span className="text-sky-100 text-sm font-mono">{plan.code}</span>
                     </div>
-                    <div className="text-right">
-                      <p className="text-3xl font-black text-white">${plan.price.toFixed(2)}</p>
+                    <div className="text-right flex-shrink-0">
+                      <p className="text-2xl md:text-3xl font-black text-white">${plan.price.toFixed(2)}</p>
                       <p className="text-sky-100 text-sm">/{plan.period}</p>
                     </div>
                   </div>
@@ -446,7 +446,7 @@ const SubscriptionPlansManager: React.FC<SubscriptionPlansManagerProps> = ({ onN
                   </div>
 
                   {/* Badges de características especiales */}
-                  <div className="flex gap-2 mb-4">
+                  <div className="flex flex-wrap gap-2 mb-4">
                     {plan.hasAIAssistant && (
                       <span className="px-2 py-1 bg-purple-100 dark:bg-purple-900/50 text-purple-600 dark:text-purple-400 text-xs font-bold rounded-full">
                         <CpuChipIcon className="w-3 h-3 inline" /> IA

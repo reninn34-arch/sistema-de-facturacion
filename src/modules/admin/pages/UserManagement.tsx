@@ -378,7 +378,7 @@ const UserManagement: React.FC<UserManagementProps> = ({ currentUser, onNotify }
   };
 
   // Obtener roles únicos para el filtro
-  const uniqueRoles = Array.from(new Set(users.map(u => u.role)));
+  const uniqueRoles: string[] = Array.from(new Set(users.map(u => String(u.role))));
 
   return (
     <div className="space-y-6 animate-in fade-in duration-500">

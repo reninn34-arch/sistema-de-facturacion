@@ -147,7 +147,7 @@ const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
                 throw new Error('Respuesta del servidor inválida: no se recibio token');
             }
 
-            localStorage.setItem('adminToken', data.token);
+            localStorage.setItem('adminToken', 'cookie_authenticated');
             if (data.user) {
                 localStorage.setItem('adminUser', JSON.stringify(data.user));
             }
@@ -171,7 +171,7 @@ const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
                 localStorage.setItem('sessionId', data.sessionId);
             }
             if (data.refreshToken) {
-                localStorage.setItem('refreshToken', data.refreshToken);
+                localStorage.setItem('refreshToken', 'cookie_authenticated');
             }
 
             onLoginSuccess();

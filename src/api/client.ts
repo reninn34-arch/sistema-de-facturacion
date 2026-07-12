@@ -6,6 +6,7 @@ const API_URL = import.meta.env.VITE_BACKEND_URL || '';
 // Crear cliente axios con configuración base
 export const client = axios.create({
   baseURL: API_URL,
+  withCredentials: true,
   headers: {
     'Content-Type': 'application/json',
   },
@@ -70,10 +71,10 @@ client.interceptors.response.use(
             refreshToken,
           });
 
-          const { token: newToken, refreshToken: newRefreshToken } = response.data;
-          localStorage.setItem('adminToken', newToken);
-          localStorage.setItem('refreshToken', newRefreshToken);
-          originalRequest.headers.Authorization = `Bearer ${newToken}`;
+          const { token: newToken } = response.data;
+          localStorage.setItem('adminToken', 'cookie_authenticated');
+          localStorage.setItem('refreshToken', 'cookie_authenticated');
+          originalRequest.headers.Authorization = `Bearer cookie_authenticated`;
 
           processQueue(null, newToken);
           return client(originalRequest);

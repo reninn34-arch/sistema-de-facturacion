@@ -71,7 +71,7 @@ body {
   }
 
   ::-webkit-scrollbar-track {
-    background: rgb(7 89 133);    /* sky-800 */
+    background: rgb(30 41 59);    /* sky-800 */
   }
 
   ::-webkit-scrollbar-thumb {
@@ -347,176 +347,176 @@ select {
 /* ============================================= */
 /* DARK MODE — Compatibilidad global             */
 /* ============================================= */
-/* En @layer base → menor prioridad que utilities */
-/* Solo aplica si NO hay dark: explícito en línea */
-@layer base {
-  .dark .bg-white {
-    background-color: rgb(7 89 133);   /* sky-800 */
-  }
+/* SIN @layer: en Tailwind v4 las utilidades viven en @layer utilities y
+   cualquier capa gana sobre @layer base, por lo que estos overrides jamás
+   se aplicaban. El CSS sin capa gana a las utilidades, y el guard
+   :not([class*="dark:…"]) mantiene la prioridad de los dark: explícitos. */
+.dark .bg-white:not([class*="dark:bg"]) {
+  background-color: rgb(30 41 59);   /* slate-800 */
+}
 
-  .dark .bg-white\/70 {
-    background-color: rgb(7 89 133 / .7);
-  }
+.dark .bg-white\/70:not([class*="dark:bg"]) {
+  background-color: rgb(30 41 59 / .7);
+}
 
-  .dark .bg-white\/80 {
-    background-color: rgb(7 89 133 / .8);
-  }
+.dark .bg-white\/80:not([class*="dark:bg"]) {
+  background-color: rgb(30 41 59 / .8);
+}
 
-  .dark .bg-white\/90 {
-    background-color: rgb(7 89 133 / .9);
-  }
+.dark .bg-white\/90:not([class*="dark:bg"]) {
+  background-color: rgb(30 41 59 / .9);
+}
 
-  .dark .bg-slate-50 {
-    background-color: rgb(8 47 73 / .6);   /* sky-950 */
-  }
+.dark .bg-slate-50:not([class*="dark:bg"]) {
+  background-color: rgb(15 23 42 / .6);   /* slate-900 */
+}
 
-  .dark .bg-gray-50 {
-    background-color: rgb(8 47 73 / .7);
-  }
+.dark .bg-gray-50:not([class*="dark:bg"]) {
+  background-color: rgb(15 23 42 / .7);
+}
 
-  .dark .bg-gray-100 {
-    background-color: rgb(7 89 133 / .5);  /* sky-800 */
-  }
+.dark .bg-gray-100:not([class*="dark:bg"]) {
+  background-color: rgb(30 41 59 / .5);  /* sky-800 */
+}
 
-  .dark .text-slate-800,
-  .dark .text-slate-900,
-  .dark .text-gray-800,
-  .dark .text-gray-900 {
-    color: #E0F2FE;   /* sky-100 */
-  }
+.dark .text-slate-800:not([class*="dark:text"]),
+.dark .text-slate-900:not([class*="dark:text"]),
+.dark .text-gray-800:not([class*="dark:text"]),
+.dark .text-gray-900:not([class*="dark:text"]) {
+  color: #F1F5F9;   /* slate-100 */
+}
 
-  .dark .text-slate-700,
-  .dark .text-gray-700 {
-    color: #BAE6FD;   /* sky-200 */
-  }
+.dark .text-slate-700:not([class*="dark:text"]),
+.dark .text-gray-700:not([class*="dark:text"]) {
+  color: #E2E8F0;   /* slate-200 */
+}
 
-  .dark .text-slate-600 {
-    color: #7DD3FC;   /* sky-300 */
-  }
+.dark .text-slate-600:not([class*="dark:text"]) {
+  color: #CBD5E1;   /* slate-300 */
+}
 
-  .dark .text-slate-500,
-  .dark .text-gray-500 {
-    color: #38BDF8;   /* sky-400 */
-  }
+.dark .text-slate-500:not([class*="dark:text"]),
+.dark .text-gray-500:not([class*="dark:text"]) {
+  color: #94A3B8;   /* slate-400 */
+}
 
-  .dark .border-slate-50,
-  .dark .border-slate-100,
-  .dark .border-gray-100,
-  .dark .border-gray-200 {
-    border-color: rgb(14 165 233 / .2);   /* sky-500 */
-  }
+.dark .border-slate-50:not([class*="dark:border"]),
+.dark .border-slate-100:not([class*="dark:border"]),
+.dark .border-gray-100:not([class*="dark:border"]),
+.dark .border-gray-200:not([class*="dark:border"]) {
+  border-color: rgb(148 163 184 / .2);   /* slate-400 */
+}
 
-  .dark .border-slate-200 {
-    border-color: rgb(14 165 233 / .3);
-  }
+.dark .border-slate-200:not([class*="dark:border"]) {
+  border-color: rgb(148 163 184 / .25);
+}
 
-  .dark .shadow-sm {
-    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, .4), 0 1px 2px -1px rgba(0, 0, 0, .4);
-  }
+.dark .shadow-sm:not([class*="dark:shadow"]) {
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, .4), 0 1px 2px -1px rgba(0, 0, 0, .4);
+}
 
-  .dark .shadow-md {
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, .5), 0 2px 4px -2px rgba(0, 0, 0, .5);
-  }
+.dark .shadow-md:not([class*="dark:shadow"]) {
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, .5), 0 2px 4px -2px rgba(0, 0, 0, .5);
+}
 
-  .dark input,
-  .dark textarea,
-  .dark select {
-    color: #E0F2FE;   /* sky-100 */
-  }
+.dark input:not([class*="dark:text"]),
+.dark textarea:not([class*="dark:text"]),
+.dark select:not([class*="dark:text"]) {
+  color: #F1F5F9;   /* slate-100 */
+}
 
-  .dark input.bg-slate-50,
-  .dark textarea.bg-slate-50,
-  .dark select.bg-slate-50,
-  .dark .bg-slate-50 input,
-  .dark .bg-slate-50 textarea,
-  .dark .bg-slate-50 select {
-    background-color: rgb(8 47 73 / .7);
-  }
+.dark input.bg-slate-50:not([class*="dark:bg"]),
+.dark textarea.bg-slate-50:not([class*="dark:bg"]),
+.dark select.bg-slate-50:not([class*="dark:bg"]),
+.dark .bg-slate-50 input:not([class*="dark:bg"]),
+.dark .bg-slate-50 textarea:not([class*="dark:bg"]),
+.dark .bg-slate-50 select:not([class*="dark:bg"]) {
+  background-color: rgb(15 23 42 / .7);
+}
 
-  .dark .hover\:bg-slate-50:hover {
-    background-color: rgb(7 89 133 / .4);
-  }
+.dark .hover\:bg-slate-50:hover:not([class*="dark:hover"]) {
+  background-color: rgb(30 41 59 / .4);
+}
 
-  .dark .hover\:bg-slate-100:hover {
-    background-color: rgb(7 89 133 / .5);
-  }
+.dark .hover\:bg-slate-100:hover:not([class*="dark:hover"]) {
+  background-color: rgb(30 41 59 / .5);
+}
 
-  .dark .divide-slate-50> :not([hidden])~ :not([hidden]),
-  .dark .divide-slate-100> :not([hidden])~ :not([hidden]) {
-    border-color: rgb(14 165 233 / .2);
-  }
+.dark .divide-slate-50:not([class*="dark:divide"])> :not([hidden])~ :not([hidden]),
+.dark .divide-slate-100:not([class*="dark:divide"])> :not([hidden])~ :not([hidden]) {
+  border-color: rgb(148 163 184 / .2);
+}
 
-  .dark .bg-blue-50 {
-    background-color: rgb(14 165 233 / .1);
-  }
+.dark .bg-blue-50:not([class*="dark:bg"]) {
+  background-color: rgb(14 165 233 / .1);
+}
 
-  .dark .bg-emerald-50 {
-    background-color: rgb(16 185 129 / .08);
-  }
+.dark .bg-emerald-50:not([class*="dark:bg"]) {
+  background-color: rgb(16 185 129 / .08);
+}
 
-  .dark .bg-rose-50 {
-    background-color: rgb(244 63 94 / .08);
-  }
+.dark .bg-rose-50:not([class*="dark:bg"]) {
+  background-color: rgb(244 63 94 / .08);
+}
 
-  .dark .bg-sky-50 {
-    background-color: rgb(14 165 233 / .1);
-  }
+.dark .bg-sky-50:not([class*="dark:bg"]) {
+  background-color: rgb(14 165 233 / .1);
+}
 
-  .dark .bg-purple-50 {
-    background-color: rgb(168 85 247 / .08);
-  }
+.dark .bg-purple-50:not([class*="dark:bg"]) {
+  background-color: rgb(168 85 247 / .08);
+}
 
-  .dark .bg-amber-50 {
-    background-color: rgb(245 158 11 / .08);
-  }
+.dark .bg-amber-50:not([class*="dark:bg"]) {
+  background-color: rgb(245 158 11 / .08);
+}
 
-  .dark .bg-purple-100 {
-    background-color: rgb(168 85 247 / .12);
-  }
+.dark .bg-purple-100:not([class*="dark:bg"]) {
+  background-color: rgb(168 85 247 / .12);
+}
 
-  .dark .bg-blue-100 {
-    background-color: rgb(14 165 233 / .15);
-  }
+.dark .bg-blue-100:not([class*="dark:bg"]) {
+  background-color: rgb(14 165 233 / .15);
+}
 
-  .dark .bg-emerald-100 {
-    background-color: rgb(16 185 129 / .12);
-  }
+.dark .bg-emerald-100:not([class*="dark:bg"]) {
+  background-color: rgb(16 185 129 / .12);
+}
 
-  .dark .border-blue-100 {
-    border-color: rgb(14 165 233 / .25);
-  }
+.dark .border-blue-100:not([class*="dark:border"]) {
+  border-color: rgb(14 165 233 / .25);
+}
 
-  .dark .border-sky-100 {
-    border-color: rgb(14 165 233 / .2);
-  }
+.dark .border-sky-100:not([class*="dark:border"]) {
+  border-color: rgb(14 165 233 / .2);
+}
 
-  .dark .border-emerald-100 {
-    border-color: rgb(16 185 129 / .2);
-  }
+.dark .border-emerald-100:not([class*="dark:border"]) {
+  border-color: rgb(16 185 129 / .2);
+}
 
-  .dark .border-rose-100 {
-    border-color: rgb(244 63 94 / .2);
-  }
+.dark .border-rose-100:not([class*="dark:border"]) {
+  border-color: rgb(244 63 94 / .2);
+}
 
-  .dark .bg-slate-900\/80 {
-    background-color: rgb(8 47 73 / .9);
-  }
+.dark .bg-slate-900\/80:not([class*="dark:bg"]) {
+  background-color: rgb(15 23 42 / .9);
+}
 
-  .dark .bg-slate-900\/70 {
-    background-color: rgb(8 47 73 / .85);
-  }
+.dark .bg-slate-900\/70:not([class*="dark:bg"]) {
+  background-color: rgb(15 23 42 / .85);
+}
 
-  .dark .border-dashed {
-    border-color: rgb(14 165 233 / .3);
-  }
+.dark .border-dashed:not([class*="dark:border"]) {
+  border-color: rgb(148 163 184 / .3);
+}
 
-  .dark input::placeholder,
-  .dark textarea::placeholder {
-    color: #38BDF8;   /* sky-400 */
-  }
+.dark input:not([class*="dark:placeholder"])::placeholder,
+.dark textarea:not([class*="dark:placeholder"])::placeholder {
+  color: #94A3B8;   /* slate-400 */
+}
 
-  .dark select option {
-    background-color: #075985;   /* sky-800 */
-    color: #E0F2FE;
-  }
+.dark select option {
+  background-color: #1E293B;   /* slate-800 */
+  color: #F1F5F9;
 }

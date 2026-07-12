@@ -9,6 +9,27 @@ const emailService = require('../../services/email.service');
 const repo = new AuthRepository();
 const service = new AuthService(repo);
 
+// Opciones base para cookies de sesión: HttpOnly (ilegible desde JS/XSS),
+// Secure en producción y SameSite lax (protege contra CSRF de terceros).
+const AUTH_COOKIE_OPTS = {
+  httpOnly: true,
+  secure: process.env.NODE_ENV === 'production',
+  sameSite: 'lax',
+  path: '/',
+};
+
+const setAuthCookies = (res, { token, refreshToken, clientToken } = {}) => {
+  if (token) res.cookie('adminToken', token, { ...AUTH_COOKIE_OPTS, maxAge: 4 * 60 * 60 * 1000 });          // 4h (= expiresIn del JWT)
+  if (refreshToken) res.cookie('refreshToken', refreshToken, { ...AUTH_COOKIE_OPTS, maxAge: 7 * 24 * 60 * 60 * 1000 }); // 7 días
+  if (clientToken) res.cookie('clientToken', clientToken, { ...AUTH_COOKIE_OPTS, maxAge: 60 * 60 * 1000 }); // 1h (= expiresIn del JWT)
+};
+
+const clearAuthCookies = (res) => {
+  for (const name of ['adminToken', 'refreshToken', 'clientToken']) {
+    res.clearCookie(name, AUTH_COOKIE_OPTS);
+  }
+};
+
 const authController = {
   login: catchAsync(async (req, res) => {
     const { email, password } = req.body;
@@ -16,7 +37,14 @@ const authController = {
     const userAgent = req.get('User-Agent') || null;
 
     const result = await service.login(email, password, ip, userAgent, sessionController);
+    // El token viaja en cookie HttpOnly: el frontend ya no lo guarda en localStorage.
+    setAuthCookies(res, { token: result.token, refreshToken: result.refreshToken });
     res.json({ success: true, ...result });
+  }),
+
+  logout: catchAsync(async (req, res) => {
+    clearAuthCookies(res);
+    res.json({ success: true });
   }),
 
   verify: catchAsync(async (req, res) => {
@@ -68,6 +96,8 @@ const authController = {
         requirePasswordSetup: true
       });
     }
+    // Token del portal de clientes en cookie HttpOnly.
+    setAuthCookies(res, { clientToken: result.token });
     res.json(result);
   }),
 
@@ -106,7 +136,10 @@ const authController = {
   }),
 
   refreshToken: catchAsync(async (req, res) => {
-    const result = await service.refreshToken(req.body.refreshToken);
+    // Fuente principal: cookie HttpOnly; se acepta el body por compatibilidad.
+    const tokenValue = req.cookies?.refreshToken || req.body.refreshToken;
+    const result = await service.refreshToken(tokenValue);
+    setAuthCookies(res, { token: result.token, refreshToken: result.refreshToken });
     res.json({ success: true, ...result });
   }),
 

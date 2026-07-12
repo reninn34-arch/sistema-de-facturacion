@@ -220,6 +220,13 @@ const LandingPage: React.FC = () => {
 
   useEffect(() => { landingContentRef.current = landingContent; }, [landingContent]);
 
+  // La landing solo tiene tema claro: si otra página dejó activada la clase
+  // "dark" en <html> (p. ej. /suscripcion), los overrides globales de
+  // index.css (.dark .bg-white, etc.) rompen los colores. La quitamos aquí.
+  useEffect(() => {
+    document.documentElement.classList.remove('dark');
+  }, []);
+
   useEffect(() => {
     fetch(`${API_URL}/api/landing-content`)
       .then(r => r.json())

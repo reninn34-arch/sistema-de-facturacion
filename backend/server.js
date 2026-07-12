@@ -82,6 +82,30 @@ app.use(cors(corsOptions));
 app.use(bodyParser.json({ limit: '10mb' }));
 app.use(bodyParser.urlencoded({ extended: true, limit: '10mb' }));
 
+// Cookie parser mínimo (sin dependencia externa).
+// Los tokens de sesión viajan en cookies HttpOnly para que ningún script
+// del navegador (XSS) pueda leerlos — ver jwt.middleware.js.
+app.use((req, _res, next) => {
+  req.cookies = {};
+  const header = req.headers.cookie;
+  if (header) {
+    for (const part of header.split(';')) {
+      const idx = part.indexOf('=');
+      if (idx > -1) {
+        const key = part.slice(0, idx).trim();
+        if (!(key in req.cookies)) {
+          try {
+            req.cookies[key] = decodeURIComponent(part.slice(idx + 1).trim());
+          } catch {
+            req.cookies[key] = part.slice(idx + 1).trim();
+          }
+        }
+      }
+    }
+  }
+  next();
+});
+
 // Rate limiting
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutos

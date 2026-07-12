@@ -170,6 +170,12 @@ const SubscriptionPage: React.FC = () => {
     }
   }, [isDarkMode]);
 
+  // Al salir de esta página, no dejar el modo oscuro "pegado" en las
+  // páginas públicas (landing, ayuda, etc.) que solo tienen tema claro.
+  useEffect(() => {
+    return () => { document.documentElement.classList.remove('dark'); };
+  }, []);
+
   const toggleDarkMode = () => setIsDarkMode(!isDarkMode);
 
   const reloadPlans = async () => {
@@ -377,39 +383,39 @@ const SubscriptionPage: React.FC = () => {
   return (
     <div className="bg-[#F8F9FC] text-slate-900 min-h-screen flex flex-col" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
       {/* Header */}
-      <header className="flex items-center justify-between whitespace-nowrap border-b border-solid border-slate-200 bg-white px-6 py-4 lg:px-40 sticky top-0 z-50 shadow-sm">
-        <div className="flex items-center gap-3 cursor-pointer" onClick={() => setStep('plans')}>
+      <header className="flex items-center justify-between gap-2 whitespace-nowrap border-b border-solid border-slate-200 bg-white px-4 sm:px-6 py-3 sm:py-4 lg:px-40 sticky top-0 z-50 shadow-sm">
+        <div className="flex items-center gap-3 cursor-pointer min-w-0" onClick={() => setStep('plans')}>
           {landingLogo && (
-            <img src={landingLogo} className="h-12 w-auto max-w-[220px] object-contain object-left" alt="Logo" />
+            <img src={landingLogo} className="h-9 sm:h-12 w-auto max-w-[130px] sm:max-w-[220px] object-contain object-left" alt="Logo" />
           )}
         </div>
-        <div className="flex flex-1 justify-end gap-4 lg:gap-8 items-center">
+        <div className="flex flex-1 justify-end gap-3 lg:gap-8 items-center">
           <nav className="hidden md:flex items-center gap-8">
             <a className="text-slate-600 text-sm font-semibold hover:text-[#0EA5E9] transition-colors" href="#" onClick={() => setStep('plans')}>Planes</a>
             <a className="text-slate-600 text-sm font-semibold hover:text-[#0EA5E9] transition-colors" href="#">Características</a>
             <a className="text-slate-600 text-sm font-semibold hover:text-[#0EA5E9] transition-colors" href="#">Soporte</a>
           </nav>
           <div className="flex gap-2">
-            <button type="button" onClick={() => window.location.href = '/'} className="flex min-w-[100px] cursor-pointer items-center justify-center rounded-xl h-10 px-4 bg-[#0EA5E9] text-white text-sm font-bold tracking-tight hover:bg-[#0369A1] transition-all shadow-md shadow-[#0EA5E9]/20">
+            <button type="button" onClick={() => window.location.href = '/'} className="flex cursor-pointer items-center justify-center rounded-xl h-9 sm:h-10 px-3 sm:px-4 sm:min-w-[100px] bg-[#0EA5E9] text-white text-xs sm:text-sm font-bold tracking-tight hover:bg-[#0369A1] transition-all shadow-md shadow-[#0EA5E9]/20">
               Inicio
             </button>
-            <button type="button" onClick={() => window.location.href = '/login'} className="flex cursor-pointer items-center justify-center rounded-xl h-10 px-4 border border-slate-200 text-slate-700 text-sm font-bold hover:bg-slate-50 transition-all">
+            <button type="button" onClick={() => window.location.href = '/login'} className="flex cursor-pointer items-center justify-center rounded-xl h-9 sm:h-10 px-3 sm:px-4 border border-slate-200 text-slate-700 text-xs sm:text-sm font-bold hover:bg-slate-50 transition-all">
               Iniciar Sesión
             </button>
           </div>
         </div>
       </header>
 
-      <main className="flex flex-1 justify-center py-12 px-6 lg:px-40">
+      <main className="flex flex-1 justify-center py-8 sm:py-12 px-4 sm:px-6 lg:px-40">
         <div className="max-w-[1100px] w-full flex flex-col gap-12">
 
           {step === 'plans' ? (
             <>
               <div className="flex flex-col gap-4 text-center max-w-2xl mx-auto">
-                <h1 className="text-slate-900 text-4xl lg:text-5xl font-extrabold leading-tight tracking-tight">
+                <h1 className="text-slate-900 text-3xl sm:text-4xl lg:text-5xl font-extrabold leading-tight tracking-tight">
                   Elige el plan ideal para tu negocio
                 </h1>
-                <p className="text-slate-500 text-lg font-medium">
+                <p className="text-slate-500 text-base sm:text-lg font-medium">
                   Optimiza tu facturación electrónica con la plataforma líder en cumplimiento del SRI. Sin complicaciones, 100% digital.
                 </p>
               </div>
@@ -442,8 +448,8 @@ const SubscriptionPage: React.FC = () => {
                           <h3 className={`${isPopular ? 'text-[#0EA5E9]' : 'text-slate-500'} text-sm font-extrabold uppercase tracking-widest`}>
                             {plan.name}
                           </h3>
-                          <div className="flex items-baseline gap-1">
-                            <span className={`text-5xl font-extrabold tracking-tighter ${plan.ctaType === 'WHATSAPP' ? 'text-amber-500' : 'text-slate-900'}`}>
+                          <div className="flex items-baseline gap-1 flex-wrap">
+                            <span className={`font-extrabold tracking-tighter ${plan.ctaType === 'WHATSAPP' ? 'text-amber-500 text-2xl sm:text-3xl' : 'text-slate-900 text-4xl md:text-5xl'}`}>
                               {plan.ctaType === 'WHATSAPP'
                                 ? (plan.ctaWhatsapp?.priceLabel || 'Precio a medida')
                                 : (plan.priceWithTax !== undefined ? plan.priceWithTax : plan.price) === 0 ? 'Gratis' : `$${(plan.priceWithTax !== undefined ? plan.priceWithTax : plan.price).toFixed(2)}`}

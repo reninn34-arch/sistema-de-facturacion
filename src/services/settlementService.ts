@@ -1,4 +1,4 @@
-import { BusinessInfo, PurchaseSettlement } from '../types';
+import { BusinessInfo, PurchaseSettlement } from '../types/types';
 import { generateAccessKeyFromDate } from '../utils/sri';
 
 function escapeXml(text: string): string {

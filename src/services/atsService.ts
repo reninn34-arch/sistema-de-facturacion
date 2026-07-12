@@ -1,4 +1,4 @@
-import { ATSPurchase, ATSSale } from '../types';
+import { ATSPurchase, ATSSale } from '../types/types';
 
 interface ATSData {
   ruc: string;

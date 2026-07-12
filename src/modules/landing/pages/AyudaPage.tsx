@@ -43,6 +43,11 @@ const AyudaPage: React.FC = () => {
   const [openFaq, setOpenFaq] = useState<number | null>(null);
   const [landingLogo, setLandingLogo] = useState<string | null | false>(null);
 
+  // Página pública solo con tema claro: limpiar la clase "dark" residual.
+  useEffect(() => {
+    document.documentElement.classList.remove('dark');
+  }, []);
+
   useEffect(() => {
     const img = new Image();
     img.onload = () => setLandingLogo('/api/settings/landing-logo');

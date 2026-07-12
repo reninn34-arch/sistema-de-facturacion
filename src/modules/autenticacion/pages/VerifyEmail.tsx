@@ -24,13 +24,12 @@ const VerifyEmail: React.FC = () => {
   }, []);
 
   useEffect(() => {
+    let isMounted = true;
     if (!token) {
       setStatus('error');
       setMessage('No se encontró el token de verificación.');
       return;
     }
-
-    let timerId: NodeJS.Timeout;
 
     fetch(`${API_URL}/api/verify-email`, {
       method: 'POST',
@@ -39,26 +38,38 @@ const VerifyEmail: React.FC = () => {
     })
       .then((res) => res.json())
       .then((data) => {
+        if (!isMounted) return;
         if (data.success) {
           setStatus('success');
           setMessage(data.message || 'Correo verificado correctamente.');
-          timerId = setTimeout(() => {
-            window.location.href = '/login';
-          }, 4000);
         } else {
           setStatus('error');
           setMessage(data.message || 'Error al verificar el correo.');
         }
       })
       .catch(() => {
-        setStatus('error');
-        setMessage('Error de conexión con el servidor.');
+        if (isMounted) {
+          setStatus('error');
+          setMessage('Error de conexión con el servidor.');
+        }
       });
 
     return () => {
-      if (timerId) clearTimeout(timerId);
+      isMounted = false;
     };
   }, [token]);
+
+  useEffect(() => {
+    if (status !== 'success') return;
+
+    const timerId = setTimeout(() => {
+      window.location.href = '/login';
+    }, 4000);
+
+    return () => {
+      clearTimeout(timerId);
+    };
+  }, [status]);
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-sky-50 to-slate-100 px-4 py-12">

@@ -21,13 +21,13 @@ interface LandingContent {
     primaryCta: string;
     secondaryCta: string;
   };
-  stats: Array<{ value: number; label: string; suffix: string }>;
-  painPoints: Array<{ title: string; description: string }>;
-  why: Array<{ title: string; description: string }>;
-  features: Array<{ title: string; description: string }>;
-  howItWorks: Array<{ step: string; title: string; description: string }>;
-  testimonials: Array<{ name: string; business: string; quote: string; rating: number }>;
-  faq: Array<{ question: string; answer: string }>;
+  stats: Array<{ id?: string; value: number; label: string; suffix: string }>;
+  painPoints: Array<{ id?: string; title: string; description: string }>;
+  why: Array<{ id?: string; title: string; description: string }>;
+  features: Array<{ id?: string; title: string; description: string }>;
+  howItWorks: Array<{ id?: string; step: string; title: string; description: string }>;
+  testimonials: Array<{ id?: string; name: string; business: string; quote: string; rating: number }>;
+  faq: Array<{ id?: string; question: string; answer: string }>;
   finalCta: {
     headline: string;
     subheadline: string;
@@ -36,7 +36,7 @@ interface LandingContent {
   };
   contact: { phone: string; email: string; hours: string };
   footer: { tagline: string; facebook: string; twitter: string; instagram: string; linkedin: string };
-  ayudaPage: { title: string; subtitle: string; faqs: Array<{ question: string; answer: string }> };
+  ayudaPage: { title: string; subtitle: string; faqs: Array<{ id?: string; question: string; answer: string }> };
   contactoPage: { title: string; subtitle: string };
   legalPage: { title: string; terms: { title: string; content: string }; privacy: { title: string; content: string }; cookies: { title: string; content: string } };
   cookieBanner: { message: string };
@@ -268,10 +268,12 @@ const labelClass = 'text-[10px] font-black text-slate-400 uppercase tracking-wid
 function CollapsibleSection({
   title,
   defaultOpen = false,
+  icon,
   children,
 }: {
   title: string;
   defaultOpen?: boolean;
+  icon?: React.ReactNode;
   children: React.ReactNode;
 }) {
   const [open, setOpen] = useState(defaultOpen);
@@ -282,7 +284,7 @@ function CollapsibleSection({
         onClick={() => setOpen(!open)}
         className="w-full flex items-center justify-between gap-2"
       >
-        <h3 className={`${sectionHeader} text-lg`}>{title}</h3>
+        <h3 className={`${sectionHeader} text-lg flex items-center gap-2`}>{icon}{title}</h3>
         {open ? (
           <ChevronUpIcon className="w-5 h-5 text-slate-400 flex-shrink-0" />
         ) : (
@@ -306,8 +308,29 @@ const deepMerge = (target: any, source: any): any => {
   return result;
 };
 
+const decorateWithIds = (content: LandingContent): LandingContent => {
+  const ensureIds = (arr: any[], prefix: string) => {
+    return (arr || []).map((item, index) => ({
+      id: item.id || `${prefix}-${index}`,
+      ...item
+    }));
+  };
+  const result = { ...content };
+  result.stats = ensureIds(result.stats, 'stat');
+  result.painPoints = ensureIds(result.painPoints, 'pain');
+  result.why = ensureIds(result.why, 'why');
+  result.features = ensureIds(result.features, 'feature');
+  result.howItWorks = ensureIds(result.howItWorks, 'how');
+  result.testimonials = ensureIds(result.testimonials, 'testi');
+  result.faq = ensureIds(result.faq, 'faq');
+  if (result.ayudaPage) {
+    result.ayudaPage.faqs = ensureIds(result.ayudaPage.faqs, 'faq-ayuda');
+  }
+  return result;
+};
+
 const LandingPageEditor: React.FC = () => {
-  const [content, setContent] = useState<LandingContent>(getDefaultContent());
+  const [content, setContent] = useState<LandingContent>(() => decorateWithIds(getDefaultContent()));
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
@@ -326,7 +349,7 @@ const LandingPageEditor: React.FC = () => {
       .then((data) => {
         const apiContent = data?.landingContent;
         if (apiContent && Object.keys(apiContent).length > 0) {
-          setContent(deepMerge(getDefaultContent(), apiContent));
+          setContent(decorateWithIds(deepMerge(getDefaultContent(), apiContent)));
         }
       })
       .catch(() => setLoadError('No se pudo cargar el contenido actual'))
@@ -635,7 +658,7 @@ const LandingPageEditor: React.FC = () => {
       <CollapsibleSection title="Estadísticas">
         <div className="space-y-4">
           {content.stats.map((stat, idx) => (
-            <div key={idx} className="grid grid-cols-3 gap-3 p-4 bg-slate-50 rounded-xl border border-slate-100">
+            <div key={stat.id || idx} className="grid grid-cols-3 gap-3 p-4 bg-slate-50 rounded-xl border border-slate-100">
               <div className="space-y-1">
                 <label className={labelClass}>Valor #{idx + 1}</label>
                 <input

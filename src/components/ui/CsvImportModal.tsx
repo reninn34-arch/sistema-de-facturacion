@@ -59,7 +59,11 @@ const CsvImportModal: React.FC<CsvImportModalProps> = ({ isOpen, onClose, onImpo
           return;
         }
 
-        setRows(jsonData);
+        const decorated = jsonData.map((row: any, idx: number) => ({
+          ...row,
+          _tempId: `csv-row-${Date.now()}-${idx}`
+        }));
+        setRows(decorated);
         setStep('preview');
       } catch {
         setErrors(['Error al leer el archivo. Verifique que sea un CSV válido.']);
@@ -83,7 +87,8 @@ const CsvImportModal: React.FC<CsvImportModalProps> = ({ isOpen, onClose, onImpo
   const handleImport = async () => {
     setStep('importing');
     try {
-      await onImport(rows);
+      const clean = rows.map(({ _tempId, ...rest }: any) => rest);
+      await onImport(clean);
       setImportResult({ success: rows.length, failed: 0 });
       setStep('done');
     } catch {
@@ -130,6 +135,14 @@ const CsvImportModal: React.FC<CsvImportModalProps> = ({ isOpen, onClose, onImpo
                 onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
                 onDragLeave={() => setDragOver(false)}
                 onDrop={handleDrop}
+                role="button"
+                tabIndex={0}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    fileInputRef.current?.click();
+                  }
+                }}
                 className={`border-2 border-dashed rounded-3xl p-12 text-center transition-all cursor-pointer ${dragOver ? 'border-sky-500 bg-sky-50' : 'border-slate-300 hover:border-slate-400'}`}
                 onClick={() => fileInputRef.current?.click()}
               >
@@ -154,7 +167,7 @@ const CsvImportModal: React.FC<CsvImportModalProps> = ({ isOpen, onClose, onImpo
               {errors.length > 0 && (
                 <div className="bg-red-50 border border-red-200 rounded-2xl p-4">
                   {errors.map((e, i) => (
-                    <p key={i} className="text-sm text-red-600 flex items-center gap-2">
+                    <p key={`${e}-${i}`} className="text-sm text-red-600 flex items-center gap-2">
                       <ExclamationTriangleIcon className="w-4 h-4 flex-shrink-0" />{e}
                     </p>
                   ))}
@@ -188,7 +201,7 @@ const CsvImportModal: React.FC<CsvImportModalProps> = ({ isOpen, onClose, onImpo
                   </thead>
                   <tbody className="divide-y divide-slate-100">
                     {rows.slice(0, 50).map((row, i) => (
-                      <tr key={i} className="hover:bg-slate-50">
+                      <tr key={row._tempId || i} className="hover:bg-slate-50">
                         <td className="p-3 text-slate-400 font-mono">{i + 1}</td>
                         {headers.slice(0, 8).map(h => (
                           <td key={h} className="p-3 text-slate-700 font-medium max-w-[150px] truncate">{String(row[h] ?? '')}</td>

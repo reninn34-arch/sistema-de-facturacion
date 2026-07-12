@@ -383,7 +383,7 @@ const PagoInterno: React.FC<PagoInternoProps> = ({ businessInfo, isExpired = fal
                 )}
               </div>
               <div>
-                <h2 className="text-2xl font-black uppercase tracking-wider">
+                <h2 className="text-xl sm:text-2xl font-black uppercase tracking-wider">
                   {isExpired ? 'Suscripción Vencida' : 'Gestionar Suscripción'}
                 </h2>
                 {isExpired ? (
@@ -424,7 +424,7 @@ const PagoInterno: React.FC<PagoInternoProps> = ({ businessInfo, isExpired = fal
           /* Contenido del formulario */
           <div className="grid grid-cols-1 lg:grid-cols-2">
             {/* Columna izquierda - Plans */}
-            <div className="p-8 border-r border-slate-200 dark:border-slate-700">
+            <div className="p-5 sm:p-8 border-b lg:border-b-0 lg:border-r border-slate-200 dark:border-slate-700">
               <h3 className="text-lg font-black text-slate-900 dark:text-white mb-6 uppercase tracking-wider">
                 {isExpired ? 'Renovar Ahora' : 'Cambiar Plan'}
               </h3>
@@ -469,13 +469,13 @@ const PagoInterno: React.FC<PagoInternoProps> = ({ businessInfo, isExpired = fal
             </div>
 
             {/* Columna derecha - Payment */}
-            <div className="p-8">
+            <div className="p-5 sm:p-8">
               <h3 className="text-lg font-black text-slate-900 dark:text-white mb-6 uppercase tracking-wider">
                 Método de Pago
               </h3>
 
               {/* Selector de método */}
-              <div className="flex gap-2 mb-6">
+              <div className="flex flex-wrap gap-2 mb-6">
                 {paymentSettings.transferEnabled && (
                 <button type="button"
                   onClick={() => { setPaymentMethod('TRANSFER'); setPaymentData({...paymentData, cardNumber: '', cardName: '', cardExpiry: '', cardCvv: ''}); }}

@@ -22,6 +22,11 @@ const BlogPage: React.FC = () => {
   const [postContent, setPostContent] = useState('');
   const [activeCategory, setActiveCategory] = useState<string>('');
 
+  // Página pública solo con tema claro: limpiar la clase "dark" residual.
+  useEffect(() => {
+    document.documentElement.classList.remove('dark');
+  }, []);
+
   useEffect(() => {
     fetch(`${API_URL}/api/blog/posts${activeCategory ? `?category=${activeCategory}` : ''}`)
       .then(r => r.json())
