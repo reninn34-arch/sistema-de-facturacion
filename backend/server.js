@@ -41,7 +41,6 @@ app.use(morgan('combined'));
 const allowedOrigins = [
   'http://localhost:3000',
   'http://localhost:5173',
-  'https://sistemasaas.up.railway.app',
   process.env.FRONTEND_URL
 ].filter(Boolean);
 
