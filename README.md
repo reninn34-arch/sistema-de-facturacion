@@ -155,7 +155,7 @@ sistema-de-facturacion/
 │   │   ├── setup.js                # Script de configuración completo
 │   │   └── client.js               # Cliente Prisma singleton
 │   ├── src/
-│   │   │   ├── modules/                # 21 módulos (controller + service + routes)
+│   │   ├── modules/                # 21 módulos (controller + service + routes)
 │   │   │   ├── admin/              # Panel SUPERADMIN (businesses, users, subscriptions)
 │   │   │   ├── ai/                 # Asistente IA conversacional
 │   │   │   ├── auth/               # Login, registro, recuperación de acceso
