@@ -8,6 +8,8 @@
     "dev:full": "concurrently \"npm run dev:backend\" \"npm run dev\"",
     "dev:backend": "cd backend && npm run dev",
     "build": "vite build",
+    "postinstall": "cd backend && npm install && npx prisma generate",
+    "vercel-build": "npm run build && cd backend && npx prisma generate",
     "preview": "vite preview",
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui",
