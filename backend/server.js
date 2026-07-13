@@ -210,32 +210,36 @@ async function startServer() {
     process.exit(1);
   }
 
-  app.listen(PORT, () => {
-    console.log('');
-    console.log('═══════════════════════════════════════════════════');
-    console.log('🇪🇨  PROXY SRI ECUADOR - SERVIDOR INICIADO  🇪🇨');
-    console.log('═══════════════════════════════════════════════════');
-    console.log('');
-    console.log(`✅ Servidor ejecutándose en: http://localhost:${PORT}`);
-    console.log(`🌍 Entorno: ${process.env.NODE_ENV || 'development'}`);
-    console.log(`📡 Frontend URL: ${process.env.FRONTEND_URL || 'http://localhost:3000'}`);
-    console.log('');
-    console.log('📋 Endpoints disponibles:');
-    console.log(`   POST http://localhost:${PORT}/api/sri/sign-xml`);
-    console.log(`   POST http://localhost:${PORT}/api/sri/recepcion`);
-    console.log(`   POST http://localhost:${PORT}/api/sri/autorizacion`);
-    console.log(`   POST http://localhost:${PORT}/api/login`);
-    console.log(`   POST http://localhost:${PORT}/api/auth/client/login`);
-    console.log(`   POST http://localhost:${PORT}/api/forgot-password`);
-    console.log(`   POST http://localhost:${PORT}/api/notifications/send-email`);
-    console.log(`   POST http://localhost:${PORT}/api/notifications/send-sms`);
-    console.log(`   POST http://localhost:${PORT}/api/notifications/send-whatsapp`);
-    console.log(`   GET  http://localhost:${PORT}/health`);
-    console.log(`   GET  http://localhost:${PORT}/api/info`);
-    console.log('');
-    console.log('═══════════════════════════════════════════════════');
-    console.log('');
-  });
+  if (!process.env.VERCEL) {
+    app.listen(PORT, () => {
+      console.log('');
+      console.log('═══════════════════════════════════════════════════');
+      console.log('🇪🇨  PROXY SRI ECUADOR - SERVIDOR INICIADO  🇪🇨');
+      console.log('═══════════════════════════════════════════════════');
+      console.log('');
+      console.log(`✅ Servidor ejecutándose en: http://localhost:${PORT}`);
+      console.log(`🌍 Entorno: ${process.env.NODE_ENV || 'development'}`);
+      console.log(`📡 Frontend URL: ${process.env.FRONTEND_URL || 'http://localhost:3000'}`);
+      console.log('');
+      console.log('📋 Endpoints disponibles:');
+      console.log(`   POST http://localhost:${PORT}/api/sri/sign-xml`);
+      console.log(`   POST http://localhost:${PORT}/api/sri/recepcion`);
+      console.log(`   POST http://localhost:${PORT}/api/sri/autorizacion`);
+      console.log(`   POST http://localhost:${PORT}/api/login`);
+      console.log(`   POST http://localhost:${PORT}/api/auth/client/login`);
+      console.log(`   POST http://localhost:${PORT}/api/forgot-password`);
+      console.log(`   POST http://localhost:${PORT}/api/notifications/send-email`);
+      console.log(`   POST http://localhost:${PORT}/api/notifications/send-sms`);
+      console.log(`   POST http://localhost:${PORT}/api/notifications/send-whatsapp`);
+      console.log(`   GET  http://localhost:${PORT}/health`);
+      console.log(`   GET  http://localhost:${PORT}/api/info`);
+      console.log('');
+      console.log('═══════════════════════════════════════════════════');
+      console.log('');
+    });
+  } else {
+    logger.info('🚀 Backend corriendo en modo Serverless en Vercel');
+  }
 }
 
 startServer();
@@ -250,4 +254,6 @@ process.on('SIGINT', () => {
   logger.info('👋 Cerrando servidor...');
   process.exit(0);
 });
+
+module.exports = app;
 
