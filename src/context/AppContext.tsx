@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useRef, createContext, useContext } from 'react';
+import React, { useState, useEffect, useCallback, useMemo, useRef, createContext, useContext } from 'react';
 import { Client, Product, AppNotification, Document, BusinessInfo, InvoiceItem, NotificationSettings, EmissionPoint } from '../types/types';
 import { MOCK_CLIENTS, MOCK_PRODUCTS } from '../constants';
 import { client } from '../api/client';
@@ -34,30 +34,22 @@ interface AppContextType {
   setSubscriptionExpired: (v: boolean) => void;
   subscriptionPending: boolean;
   setSubscriptionPending: (v: boolean) => void;
-  personalEmail: string;
-  setPersonalEmail: (v: string) => void;
-  showProfilePassword: boolean;
-  setShowProfilePassword: (v: boolean) => void;
-  showSignaturePassword: boolean;
-  setShowSignaturePassword: (v: boolean) => void;
-  passwordData: { current: string; new: string; confirm: string };
-  setPasswordData: (v: { current: string; new: string; confirm: string }) => void;
   clients: Client[];
-  setClients: (v: Client[]) => void;
+  setClients: React.Dispatch<React.SetStateAction<Client[]>>;
   products: Product[];
-  setProducts: (v: Product[]) => void;
+  setProducts: React.Dispatch<React.SetStateAction<Product[]>>;
   documents: Document[];
-  setDocuments: (v: Document[]) => void;
+  setDocuments: React.Dispatch<React.SetStateAction<Document[]>>;
   quicksales: any[];
-  setQuicksales: (v: any[]) => void;
+  setQuicksales: React.Dispatch<React.SetStateAction<any[]>>;
   pendingActivationCount: number;
   setPendingActivationCount: (v: number) => void;
   businessInfo: BusinessInfo;
-  setBusinessInfo: (v: BusinessInfo) => void;
+  setBusinessInfo: React.Dispatch<React.SetStateAction<BusinessInfo>>;
   emissionPoints: EmissionPoint[];
-  setEmissionPoints: (v: EmissionPoint[]) => void;
+  setEmissionPoints: React.Dispatch<React.SetStateAction<EmissionPoint[]>>;
   selectedEmissionPoint: EmissionPoint | null;
-  setSelectedEmissionPoint: (v: EmissionPoint | null) => void;
+  setSelectedEmissionPoint: React.Dispatch<React.SetStateAction<EmissionPoint | null>>;
   signatureFile: File | null;
   setSignatureFile: (v: File | null) => void;
   signatureBuffer: ArrayBuffer | null;
@@ -67,9 +59,9 @@ interface AppContextType {
   notificationSettings: NotificationSettings;
   setNotificationSettings: (v: NotificationSettings) => void;
   notifications: AppNotification[];
-  setNotifications: (v: AppNotification[]) => void;
+  setNotifications: React.Dispatch<React.SetStateAction<AppNotification[]>>;
   toasts: AppNotification[];
-  setToasts: (v: AppNotification[]) => void;
+  setToasts: React.Dispatch<React.SetStateAction<AppNotification[]>>;
   currentPlanHasAI: boolean;
   setCurrentPlanHasAI: (v: boolean) => void;
   currentPlanHasAudit: boolean;
@@ -99,8 +91,6 @@ interface AppContextType {
   toggleDemoMode: () => Promise<void>;
   saveBusinessConfig: () => Promise<void>;
   saveBusinessField: (data: Record<string, any>, silent?: boolean) => Promise<void>;
-  handleUpdateProfile: () => Promise<void>;
-  handleChangePassword: () => Promise<void>;
   handleSaveNotificationSettings: (settings: NotificationSettings) => Promise<void>;
   handleSignatureFileChange: (e: React.ChangeEvent<HTMLInputElement>) => Promise<void>;
 }
@@ -120,10 +110,6 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   });
   const [subscriptionExpired, setSubscriptionExpired] = useState(false);
   const [subscriptionPending, setSubscriptionPending] = useState(false);
-  const [personalEmail, setPersonalEmail] = useState('');
-  const [showProfilePassword, setShowProfilePassword] = useState(false);
-  const [showSignaturePassword, setShowSignaturePassword] = useState(false);
-  const [passwordData, setPasswordData] = useState({ current: '', new: '', confirm: '' });
   const [clients, setClients] = useState<Client[]>([]);
   const [products, setProducts] = useState<Product[]>([]);
   const [documents, setDocuments] = useState<Document[]>([]);
@@ -179,8 +165,6 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     const userStr = localStorage.getItem('adminUser');
     if (userStr) {
       setCurrentUser(JSON.parse(userStr));
-      const userObj = JSON.parse(userStr);
-      if (userObj.email) setPersonalEmail(userObj.email);
     }
   }, [isAuthenticated]);
 
@@ -189,22 +173,17 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       setActiveTab('config');
       showNotify('Por seguridad, debe actualizar su contraseña para continuar.', 'warning');
     }
-  }, [currentUser, activeTab]);
+  }, [currentUser, activeTab, showNotify]);
 
+  const isDarkMode = businessInfo.features?.isDarkMode ?? false;
   useEffect(() => {
-    const features = (businessInfo as any).features;
-    const systemPrefersDark = false;
-    const isDark = features?.isDarkMode !== undefined ? features.isDarkMode : systemPrefersDark;
-    if (isDark) {
-      document.documentElement.classList.add('dark');
-    } else {
-      document.documentElement.classList.remove('dark');
-    }
-  }, [businessInfo]);
+    document.documentElement.classList.toggle('dark', isDarkMode);
+  }, [isDarkMode]);
 
+  const currentPlanCode = businessInfo.plan;
   useEffect(() => {
     const loadPlanFeatures = async () => {
-      const plan = (businessInfo as any).plan;
+      const plan = currentPlanCode;
       if (!plan) return;
 
       const defaultLimits: Record<string, number> = { FREE: 10, BASIC: 100, GASTRONOMICO: 300, PRO: 500, ENTERPRISE: 2000, MONTHLY: 100, SEMIANNUAL: 100, YEARLY: 100 };
@@ -236,7 +215,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       setCurrentPlanMaxInvoices(fallbackLimit);
     };
     loadPlanFeatures();
-  }, [(businessInfo as any).plan]);
+  }, [currentPlanCode]);
 
   useEffect(() => {
     const loadBusinesses = async () => {
@@ -311,8 +290,10 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   useEffect(() => {
     if (!isAuthenticated) return;
 
+    let cancelled = false;
     const loadData = async () => {
       const backendIsDemo = (await client.get<{ isDemo: boolean }>('/api/business/demo').catch(() => ({ data: { isDemo: false } })) as any).data?.isDemo || false;
+      if (cancelled) return;
       const useDemoMode = isDemoMode || backendIsDemo;
 
       if (useDemoMode) {
@@ -339,6 +320,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         const loadPointsConfig = client.get<{ programEnabled: boolean }>('/api/referrals/code').then(r => r.data).catch(() => ({ programEnabled: false }));
 
         const [empresa, clientes, productos, docs, epoints, pointsCfg] = await Promise.all([loadBusiness, loadClients, loadProducts, loadDocs, loadEmissionPoints, loadPointsConfig]);
+        if (cancelled) return;
 
         if (empresa) {
           setBusinessInfo(empresa as BusinessInfo);
@@ -366,7 +348,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         if (epoints && epoints.length > 0) setSelectedEmissionPoint(epoints[0]);
         setPointsProgramEnabled(pointsCfg?.programEnabled !== false);
 
-        const features = (empresa as any)?.features || {};
+        const features = empresa?.features || {};
         if (features.signatureP12) {
           try {
             const byteCharacters = atob(features.signatureP12);
@@ -393,6 +375,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     };
 
     loadData();
+    return () => { cancelled = true; };
   }, [isAuthenticated, isDemoMode]);
 
   useEffect(() => {
@@ -452,53 +435,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     };
   }, [isAuthenticated]);
 
-  const handleSignatureFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      setSignatureFile(file);
-      try {
-        const buffer = await file.arrayBuffer();
-        setSignatureBuffer(buffer);
-
-        const reader = new FileReader();
-        reader.readAsDataURL(file);
-        reader.onload = () => {
-          const base64 = (reader.result as string).split(',')[1];
-          const updatedFeatures = { ...((businessInfo as any).features || {}), signatureP12: base64 };
-          setBusinessInfo(prev => ({
-            ...prev,
-            features: updatedFeatures
-          }));
-          saveBusinessField({ features: updatedFeatures });
-        };
-
-        if ((businessInfo as any).isDemo) {
-          try {
-            const token = localStorage.getItem('adminToken');
-            await fetch(`${API_URL}/api/business/demo`, {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`
-              },
-              body: JSON.stringify({ enable: false })
-            });
-            setBusinessInfo(prev => ({ ...prev, isDemo: false }));
-            showNotify('Firma digital cargada. Modo demo desactivado. Ahora puedes usar el sistema en producción.');
-          } catch (error) {
-            console.error("Error al desactivar modo demo", error);
-            showNotify('Firma digital cargada correctamente. Por favor, desactiva el modo demo manualmente.');
-          }
-        } else {
-          showNotify('Firma digital cargada correctamente');
-        }
-      } catch (error) {
-        showNotify('Error al cargar la firma digital', 'error');
-      }
-    }
-  };
-
-  const handleDocumentAuthorized = async (doc: Document, items?: InvoiceItem[]) => {
+  const handleDocumentAuthorized = useCallback(async (doc: Document, items?: InvoiceItem[]) => {
     if (isDemoMode) {
       setDocuments(prev => [doc, ...prev]);
       if (items) {
@@ -553,9 +490,9 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       }
       showNotify("Documento autorizado (Guardado localmente por error de BD)", "warning");
     }
-  };
+  }, [isDemoMode, signatureFile, businessInfo.isProduction, showNotify]);
 
-  const handleActivateProduction = async () => {
+  const handleActivateProduction = useCallback(async () => {
     if (!signatureFile) {
       showNotify("Debes configurar una firma electrónica (.p12) antes de pasar a Producción", "error");
       throw new Error("No signature");
@@ -574,13 +511,11 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       showNotify(msg, 'error');
       throw error;
     }
-  };
+  }, [signatureFile, showNotify]);
 
-  const toggleDarkMode = async () => {
-    const currentFeatures = (businessInfo as any).features || {};
-    const systemPrefersDark = false;
-    const currentIsDark = currentFeatures.isDarkMode !== undefined ? currentFeatures.isDarkMode : systemPrefersDark;
-    const newIsDark = !currentIsDark;
+  const toggleDarkMode = useCallback(async () => {
+    const currentFeatures = businessInfo.features || {};
+    const newIsDark = !(currentFeatures.isDarkMode ?? false);
 
     const updatedFeatures = {
       ...currentFeatures,
@@ -604,14 +539,14 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     } catch (error) {
       console.error("Error guardando preferencia de tema", error);
     }
-  };
+  }, [businessInfo.features, showNotify]);
 
-  const toggleDemoMode = async () => {
-    const currentIsDemo = (businessInfo as any).isDemo || false;
+  const toggleDemoMode = useCallback(async () => {
+    const currentIsDemo = businessInfo.isDemo || false;
     const newIsDemo = !currentIsDemo;
 
     if (newIsDemo) {
-      const currentFeatures = (businessInfo as any).features || {};
+      const currentFeatures = businessInfo.features || {};
       if (currentFeatures.signatureP12) {
         showNotify("No puedes activar el modo demo porque ya tienes una firma digital. Primero elimina la firma digital.", "error");
         return;
@@ -642,9 +577,9 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       console.error("Error toggling demo mode", error);
       showNotify("Error al cambiar modo demo", "error");
     }
-  };
+  }, [businessInfo.isDemo, businessInfo.features, showNotify]);
 
-  const saveBusinessConfig = async () => {
+  const saveBusinessConfig = useCallback(async () => {
     try {
       const token = localStorage.getItem('adminToken');
       const { id, ...dataToSave } = businessInfo as any;
@@ -664,9 +599,9 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       console.error(error);
       showNotify("Error al guardar configuración", "error");
     }
-  };
+  }, [businessInfo, showNotify]);
 
-  const saveBusinessField = async (data: Record<string, any>, silent = true) => {
+  const saveBusinessField = useCallback(async (data: Record<string, any>, silent = true) => {
     try {
       const token = localStorage.getItem('adminToken');
       const response = await fetch(`${API_URL}/api/business`, {
@@ -682,74 +617,55 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     } catch (error) {
       console.error('Error al guardar campo:', error);
     }
-  };
+  }, [showNotify]);
 
-  const handleUpdateProfile = async () => {
-    try {
-      const token = localStorage.getItem('adminToken');
-      const response = await fetch(`${API_URL}/api/user/profile`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify({ email: personalEmail })
-      });
-      const data = await response.json();
-      if (data.success) {
-        showNotify('Correo personal actualizado correctamente');
-        const newUser = { ...currentUser, email: data.user.email };
-        localStorage.setItem('adminUser', JSON.stringify(newUser));
-        setCurrentUser(newUser);
-      } else {
-        showNotify(data.message, 'error');
+  const handleSignatureFileChange = useCallback(async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setSignatureFile(file);
+      try {
+        const buffer = await file.arrayBuffer();
+        setSignatureBuffer(buffer);
+
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = () => {
+          const base64 = (reader.result as string).split(',')[1];
+          const updatedFeatures = { ...(businessInfo.features || {}), signatureP12: base64 };
+          setBusinessInfo(prev => ({
+            ...prev,
+            features: updatedFeatures
+          }));
+          saveBusinessField({ features: updatedFeatures });
+        };
+
+        if (businessInfo.isDemo) {
+          try {
+            const token = localStorage.getItem('adminToken');
+            await fetch(`${API_URL}/api/business/demo`, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+              },
+              body: JSON.stringify({ enable: false })
+            });
+            setBusinessInfo(prev => ({ ...prev, isDemo: false }));
+            showNotify('Firma digital cargada. Modo demo desactivado. Ahora puedes usar el sistema en producción.');
+          } catch (error) {
+            console.error("Error al desactivar modo demo", error);
+            showNotify('Firma digital cargada correctamente. Por favor, desactiva el modo demo manualmente.');
+          }
+        } else {
+          showNotify('Firma digital cargada correctamente');
+        }
+      } catch (error) {
+        showNotify('Error al cargar la firma digital', 'error');
       }
-    } catch (error) {
-      showNotify('Error al actualizar perfil', 'error');
     }
-  };
+  }, [businessInfo.features, businessInfo.isDemo, saveBusinessField, showNotify]);
 
-  const handleChangePassword = async () => {
-    if (passwordData.new !== passwordData.confirm) {
-      showNotify('Las contraseñas nuevas no coinciden', 'error');
-      return;
-    }
-
-    const passwordRegex = /^(?=.*[A-Z])(?=.*\d).{8,}$/;
-    if (!passwordRegex.test(passwordData.new)) {
-      showNotify('La contraseña debe tener al menos 8 caracteres, una mayúscula y un número.', 'error');
-      return;
-    }
-
-    try {
-      const token = localStorage.getItem('adminToken');
-      const response = await fetch(`${API_URL}/api/user/password`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify({
-          currentPassword: passwordData.current,
-          newPassword: passwordData.new
-        })
-      });
-      const data = await response.json();
-      if (data.success) {
-        showNotify('Contraseña actualizada correctamente');
-        setPasswordData({ current: '', new: '', confirm: '' });
-        const updatedUser = { ...currentUser, requirePasswordChange: false };
-        setCurrentUser(updatedUser);
-        localStorage.setItem('adminUser', JSON.stringify(updatedUser));
-      } else {
-        showNotify(data.message, 'error');
-      }
-    } catch (error) {
-      showNotify('Error al cambiar contraseña', 'error');
-    }
-  };
-
-  const handleSaveNotificationSettings = async (settings: NotificationSettings) => {
+  const handleSaveNotificationSettings = useCallback(async (settings: NotificationSettings) => {
     setNotificationSettings(settings);
 
     try {
@@ -776,9 +692,9 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       console.error(error);
       showNotify('Error al guardar configuración remota', 'error');
     }
-  };
+  }, [businessInfo, showNotify]);
 
-  const value: AppContextType = {
+  const value: AppContextType = useMemo(() => ({
     isAuthenticated, setIsAuthenticated,
     activeTab, setActiveTab,
     selectedBusinessId, setSelectedBusinessId,
@@ -788,10 +704,6 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     currentUser, setCurrentUser,
     subscriptionExpired, setSubscriptionExpired,
     subscriptionPending, setSubscriptionPending,
-    personalEmail, setPersonalEmail,
-    showProfilePassword, setShowProfilePassword,
-    showSignaturePassword, setShowSignaturePassword,
-    passwordData, setPasswordData,
     clients, setClients,
     products, setProducts,
     documents, setDocuments,
@@ -824,11 +736,21 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     toggleDemoMode,
     saveBusinessConfig,
     saveBusinessField,
-    handleUpdateProfile,
-    handleChangePassword,
     handleSaveNotificationSettings,
     handleSignatureFileChange,
-  };
+  }), [
+    isAuthenticated, activeTab, selectedBusinessId, isDemoMode, businesses,
+    loadingBusinesses, currentUser, subscriptionExpired, subscriptionPending,
+    clients, products, documents, quicksales, pendingActivationCount,
+    businessInfo, emissionPoints, selectedEmissionPoint, signatureFile,
+    signatureBuffer, signaturePassword, notificationSettings, notifications,
+    toasts, currentPlanHasAI, currentPlanHasAudit, currentPlanDurationDays,
+    currentPlanMaxInvoices, currentPlanMaxEmissionPoints, pointsProgramEnabled,
+    preloadRejectedDoc, reportsFilter, hasModuleControl, modulePermissions,
+    showNotify, handleDocumentAuthorized, handleActivateProduction,
+    toggleDarkMode, toggleDemoMode, saveBusinessConfig, saveBusinessField,
+    handleSaveNotificationSettings, handleSignatureFileChange,
+  ]);
 
   return (
     <AppContext.Provider value={value}>

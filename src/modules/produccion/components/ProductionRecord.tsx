@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useId } from 'react';
 import { ClipboardDocumentCheckIcon, PlayIcon, ExclamationTriangleIcon } from '@heroicons/react/24/outline';
 import { Recipe, ProductionRecord as ProdRecord, Product, UNITS_OF_MEASURE } from '../../../types/types';
 import { client } from '../../../api/client';
@@ -12,6 +12,7 @@ interface ProductionRecordProps {
 export default function ProductionRecord({ products, setProducts, onNotify }: ProductionRecordProps) {
   const [records, setRecords] = useState<ProdRecord[]>([]);
   const [recipes, setRecipes] = useState<Recipe[]>([]);
+  const fieldId = useId();
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
   const [selectedRecipeId, setSelectedRecipeId] = useState('');
@@ -70,7 +71,7 @@ export default function ProductionRecord({ products, setProducts, onNotify }: Pr
         setProducts(productsRes.data || []);
       } catch (e) { /* silent */ }
     } catch (e: any) {
-      onNotify(e.response?.data?.message || 'Error al registrar producción', 'error');
+      onNotify(e.response?.data?.message || 'Error al registrar producción', 'warning');
     } finally {
       setSubmitting(false);
     }
@@ -96,7 +97,7 @@ export default function ProductionRecord({ products, setProducts, onNotify }: Pr
                 <p className="text-sm text-slate-500 font-bold">Registra lotes de producción y controla el consumo de insumos</p>
               </div>
             </div>
-            <button
+            <button type="button"
               onClick={() => setShowForm(!showForm)}
               className="px-6 py-3 bg-emerald-600 text-white rounded-xl font-bold text-sm hover:bg-emerald-700 transition-all shadow-lg shadow-emerald-600/20 inline-flex items-center gap-2"
             >
@@ -110,8 +111,9 @@ export default function ProductionRecord({ products, setProducts, onNotify }: Pr
               <form onSubmit={handleSubmit} className="space-y-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                   <div>
-                    <label className="text-xs font-bold text-slate-600 uppercase mb-1.5 block">Receta *</label>
+                    <label htmlFor={`${fieldId}-recipe`} className="text-xs font-bold text-slate-600 uppercase mb-1.5 block">Receta *</label>
                     <select
+                      id={`${fieldId}-recipe`}
                       value={selectedRecipeId}
                       onChange={(e) => setSelectedRecipeId(e.target.value)}
                       className="w-full p-3.5 bg-white border border-slate-200 rounded-xl font-bold text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/30"
@@ -126,8 +128,9 @@ export default function ProductionRecord({ products, setProducts, onNotify }: Pr
                     </select>
                   </div>
                   <div>
-                    <label className="text-xs font-bold text-slate-600 uppercase mb-1.5 block">Cantidad de Lotes</label>
+                    <label htmlFor={`${fieldId}-qty`} className="text-xs font-bold text-slate-600 uppercase mb-1.5 block">Cantidad de Lotes</label>
                     <input
+                      id={`${fieldId}-qty`}
                       type="number"
                       min="0.1"
                       step="0.1"
@@ -200,7 +203,7 @@ export default function ProductionRecord({ products, setProducts, onNotify }: Pr
                           const hasStock = product && (product.stock || 0) >= requiredQty;
                           return (
                             <div
-                              key={idx}
+                              key={ing.productId || ing.productCode}
                               className={`flex items-center justify-between p-3 rounded-xl text-sm ${
                                 hasStock ? 'bg-slate-50' : 'bg-red-50'
                               }`}
@@ -224,8 +227,9 @@ export default function ProductionRecord({ products, setProducts, onNotify }: Pr
                 )}
 
                 <div>
-                  <label className="text-xs font-bold text-slate-600 uppercase mb-1.5 block">Notas</label>
+                  <label htmlFor={`${fieldId}-notes`} className="text-xs font-bold text-slate-600 uppercase mb-1.5 block">Notas</label>
                   <textarea
+                    id={`${fieldId}-notes`}
                     value={notes}
                     onChange={(e) => setNotes(e.target.value)}
                     placeholder="Observaciones del lote de producción..."

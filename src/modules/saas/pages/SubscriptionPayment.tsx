@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useId } from 'react';
 import { EnvelopeIcon } from '@heroicons/react/24/outline';
 import { PayPalScriptProvider, PayPalButtons } from "@paypal/react-paypal-js";
 
@@ -77,6 +77,7 @@ interface PagoInternoProps {
 const PagoInterno: React.FC<PagoInternoProps> = ({ businessInfo, isExpired = false, onPaymentComplete, onBack, onNotify }) => {
   // Valor por defecto para onNotify
   const showNotify = onNotify || (() => {});
+  const fieldId = useId();
   const [selectedPlan, setSelectedPlan] = useState<string>('MONTHLY');
   const [isProcessing, setIsProcessing] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState<'TRANSFER' | 'CARD' | 'PAYPAL'>('TRANSFER');
@@ -91,7 +92,11 @@ const PagoInterno: React.FC<PagoInternoProps> = ({ businessInfo, isExpired = fal
   const [paymentProofPreview, setPaymentProofPreview] = useState<string | null>(null);
   const [showSuccess, setShowSuccess] = useState(false);
   const [showPendingApproval, setShowPendingApproval] = useState(false);
-  const [availablePlans, setAvailablePlans] = useState<any[]>([]);
+  const [availablePlans, setAvailablePlans] = useState<any[]>(() => [
+    { id: 'MONTHLY', name: 'Mensual', price: 34.49, period: 'mes' },
+    { id: 'SEMIANNUAL', name: 'Semestral', price: 172.49, period: '6 meses' },
+    { id: 'YEARLY', name: 'Anual', price: 287.49, period: '1 año' }
+  ]);
   const [paymentSettings, setPaymentSettings] = useState({ paypalEnabled: true, transferEnabled: true, cardEnabled: false });
 
   // Cargar configuración de métodos de pago
@@ -123,22 +128,27 @@ const PagoInterno: React.FC<PagoInternoProps> = ({ businessInfo, isExpired = fal
       try {
         const token = localStorage.getItem('adminToken');
         const response = await fetch(`${API_URL}/api/subscription-plans`, {
+          credentials: 'include',
           headers: { 'Authorization': `Bearer ${token}` }
         });
         if (response.ok) {
           const data = await response.json();
           // Filtrar planes: excluir PENDING, UNLIMITED y FREE (solo para superadmins)
           // El precio del backend ya incluye IVA
-          const filteredPlans = (data.plans || data)
-            .filter((plan: any) => plan.code !== 'PENDING' && plan.code !== 'UNLIMITED' && plan.code !== 'FREE')
-            .map((plan: any) => ({
-              id: plan.code,
-              name: plan.name,
-              price: plan.price, // Ya es el precio final con IVA
-              period: plan.period,
-              durationDays: plan.durationDays,
-              features: plan.features
-            }));
+          const raw = data.plans || data || [];
+          const filteredPlans = [];
+          for (const plan of raw) {
+            if (plan.code !== 'PENDING' && plan.code !== 'UNLIMITED' && plan.code !== 'FREE') {
+              filteredPlans.push({
+                id: plan.code,
+                name: plan.name,
+                price: plan.priceWithTax !== undefined && plan.priceWithTax !== null ? plan.priceWithTax : plan.price, // Usar precio con IVA (15%)
+                period: plan.period,
+                durationDays: plan.durationDays,
+                features: plan.features
+              });
+            }
+          }
           setAvailablePlans(filteredPlans);
           
           // Seleccionar primer plan disponible por defecto
@@ -216,6 +226,7 @@ const PagoInterno: React.FC<PagoInternoProps> = ({ businessInfo, isExpired = fal
 
         const response = await fetch(`${API_URL}/api/activation-requests`, {
           method: 'POST',
+          credentials: 'include',
           headers: {
             'Content-Type': 'application/json',
             'Authorization': `Bearer ${token}`
@@ -242,6 +253,7 @@ const PagoInterno: React.FC<PagoInternoProps> = ({ businessInfo, isExpired = fal
             // Actualizar la solicitud con la imagen
             const uploadResponse = await fetch(`${API_URL}/api/activation-requests/${requestId}/upload-proof`, {
               method: 'PUT',
+              credentials: 'include',
               headers: {
                 'Content-Type': 'application/json',
                 'Authorization': `Bearer ${token}`
@@ -276,6 +288,7 @@ const PagoInterno: React.FC<PagoInternoProps> = ({ businessInfo, isExpired = fal
       // Simular procesamiento de pago interno
       const response = await fetch(`${API_URL}/api/subscriptions/payment-internal`, {
         method: 'POST',
+        credentials: 'include',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`
@@ -339,7 +352,7 @@ const PagoInterno: React.FC<PagoInternoProps> = ({ businessInfo, isExpired = fal
               <EnvelopeIcon className="w-4 h-4 inline" /> Se notificará a su correo electrónico una vez approveda la transferencia.
             </p>
           </div>
-          <button
+          <button type="button"
             onClick={() => {
               // Recargar la página para verificar estado
               window.location.reload();
@@ -375,7 +388,7 @@ const PagoInterno: React.FC<PagoInternoProps> = ({ businessInfo, isExpired = fal
                 )}
               </div>
               <div>
-                <h2 className="text-2xl font-black uppercase tracking-wider">
+                <h2 className="text-xl sm:text-2xl font-black uppercase tracking-wider">
                   {isExpired ? 'Suscripción Vencida' : 'Gestionar Suscripción'}
                 </h2>
                 {isExpired ? (
@@ -391,7 +404,7 @@ const PagoInterno: React.FC<PagoInternoProps> = ({ businessInfo, isExpired = fal
               </div>
             </div>
             {!isExpired && (
-              <button onClick={onBack} className="text-white/80 hover:text-white">
+              <button aria-label="Acción" type="button" onClick={onBack} className="text-white/80 hover:text-white">
                 <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                 </svg>
@@ -416,14 +429,14 @@ const PagoInterno: React.FC<PagoInternoProps> = ({ businessInfo, isExpired = fal
           /* Contenido del formulario */
           <div className="grid grid-cols-1 lg:grid-cols-2">
             {/* Columna izquierda - Plans */}
-            <div className="p-8 border-r border-slate-200 dark:border-slate-700">
+            <div className="p-5 sm:p-8 border-b lg:border-b-0 lg:border-r border-slate-200 dark:border-slate-700">
               <h3 className="text-lg font-black text-slate-900 dark:text-white mb-6 uppercase tracking-wider">
                 {isExpired ? 'Renovar Ahora' : 'Cambiar Plan'}
               </h3>
               
               <div className="space-y-3">
                 {availablePlans.map((plan) => (
-                  <button
+                  <button type="button"
                     key={plan.id}
                     onClick={() => setSelectedPlan(plan.id)}
                     className={`w-full p-4 rounded-2xl border-2 transition-all text-left ${
@@ -461,15 +474,15 @@ const PagoInterno: React.FC<PagoInternoProps> = ({ businessInfo, isExpired = fal
             </div>
 
             {/* Columna derecha - Payment */}
-            <div className="p-8">
+            <div className="p-5 sm:p-8">
               <h3 className="text-lg font-black text-slate-900 dark:text-white mb-6 uppercase tracking-wider">
                 Método de Pago
               </h3>
 
               {/* Selector de método */}
-              <div className="flex gap-2 mb-6">
+              <div className="flex flex-wrap gap-2 mb-6">
                 {paymentSettings.transferEnabled && (
-                <button
+                <button type="button"
                   onClick={() => { setPaymentMethod('TRANSFER'); setPaymentData({...paymentData, cardNumber: '', cardName: '', cardExpiry: '', cardCvv: ''}); }}
                   className={`flex-1 py-2 px-4 rounded-xl text-sm font-bold transition-all ${
                     paymentMethod === 'TRANSFER'
@@ -481,7 +494,7 @@ const PagoInterno: React.FC<PagoInternoProps> = ({ businessInfo, isExpired = fal
                 </button>
                 )}
                 {paymentSettings.cardEnabled && (
-                <button
+                <button type="button"
                   onClick={() => { setPaymentMethod('CARD'); setPaymentData({...paymentData, transferReference: ''}); }}
                   className={`flex-1 py-2 px-4 rounded-xl text-sm font-bold transition-all ${
                     paymentMethod === 'CARD'
@@ -493,7 +506,7 @@ const PagoInterno: React.FC<PagoInternoProps> = ({ businessInfo, isExpired = fal
                 </button>
                 )}
                 {paymentSettings.paypalEnabled && (
-                <button
+                <button type="button"
                   onClick={() => { setPaymentMethod('PAYPAL'); setPaymentData({...paymentData, transferReference: ''}); }}
                   className={`flex-1 py-2 px-4 rounded-xl text-sm font-bold transition-all ${
                     paymentMethod === 'PAYPAL'
@@ -516,10 +529,11 @@ const PagoInterno: React.FC<PagoInternoProps> = ({ businessInfo, isExpired = fal
                     <BankDetailsDisplay />
                   </div>
                   <div>
-                    <label className="block text-xs font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider mb-2">
+                    <label htmlFor={`${fieldId}-transferRef`} className="block text-xs font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider mb-2">
                       Número de Referencia
                     </label>
                     <input
+                      id={`${fieldId}-transferRef`}
                       type="text"
                       value={paymentData.transferReference}
                       onChange={(e) => setPaymentData({ ...paymentData, transferReference: e.target.value })}
@@ -530,9 +544,9 @@ const PagoInterno: React.FC<PagoInternoProps> = ({ businessInfo, isExpired = fal
                   
                   {/* Upload de comprobante */}
                   <div>
-                    <label className="block text-xs font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider mb-2">
+                    <span className="block text-xs font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider mb-2">
                       Comprobante de Pago (Foto)
-                    </label>
+                    </span>
                     <div className="border-2 border-dashed border-slate-300 dark:border-slate-600 rounded-xl p-4 text-center hover:border-sky-500 transition-colors">
                       {paymentProofPreview ? (
                         <div className="relative">
@@ -541,7 +555,7 @@ const PagoInterno: React.FC<PagoInternoProps> = ({ businessInfo, isExpired = fal
                             alt="Comprobante" 
                             className="max-h-40 mx-auto rounded-lg"
                           />
-                          <button
+                          <button type="button"
                             onClick={() => { setPaymentProof(null); setPaymentProofPreview(null); }}
                             className="absolute top-0 right-0 bg-red-500 text-white rounded-full p-1 hover:bg-red-600"
                           >
@@ -589,10 +603,11 @@ const PagoInterno: React.FC<PagoInternoProps> = ({ businessInfo, isExpired = fal
               {paymentMethod === 'CARD' && (
                 <div className="space-y-4">
                   <div>
-                    <label className="block text-xs font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider mb-2">
+                    <label htmlFor={`${fieldId}-cardNumber`} className="block text-xs font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider mb-2">
                       Número de Tarjeta
                     </label>
                     <input
+                      id={`${fieldId}-cardNumber`}
                       type="text"
                       value={paymentData.cardNumber}
                       onChange={(e) => setPaymentData({ ...paymentData, cardNumber: e.target.value.replace(/\D/g, '').slice(0, 16) })}
@@ -601,10 +616,11 @@ const PagoInterno: React.FC<PagoInternoProps> = ({ businessInfo, isExpired = fal
                     />
                   </div>
                   <div>
-                    <label className="block text-xs font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider mb-2">
+                    <label htmlFor={`${fieldId}-cardName`} className="block text-xs font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider mb-2">
                       Nombre en Tarjeta
                     </label>
                     <input
+                      id={`${fieldId}-cardName`}
                       type="text"
                       value={paymentData.cardName}
                       onChange={(e) => setPaymentData({ ...paymentData, cardName: e.target.value })}
@@ -614,10 +630,11 @@ const PagoInterno: React.FC<PagoInternoProps> = ({ businessInfo, isExpired = fal
                   </div>
                   <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <label className="block text-xs font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider mb-2">
+                      <label htmlFor={`${fieldId}-cardExpiry`} className="block text-xs font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider mb-2">
                         Expiración
                       </label>
                       <input
+                        id={`${fieldId}-cardExpiry`}
                         type="text"
                         value={paymentData.cardExpiry}
                         onChange={(e) => setPaymentData({ ...paymentData, cardExpiry: e.target.value })}
@@ -626,10 +643,11 @@ const PagoInterno: React.FC<PagoInternoProps> = ({ businessInfo, isExpired = fal
                       />
                     </div>
                     <div>
-                      <label className="block text-xs font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider mb-2">
+                      <label htmlFor={`${fieldId}-cardCvv`} className="block text-xs font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider mb-2">
                         CVC
                       </label>
                       <input
+                        id={`${fieldId}-cardCvv`}
                         type="text"
                         value={paymentData.cardCvv}
                         onChange={(e) => setPaymentData({ ...paymentData, cardCvv: e.target.value.replace(/\D/g, '').slice(0, 4) })}
@@ -685,6 +703,7 @@ const PagoInterno: React.FC<PagoInternoProps> = ({ businessInfo, isExpired = fal
                             const token = localStorage.getItem('adminToken');
                             const response = await fetch(`${API_URL}/api/subscriptions/payment-internal`, {
                               method: 'POST',
+                              credentials: 'include',
                               headers: {
                                 'Content-Type': 'application/json',
                                 'Authorization': `Bearer ${token}`
@@ -726,6 +745,55 @@ const PagoInterno: React.FC<PagoInternoProps> = ({ businessInfo, isExpired = fal
                       }}
                     />
                   </PayPalScriptProvider>
+                  {import.meta.env.DEV && (
+                    <button
+                      type="button"
+                      onClick={async () => {
+                        try {
+                          setIsProcessing(true);
+                          const mockOrderId = `mock_${currentPlan.price.toFixed(2)}`;
+                          console.log('Simulating PayPal payment with ID:', mockOrderId);
+                          
+                          const token = localStorage.getItem('adminToken');
+                          const response = await fetch(`${API_URL}/api/subscriptions/payment-internal`, {
+                            method: 'POST',
+                            credentials: 'include',
+                            headers: {
+                              'Content-Type': 'application/json',
+                              'Authorization': `Bearer ${token}`
+                            },
+                            body: JSON.stringify({
+                              businessId: businessInfo.id,
+                              plan: selectedPlan,
+                              paymentMethod: 'PAYPAL',
+                              amount: currentPlan.price,
+                              paymentDetails: {
+                                paypalOrderId: mockOrderId,
+                                paypalPayerId: 'mock_payer_id'
+                              }
+                            })
+                          });
+
+                          if (response.ok) {
+                            setShowSuccess(true);
+                            setTimeout(() => {
+                              onPaymentComplete();
+                            }, 2000);
+                          } else {
+                            showNotify('Error al procesar el pago simulado.', 'error');
+                          }
+                        } catch (err: any) {
+                          console.error('Mock payment error:', err);
+                          showNotify('Error en simulación: ' + err.message, 'error');
+                        } finally {
+                          setIsProcessing(false);
+                        }
+                      }}
+                      className="mt-2 w-full py-2 bg-amber-500 hover:bg-amber-600 text-white font-bold rounded-xl text-xs transition-colors"
+                    >
+                      ⚡ Simular Pago PayPal (Desarrollo)
+                    </button>
+                  )}
                 </div>
               )}
 
@@ -749,7 +817,7 @@ const PagoInterno: React.FC<PagoInternoProps> = ({ businessInfo, isExpired = fal
 
               {/* Botón de pago - solo para TRANSFER y CARD */}
               {paymentMethod !== 'PAYPAL' && (
-                <button
+                <button type="button"
                   onClick={handlePayment}
                   disabled={isProcessing || (paymentMethod === 'TRANSFER' && (!paymentData.transferReference || !paymentProof)) || (paymentMethod === 'CARD' && (!paymentData.cardNumber || !paymentData.cardName || !paymentData.cardExpiry || !paymentData.cardCvv))}
                   className="w-full mt-6 py-4 bg-gradient-to-r from-sky-500 to-sky-600 hover:from-sky-600 hover:to-sky-700 text-white font-black uppercase tracking-widest rounded-xl shadow-lg shadow-sky-500/25 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"

@@ -1,4 +1,4 @@
-import { BusinessInfo, Retention } from '../types';
+import { BusinessInfo, Retention } from '../types/types';
 import { generateAccessKeyFromDate } from '../utils/sri';
 
 // Códigos de retención más comunes en Ecuador

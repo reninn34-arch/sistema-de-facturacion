@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useId } from 'react';
 import { DocumentTextIcon, UserIcon, CalendarDaysIcon, BanknotesIcon, PlusIcon, TrashIcon } from '@heroicons/react/24/outline';
 import { Retention, RetentionTax, BusinessInfo, Client } from '../../../types/types';
 import { generateRetentionXML, RETENTION_PERCENTAGES } from '../../../services/retentionService';
@@ -11,6 +11,7 @@ interface RetentionFormProps {
 }
 
 export default function RetentionForm({ business, clients, onSubmit }: RetentionFormProps) {
+  const fieldId = useId();
   const [supplierRuc, setSupplierRuc] = useState('');
   const [supplierName, setSupplierName] = useState('');
   const [supplierEmail, setSupplierEmail] = useState('');
@@ -19,7 +20,8 @@ export default function RetentionForm({ business, clients, onSubmit }: Retention
   const [sustainingDocDate, setSustainingDocDate] = useState('');
   const [sustainingDocTotal, setSustainingDocTotal] = useState('');
   const [taxPeriod, setTaxPeriod] = useState('');
-  const [taxes, setTaxes] = useState<RetentionTax[]>([]);
+  // _key: id estable por fila para las keys de React (se añaden/eliminan filas)
+  const [taxes, setTaxes] = useState<(RetentionTax & { _key?: string })[]>([]);
   const [selectedClient, setSelectedClient] = useState('');
 
   useEffect(() => {
@@ -42,6 +44,7 @@ export default function RetentionForm({ business, clients, onSubmit }: Retention
 
   const addTax = () => {
     setTaxes([...taxes, {
+      _key: crypto.randomUUID(),
       code: '1', // Renta por defecto
       baseImponible: 0,
       percentageCode: '303',
@@ -138,28 +141,39 @@ export default function RetentionForm({ business, clients, onSubmit }: Retention
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-2">
+                <label htmlFor={`${fieldId}-selectClient`} className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-2">
                   Seleccionar Proveedor
                 </label>
                 <select
+                  id={`${fieldId}-selectClient`}
                   value={selectedClient}
                   onChange={(e) => handleClientSelect(e.target.value)}
                   className="w-full px-4 py-2 border border-gray-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 bg-white dark:bg-slate-900/50 text-gray-800 dark:text-white"
                 >
                   <option value="" className="dark:bg-slate-800">Seleccione o ingrese manualmente</option>
-                  {(Array.isArray(clients) ? clients : []).filter(c => c.type !== 'CLIENTE').map(client => (
-                    <option key={client.id} value={client.id} className="dark:bg-slate-800">
-                      {client.name} - {client.ruc}
-                    </option>
-                  ))}
+                  {(() => {
+                    const list = [];
+                    const orig = Array.isArray(clients) ? clients : [];
+                    for (const c of orig) {
+                      if (c.type !== 'CLIENTE') {
+                        list.push(c);
+                      }
+                    }
+                    return list.map(client => (
+                      <option key={client.id} value={client.id} className="dark:bg-slate-800">
+                        {client.name} - {client.ruc}
+                      </option>
+                    ));
+                  })()}
                 </select>
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-2">
+                <label htmlFor={`${fieldId}-supplierRuc`} className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-2">
                   RUC del Proveedor *
                 </label>
                 <input
+                  id={`${fieldId}-supplierRuc`}
                   type="text"
                   value={supplierRuc}
                   onChange={(e) => setSupplierRuc(e.target.value)}
@@ -171,10 +185,11 @@ export default function RetentionForm({ business, clients, onSubmit }: Retention
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-2">
+                <label htmlFor={`${fieldId}-supplierName`} className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-2">
                   Razón Social del Proveedor *
                 </label>
                 <input
+                  id={`${fieldId}-supplierName`}
                   type="text"
                   value={supplierName}
                   onChange={(e) => setSupplierName(e.target.value)}
@@ -184,10 +199,11 @@ export default function RetentionForm({ business, clients, onSubmit }: Retention
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-2">
+                <label htmlFor={`${fieldId}-supplierEmail`} className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-2">
                   Email del Proveedor
                 </label>
                 <input
+                  id={`${fieldId}-supplierEmail`}
                   type="email"
                   value={supplierEmail}
                   onChange={(e) => setSupplierEmail(e.target.value)}
@@ -196,10 +212,11 @@ export default function RetentionForm({ business, clients, onSubmit }: Retention
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-2">
+                <label htmlFor={`${fieldId}-taxPeriod`} className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-2">
                   Período Fiscal *
                 </label>
                 <input
+                  id={`${fieldId}-taxPeriod`}
                   type="text"
                   value={taxPeriod}
                   onChange={(e) => setTaxPeriod(e.target.value)}
@@ -221,10 +238,11 @@ export default function RetentionForm({ business, clients, onSubmit }: Retention
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-2">
+                <label htmlFor={`${fieldId}-docType`} className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-2">
                   Tipo de Documento *
                 </label>
                 <select
+                  id={`${fieldId}-docType`}
                   value={sustainingDocType}
                   onChange={(e) => setSustainingDocType(e.target.value)}
                   required
@@ -237,10 +255,11 @@ export default function RetentionForm({ business, clients, onSubmit }: Retention
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-2">
+                <label htmlFor={`${fieldId}-docNumber`} className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-2">
                   Número del Documento *
                 </label>
                 <input
+                  id={`${fieldId}-docNumber`}
                   type="text"
                   value={sustainingDocNumber}
                   onChange={(e) => setSustainingDocNumber(e.target.value)}
@@ -251,10 +270,11 @@ export default function RetentionForm({ business, clients, onSubmit }: Retention
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-2">
+                <label htmlFor={`${fieldId}-docDate`} className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-2">
                   Fecha de Emisión *
                 </label>
                 <input
+                  id={`${fieldId}-docDate`}
                   type="date"
                   value={sustainingDocDate}
                   onChange={(e) => setSustainingDocDate(e.target.value)}
@@ -264,10 +284,11 @@ export default function RetentionForm({ business, clients, onSubmit }: Retention
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-2">
+                <label htmlFor={`${fieldId}-docTotal`} className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-2">
                   Total del Documento *
                 </label>
                 <input
+                  id={`${fieldId}-docTotal`}
                   type="number"
                   step="0.01"
                   value={sustainingDocTotal}
@@ -303,7 +324,7 @@ export default function RetentionForm({ business, clients, onSubmit }: Retention
             ) : (
               <div className="space-y-4">
                 {taxes.map((tax, index) => (
-                  <div key={index} className="border border-gray-250 dark:border-slate-700 rounded-lg p-4 bg-gray-50 dark:bg-slate-900/30">
+                  <div key={tax._key} className="border border-gray-250 dark:border-slate-700 rounded-lg p-4 bg-gray-50 dark:bg-slate-900/30">
                     <div className="flex justify-between items-start mb-4">
                       <h4 className="font-medium text-gray-700 dark:text-slate-300">Impuesto {index + 1}</h4>
                       <button
@@ -317,10 +338,11 @@ export default function RetentionForm({ business, clients, onSubmit }: Retention
 
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-2">
+                        <label htmlFor={`${fieldId}-tax-code-${index}`} className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-2">
                           Tipo de Impuesto
                         </label>
                         <select
+                          id={`${fieldId}-tax-code-${index}`}
                           value={tax.code}
                           onChange={(e) => updateTax(index, 'code', e.target.value)}
                           className="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-900/50 text-gray-800 dark:text-white"
@@ -331,10 +353,11 @@ export default function RetentionForm({ business, clients, onSubmit }: Retention
                       </div>
 
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-2">
+                        <label htmlFor={`${fieldId}-tax-pctCode-${index}`} className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-2">
                           Código Porcentaje
                         </label>
                         <select
+                          id={`${fieldId}-tax-pctCode-${index}`}
                           value={tax.percentageCode}
                           onChange={(e) => updateTax(index, 'percentageCode', e.target.value)}
                           className="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-900/50 text-gray-800 dark:text-white"
@@ -352,10 +375,11 @@ export default function RetentionForm({ business, clients, onSubmit }: Retention
                       </div>
 
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-2">
+                        <label htmlFor={`${fieldId}-tax-base-${index}`} className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-2">
                           Base Imponible
                         </label>
                         <input
+                          id={`${fieldId}-tax-base-${index}`}
                           type="number"
                           step="0.01"
                           value={tax.baseImponible}
@@ -365,10 +389,11 @@ export default function RetentionForm({ business, clients, onSubmit }: Retention
                       </div>
 
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-2">
+                        <label htmlFor={`${fieldId}-tax-pct-${index}`} className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-2">
                           Porcentaje (%)
                         </label>
                         <input
+                          id={`${fieldId}-tax-pct-${index}`}
                           type="number"
                           step="0.01"
                           value={tax.percentage}
@@ -378,10 +403,11 @@ export default function RetentionForm({ business, clients, onSubmit }: Retention
                       </div>
 
                       <div className="md:col-span-2">
-                        <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-2">
+                        <label htmlFor={`${fieldId}-tax-value-${index}`} className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-2">
                           Valor Retenido
                         </label>
                         <input
+                          id={`${fieldId}-tax-value-${index}`}
                           type="number"
                           step="0.01"
                           value={tax.taxValue.toFixed(2)}

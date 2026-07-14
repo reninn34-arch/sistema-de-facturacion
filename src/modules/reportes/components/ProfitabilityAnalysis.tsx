@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useId } from 'react';
 import { ChartBarIcon, ArrowDownTrayIcon, LightBulbIcon } from '@heroicons/react/24/outline';
 import { Product, Document, ProductProfitability } from '../../../types/types';
 
@@ -9,6 +9,7 @@ interface ProfitabilityAnalysisProps {
 }
 
 export default function ProfitabilityAnalysis({ products, documents, onNotify }: ProfitabilityAnalysisProps) {
+  const fieldId = useId();
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
   const [sortBy, setSortBy] = useState<'revenue' | 'profit' | 'margin'>('profit');
@@ -113,7 +114,7 @@ export default function ProfitabilityAnalysis({ products, documents, onNotify }:
               <p className="text-sm text-slate-500 dark:text-slate-400 font-bold">Utilidad por producto</p>
             </div>
           </div>
-          <button
+          <button type="button"
             onClick={exportToCSV}
             disabled={profitabilityData.length === 0}
             className="px-6 py-3 bg-sky-500 text-white rounded-xl font-bold text-sm hover:bg-sky-600 disabled:opacity-50 disabled:cursor-not-allowed"
@@ -124,8 +125,9 @@ export default function ProfitabilityAnalysis({ products, documents, onNotify }:
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
           <div className="space-y-2">
-            <label className="text-xs font-bold text-slate-600 dark:text-slate-400 uppercase">Fecha Inicio</label>
+            <label htmlFor={`${fieldId}-startDate`} className="text-xs font-bold text-slate-600 dark:text-slate-400 uppercase">Fecha Inicio</label>
             <input
+              id={`${fieldId}-startDate`}
               type="date"
               value={startDate}
               onChange={e => setStartDate(e.target.value)}
@@ -133,8 +135,9 @@ export default function ProfitabilityAnalysis({ products, documents, onNotify }:
             />
           </div>
           <div className="space-y-2">
-            <label className="text-xs font-bold text-slate-600 dark:text-slate-400 uppercase">Fecha Fin</label>
+            <label htmlFor={`${fieldId}-endDate`} className="text-xs font-bold text-slate-600 dark:text-slate-400 uppercase">Fecha Fin</label>
             <input
+              id={`${fieldId}-endDate`}
               type="date"
               value={endDate}
               onChange={e => setEndDate(e.target.value)}
@@ -142,8 +145,9 @@ export default function ProfitabilityAnalysis({ products, documents, onNotify }:
             />
           </div>
           <div className="space-y-2">
-            <label className="text-xs font-bold text-slate-600 dark:text-slate-400 uppercase">Ordenar Por</label>
+            <label htmlFor={`${fieldId}-sortBy`} className="text-xs font-bold text-slate-600 dark:text-slate-400 uppercase">Ordenar Por</label>
             <select
+              id={`${fieldId}-sortBy`}
               value={sortBy}
               onChange={e => setSortBy(e.target.value as any)}
               className="w-full p-3 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-xl font-bold text-sm text-slate-800 dark:text-slate-200"
@@ -188,8 +192,8 @@ export default function ProfitabilityAnalysis({ products, documents, onNotify }:
               </tr>
             </thead>
             <tbody>
-              {profitabilityData.map((item, idx) => (
-                <tr key={idx} className="border-b border-slate-100 dark:border-slate-700/50 hover:bg-slate-50 dark:hover:bg-slate-700/30">
+              {profitabilityData.map((item) => (
+                <tr key={item.productCode} className="border-b border-slate-100 dark:border-slate-700/50 hover:bg-slate-50 dark:hover:bg-slate-700/30">
                   <td className="p-3 font-mono text-xs text-slate-600 dark:text-slate-400">{item.productCode}</td>
                   <td className="p-3 font-bold text-slate-800 dark:text-slate-200">{item.productName}</td>
                   <td className="p-3 text-right font-bold text-slate-600 dark:text-slate-400">{item.unitsSold}</td>

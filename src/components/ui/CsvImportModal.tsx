@@ -59,7 +59,11 @@ const CsvImportModal: React.FC<CsvImportModalProps> = ({ isOpen, onClose, onImpo
           return;
         }
 
-        setRows(jsonData);
+        const decorated = jsonData.map((row: any, idx: number) => ({
+          ...row,
+          _tempId: `csv-row-${Date.now()}-${idx}`
+        }));
+        setRows(decorated);
         setStep('preview');
       } catch {
         setErrors(['Error al leer el archivo. Verifique que sea un CSV válido.']);
@@ -83,7 +87,8 @@ const CsvImportModal: React.FC<CsvImportModalProps> = ({ isOpen, onClose, onImpo
   const handleImport = async () => {
     setStep('importing');
     try {
-      await onImport(rows);
+      const clean = rows.map(({ _tempId, ...rest }: any) => rest);
+      await onImport(clean);
       setImportResult({ success: rows.length, failed: 0 });
       setStep('done');
     } catch {
@@ -113,7 +118,12 @@ const CsvImportModal: React.FC<CsvImportModalProps> = ({ isOpen, onClose, onImpo
       <div className="bg-white rounded-[2.5rem] shadow-2xl w-full max-w-3xl max-h-[85vh] flex flex-col overflow-hidden animate-in zoom-in duration-200">
         <div className="flex justify-between items-center p-6 border-b border-slate-100">
           <h2 className="text-xl font-extrabold text-slate-900">{title}</h2>
-          <button onClick={handleClose} className="p-2 hover:bg-slate-100 rounded-xl transition-colors">
+          <button
+            type="button"
+            onClick={handleClose}
+            aria-label="Cerrar importador de CSV"
+            className="p-2 hover:bg-slate-100 rounded-xl transition-colors"
+          >
             <XMarkIcon className="w-5 h-5 text-slate-500" />
           </button>
         </div>
@@ -121,26 +131,28 @@ const CsvImportModal: React.FC<CsvImportModalProps> = ({ isOpen, onClose, onImpo
         <div className="flex-1 overflow-y-auto p-6">
           {step === 'upload' && (
             <div className="space-y-6">
-              <div
+              <button
+                type="button"
+                aria-label="Seleccionar o soltar archivo CSV"
                 onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
                 onDragLeave={() => setDragOver(false)}
                 onDrop={handleDrop}
-                className={`border-2 border-dashed rounded-3xl p-12 text-center transition-all cursor-pointer ${dragOver ? 'border-sky-500 bg-sky-50' : 'border-slate-300 hover:border-slate-400'}`}
+                className={`w-full border-2 border-dashed rounded-3xl p-12 text-center transition-all cursor-pointer ${dragOver ? 'border-sky-500 bg-sky-50' : 'border-slate-300 hover:border-slate-400'}`}
                 onClick={() => fileInputRef.current?.click()}
               >
                 <DocumentArrowUpIcon className="w-16 h-16 text-slate-300 mx-auto mb-4" />
                 <p className="text-lg font-bold text-slate-700 mb-2">Suelta tu archivo aquí</p>
                 <p className="text-sm text-slate-500 mb-4">o haz clic para seleccionar</p>
                 <span className="text-xs text-slate-400 bg-slate-100 px-4 py-2 rounded-full font-medium">CSV (.csv)</span>
-                <input ref={fileInputRef} type="file" accept=".csv" className="hidden" onChange={handleFileChange} />
-              </div>
+              </button>
+              <input ref={fileInputRef} type="file" accept=".csv" className="hidden" onChange={handleFileChange} />
 
               <div className="bg-sky-50 rounded-2xl p-5 flex items-start gap-3">
                 <ArrowDownTrayIcon className="w-5 h-5 text-sky-500 flex-shrink-0 mt-0.5" />
                 <div>
                   <p className="text-sm font-bold text-sky-700 mb-1">Descarga la plantilla</p>
                   <p className="text-xs text-sky-600 mb-3">Usa este formato para asegurar que los datos se importen correctamente.</p>
-                  <button onClick={downloadSample} className="text-xs font-bold bg-sky-500 text-white px-4 py-2 rounded-xl hover:bg-sky-600 transition-colors">
+                  <button type="button" onClick={downloadSample} className="text-xs font-bold bg-sky-500 text-white px-4 py-2 rounded-xl hover:bg-sky-600 transition-colors">
                     Descargar Plantilla
                   </button>
                 </div>
@@ -148,11 +160,19 @@ const CsvImportModal: React.FC<CsvImportModalProps> = ({ isOpen, onClose, onImpo
 
               {errors.length > 0 && (
                 <div className="bg-red-50 border border-red-200 rounded-2xl p-4">
-                  {errors.map((e, i) => (
-                    <p key={i} className="text-sm text-red-600 flex items-center gap-2">
-                      <ExclamationTriangleIcon className="w-4 h-4 flex-shrink-0" />{e}
-                    </p>
-                  ))}
+                  {(() => {
+                    // Key por contenido + nº de ocurrencia (estable, sin índice)
+                    const seen = new Map<string, number>();
+                    return errors.map((e) => {
+                      const n = (seen.get(e) || 0) + 1;
+                      seen.set(e, n);
+                      return (
+                        <p key={`${e}#${n}`} className="text-sm text-red-600 flex items-center gap-2">
+                          <ExclamationTriangleIcon className="w-4 h-4 flex-shrink-0" />{e}
+                        </p>
+                      );
+                    });
+                  })()}
                 </div>
               )}
             </div>
@@ -165,7 +185,7 @@ const CsvImportModal: React.FC<CsvImportModalProps> = ({ isOpen, onClose, onImpo
                   <p className="text-sm font-bold text-slate-700">{rows.length} registros encontrados</p>
                   <p className="text-xs text-slate-400">{headers.length} columnas detectadas</p>
                 </div>
-                <button onClick={() => setStep('upload')} className="text-xs font-bold text-slate-500 hover:text-slate-700">
+                <button type="button" onClick={() => setStep('upload')} className="text-xs font-bold text-slate-500 hover:text-slate-700">
                   Cambiar archivo
                 </button>
               </div>
@@ -183,7 +203,7 @@ const CsvImportModal: React.FC<CsvImportModalProps> = ({ isOpen, onClose, onImpo
                   </thead>
                   <tbody className="divide-y divide-slate-100">
                     {rows.slice(0, 50).map((row, i) => (
-                      <tr key={i} className="hover:bg-slate-50">
+                      <tr key={row._tempId} className="hover:bg-slate-50">
                         <td className="p-3 text-slate-400 font-mono">{i + 1}</td>
                         {headers.slice(0, 8).map(h => (
                           <td key={h} className="p-3 text-slate-700 font-medium max-w-[150px] truncate">{String(row[h] ?? '')}</td>
@@ -200,7 +220,7 @@ const CsvImportModal: React.FC<CsvImportModalProps> = ({ isOpen, onClose, onImpo
                 )}
               </div>
 
-              <button
+              <button type="button"
                 onClick={handleImport}
                 className="w-full py-4 bg-sky-500 text-white font-black rounded-2xl hover:bg-sky-600 transition-all text-sm uppercase tracking-wider"
               >
@@ -224,7 +244,7 @@ const CsvImportModal: React.FC<CsvImportModalProps> = ({ isOpen, onClose, onImpo
               <p className="text-slate-500">
                 <span className="font-bold text-emerald-600">{importResult.success}</span> {entityType} importados exitosamente
               </p>
-              <button
+              <button type="button"
                 onClick={handleClose}
                 className="px-8 py-3 bg-sky-500 text-white font-bold rounded-xl hover:bg-sky-600 transition-colors"
               >

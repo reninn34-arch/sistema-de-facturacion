@@ -1,4 +1,4 @@
-import React, { useRef } from 'react';
+import React, { useRef, useId } from 'react';
 import { KeyIcon, EyeIcon, EyeSlashIcon, TrashIcon } from '@heroicons/react/24/outline';
 
 interface ConfigSignatureSectionProps {
@@ -22,6 +22,7 @@ const ConfigSignatureSection: React.FC<ConfigSignatureSectionProps> = ({
   setSignatureFile, setSignatureBuffer, setSignaturePassword, setShowSignaturePassword,
   setBusinessInfo, saveBusinessField, saveBusinessConfig, showNotify, handleSignatureFileChange
 }) => {
+  const fieldId = useId();
   return (
     <div className="space-y-8">
       <section className="bg-slate-900 dark:bg-slate-900 text-white p-10 rounded-[3rem] space-y-8 shadow-2xl dark:shadow-black/30 border border-transparent dark:border-slate-700/50">
@@ -38,9 +39,9 @@ const ConfigSignatureSection: React.FC<ConfigSignatureSectionProps> = ({
           </label>
 
           <div className="space-y-2">
-            <label className="text-[9px] font-black text-slate-500 uppercase tracking-widest">Contraseña de Firma</label>
+            <label htmlFor={`${fieldId}-signaturePassword`} className="text-[9px] font-black text-slate-500 uppercase tracking-widest">Contraseña de Firma</label>
             <div className="relative">
-              <input type={showSignaturePassword ? "text" : "password"} placeholder="••••••••" value={signaturePassword}
+              <input id={`${fieldId}-signaturePassword`} type={showSignaturePassword ? "text" : "password"} placeholder="••••••••" value={signaturePassword}
                 onChange={e => {
                   setSignaturePassword(e.target.value);
                   const updatedFeatures = { ...((businessInfo as any).features || {}), signaturePassword: e.target.value };
@@ -58,9 +59,9 @@ const ConfigSignatureSection: React.FC<ConfigSignatureSectionProps> = ({
             <button type="button" onClick={() => {
               setSignatureFile(null); setSignatureBuffer(null); setSignaturePassword('');
               const clearedFeatures = { ...((businessInfo as any).features || {}), signatureP12: null, signaturePassword: '' };
-              setBusinessInfo((prev: any) => ({ ...prev, features: clearedFeatures }));
+              setBusinessInfo((prev: any) => ({ ...prev, features: clearedFeatures, isProduction: false }));
               saveBusinessField({ features: clearedFeatures });
-              showNotify('Firma digital eliminada. Puedes activar el modo demo.');
+              showNotify('Firma eliminada. El sistema volvió a modo pruebas automáticamente.');
             }}
               className="w-full py-3 bg-red-500/20 hover:bg-red-500/30 text-red-400 rounded-2xl font-bold text-xs uppercase tracking-widest transition-all inline-flex items-center justify-center gap-2">
               <TrashIcon className="w-4 h-4" /> Eliminar Firma Digital
@@ -73,7 +74,7 @@ const ConfigSignatureSection: React.FC<ConfigSignatureSectionProps> = ({
         </p>
       </section>
 
-      <button onClick={saveBusinessConfig}
+      <button type="submit" onClick={saveBusinessConfig}
         className="w-full py-6 bg-sky-500 hover:bg-sky-600 text-white rounded-[2.5rem] font-black uppercase text-xs tracking-widest shadow-2xl shadow-sky-500/20 transition-all hover:scale-[1.02] active:scale-95">
         Guardar Cambios Legales
       </button>

@@ -1,5 +1,5 @@
-﻿
-import React, { useState, useRef, useEffect } from 'react';
+
+import React, { useState, useRef, useEffect, useId } from 'react';
 import { Product } from '../../../types/types';
 import { TAX_RATES, PRODUCT_CATEGORIES } from '../../../constants';
 import { CameraIcon, ArrowDownTrayIcon } from '@heroicons/react/24/outline';
@@ -20,6 +20,7 @@ interface ProductManagerProps {
 const API_URL = import.meta.env.VITE_BACKEND_URL || '';
 
 const ProductManager: React.FC<ProductManagerProps> = ({ products, setProducts, onNotify, isDemoMode, businessType, isProduction }) => {
+  const fieldId = useId();
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [activeTab, setActiveTab] = useState<InventoryTab>('all');
 
@@ -217,7 +218,7 @@ const ProductManager: React.FC<ProductManagerProps> = ({ products, setProducts, 
         stock: parseInt(r.stock || r.Stock || 0) || 0,
         minStock: parseInt(r.stock_minimo || r.minStock || 0) || 0,
         taxRate: parseInt(r.iva || r.taxRate || 15) || 15,
-        type: 'BIEN',
+        type: 'FISICO',
         category: 'Otros',
         isRawMaterial: false,
         unitOfMeasure: 'UNIDAD'
@@ -269,11 +270,11 @@ const ProductManager: React.FC<ProductManagerProps> = ({ products, setProducts, 
           <p className={`text-xs ${isDarkMode ? 'text-slate-500' : 'text-slate-400'} font-bold uppercase tracking-widest mt-1`}>Gestión de stock y tarifas multitarifa</p>
         </div>
         <div className="flex gap-3">
-          <button onClick={() => setShowImportModal(true)} className="bg-slate-100 text-slate-600 px-6 py-4 rounded-2xl font-black text-xs uppercase tracking-widest hover:scale-105 transition-all flex items-center gap-2">
+          <button type="button" onClick={() => setShowImportModal(true)} className="bg-slate-100 text-slate-600 px-6 py-4 rounded-2xl font-black text-xs uppercase tracking-widest hover:scale-105 transition-all flex items-center gap-2">
             <ArrowDownTrayIcon className="w-4 h-4" />
             Importar
           </button>
-          <button onClick={() => handleOpenModal()} className="bg-sky-500 text-white px-8 py-4 rounded-2xl font-black text-xs uppercase tracking-widest shadow-xl hover:scale-105 transition-all">
+          <button type="button" onClick={() => handleOpenModal()} className="bg-sky-500 text-white px-8 py-4 rounded-2xl font-black text-xs uppercase tracking-widest shadow-xl hover:scale-105 transition-all">
             + Nuevo Producto
           </button>
         </div>
@@ -287,7 +288,7 @@ const ProductManager: React.FC<ProductManagerProps> = ({ products, setProducts, 
             { key: 'finished' as InventoryTab, label: 'Productos', emoji: '📦' },
             { key: 'service' as InventoryTab, label: 'Servicios', emoji: '⚡' },
           ]).map(tab => (
-            <button
+            <button type="button"
               key={tab.key}
               onClick={() => setActiveTab(tab.key)}
               className={`flex-1 min-w-[100px] px-4 py-3 rounded-xl text-xs font-black uppercase tracking-wider transition-all ${
@@ -360,7 +361,7 @@ const ProductManager: React.FC<ProductManagerProps> = ({ products, setProducts, 
                   </span>
                   {p.isSynced && <span className={`text-[8px] font-bold ${isDarkMode ? 'text-slate-500' : 'text-slate-400'} uppercase mt-1`}>Web Linked</span>}
                 </div>
-                <button onClick={() => handleOpenModal(p)} className={`${isDarkMode ? 'bg-slate-700 hover:bg-slate-600 text-slate-300' : 'bg-slate-50 hover:bg-slate-100 text-slate-600'} p-3 rounded-xl text-[10px] font-black uppercase transition-all`}>
+                <button type="button" onClick={() => handleOpenModal(p)} className={`${isDarkMode ? 'bg-slate-700 hover:bg-slate-600 text-slate-300' : 'bg-slate-50 hover:bg-slate-100 text-slate-600'} p-3 rounded-xl text-[10px] font-black uppercase transition-all`}>
                   Editar Ficha
                 </button>
               </div>
@@ -387,20 +388,22 @@ const ProductManager: React.FC<ProductManagerProps> = ({ products, setProducts, 
           <div className={`${isDarkMode ? 'bg-slate-800' : 'bg-white'} rounded-[3.5rem] w-full max-w-5xl shadow-2xl animate-in zoom-in duration-300 overflow-hidden flex flex-col md:flex-row max-h-[90vh]`}>
             
             <div className={`w-full md:w-80 ${isDarkMode ? 'bg-slate-700 border-slate-600' : 'bg-slate-50 border-slate-100'} p-10 flex flex-col items-center justify-center border-r`}>
-              <label className={`text-[10px] font-black ${isDarkMode ? 'text-slate-500' : 'text-slate-400'} uppercase tracking-widest mb-6 text-center`}>Imagen del Producto</label>
-              <div 
+              <span className={`text-[10px] font-black ${isDarkMode ? 'text-slate-500' : 'text-slate-400'} uppercase tracking-widest mb-6 text-center block`}>Imagen del Producto</span>
+              <button
+                type="button"
+                aria-label="Subir imagen del producto"
                 onClick={() => fileInputRef.current?.click()}
                 className="w-48 h-48 rounded-[2.5rem] bg-white border-2 border-dashed border-slate-200 flex items-center justify-center cursor-pointer overflow-hidden group relative hover:border-indigo-400 transition-all shadow-inner"
               >
                 {formData.imageUrl ? (
-                  <img src={formData.imageUrl} className="w-full h-full object-cover group-hover:opacity-50 transition-opacity" />
+                  <img src={formData.imageUrl} className="w-full h-full object-cover group-hover:opacity-50 transition-opacity" alt="Imagen del producto" />
                 ) : (
                   <div className="text-center p-4">
                     <CameraIcon className="w-10 h-10 mx-auto mb-2 text-slate-300 dark:text-slate-600" />
                     <span className={`text-[10px] font-black ${isDarkMode ? 'text-slate-500' : 'text-slate-400'} uppercase`}>Subir Foto</span>
                   </div>
                 )}
-              </div>
+              </button>
               <input type="file" ref={fileInputRef} className="hidden" accept="image/*" onChange={handleImageChange} />
               
               {formData.isSynced && (
@@ -415,47 +418,47 @@ const ProductManager: React.FC<ProductManagerProps> = ({ products, setProducts, 
               <div className="flex justify-between items-start mb-10">
                 <h4 className={`text-3xl font-black ${isDarkMode ? 'text-white' : 'text-slate-900'} tracking-tighter`}>Ficha Técnica</h4>
                 <div className="flex gap-2">
-                   <button onClick={() => setFormData({...formData, type: 'FISICO'})} className={`px-4 py-2 rounded-xl text-[10px] font-black uppercase transition-all ${formData.type === 'FISICO' ? 'bg-sky-500 text-white' : (isDarkMode ? 'bg-slate-600 text-slate-300' : 'bg-slate-100 text-slate-400')}`}>Físico</button>
-                   <button onClick={() => setFormData({...formData, type: 'SERVICIO'})} className={`px-4 py-2 rounded-xl text-[10px] font-black uppercase transition-all ${formData.type === 'SERVICIO' ? 'bg-amber-500 text-white' : (isDarkMode ? 'bg-slate-600 text-slate-300' : 'bg-slate-100 text-slate-400')}`}>Servicio</button>
+                   <button type="button" onClick={() => setFormData({...formData, type: 'FISICO'})} className={`px-4 py-2 rounded-xl text-[10px] font-black uppercase transition-all ${formData.type === 'FISICO' ? 'bg-sky-500 text-white' : (isDarkMode ? 'bg-slate-600 text-slate-300' : 'bg-slate-100 text-slate-400')}`}>Físico</button>
+                   <button type="button" onClick={() => setFormData({...formData, type: 'SERVICIO'})} className={`px-4 py-2 rounded-xl text-[10px] font-black uppercase transition-all ${formData.type === 'SERVICIO' ? 'bg-amber-500 text-white' : (isDarkMode ? 'bg-slate-600 text-slate-300' : 'bg-slate-100 text-slate-400')}`}>Servicio</button>
                 </div>
               </div>
 
               <div className="space-y-8">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div className="space-y-2">
-                    <label className={`text-[10px] font-black ${isDarkMode ? 'text-slate-500' : 'text-slate-400'} uppercase tracking-widest ml-1`}>Nombre / Descripción</label>
-                    <input value={formData.description} className={`w-full p-4 ${isDarkMode ? 'bg-slate-700 text-white border-slate-600' : 'bg-slate-50'} rounded-2xl font-bold outline-none border-2 border-transparent focus:border-sky-500 transition-all`} onChange={e => setFormData({...formData, description: e.target.value})} placeholder="Ej: Laptop Dell Inspiron..." />
+                    <label htmlFor={`${fieldId}-description`} className={`text-[10px] font-black ${isDarkMode ? 'text-slate-500' : 'text-slate-400'} uppercase tracking-widest ml-1`}>Nombre / Descripción</label>
+                    <input id={`${fieldId}-description`} value={formData.description} className={`w-full p-4 ${isDarkMode ? 'bg-slate-700 text-white border-slate-600' : 'bg-slate-50'} rounded-2xl font-bold outline-none border-2 border-transparent focus:border-sky-500 transition-all`} onChange={e => setFormData({...formData, description: e.target.value})} placeholder="Ej: Laptop Dell Inspiron..." />
                   </div>
                   <div className="space-y-2">
-                    <label className={`text-[10px] font-black ${isDarkMode ? 'text-slate-500' : 'text-slate-400'} uppercase tracking-widest ml-1`}>Código SKU / Barra</label>
-                    <input value={formData.code} className={`w-full p-4 ${isDarkMode ? 'bg-slate-700 text-white border-slate-600' : 'bg-slate-50'} rounded-2xl font-bold outline-none border-2 border-transparent focus:border-sky-500 transition-all`} onChange={e => setFormData({...formData, code: e.target.value})} placeholder="Ej: LP-001" />
+                    <label htmlFor={`${fieldId}-code`} className={`text-[10px] font-black ${isDarkMode ? 'text-slate-500' : 'text-slate-400'} uppercase tracking-widest ml-1`}>Código SKU / Barra</label>
+                    <input id={`${fieldId}-code`} value={formData.code} className={`w-full p-4 ${isDarkMode ? 'bg-slate-700 text-white border-slate-600' : 'bg-slate-50'} rounded-2xl font-bold outline-none border-2 border-transparent focus:border-sky-500 transition-all`} onChange={e => setFormData({...formData, code: e.target.value})} placeholder="Ej: LP-001" />
                   </div>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                    <div className="space-y-2">
-                    <label className={`text-[10px] font-black ${isDarkMode ? 'text-slate-500' : 'text-slate-400'} uppercase tracking-widest ml-1`}>Categoría</label>
-                    <select className="w-full p-4 bg-slate-50 rounded-2xl font-bold outline-none border-2 border-transparent focus:border-sky-500 transition-all appearance-none" value={formData.category} onChange={e => setFormData({...formData, category: e.target.value})}>
+                    <label htmlFor={`${fieldId}-category`} className={`text-[10px] font-black ${isDarkMode ? 'text-slate-500' : 'text-slate-400'} uppercase tracking-widest ml-1`}>Categoría</label>
+                    <select id={`${fieldId}-category`} className="w-full p-4 bg-slate-50 rounded-2xl font-bold outline-none border-2 border-transparent focus:border-sky-500 transition-all appearance-none" value={formData.category} onChange={e => setFormData({...formData, category: e.target.value})}>
                       {PRODUCT_CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
                     </select>
                   </div>
                   <div className="space-y-2">
-                    <label className={`text-[10px] font-black ${isDarkMode ? 'text-slate-500' : 'text-slate-400'} uppercase tracking-widest ml-1`}>Impuesto IVA</label>
-                    <select className="w-full p-4 bg-slate-50 rounded-2xl font-bold outline-none border-2 border-transparent focus:border-sky-500 transition-all appearance-none" value={formData.taxRate} onChange={e => setFormData({...formData, taxRate: Number(e.target.value)})}>
+                    <label htmlFor={`${fieldId}-taxRate`} className={`text-[10px] font-black ${isDarkMode ? 'text-slate-500' : 'text-slate-400'} uppercase tracking-widest ml-1`}>Impuesto IVA</label>
+                    <select id={`${fieldId}-taxRate`} className="w-full p-4 bg-slate-50 rounded-2xl font-bold outline-none border-2 border-transparent focus:border-sky-500 transition-all appearance-none" value={formData.taxRate} onChange={e => setFormData({...formData, taxRate: Number(e.target.value)})}>
                       {TAX_RATES.map(r => <option key={r.value} value={r.value}>{r.label}</option>)}
                     </select>
                   </div>
                   <div className="space-y-2">
-                    <label className={`text-[10px] font-black ${isDarkMode ? 'text-slate-500' : 'text-slate-400'} uppercase tracking-widest ml-1`}>Stock Actual{formData.unitOfMeasure ? ` (${formData.unitOfMeasure})` : ''}</label>
-                    <input type="number" value={formData.stock} className={`w-full p-4 ${isDarkMode ? 'bg-slate-700 text-white border-slate-600' : 'bg-slate-50'} rounded-2xl font-bold outline-none border-2 border-transparent focus:border-sky-500 transition-all`} onChange={e => setFormData({...formData, stock: Number(e.target.value)})} />
+                    <label htmlFor={`${fieldId}-stock`} className={`text-[10px] font-black ${isDarkMode ? 'text-slate-500' : 'text-slate-400'} uppercase tracking-widest ml-1`}>Stock Actual{formData.unitOfMeasure ? ` (${formData.unitOfMeasure})` : ''}</label>
+                    <input id={`${fieldId}-stock`} type="number" value={formData.stock} className={`w-full p-4 ${isDarkMode ? 'bg-slate-700 text-white border-slate-600' : 'bg-slate-50'} rounded-2xl font-bold outline-none border-2 border-transparent focus:border-sky-500 transition-all`} onChange={e => setFormData({...formData, stock: Number(e.target.value)})} />
                   </div>
                 </div>
 
                 {showProductionTabs && (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
                   <div className="space-y-2">
-                    <label className={`text-[10px] font-black ${isDarkMode ? 'text-slate-500' : 'text-slate-400'} uppercase tracking-widest ml-1`}>Unidad de Medida</label>
-                    <select className="w-full p-4 bg-slate-50 rounded-2xl font-bold outline-none border-2 border-transparent focus:border-sky-500 transition-all appearance-none" value={formData.unitOfMeasure || 'UNIDAD'} onChange={e => setFormData({...formData, unitOfMeasure: e.target.value})}>
+                    <label htmlFor={`${fieldId}-unit`} className={`text-[10px] font-black ${isDarkMode ? 'text-slate-500' : 'text-slate-400'} uppercase tracking-widest ml-1`}>Unidad de Medida</label>
+                    <select id={`${fieldId}-unit`} className="w-full p-4 bg-slate-50 rounded-2xl font-bold outline-none border-2 border-transparent focus:border-sky-500 transition-all appearance-none" value={formData.unitOfMeasure || 'UNIDAD'} onChange={e => setFormData({...formData, unitOfMeasure: e.target.value})}>
                       <option value="kg">Kilogramo (kg)</option>
                       <option value="g">Gramo (g)</option>
                       <option value="lb">Libra (lb)</option>
@@ -484,23 +487,23 @@ const ProductManager: React.FC<ProductManagerProps> = ({ products, setProducts, 
                   <p className="text-[10px] font-black text-sky-500 uppercase tracking-widest mb-6">Configuración Multitarifa ($)</p>
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                     <div className="space-y-2">
-                      <label className={`text-[9px] font-black ${isDarkMode ? 'text-slate-400' : 'text-slate-400'} uppercase ml-1`}>PVP Público</label>
-                      <input type="number" step="0.01" value={formData.price} className={`w-full p-4 ${isDarkMode ? 'bg-slate-700 text-white border-slate-500' : 'bg-white'} rounded-2xl font-black outline-none border focus:ring-2 focus:ring-blue-500 transition-all`} onChange={e => setFormData({...formData, price: Number(e.target.value)})} />
+                      <label htmlFor={`${fieldId}-price`} className={`text-[9px] font-black ${isDarkMode ? 'text-slate-400' : 'text-slate-400'} uppercase ml-1`}>PVP Público</label>
+                      <input id={`${fieldId}-price`} type="number" step="0.01" value={formData.price} className={`w-full p-4 ${isDarkMode ? 'bg-slate-700 text-white border-slate-500' : 'bg-white'} rounded-2xl font-black outline-none border focus:ring-2 focus:ring-blue-500 transition-all`} onChange={e => setFormData({...formData, price: Number(e.target.value)})} />
                     </div>
                     <div className="space-y-2">
-                      <label className={`text-[9px] font-black ${isDarkMode ? 'text-sky-400' : 'text-sky-500'} uppercase ml-1`}>Precio Mayorista</label>
-                      <input type="number" step="0.01" value={formData.wholesalePrice} className={`w-full p-4 ${isDarkMode ? 'bg-slate-700 text-white border-slate-500' : 'bg-white'} rounded-2xl font-black outline-none border focus:ring-2 focus:ring-blue-500 transition-all`} onChange={e => setFormData({...formData, wholesalePrice: Number(e.target.value)})} />
+                      <label htmlFor={`${fieldId}-wholesale`} className={`text-[9px] font-black ${isDarkMode ? 'text-sky-400' : 'text-sky-500'} uppercase ml-1`}>Precio Mayorista</label>
+                      <input id={`${fieldId}-wholesale`} type="number" step="0.01" value={formData.wholesalePrice} className={`w-full p-4 ${isDarkMode ? 'bg-slate-700 text-white border-slate-500' : 'bg-white'} rounded-2xl font-black outline-none border focus:ring-2 focus:ring-blue-500 transition-all`} onChange={e => setFormData({...formData, wholesalePrice: Number(e.target.value)})} />
                     </div>
                     <div className="space-y-2">
-                      <label className={`text-[9px] font-black ${isDarkMode ? 'text-sky-400' : 'text-sky-500'} uppercase ml-1`}>Distribuidor</label>
-                      <input type="number" step="0.01" value={formData.distributorPrice} className={`w-full p-4 ${isDarkMode ? 'bg-slate-700 text-white border-slate-500' : 'bg-white'} rounded-2xl font-black outline-none border focus:ring-2 focus:ring-blue-500 transition-all`} onChange={e => setFormData({...formData, distributorPrice: Number(e.target.value)})} />
+                      <label htmlFor={`${fieldId}-distributor`} className={`text-[9px] font-black ${isDarkMode ? 'text-sky-400' : 'text-sky-500'} uppercase ml-1`}>Distribuidor</label>
+                      <input id={`${fieldId}-distributor`} type="number" step="0.01" value={formData.distributorPrice} className={`w-full p-4 ${isDarkMode ? 'bg-slate-700 text-white border-slate-500' : 'bg-white'} rounded-2xl font-black outline-none border focus:ring-2 focus:ring-blue-500 transition-all`} onChange={e => setFormData({...formData, distributorPrice: Number(e.target.value)})} />
                     </div>
                   </div>
                 </div>
 
                 <div className="flex gap-4 pt-4">
-                  <button onClick={() => setShowModal(false)} className={`flex-1 py-5 font-black ${isDarkMode ? 'text-slate-500 hover:text-slate-300' : 'text-slate-400 hover:text-slate-600'} uppercase text-[10px] tracking-widest transition-colors`}>Descartar</button>
-                  <button onClick={handleSave} disabled={loading} className={`flex-[2] py-5 font-black bg-sky-500 text-white rounded-[1.5rem] shadow-xl shadow-indigo-100 uppercase text-[10px] tracking-widest hover:scale-[1.02] active:scale-95 transition-all ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}>
+                  <button type="button" onClick={() => setShowModal(false)} className={`flex-1 py-5 font-black ${isDarkMode ? 'text-slate-500 hover:text-slate-300' : 'text-slate-400 hover:text-slate-600'} uppercase text-[10px] tracking-widest transition-colors`}>Descartar</button>
+                  <button type="submit" onClick={handleSave} disabled={loading} className={`flex-[2] py-5 font-black bg-sky-500 text-white rounded-[1.5rem] shadow-xl shadow-indigo-100 uppercase text-[10px] tracking-widest hover:scale-[1.02] active:scale-95 transition-all ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}>
                     {loading ? 'Guardando...' : (editingProd ? 'Actualizar Ficha' : 'Registrar Producto')}
                   </button>
                 </div>

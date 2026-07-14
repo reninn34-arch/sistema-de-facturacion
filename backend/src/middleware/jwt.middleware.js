@@ -12,7 +12,14 @@ const JWT_SECRET = process.env.JWT_SECRET;
 
 const verifyToken = async (req, res, next) => {
     const authHeader = req.headers['authorization'];
-    const token = authHeader && authHeader.split(' ')[1]; // Bearer TOKEN
+    let token = authHeader && authHeader.split(' ')[1]; // Bearer TOKEN
+
+    // Cabeceras heredadas pueden enviar "Bearer null" o "cookie_authenticated" si el cliente ya no
+    // guarda el token en localStorage: tratarlas como ausentes.
+    if (!token || token === 'null' || token === 'undefined' || token === 'cookie_authenticated') {
+        // Fuente principal: cookie HttpOnly emitida por el servidor en el login.
+        token = req.cookies?.adminToken || req.cookies?.clientToken || null;
+    }
 
     if (!token) {
         return next(new AppError('Acceso denegado. Token no proporcionado.', 401));

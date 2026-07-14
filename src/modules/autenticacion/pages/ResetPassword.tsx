@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useId } from 'react';
 import {
   LockClosedIcon,
   EyeIcon,
@@ -12,6 +12,7 @@ import {
 const API_URL = import.meta.env.VITE_BACKEND_URL || '';
 
 const ResetPassword: React.FC<{ type?: 'admin' | 'client' }> = ({ type = 'admin' }) => {
+  const fieldId = useId();
   const searchParams = new URLSearchParams(window.location.search);
   const token = searchParams.get('token') || '';
   const identification = searchParams.get('id') || '';
@@ -118,12 +119,13 @@ const ResetPassword: React.FC<{ type?: 'admin' | 'client' }> = ({ type = 'admin'
           {token ? (
             <form onSubmit={handleSubmit} className="space-y-5">
               <div>
-                <label className="block text-sm font-bold text-slate-700 mb-1.5">Nueva Contraseña</label>
+                <label htmlFor={`${fieldId}-newPassword`} className="block text-sm font-bold text-slate-700 mb-1.5">Nueva Contraseña</label>
                 <div className="relative">
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
                     <LockClosedIcon className="w-5 h-5" />
                   </div>
                   <input
+                    id={`${fieldId}-newPassword`}
                     type={showPassword ? 'text' : 'password'}
                     value={newPassword}
                     onChange={(e) => setNewPassword(e.target.value)}
@@ -138,12 +140,13 @@ const ResetPassword: React.FC<{ type?: 'admin' | 'client' }> = ({ type = 'admin'
               </div>
 
               <div>
-                <label className="block text-sm font-bold text-slate-700 mb-1.5">Confirmar Contraseña</label>
+                <label htmlFor={`${fieldId}-confirmPassword`} className="block text-sm font-bold text-slate-700 mb-1.5">Confirmar Contraseña</label>
                 <div className="relative">
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
                     <LockClosedIcon className="w-5 h-5" />
                   </div>
                   <input
+                    id={`${fieldId}-confirmPassword`}
                     type={showPassword ? 'text' : 'password'}
                     value={confirmPassword}
                     onChange={(e) => setConfirmPassword(e.target.value)}

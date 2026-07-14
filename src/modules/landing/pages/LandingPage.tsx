@@ -36,6 +36,7 @@ interface ApiPlan {
   name: string;
   description: string;
   price: number;
+  priceWithTax?: number;
   period: string;
   durationDays: number;
   features: string[];
@@ -219,6 +220,13 @@ const LandingPage: React.FC = () => {
 
   useEffect(() => { landingContentRef.current = landingContent; }, [landingContent]);
 
+  // La landing solo tiene tema claro: si otra página dejó activada la clase
+  // "dark" en <html> (p. ej. /suscripcion), los overrides globales de
+  // index.css (.dark .bg-white, etc.) rompen los colores. La quitamos aquí.
+  useEffect(() => {
+    document.documentElement.classList.remove('dark');
+  }, []);
+
   useEffect(() => {
     fetch(`${API_URL}/api/landing-content`)
       .then(r => r.json())
@@ -292,7 +300,7 @@ const LandingPage: React.FC = () => {
       .then(r => r.json())
       .then(data => {
         const rawPlans: ApiPlan[] = data.plans || data || [];
-        const filtered = rawPlans.filter((p) => p.isActive);
+        const filtered = rawPlans.filter((p) => p.isActive && p.code !== 'UNLIMITED' && p.code !== 'PENDING');
         const withHighlight = filtered.map((p, i) => ({
           ...p,
           highlighted: i === 1
@@ -301,11 +309,11 @@ const LandingPage: React.FC = () => {
       })
       .catch(() => {
         setPlans([
-          { id: '1', code: 'FREE', name: 'Gratuito', description: 'Para pruebas y micro-emprendedores', price: 0, period: 'mensual', durationDays: 30, features: ['1 empresa', '10 facturas/mes'], isActive: true, highlighted: false },
-          { id: '2', code: 'BASIC', name: 'Básico', description: 'Para pequenas empresas', price: 34.49, period: 'mensual', durationDays: 30, features: ['1 empresa', '100 facturas/mes', 'Reportes básicos'], isActive: true, highlighted: true },
-          { id: '3', code: 'GASTRONOMICO', name: 'Gastronómico', description: 'Para restaurantes, panaderías y cafeterías', price: 91.99, period: 'mensual', durationDays: 30, features: ['1 empresa', '300 facturas/mes', 'Caja POS', 'Recetas', 'Asistente IA'], isActive: true, highlighted: false },
-          { id: '4', code: 'PRO', name: 'Profesional', description: 'Para negocios en crecimiento', price: 172.49, period: 'mensual', durationDays: 30, features: ['3 empresas', '500 facturas/mes', 'Asistente IA', 'Soporte prioritario'], isActive: true, highlighted: false },
-          { id: '5', code: 'ENTERPRISE', name: 'Empresarial', description: 'Para grandes organizaciones', price: 287.49, period: 'mensual', durationDays: 30, features: ['10 empresas', '2000 facturas/mes', 'API Access', 'Soporte 24/7'], isActive: true, highlighted: false },
+          { id: '1', code: 'FREE', name: 'Plan Gratuito', description: 'Plan gratuito para pruebas y micro-emprendedores', price: 0, period: 'mensual', durationDays: 30, features: ['1 empresa', '10 facturas/mes'], isActive: true, highlighted: false },
+          { id: '2', code: 'BASIC', name: 'Plan Básico', description: 'Plan básico para pequeñas empresas', price: 35.00, period: 'mensual', durationDays: 30, features: ['1 empresa', '100 facturas/mes', 'Reportes básicos'], isActive: true, highlighted: true },
+          { id: '3', code: 'GASTRONOMICO', name: 'Plan Gastronómico', description: 'Para restaurantes, panaderías y cafeterías', price: 90.00, period: 'mensual', durationDays: 30, features: ['1 empresa', '300 facturas/mes', 'Caja POS', 'Recetas', 'Asistente IA'], isActive: true, highlighted: false },
+          { id: '4', code: 'PRO', name: 'Plan Profesional', description: 'Plan profesional para negocios en crecimiento', price: 150.00, period: 'mensual', durationDays: 30, features: ['3 empresas', '500 facturas/mes', 'Asistente IA', 'Soporte prioritario'], isActive: true, highlighted: false },
+          { id: '5', code: 'ENTERPRISE', name: 'Plan Empresarial', description: 'Plan empresarial para grandes organizaciones', price: 250.00, period: 'mensual', durationDays: 30, features: ['10 empresas', '2000 facturas/mes', 'API Access', 'Soporte 24/7'], isActive: true, highlighted: false }
         ]);
       })
       .finally(() => setLoadingPlans(false));
@@ -386,7 +394,7 @@ const LandingPage: React.FC = () => {
               </a>
             </div>
 
-            <button
+            <button type="button"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               className={`lg:hidden p-2 rounded-xl transition-all duration-300 ${scrolled
                   ? 'text-slate-800 hover:bg-slate-100'
@@ -552,7 +560,7 @@ const LandingPage: React.FC = () => {
                 `${(countUptime / 10).toFixed(1)}%`,
               ];
               return (
-                <div key={idx} className={`transition-all duration-700 ${statsVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`} style={{ transitionDelay: `${idx * 150}ms` }}>
+                <div key={stat.label} className={`transition-all duration-700 ${statsVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`} style={{ transitionDelay: `${idx * 150}ms` }}>
                   <p className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-[#0EA5E9] tracking-tight">
                     {statValues[idx]}<span className="text-2xl sm:text-3xl lg:text-4xl font-bold text-[#0369A1]">{stat.suffix || ''}</span>
                   </p>
@@ -580,7 +588,7 @@ const LandingPage: React.FC = () => {
             {landingContent.painPoints.map((pain, idx) => {
               const PainIcon = painPointIcons[idx] || ExclamationTriangleIcon;
               return (
-                <div key={idx} className="scroll-fade-up bg-white rounded-3xl p-8 border border-slate-100 hover:shadow-xl transition-all duration-300 group" style={{ transitionDelay: `${idx * 100}ms` }}>
+                <div key={pain.title} className="scroll-fade-up bg-white rounded-3xl p-8 border border-slate-100 hover:shadow-xl transition-all duration-300 group" style={{ transitionDelay: `${idx * 100}ms` }}>
                   <div className="w-14 h-14 bg-red-50 rounded-2xl flex items-center justify-center mb-6 group-hover:bg-red-100 transition-colors">
                     <PainIcon className="w-7 h-7 text-red-500" />
                   </div>
@@ -609,7 +617,7 @@ const LandingPage: React.FC = () => {
             {landingContent.why.map((item, idx) => {
               const WhyIcon = whyIcons[idx] || ShieldCheckIcon;
               return (
-                <div key={idx} className="scroll-fade-up flex gap-5 bg-[#F8F9FC] rounded-2xl p-6 lg:p-8 border border-slate-100 hover:shadow-lg transition-all duration-300" style={{ transitionDelay: `${idx * 100}ms` }}>
+                <div key={item.title} className="scroll-fade-up flex gap-5 bg-[#F8F9FC] rounded-2xl p-6 lg:p-8 border border-slate-100 hover:shadow-lg transition-all duration-300" style={{ transitionDelay: `${idx * 100}ms` }}>
                   <div className="w-12 h-12 bg-[#0EA5E9] rounded-2xl flex items-center justify-center flex-shrink-0 shadow-lg shadow-[#0EA5E9]/20">
                     <WhyIcon className="w-6 h-6 text-white" />
                   </div>
@@ -674,7 +682,7 @@ const LandingPage: React.FC = () => {
             {landingContent.features.map((feature, idx) => {
               const FeatureIcon = featureIcons[idx] || CubeIcon;
               return (
-                <div key={idx} className="scroll-fade-up bg-[#F8F9FC] rounded-3xl p-8 border border-slate-100 hover:shadow-xl hover:border-[#0EA5E9]/20 transition-all duration-300 group" style={{ transitionDelay: `${idx * 80}ms` }}>
+                <div key={feature.title} className="scroll-fade-up bg-[#F8F9FC] rounded-3xl p-8 border border-slate-100 hover:shadow-xl hover:border-[#0EA5E9]/20 transition-all duration-300 group" style={{ transitionDelay: `${idx * 80}ms` }}>
                   <div className="w-14 h-14 bg-[#0EA5E9] rounded-2xl flex items-center justify-center mb-6 group-hover:bg-[#0369A1] transition-colors shadow-lg shadow-[#0EA5E9]/20">
                     <FeatureIcon className="w-7 h-7 text-white" />
                   </div>
@@ -702,7 +710,7 @@ const LandingPage: React.FC = () => {
           <div className="grid md:grid-cols-3 gap-8 relative">
             <div className="hidden md:block absolute top-12 left-[25%] right-[25%] h-0.5 bg-gradient-to-r from-[#0EA5E9]/30 via-[#0EA5E9]/60 to-[#0EA5E9]/30" />
             {landingContent.howItWorks.map((step, idx) => (
-              <div key={idx} className="scroll-fade-up text-center relative z-10" style={{ transitionDelay: `${idx * 150}ms` }}>
+              <div key={step.title} className="scroll-fade-up text-center relative z-10" style={{ transitionDelay: `${idx * 150}ms` }}>
                 <div className="w-24 h-24 bg-gradient-to-br from-[#0EA5E9] to-[#0369A1] text-white rounded-3xl flex items-center justify-center text-3xl font-extrabold mx-auto mb-6 shadow-2xl shadow-[#0EA5E9]/25">
                   {step.step}
                 </div>
@@ -757,7 +765,7 @@ const LandingPage: React.FC = () => {
 
           <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
             {landingContent.testimonials.map((t, idx) => (
-              <div key={idx} className="scroll-fade-up bg-white rounded-3xl p-8 border border-slate-100 hover:shadow-xl transition-all duration-300" style={{ transitionDelay: `${idx * 100}ms` }}>
+              <div key={t.name} className="scroll-fade-up bg-white rounded-3xl p-8 border border-slate-100 hover:shadow-xl transition-all duration-300" style={{ transitionDelay: `${idx * 100}ms` }}>
                 <div className="flex gap-1 mb-4">
                   {Array.from({ length: t.rating }).map((_, i) => (
                     <StarIcon key={i} className="w-5 h-5 text-amber-400 fill-amber-400" />
@@ -837,9 +845,9 @@ const LandingPage: React.FC = () => {
                       <span className={`text-3xl lg:text-4xl font-extrabold ${plan.ctaType === 'WHATSAPP' ? 'text-amber-500' : 'text-slate-900'}`}>
                         {plan.ctaType === 'WHATSAPP'
                           ? (plan.ctaWhatsapp?.priceLabel || 'Precio a medida')
-                          : plan.price === 0 ? 'Gratis' : `$${plan.price.toFixed(2)}`}
+                          : (plan.priceWithTax !== undefined ? plan.priceWithTax : plan.price) === 0 ? 'Gratis' : `$${(plan.priceWithTax !== undefined ? plan.priceWithTax : plan.price).toFixed(2)}`}
                       </span>
-                      {plan.price > 0 && plan.ctaType !== 'WHATSAPP' && <span className="text-slate-400 font-semibold text-sm">/{plan.period}</span>}
+                      {(plan.priceWithTax !== undefined ? plan.priceWithTax : plan.price) > 0 && plan.ctaType !== 'WHATSAPP' && <span className="text-slate-400 font-semibold text-sm">/{plan.period}</span>}
                     </div>
 
                     <ul className="mt-6 space-y-2.5 flex-1">
@@ -909,7 +917,7 @@ const LandingPage: React.FC = () => {
 
           <div className="space-y-3">
             {landingContent.faq.map((faq, idx) => (
-              <details key={idx} className="scroll-fade-up group bg-white rounded-2xl border border-slate-100 overflow-hidden shadow-sm" style={{ transitionDelay: `${idx * 80}ms` }}>
+              <details key={faq.question} className="scroll-fade-up group bg-white rounded-2xl border border-slate-100 overflow-hidden shadow-sm" style={{ transitionDelay: `${idx * 80}ms` }}>
                 <summary className="flex items-center justify-between p-5 lg:p-6 cursor-pointer hover:bg-slate-50 transition-colors list-none select-none">
                   <span className="text-base font-bold text-slate-800 pr-4">{faq.question}</span>
                   <span className="flex-shrink-0 w-8 h-8 rounded-full bg-[#F8F9FC] flex items-center justify-center text-[#0EA5E9] font-extrabold text-lg group-open:rotate-45 transition-transform duration-300">+</span>
@@ -988,7 +996,7 @@ const LandingPage: React.FC = () => {
                       <svg className="w-5 h-5" fill="currentColor" viewBox={social.viewBox}><path d={social.path} /></svg>
                     </a>
                   ) : (
-                    <button key={social.label} className="w-10 h-10 rounded-xl bg-slate-800 flex items-center justify-center hover:bg-slate-700 transition-colors text-slate-400 hover:text-white cursor-default" aria-label={social.label} tabIndex={-1}>
+                    <button type="button" key={social.label} className="w-10 h-10 rounded-xl bg-slate-800 flex items-center justify-center hover:bg-slate-700 transition-colors text-slate-400 hover:text-white cursor-default" aria-label={social.label} tabIndex={-1}>
                       <svg className="w-5 h-5" fill="currentColor" viewBox={social.viewBox}><path d={social.path} /></svg>
                     </button>
                   );
@@ -1010,7 +1018,7 @@ const LandingPage: React.FC = () => {
                 <li><a href="/ayuda" className="hover:text-white transition-colors">Centro de Ayuda</a></li>
                 <li><a href="/contacto" className="hover:text-white transition-colors">Contacto</a></li>
                 <li><a href="/legal" className="hover:text-white transition-colors">Términos y Condiciones</a></li>
-                <li><button onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} className="hover:text-white transition-colors bg-transparent border-none cursor-pointer p-0 text-slate-400">API Docs</button></li>
+                <li><button type="button" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} className="hover:text-white transition-colors bg-transparent border-none cursor-pointer p-0 text-slate-400">API Docs</button></li>
               </ul>
             </div>
             <div>

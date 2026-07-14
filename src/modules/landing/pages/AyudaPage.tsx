@@ -43,6 +43,11 @@ const AyudaPage: React.FC = () => {
   const [openFaq, setOpenFaq] = useState<number | null>(null);
   const [landingLogo, setLandingLogo] = useState<string | null | false>(null);
 
+  // Página pública solo con tema claro: limpiar la clase "dark" residual.
+  useEffect(() => {
+    document.documentElement.classList.remove('dark');
+  }, []);
+
   useEffect(() => {
     const img = new Image();
     img.onload = () => setLandingLogo('/api/settings/landing-logo');
@@ -124,8 +129,8 @@ const AyudaPage: React.FC = () => {
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="space-y-3">
             {content.faqs.map((faq, idx) => (
-              <div key={idx} className="bg-white rounded-2xl border border-slate-100 overflow-hidden shadow-sm">
-                <button
+              <div key={faq.question} className="bg-white rounded-2xl border border-slate-100 overflow-hidden shadow-sm">
+                <button type="button"
                   onClick={() => setOpenFaq(openFaq === idx ? null : idx)}
                   className="w-full flex items-center justify-between p-5 lg:p-6 hover:bg-slate-50 transition-colors text-left"
                 >

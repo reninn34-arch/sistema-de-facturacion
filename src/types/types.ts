@@ -61,6 +61,21 @@ export interface BusinessInfo {
   taxpayerType: 'PERSONA_NATURAL' | 'EMPRESA'; // Tipo de contribuyente
   businessType?: BusinessType; // Tipo de negocio (BAKERY, RESTAURANT, etc.)
   notificationSettings?: NotificationSettings;
+  // Campos devueltos por el backend (antes accedidos vía `as any`)
+  id?: string;
+  plan?: string;
+  isDemo?: boolean;
+  isActive?: boolean;
+  subscriptionEnd?: string | null;
+  subscriptionStatus?: string;
+  features?: BusinessFeatures;
+}
+
+export interface BusinessFeatures {
+  isDarkMode?: boolean;
+  signatureP12?: string;
+  signaturePassword?: string;
+  [key: string]: unknown;
 }
 
 export interface Product {
@@ -171,7 +186,7 @@ export interface Document {
   exportDetails?: ExportDetails;
   isReimbursement?: boolean;
   reimbursements?: ReimbursementDetail[];
-  source?: 'LOCAL' | 'TIENDA_ONLINE';
+  source?: 'LOCAL' | 'TIENDA_ONLINE' | 'RECEIVED';
   authorizedXml?: string; // XML autorizado por el SRI
   invoiceType?: string; // 'CLIENT' | 'SAAS' | 'MONTHLY' | 'CUSTOM'
   // Para Notas de Crédito

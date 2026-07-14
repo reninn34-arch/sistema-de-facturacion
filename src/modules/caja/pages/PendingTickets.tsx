@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Product, BusinessInfo, InvoiceItem, SriStatus, DocumentType, Document, PaymentStatus } from '../../../types/types';
 import { generateAccessKey } from '../../../utils/sri';
 import { buildInvoiceXml, authorizeWithSRI } from '../../../services/sriService';
@@ -40,7 +40,7 @@ const PendingTickets: React.FC<PendingTicketsProps> = ({
 }) => {
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [isProcessing, setIsProcessing] = useState(false);
-  const [processLog, setProcessLog] = useState<string[]>([]);
+  const [processLog, setProcessLog] = useState<{ id: string; text: string }[]>([]);
   const [emissionMode, setEmissionMode] = useState<'individual' | 'grouped'>('individual');
   const [loadingTickets, setLoadingTickets] = useState(false);
 
@@ -173,7 +173,7 @@ const PendingTickets: React.FC<PendingTicketsProps> = ({
       claveAcceso: accessKey
     } : null;
 
-    const log = (msg: string) => setProcessLog(prev => [...prev, `[${ticket.number || String(ticket.sequential).slice(-6)}] ${msg}`]);
+    const log = (msg: string) => setProcessLog(prev => [...prev, { id: `${Date.now()}-${Math.random()}`, text: `[${ticket.number || String(ticket.sequential).slice(-6)}] ${msg}` }]);
     const isDemo = (businessInfo as any).isDemo || false;
 
     const result = await authorizeWithSRI(xml, businessInfo.isProduction, signatureOptions, log, isDemo);
@@ -272,7 +272,7 @@ const PendingTickets: React.FC<PendingTicketsProps> = ({
         claveAcceso: accessKey
       } : null;
 
-      const log = (msg: string) => setProcessLog(prev => [...prev, `[LOTE] ${msg}`]);
+      const log = (msg: string) => setProcessLog(prev => [...prev, { id: `${Date.now()}-${Math.random()}`, text: `[LOTE] ${msg}` }]);
       const isDemo = (businessInfo as any).isDemo || false;
 
       const result = await authorizeWithSRI(xml, businessInfo.isProduction, signatureOptions, log, isDemo);
@@ -317,11 +317,9 @@ const PendingTickets: React.FC<PendingTicketsProps> = ({
     setIsProcessing(true);
     setProcessLog([]);
 
-    let success = 0, failed = 0;
-    for (const ticket of selectedTickets) {
-      const ok = await sendIndividualToSRI(ticket);
-      if (ok) success++; else failed++;
-    }
+    const results = await Promise.all(selectedTickets.map(ticket => sendIndividualToSRI(ticket)));
+    const success = results.filter(Boolean).length;
+    const failed = selectedTickets.length - success;
 
     onNotify(`Procesados: ${success} exitosos, ${failed} fallidos`);
     setIsProcessing(false);
@@ -361,7 +359,7 @@ const PendingTickets: React.FC<PendingTicketsProps> = ({
               <option value="individual">Factura individual por ticket</option>
               <option value="grouped">Agrupar en una sola factura (Consumidor Final)</option>
             </select>
-            <button
+            <button type="submit"
               onClick={handleProcess}
               disabled={isProcessing}
               className="px-6 py-3 rounded-2xl font-black text-xs uppercase bg-amber-600 text-white hover:bg-amber-500 disabled:bg-slate-300 shadow-lg transition-colors flex items-center gap-2"
@@ -388,8 +386,8 @@ const PendingTickets: React.FC<PendingTicketsProps> = ({
       {/* Logs de proceso */}
       {processLog.length > 0 && (
         <div className="bg-slate-900 dark:bg-slate-950 rounded-2xl p-4 font-mono text-xs text-emerald-400 max-h-48 overflow-y-auto">
-          {processLog.map((line, i) => (
-            <div key={i} className="py-0.5">{line}</div>
+          {processLog.map((log) => (
+            <div key={log.id} className="py-0.5">{log.text}</div>
           ))}
         </div>
       )}

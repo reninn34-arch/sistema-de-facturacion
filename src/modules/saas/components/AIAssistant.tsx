@@ -1,4 +1,4 @@
-﻿import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { SparklesIcon } from '@heroicons/react/24/outline';
 import { client } from '../../../api/client';
 import { BusinessInfo } from '../../../types/types';
@@ -8,6 +8,12 @@ interface Message {
   role: 'user' | 'ai';
   text: string;
   timestamp: Date;
+}
+
+interface AIProvider {
+  id: string;
+  name: string;
+  active: boolean;
 }
 
 interface AIAssistantProps {
@@ -25,6 +31,8 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ businessInfo }) => {
   ]);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
+  const [providers, setProviders] = useState<AIProvider[]>([]);
+  const [selectedProvider, setSelectedProvider] = useState<string>('');
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const scrollToBottom = () => {
@@ -32,6 +40,28 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ businessInfo }) => {
   };
 
   useEffect(scrollToBottom, [messages]);
+
+  // Cargar proveedores disponibles desde el backend
+  useEffect(() => {
+    const fetchProviders = async () => {
+      try {
+        const response = await client.get<{ providers: AIProvider[] }>('/api/ai/providers');
+        const list = response.data.providers;
+        setProviders(list);
+        
+        // Seleccionar por defecto el proveedor que venga marcado como activo
+        const active = list.find(p => p.active);
+        if (active) {
+          setSelectedProvider(active.id);
+        } else if (list.length > 0) {
+          setSelectedProvider(list[0].id);
+        }
+      } catch (error) {
+        console.error('Error fetching AI providers:', error);
+      }
+    };
+    fetchProviders();
+  }, []);
 
   const handleSend = async (e?: React.FormEvent) => {
     e?.preventDefault();
@@ -46,16 +76,17 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ businessInfo }) => {
     setLoading(true);
 
     try {
-      // Obtener info del negocio para contexto (si está disponible en localStorage o estado global)
+      // Obtener info del negocio para contexto
       const businessContext = {
         name: businessInfo.name,
         ruc: businessInfo.ruc,
         regime: businessInfo.regime,
       };
 
-      const response = await client.post<{ reply: string }>('/ai/chat', {
+      const response = await client.post<{ reply: string; provider?: string }>('/api/ai/chat', {
         message: userText,
-        context: businessContext
+        context: businessContext,
+        provider: selectedProvider || undefined
       });
 
       const aiMsg: Message = { 
@@ -79,17 +110,40 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ businessInfo }) => {
     }
   };
 
+  const activeProviderName = providers.find(p => p.id === selectedProvider)?.name || 'AI';
+
   return (
     <div className="flex flex-col h-[calc(100vh-140px)] max-w-4xl mx-auto bg-white rounded-[2.5rem] shadow-xl overflow-hidden border border-slate-100">
       {/* Header */}
-      <div className="bg-slate-900 p-6 flex items-center gap-4">
-        <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-sky-500 to-purple-600 flex items-center justify-center shadow-lg shadow-sky-500/20">
-          <SparklesIcon className="w-7 h-7 text-white" />
+      <div className="bg-slate-900 p-6 flex items-center justify-between gap-4">
+        <div className="flex items-center gap-4">
+          <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-sky-500 to-purple-600 flex items-center justify-center shadow-lg shadow-sky-500/20">
+            <SparklesIcon className="w-7 h-7 text-white" />
+          </div>
+          <div>
+            <h2 className="text-white font-black text-lg tracking-tight">Asistente Virtual</h2>
+            <p className="text-slate-400 text-xs font-medium uppercase tracking-widest">
+              Powered by {activeProviderName}
+            </p>
+          </div>
         </div>
-        <div>
-          <h2 className="text-white font-black text-lg tracking-tight">Asistente Virtual</h2>
-          <p className="text-slate-400 text-xs font-medium uppercase tracking-widest">Powered by Gemini AI</p>
-        </div>
+
+        {/* Selector de Proveedor de IA */}
+        {providers.length > 1 && (
+          <div className="relative">
+            <select
+              value={selectedProvider}
+              onChange={(e) => setSelectedProvider(e.target.value)}
+              className="bg-slate-800 text-white text-xs font-bold rounded-xl px-4 py-2 border border-slate-700 outline-none cursor-pointer hover:bg-slate-700 transition-all focus:border-sky-500"
+            >
+              {providers.map((p) => (
+                <option key={p.id} value={p.id}>
+                  {p.name}
+                </option>
+              ))}
+            </select>
+          </div>
+        )}
       </div>
 
       {/* Chat Area */}
@@ -109,7 +163,7 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ businessInfo }) => {
           </div>
         ))}
         {loading && (
-           <div className="flex justify-start">
+          <div className="flex justify-start">
             <div className="bg-white p-5 rounded-3xl rounded-bl-none border border-slate-100 shadow-sm flex gap-2 items-center">
               <div className="w-2 h-2 bg-sky-500 rounded-full animate-bounce" />
               <div className="w-2 h-2 bg-sky-500 rounded-full animate-bounce delay-75" />
@@ -127,7 +181,7 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ businessInfo }) => {
             type="text"
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            placeholder="Escribe tu consulta sobre impuestos, SRI o el sistema..."
+            placeholder={`Escribe tu consulta al asistente (${activeProviderName})...`}
             className="flex-1 bg-slate-50 hover:bg-slate-100 focus:bg-white border-2 border-transparent focus:border-sky-500 rounded-2xl px-6 py-4 outline-none transition-all text-sm font-medium text-slate-700 placeholder:text-slate-400"
             disabled={loading}
           />

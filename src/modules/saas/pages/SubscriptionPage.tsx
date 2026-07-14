@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useId } from 'react';
 import { PayPalScriptProvider, PayPalButtons } from "@paypal/react-paypal-js";
 import {
   CheckCircleIcon,
@@ -69,6 +69,7 @@ interface SubscriptionPlan {
   name: string;
   description: string;
   price: number;
+  priceWithTax?: number;
   period: string;
   durationDays: number;
   features: string[];
@@ -102,7 +103,16 @@ interface Toast {
   type: 'success' | 'error' | 'info';
 }
 
+const getDefaultPlans = (): SubscriptionPlan[] => [
+  { id: '1', code: 'FREE', name: 'Plan Gratuito', description: 'Plan gratuito para pruebas y micro-emprendedores', price: 0, period: 'mensual', durationDays: 30, features: ['1 empresa', '10 facturas/mes'], maxBusinesses: 1, maxInvoicesPerMonth: 10, hasAIAssistant: false, hasPrioritySupport: false, isActive: true },
+  { id: '2', code: 'BASIC', name: 'Plan Básico', description: 'Plan básico para pequeñas empresas', price: 35.00, period: 'mensual', durationDays: 30, features: ['1 empresa', '100 facturas/mes', 'Reportes básicos'], maxBusinesses: 1, maxInvoicesPerMonth: 100, hasAIAssistant: false, hasPrioritySupport: false, isActive: true },
+  { id: '3', code: 'GASTRONOMICO', name: 'Plan Gastronómico', description: 'Para restaurantes, panaderías y cafeterías', price: 90.00, period: 'mensual', durationDays: 30, features: ['1 empresa', '300 facturas/mes', 'Caja POS', 'Recetas', 'Asistente IA'], maxBusinesses: 1, maxInvoicesPerMonth: 300, hasAIAssistant: true, hasPrioritySupport: true, isActive: true },
+  { id: '4', code: 'PRO', name: 'Plan Profesional', description: 'Plan profesional para negocios en crecimiento', price: 150.00, period: 'mensual', durationDays: 30, features: ['3 empresas', '500 facturas/mes', 'Asistente IA', 'Soporte prioritario'], maxBusinesses: 3, maxInvoicesPerMonth: 500, hasAIAssistant: true, hasPrioritySupport: true, isActive: true },
+  { id: '5', code: 'ENTERPRISE', name: 'Plan Empresarial', description: 'Plan empresarial para grandes organizaciones', price: 250.00, period: 'mensual', durationDays: 30, features: ['10 empresas', '2000 facturas/mes', 'API Access', 'Soporte 24/7'], maxBusinesses: 10, maxInvoicesPerMonth: 2000, hasAIAssistant: true, hasPrioritySupport: true, isActive: true }
+];
+
 const SubscriptionPage: React.FC = () => {
+  const fieldId = useId();
   const urlParams = new URLSearchParams(window.location.search);
   const planFromUrl = urlParams.get('plan');
   const refFromUrl = urlParams.get('ref');
@@ -113,7 +123,7 @@ const SubscriptionPage: React.FC = () => {
   const [paymentMethod, setPaymentMethod] = useState<'PAYPAL' | 'TRANSFER'>('PAYPAL');
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-  const [plans, setPlans] = useState<SubscriptionPlan[]>([]);
+  const [plans, setPlans] = useState<SubscriptionPlan[]>(() => getDefaultPlans());
   const [loadingPlans, setLoadingPlans] = useState(true);
   const [paymentSettings, setPaymentSettings] = useState({ paypalEnabled: true, transferEnabled: true, cardEnabled: false });
   const [landingLogo, setLandingLogo] = useState<string | null | false>(null);
@@ -161,6 +171,12 @@ const SubscriptionPage: React.FC = () => {
     }
   }, [isDarkMode]);
 
+  // Al salir de esta página, no dejar el modo oscuro "pegado" en las
+  // páginas públicas (landing, ayuda, etc.) que solo tienen tema claro.
+  useEffect(() => {
+    return () => { document.documentElement.classList.remove('dark'); };
+  }, []);
+
   const toggleDarkMode = () => setIsDarkMode(!isDarkMode);
 
   const reloadPlans = async () => {
@@ -207,7 +223,7 @@ const SubscriptionPage: React.FC = () => {
         if (response.ok) {
           const data = await response.json();
           if (data.plans && data.plans.length > 0) {
-            const filteredPlans = data.plans.filter((p: SubscriptionPlan) => p.isActive);
+            const filteredPlans = data.plans.filter((p: SubscriptionPlan) => p.isActive && p.code !== 'UNLIMITED' && p.code !== 'PENDING');
             setPlans(filteredPlans);
             setLoadingPlans(false);
             return;
@@ -222,13 +238,7 @@ const SubscriptionPage: React.FC = () => {
     loadPlans();
   }, []);
 
-  const getDefaultPlans = (): SubscriptionPlan[] => [
-    { id: '1', code: 'FREE', name: 'Plan Gratuito', description: 'Plan gratuito para pruebas y micro-emprendedores', price: 0, period: 'mensual', durationDays: 30, features: ['1 empresa', '10 facturas/mes'], maxBusinesses: 1, maxInvoicesPerMonth: 10, hasAIAssistant: false, hasPrioritySupport: false, isActive: true },
-    { id: '2', code: 'BASIC', name: 'Plan Básico', description: 'Plan básico para pequeñas empresas', price: 34.49, period: 'mensual', durationDays: 30, features: ['1 empresa', '100 facturas/mes', 'Reportes básicos'], maxBusinesses: 1, maxInvoicesPerMonth: 100, hasAIAssistant: false, hasPrioritySupport: false, isActive: true },
-    { id: '3', code: 'GASTRONOMICO', name: 'Plan Gastronómico', description: 'Para restaurantes, panaderías y cafeterías', price: 91.99, period: 'mensual', durationDays: 30, features: ['1 empresa', '300 facturas/mes', 'Caja POS', 'Recetas', 'Asistente IA'], maxBusinesses: 1, maxInvoicesPerMonth: 300, hasAIAssistant: true, hasPrioritySupport: true, isActive: true },
-    { id: '4', code: 'PRO', name: 'Plan Profesional', description: 'Plan profesional para negocios en crecimiento', price: 172.49, period: 'mensual', durationDays: 30, features: ['3 empresas', '500 facturas/mes', 'Asistente IA', 'Soporte prioritario'], maxBusinesses: 3, maxInvoicesPerMonth: 500, hasAIAssistant: true, hasPrioritySupport: true, isActive: true },
-    { id: '5', code: 'ENTERPRISE', name: 'Plan Empresarial', description: 'Plan empresarial para grandes organizaciones', price: 287.49, period: 'mensual', durationDays: 30, features: ['10 empresas', '2000 facturas/mes', 'API Access', 'Soporte 24/7'], maxBusinesses: 10, maxInvoicesPerMonth: 2000, hasAIAssistant: true, hasPrioritySupport: true, isActive: true }
-  ];
+
 
   const [formData, setFormData] = useState<RegisterData>({
     businessName: '',
@@ -297,9 +307,8 @@ const SubscriptionPage: React.FC = () => {
 
       if (data.success) {
         if (paymentMethod === 'PAYPAL' || paymentMethod === 'FREE') {
-          // Guardar credenciales temporales en sessionStorage de forma segura para prellenar en el Login
+          // Guardar el email temporal en sessionStorage para prellenar en el Login
           sessionStorage.setItem('tempLoginEmail', formData.email);
-          sessionStorage.setItem('tempLoginPassword', formData.password);
 
           showNotify(
             paymentMethod === 'FREE' 
@@ -375,39 +384,39 @@ const SubscriptionPage: React.FC = () => {
   return (
     <div className="bg-[#F8F9FC] text-slate-900 min-h-screen flex flex-col" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
       {/* Header */}
-      <header className="flex items-center justify-between whitespace-nowrap border-b border-solid border-slate-200 bg-white px-6 py-4 lg:px-40 sticky top-0 z-50 shadow-sm">
-        <div className="flex items-center gap-3 cursor-pointer" onClick={() => setStep('plans')}>
+      <header className="flex items-center justify-between gap-2 whitespace-nowrap border-b border-solid border-slate-200 bg-white px-4 sm:px-6 py-3 sm:py-4 lg:px-40 sticky top-0 z-50 shadow-sm">
+        <button type="button" aria-label="Ver planes" className="flex items-center gap-3 cursor-pointer min-w-0 bg-transparent border-0 p-0" onClick={() => setStep('plans')}>
           {landingLogo && (
-            <img src={landingLogo} className="h-12 w-auto max-w-[220px] object-contain object-left" alt="Logo" />
+            <img src={landingLogo} className="h-9 sm:h-12 w-auto max-w-[130px] sm:max-w-[220px] object-contain object-left" alt="Logo" />
           )}
-        </div>
-        <div className="flex flex-1 justify-end gap-4 lg:gap-8 items-center">
+        </button>
+        <div className="flex flex-1 justify-end gap-3 lg:gap-8 items-center">
           <nav className="hidden md:flex items-center gap-8">
             <a className="text-slate-600 text-sm font-semibold hover:text-[#0EA5E9] transition-colors" href="#" onClick={() => setStep('plans')}>Planes</a>
             <a className="text-slate-600 text-sm font-semibold hover:text-[#0EA5E9] transition-colors" href="#">Características</a>
             <a className="text-slate-600 text-sm font-semibold hover:text-[#0EA5E9] transition-colors" href="#">Soporte</a>
           </nav>
           <div className="flex gap-2">
-            <button onClick={() => window.location.href = '/'} className="flex min-w-[100px] cursor-pointer items-center justify-center rounded-xl h-10 px-4 bg-[#0EA5E9] text-white text-sm font-bold tracking-tight hover:bg-[#0369A1] transition-all shadow-md shadow-[#0EA5E9]/20">
+            <button type="button" onClick={() => window.location.href = '/'} className="flex cursor-pointer items-center justify-center rounded-xl h-9 sm:h-10 px-3 sm:px-4 sm:min-w-[100px] bg-[#0EA5E9] text-white text-xs sm:text-sm font-bold tracking-tight hover:bg-[#0369A1] transition-all shadow-md shadow-[#0EA5E9]/20">
               Inicio
             </button>
-            <button onClick={() => window.location.href = '/login'} className="flex cursor-pointer items-center justify-center rounded-xl h-10 px-4 border border-slate-200 text-slate-700 text-sm font-bold hover:bg-slate-50 transition-all">
+            <button type="button" onClick={() => window.location.href = '/login'} className="flex cursor-pointer items-center justify-center rounded-xl h-9 sm:h-10 px-3 sm:px-4 border border-slate-200 text-slate-700 text-xs sm:text-sm font-bold hover:bg-slate-50 transition-all">
               Iniciar Sesión
             </button>
           </div>
         </div>
       </header>
 
-      <main className="flex flex-1 justify-center py-12 px-6 lg:px-40">
+      <main className="flex flex-1 justify-center py-8 sm:py-12 px-4 sm:px-6 lg:px-40">
         <div className="max-w-[1100px] w-full flex flex-col gap-12">
 
           {step === 'plans' ? (
             <>
               <div className="flex flex-col gap-4 text-center max-w-2xl mx-auto">
-                <h1 className="text-slate-900 text-4xl lg:text-5xl font-extrabold leading-tight tracking-tight">
+                <h1 className="text-slate-900 text-3xl sm:text-4xl lg:text-5xl font-extrabold leading-tight tracking-tight">
                   Elige el plan ideal para tu negocio
                 </h1>
-                <p className="text-slate-500 text-lg font-medium">
+                <p className="text-slate-500 text-base sm:text-lg font-medium">
                   Optimiza tu facturación electrónica con la plataforma líder en cumplimiento del SRI. Sin complicaciones, 100% digital.
                 </p>
               </div>
@@ -440,13 +449,13 @@ const SubscriptionPage: React.FC = () => {
                           <h3 className={`${isPopular ? 'text-[#0EA5E9]' : 'text-slate-500'} text-sm font-extrabold uppercase tracking-widest`}>
                             {plan.name}
                           </h3>
-                          <div className="flex items-baseline gap-1">
-                            <span className={`text-5xl font-extrabold tracking-tighter ${plan.ctaType === 'WHATSAPP' ? 'text-amber-500' : 'text-slate-900'}`}>
+                          <div className="flex items-baseline gap-1 flex-wrap">
+                            <span className={`font-extrabold tracking-tighter ${plan.ctaType === 'WHATSAPP' ? 'text-amber-500 text-2xl sm:text-3xl' : 'text-slate-900 text-4xl md:text-5xl'}`}>
                               {plan.ctaType === 'WHATSAPP'
                                 ? (plan.ctaWhatsapp?.priceLabel || 'Precio a medida')
-                                : plan.price === 0 ? 'Gratis' : `$${plan.price.toFixed(2)}`}
+                                : (plan.priceWithTax !== undefined ? plan.priceWithTax : plan.price) === 0 ? 'Gratis' : `$${(plan.priceWithTax !== undefined ? plan.priceWithTax : plan.price).toFixed(2)}`}
                             </span>
-                            {plan.price > 0 && plan.ctaType !== 'WHATSAPP' && (
+                            {(plan.priceWithTax !== undefined ? plan.priceWithTax : plan.price) > 0 && plan.ctaType !== 'WHATSAPP' && (
                               <span className="text-slate-400 text-lg font-semibold">
                                 /{plan.period}
                               </span>
@@ -458,8 +467,8 @@ const SubscriptionPage: React.FC = () => {
                         </div>
                         <hr className="border-slate-100" />
                         <div className="flex flex-col gap-4 min-h-[180px]">
-                          {plan.features.slice(0, 5).map((feat, i) => (
-                            <div key={i} className="flex items-center gap-3 text-slate-700 text-sm font-medium">
+                          {plan.features.slice(0, 5).map((feat) => (
+                            <div key={feat} className="flex items-center gap-3 text-slate-700 text-sm font-medium">
                               <CheckCircleIcon className="w-5 h-5 text-[#10B981] flex-shrink-0" />
                               {feat}
                             </div>
@@ -478,7 +487,7 @@ const SubscriptionPage: React.FC = () => {
                             {plan.ctaWhatsapp?.buttonLabel || '💬 Hablar por WhatsApp'}
                           </a>
                         ) : (
-                          <button
+                          <button type="button"
                             onClick={() => handlePlanSelect(plan.code)}
                             disabled={!plan.isActive}
                             className={`w-full flex items-center justify-center rounded-xl h-12 font-bold transition-all ${
@@ -538,7 +547,7 @@ const SubscriptionPage: React.FC = () => {
                   const { Icon, color, bg, activeBg } = btIcon;
                   const isSelected = selectedBusinessType === key;
                   return (
-                    <button
+                    <button type="button"
                       key={key}
                       onClick={() => handleBusinessTypeSelect(key)}
                       className={`group relative bg-white rounded-3xl p-6 border-2 transition-all duration-300 text-center hover:-translate-y-1 cursor-pointer ${
@@ -558,7 +567,7 @@ const SubscriptionPage: React.FC = () => {
               </div>
 
               <div className="text-center mt-4">
-                <button
+                <button type="button"
                   onClick={() => setStep('plans')}
                   className="text-sm text-slate-500 hover:text-[#0EA5E9] inline-flex items-center gap-1 font-semibold"
                 >
@@ -570,7 +579,7 @@ const SubscriptionPage: React.FC = () => {
             <div className="flex flex-col lg:flex-row gap-8">
               <div className="flex-1 bg-white rounded-2xl p-8 border border-slate-200 shadow-sm">
                 <div className="mb-6">
-                  <button onClick={() => setStep('businessType')} className="text-sm text-slate-500 hover:text-[#0EA5E9] mb-4 flex items-center gap-1 font-semibold">
+                  <button type="button" onClick={() => setStep('businessType')} className="text-sm text-slate-500 hover:text-[#0EA5E9] mb-4 flex items-center gap-1 font-semibold">
                     <ArrowLeftIcon className="w-4 h-4" /> Volver a tipo de negocio
                   </button>
                   <h2 className="text-2xl font-extrabold text-slate-900">Crea tu cuenta de Empresa</h2>
@@ -579,32 +588,33 @@ const SubscriptionPage: React.FC = () => {
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
                   <div className="col-span-2">
-                    <label className="block text-sm font-bold text-slate-700 mb-1">Razón Social / Nombre</label>
-                    <input name="businessName" value={formData.businessName} onChange={handleInputChange} className="w-full rounded-xl border-slate-300 bg-slate-50 p-3 text-sm focus:ring-2 focus:ring-[#0EA5E9] focus:border-[#0EA5E9] font-medium" placeholder="Ej. Mi Empresa S.A." />
+                    <label htmlFor={`${fieldId}-businessName`} className="block text-sm font-bold text-slate-700 mb-1">Razón Social / Nombre</label>
+                    <input id={`${fieldId}-businessName`} name="businessName" value={formData.businessName} onChange={handleInputChange} className="w-full rounded-xl border-slate-300 bg-slate-50 p-3 text-sm focus:ring-2 focus:ring-[#0EA5E9] focus:border-[#0EA5E9] font-medium" placeholder="Ej. Mi Empresa S.A." />
                   </div>
                   <div>
-                    <label className="block text-sm font-bold text-slate-700 mb-1">RUC</label>
-                    <input name="ruc" value={formData.ruc} onChange={handleInputChange}
+                    <label htmlFor={`${fieldId}-ruc`} className="block text-sm font-bold text-slate-700 mb-1">RUC</label>
+                    <input id={`${fieldId}-ruc`} name="ruc" value={formData.ruc} onChange={handleInputChange}
                       className={`w-full rounded-xl border bg-slate-50 p-3 text-sm focus:ring-2 focus:ring-[#0EA5E9] font-medium ${formData.ruc && !isValidRuc(formData.ruc) ? 'border-red-500 focus:border-red-500' : 'border-slate-300'}`}
                       placeholder="179..." maxLength={13}
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-bold text-slate-700 mb-1">Teléfono</label>
-                    <input name="phone" value={formData.phone} onChange={handleInputChange} className="w-full rounded-xl border-slate-300 bg-slate-50 p-3 text-sm focus:ring-2 focus:ring-[#0EA5E9] focus:border-[#0EA5E9] font-medium" placeholder="099..." />
+                    <label htmlFor={`${fieldId}-phone`} className="block text-sm font-bold text-slate-700 mb-1">Teléfono</label>
+                    <input id={`${fieldId}-phone`} name="phone" value={formData.phone} onChange={handleInputChange} className="w-full rounded-xl border-slate-300 bg-slate-50 p-3 text-sm focus:ring-2 focus:ring-[#0EA5E9] focus:border-[#0EA5E9] font-medium" placeholder="099..." />
                   </div>
                   <div className="col-span-2">
-                    <label className="block text-sm font-bold text-slate-700 mb-1">Dirección</label>
-                    <input name="address" value={formData.address} onChange={handleInputChange} className="w-full rounded-xl border-slate-300 bg-slate-50 p-3 text-sm focus:ring-2 focus:ring-[#0EA5E9] focus:border-[#0EA5E9] font-medium" placeholder="Dirección completa" />
+                    <label htmlFor={`${fieldId}-address`} className="block text-sm font-bold text-slate-700 mb-1">Dirección</label>
+                    <input id={`${fieldId}-address`} name="address" value={formData.address} onChange={handleInputChange} className="w-full rounded-xl border-slate-300 bg-slate-50 p-3 text-sm focus:ring-2 focus:ring-[#0EA5E9] focus:border-[#0EA5E9] font-medium" placeholder="Dirección completa" />
                   </div>
                   <div className="col-span-2">
-                    <label className="block text-sm font-bold text-slate-700 mb-1">Correo Electrónico</label>
-                    <input name="email" type="email" value={formData.email} onChange={handleInputChange} className="w-full rounded-xl border-slate-300 bg-slate-50 p-3 text-sm focus:ring-2 focus:ring-[#0EA5E9] focus:border-[#0EA5E9] font-medium" placeholder="tu.nombre@email.com" />
+                    <label htmlFor={`${fieldId}-email`} className="block text-sm font-bold text-slate-700 mb-1">Correo Electrónico</label>
+                    <input id={`${fieldId}-email`} name="email" type="email" value={formData.email} onChange={handleInputChange} className="w-full rounded-xl border-slate-300 bg-slate-50 p-3 text-sm focus:ring-2 focus:ring-[#0EA5E9] focus:border-[#0EA5E9] font-medium" placeholder="tu.nombre@email.com" />
                   </div>
                   <div className="col-span-2">
-                    <label className="block text-sm font-bold text-slate-700 mb-1">Contraseña</label>
+                    <label htmlFor={`${fieldId}-password`} className="block text-sm font-bold text-slate-700 mb-1">Contraseña</label>
                     <div className="relative">
                       <input
+                        id={`${fieldId}-password`}
                         name="password"
                         type={showPassword ? "text" : "password"}
                         value={formData.password}
@@ -636,7 +646,7 @@ const SubscriptionPage: React.FC = () => {
                             <p className="text-sm font-extrabold text-emerald-700">Plan Gratuito</p>
                             <p className="text-xs text-emerald-600 mt-1 font-medium">No se requiere pago. Su cuenta se activará inmediatamente con {currentPlan?.durationDays || 30} días de acceso.</p>
                           </div>
-                          <button
+                          <button type="button"
                             onClick={async () => {
                               setPaymentMethod('FREE' as any);
                               await handleRegister();
@@ -659,16 +669,16 @@ const SubscriptionPage: React.FC = () => {
                         <p className="text-xs text-slate-500 mb-4">Estos documentos son necesarios para verificar su identidad (opcional para PayPal, requerido para transferencia).</p>
                         <div className="grid grid-cols-1 gap-3 mb-6">
                           <div>
-                            <label className="block text-xs font-bold text-slate-600 mb-1">Cédula / Pasaporte (PDF o imagen)</label>
-                            <input type="file" accept="image/*,.pdf" onChange={e => {
+                            <label htmlFor={`${fieldId}-kycCedula`} className="block text-xs font-bold text-slate-600 mb-1">Cédula / Pasaporte (PDF o imagen)</label>
+                            <input id={`${fieldId}-kycCedula`} type="file" accept="image/*,.pdf" onChange={e => {
                               const f = e.target.files?.[0];
                               if (f) { const r = new FileReader(); r.onload = () => setKycCedula(r.result as string); r.readAsDataURL(f); }
                             }} className="w-full text-xs file:mr-3 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-sky-50 file:text-sky-600 hover:file:bg-sky-100" />
                             {kycCedula && <img src={kycCedula} className="mt-2 w-full max-h-32 object-cover rounded-xl border" alt="Previa cedula" />}
                           </div>
                           <div>
-                            <label className="block text-xs font-bold text-slate-600 mb-1">RUC / Certificado (PDF o imagen)</label>
-                            <input type="file" accept="image/*,.pdf" onChange={e => {
+                            <label htmlFor={`${fieldId}-kycRuc`} className="block text-xs font-bold text-slate-600 mb-1">RUC / Certificado (PDF o imagen)</label>
+                            <input id={`${fieldId}-kycRuc`} type="file" accept="image/*,.pdf" onChange={e => {
                               const f = e.target.files?.[0];
                               if (f) { const r = new FileReader(); r.onload = () => setKycRuc(r.result as string); r.readAsDataURL(f); }
                             }} className="w-full text-xs file:mr-3 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-sky-50 file:text-sky-600 hover:file:bg-sky-100" />
@@ -678,9 +688,11 @@ const SubscriptionPage: React.FC = () => {
 
                         <h3 className="text-lg font-extrabold text-slate-900 mb-3">Método de Pago</h3>
                         {paymentSettings.paypalEnabled && (
-                          <div
+                          <button
+                            type="button"
                             onClick={() => setPaymentMethod('PAYPAL')}
-                            className={`cursor-pointer flex items-center gap-3 p-4 rounded-xl border transition-all mb-2 ${
+                            aria-pressed={paymentMethod === 'PAYPAL'}
+                            className={`cursor-pointer flex items-center gap-3 p-4 rounded-xl border transition-all mb-2 w-full text-left ${
                               paymentMethod === 'PAYPAL'
                                 ? 'border-[#0EA5E9] bg-[#0EA5E9]/5 ring-1 ring-[#0EA5E9]/20'
                                 : 'border-slate-200 hover:border-[#0EA5E9]/30'
@@ -691,12 +703,14 @@ const SubscriptionPage: React.FC = () => {
                               <p className="font-bold text-sm">PayPal / Tarjeta</p>
                               <p className="text-xs text-slate-500 font-medium">Activación inmediata</p>
                             </div>
-                          </div>
+                          </button>
                         )}
                         {paymentSettings.transferEnabled && (
-                          <div
+                          <button
+                            type="button"
                             onClick={() => setPaymentMethod('TRANSFER')}
-                            className={`cursor-pointer flex items-center gap-3 p-4 rounded-xl border transition-all ${
+                            aria-pressed={paymentMethod === 'TRANSFER'}
+                            className={`cursor-pointer flex items-center gap-3 p-4 rounded-xl border transition-all w-full text-left ${
                               paymentMethod === 'TRANSFER'
                                 ? 'border-[#0EA5E9] bg-[#0EA5E9]/5 ring-1 ring-[#0EA5E9]/20'
                                 : 'border-slate-200 hover:border-[#0EA5E9]/30'
@@ -707,7 +721,7 @@ const SubscriptionPage: React.FC = () => {
                               <p className="font-bold text-sm">Transferencia</p>
                               <p className="text-xs text-slate-500 font-medium">Aprobación manual (24-48h)</p>
                             </div>
-                          </div>
+                          </button>
                         )}
                       </>
                     );
@@ -722,57 +736,80 @@ const SubscriptionPage: React.FC = () => {
                         <p className="text-amber-600 text-xs mt-1 font-medium">Configure VITE_PAYPAL_CLIENT_ID en el archivo .env</p>
                       </div>
                     ) : (
-                      <PayPalScriptProvider
-                        options={{
-                          clientId: PAYPAL_CLIENT_ID,
-                          currency: "USD",
-                          intent: "capture",
-                          debug: IS_SANDBOX,
-                          locale: "es_EC",
-                          buyerCountry: "EC",
-                          "enable-funding": "card"
-                        }}
-                      >
-                        <PayPalButtons
-                          style={{ layout: "vertical" }}
-                          disabled={!isFormValid}
-                          createOrder={(data, actions) => {
-                            const currentPlan = plans.find(p => p.code === selectedPlan);
-                            const price = currentPlan ? currentPlan.price.toFixed(2) : '0.00';
-                            return actions.order.create({
-                              intent: "CAPTURE",
-                              payer: { address: { country_code: "EC" } },
-                              application_context: { shipping_preference: "NO_SHIPPING", landing_page: "BILLING" },
-                              purchase_units: [{
-                                amount: { currency_code: "USD", value: price },
-                                description: `Suscripción Azul - ${(() => {
-                                  const cp = plans.find(p => p.code === selectedPlan);
-                                  return cp ? cp.name : 'Plan';
-                                })()}`
-                              }]
-                            });
+                      <>
+                        <PayPalScriptProvider
+                          options={{
+                            clientId: PAYPAL_CLIENT_ID,
+                            currency: "USD",
+                            intent: "capture",
+                            debug: IS_SANDBOX,
+                            locale: "es_EC",
+                            buyerCountry: "EC",
+                            "enable-funding": "card"
                           }}
-                          onApprove={async (data, actions) => {
-                            try {
-                              if (actions.order) {
-                                const details = await actions.order.capture();
-                                console.log('Payment captured:', details);
-                                handleRegister(details.id);
+                        >
+                          <PayPalButtons
+                            style={{ layout: "vertical" }}
+                            disabled={!isFormValid}
+                            createOrder={(data, actions) => {
+                              const currentPlan = plans.find(p => p.code === selectedPlan);
+                              const price = currentPlan ? currentPlan.price.toFixed(2) : '0.00';
+                              return actions.order.create({
+                                intent: "CAPTURE",
+                                payer: { address: { country_code: "EC" } },
+                                application_context: { shipping_preference: "NO_SHIPPING", landing_page: "BILLING" },
+                                purchase_units: [{
+                                  amount: { currency_code: "USD", value: price },
+                                  description: `Suscripción Azul - ${(() => {
+                                    const cp = plans.find(p => p.code === selectedPlan);
+                                    return cp ? cp.name : 'Plan';
+                                  })()}`
+                                }]
+                              });
+                            }}
+                            onApprove={async (data, actions) => {
+                              try {
+                                if (actions.order) {
+                                  const details = await actions.order.capture();
+                                  console.log('Payment captured:', details);
+                                  handleRegister(details.id);
+                                }
+                              } catch (error) {
+                                console.error('Error capturing payment:', error);
+                                showNotify('Error al procesar el pago. Por favor intente de nuevo.', 'error');
                               }
-                            } catch (error) {
-                              console.error('Error capturing payment:', error);
-                              showNotify('Error al procesar el pago. Por favor intente de nuevo.', 'error');
-                            }
-                          }}
-                          onError={(err) => {
-                            console.error('PayPal Error:', err);
-                            showNotify('Error de conexión con PayPal. Verifique su conexión e intente de nuevo.', 'error');
-                          }}
-                          onCancel={() => {
-                            showNotify('Pago cancelado. Puede intentar de nuevo.', 'info');
-                          }}
-                        />
-                      </PayPalScriptProvider>
+                            }}
+                            onError={(err) => {
+                              console.error('PayPal Error:', err);
+                              showNotify('Error de conexión con PayPal. Verifique su conexión e intente de nuevo.', 'error');
+                            }}
+                            onCancel={() => {
+                              showNotify('Pago cancelado. Puede intentar de nuevo.', 'info');
+                            }}
+                          />
+                        </PayPalScriptProvider>
+                        {import.meta.env.DEV && (
+                          <button
+                            type="button"
+                            disabled={!isFormValid}
+                            onClick={async () => {
+                              try {
+                                const cp = plans.find(p => p.code === selectedPlan);
+                                const price = cp ? cp.price : 0;
+                                const mockOrderId = `mock_${price.toFixed(2)}`;
+                                console.log('Simulating public PayPal registration with ID:', mockOrderId);
+                                await handleRegister(mockOrderId);
+                              } catch (err: any) {
+                                console.error('Mock registration payment error:', err);
+                                showNotify('Error en simulación de registro: ' + err.message, 'error');
+                              }
+                            }}
+                            className={`mt-2 w-full py-2 bg-amber-500 hover:bg-amber-600 text-white font-bold rounded-xl text-xs transition-colors ${!isFormValid ? 'opacity-50 cursor-not-allowed' : ''}`}
+                          >
+                            ⚡ Simular Registro con PayPal (Desarrollo)
+                          </button>
+                        )}
+                      </>
                     )}
                   </div>
                 ) : (
@@ -783,8 +820,9 @@ const SubscriptionPage: React.FC = () => {
                     </div>
 
                     <div>
-                      <label className="block text-sm font-bold text-slate-700 mb-1">Nro. de Referencia / Comprobante</label>
+                      <label htmlFor={`${fieldId}-transferRef`} className="block text-sm font-bold text-slate-700 mb-1">Nro. de Referencia / Comprobante</label>
                       <input
+                        id={`${fieldId}-transferRef`}
                         type="text"
                         value={transferReference}
                         onChange={e => setTransferReference(e.target.value)}
@@ -794,8 +832,9 @@ const SubscriptionPage: React.FC = () => {
                     </div>
 
                     <div>
-                      <label className="block text-sm font-bold text-slate-700 mb-1">Foto del Comprobante de Pago</label>
+                      <label htmlFor={`${fieldId}-paymentProof`} className="block text-sm font-bold text-slate-700 mb-1">Foto del Comprobante de Pago</label>
                       <input
+                        id={`${fieldId}-paymentProof`}
                         type="file"
                         accept="image/*"
                         onChange={e => {
@@ -812,7 +851,7 @@ const SubscriptionPage: React.FC = () => {
                       {paymentProofPreview && (
                         <div className="mt-2 relative">
                           <img src={paymentProofPreview} alt="Comprobante" className="w-full max-h-40 object-cover rounded-xl border border-slate-200" />
-                          <button
+                          <button type="button"
                             onClick={() => { setPaymentProofFile(null); setPaymentProofPreview(null); }}
                             className="absolute top-1 right-1 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold"
                           >x</button>
@@ -820,7 +859,7 @@ const SubscriptionPage: React.FC = () => {
                       )}
                     </div>
 
-                    <button
+                    <button type="submit"
                       onClick={handleTransferRegister}
                       disabled={loading || uploadingProof || !isFormValid}
                       className={`w-full flex items-center justify-center gap-2 rounded-xl h-12 font-bold transition-colors ${loading || uploadingProof || !isFormValid

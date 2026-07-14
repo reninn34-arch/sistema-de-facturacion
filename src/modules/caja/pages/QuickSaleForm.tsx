@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useId } from 'react';
 import { Product, InvoiceItem, BusinessInfo } from '../../../types/types';
 import { MagnifyingGlassIcon, TicketIcon, XMarkIcon, MinusIcon, PlusIcon, BanknotesIcon, CreditCardIcon, ArrowPathIcon } from '@heroicons/react/24/outline';
 
@@ -27,6 +27,7 @@ interface CartItem {
 }
 
 const QuickSaleForm: React.FC<QuickSaleFormProps> = ({ products, clients = [], setClients, businessInfo, onNotify, onTicketCreated }) => {
+  const fieldId = useId();
   const [cart, setCart] = useState<CartItem[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [paymentMethod, setPaymentMethod] = useState('EFECTIVO');
@@ -85,27 +86,26 @@ const QuickSaleForm: React.FC<QuickSaleFormProps> = ({ products, clients = [], s
   // Agregar al carrito
   const addToCart = (product: Product) => {
     // Actualizar productos recientes
-    setRecentProductIds(prev => {
-      const filtered = prev.filter(id => id !== product.id);
-      const updated = [product.id, ...filtered].slice(0, 12);
+    const filtered = recentProductIds.filter(id => id !== product.id);
+    const updated = [product.id, ...filtered].slice(0, 12);
+    setRecentProductIds(updated);
+    try {
       localStorage.setItem('recentCajaProducts', JSON.stringify(updated));
-      return updated;
-    });
+    } catch { /* */ }
 
-    setCart(prev => {
-      const existing = prev.find(p => p.productId === product.id);
-      if (existing) {
-        if (existing.quantity >= existing.stock && existing.stock > 0) {
-          onNotify('Stock insuficiente', 'error');
-          return prev;
-        }
-        return prev.map(p =>
-          p.productId === product.id
-            ? { ...p, quantity: p.quantity + 1, total: (p.quantity + 1) * p.unitPrice }
-            : p
-        );
+    const existing = cart.find(p => p.productId === product.id);
+    if (existing) {
+      if (existing.quantity >= existing.stock && existing.stock > 0) {
+        onNotify('Stock insuficiente', 'error');
+        return;
       }
-      return [...prev, {
+      setCart(prev => prev.map(p =>
+        p.productId === product.id
+          ? { ...p, quantity: p.quantity + 1, total: (p.quantity + 1) * p.unitPrice }
+          : p
+      ));
+    } else {
+      setCart(prev => [...prev, {
         productId: product.id,
         description: product.description,
         code: product.code,
@@ -116,8 +116,8 @@ const QuickSaleForm: React.FC<QuickSaleFormProps> = ({ products, clients = [], s
         total: product.price,
         stock: product.stock,
         imageUrl: product.imageUrl,
-      }];
-    });
+      }]);
+    }
     setSearchTerm('');
     setShowSearchResults(false);
   };
@@ -311,8 +311,8 @@ const QuickSaleForm: React.FC<QuickSaleFormProps> = ({ products, clients = [], s
               </tr>
             </thead>
             <tbody>
-              {lastTicket.items?.map((item: any, idx: number) => (
-                <tr key={idx} className="border-b border-slate-100 dark:border-slate-700/50">
+              {lastTicket.items?.map((item: any) => (
+                <tr key={item.productId || item.description} className="border-b border-slate-100 dark:border-slate-700/50">
                   <td className="py-2 font-bold">{item.qty || item.quantity}</td>
                   <td className="py-2 text-xs">{item.description}</td>
                   <td className="py-2 text-right text-xs">${(item.unitPrice || 0).toFixed(2)}</td>
@@ -342,13 +342,13 @@ const QuickSaleForm: React.FC<QuickSaleFormProps> = ({ products, clients = [], s
         </div>
 
         <div className="flex gap-3">
-          <button
+          <button type="button"
             onClick={newTicket}
             className="flex-1 py-4 rounded-2xl font-black text-sm uppercase bg-sky-500 text-white hover:bg-sky-500 transition-colors shadow-lg"
           >
             Nuevo Ticket
           </button>
-          <button
+          <button type="button"
             onClick={() => window.print()}
             className="py-4 px-8 rounded-2xl font-black text-sm uppercase bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors"
           >
@@ -371,7 +371,7 @@ const QuickSaleForm: React.FC<QuickSaleFormProps> = ({ products, clients = [], s
           <p className="text-sm text-slate-400 font-bold mt-1">Venta rápida sin emisión inmediata al SRI</p>
         </div>
         {cart.length > 0 && (
-          <button
+          <button type="button"
             onClick={newTicket}
             className="px-6 py-3 rounded-2xl font-black text-xs uppercase bg-red-50 dark:bg-red-500/10 text-red-600 border border-red-200 dark:border-red-500/20 hover:bg-red-100 transition-colors"
           >
@@ -397,7 +397,7 @@ const QuickSaleForm: React.FC<QuickSaleFormProps> = ({ products, clients = [], s
                 autoComplete="off"
               />
               {searchTerm && (
-                <button onClick={() => { setSearchTerm(''); setShowSearchResults(false); }} className="absolute right-4 top-1/2 -translate-y-1/2">
+                <button type="button" onClick={() => { setSearchTerm(''); setShowSearchResults(false); }} className="absolute right-4 top-1/2 -translate-y-1/2">
                   <XMarkIcon className="w-4 h-4 text-slate-400" />
                 </button>
               )}
@@ -407,7 +407,7 @@ const QuickSaleForm: React.FC<QuickSaleFormProps> = ({ products, clients = [], s
             {showSearchResults && filteredProducts.length > 0 && (
               <div className="absolute z-50 w-full mt-2 bg-white dark:bg-slate-800 rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-700 overflow-hidden max-h-64 overflow-y-auto">
                 {filteredProducts.map(product => (
-                  <button
+                  <button type="button"
                     key={product.id}
                     onClick={() => addToCart(product)}
                     className="w-full px-4 py-3 flex items-center justify-between hover:bg-sky-50 dark:hover:bg-sky-500/10 transition-colors text-left"
@@ -442,14 +442,18 @@ const QuickSaleForm: React.FC<QuickSaleFormProps> = ({ products, clients = [], s
                 </div>
               ) : (
                 <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 overflow-y-auto max-h-[500px] pr-2 custom-scrollbar pb-10">
-                  {recentProductIds
-                    .map(id => sellableProducts.find(p => p.id === id))
-                    .filter(p => p && (p.stock > 0 || p.type === 'SERVICIO'))
-                    .map(product => product!)
-                    .map(product => (
-                    <button
-                      key={product.id}
-                      onClick={() => addToCart(product)}
+                  {(() => {
+                    const productsList: typeof sellableProducts = [];
+                    for (const id of recentProductIds) {
+                      const p = sellableProducts.find(prod => prod.id === id);
+                      if (p && (p.stock > 0 || p.type === 'SERVICIO')) {
+                        productsList.push(p);
+                      }
+                    }
+                    return productsList.map(product => (
+                      <button type="button"
+                        key={product.id}
+                        onClick={() => addToCart(product)}
                       className="bg-white dark:bg-slate-800 rounded-[1.5rem] p-3 border border-slate-200 dark:border-slate-700 hover:border-sky-500 hover:shadow-lg hover:shadow-indigo-500/10 transition-all text-left flex flex-col items-center group relative overflow-hidden"
                     >
                       <div className="w-full aspect-square rounded-xl overflow-hidden bg-slate-50 dark:bg-slate-700/50 mb-3 relative flex items-center justify-center">
@@ -473,7 +477,7 @@ const QuickSaleForm: React.FC<QuickSaleFormProps> = ({ products, clients = [], s
                       <p className="text-[9px] text-slate-400 font-bold mt-1">{product.code}</p>
                       <p className="font-black text-sm text-sky-500 dark:text-sky-400 mt-1">${product.price.toFixed(2)}</p>
                     </button>
-                  ))}
+                  ))})()}
                 </div>
               )}
             </div>
@@ -495,7 +499,7 @@ const QuickSaleForm: React.FC<QuickSaleFormProps> = ({ products, clients = [], s
                     <p className="text-[10px] font-black text-sky-500 dark:text-sky-400 truncate">{selectedClient.name}</p>
                     <p className="text-[9px] text-sky-500/70 font-bold">{selectedClient.ruc}</p>
                   </div>
-                  <button onClick={() => setSelectedClient(null)} className="ml-2 text-sky-400 hover:text-sky-600">
+                  <button type="button" onClick={() => setSelectedClient(null)} className="ml-2 text-sky-400 hover:text-sky-600">
                     <XMarkIcon className="w-4 h-4" />
                   </button>
                 </div>
@@ -514,12 +518,12 @@ const QuickSaleForm: React.FC<QuickSaleFormProps> = ({ products, clients = [], s
                   {clientSearchTerm && (
                     <div className="absolute z-50 mt-1 w-64 right-0 bg-white dark:bg-slate-800 rounded-xl shadow-xl border border-slate-200 dark:border-slate-700 overflow-hidden">
                       {filteredClients.map(c => (
-                        <button key={c.id} onClick={() => { setSelectedClient(c); setClientSearchTerm(''); }} className="w-full px-3 py-2 text-left hover:bg-slate-50 dark:hover:bg-slate-700/50 border-b border-slate-100 dark:border-slate-700/50 last:border-0">
+                        <button type="button" key={c.id} onClick={() => { setSelectedClient(c); setClientSearchTerm(''); }} className="w-full px-3 py-2 text-left hover:bg-slate-50 dark:hover:bg-slate-700/50 border-b border-slate-100 dark:border-slate-700/50 last:border-0">
                           <p className="text-xs font-bold text-slate-800 dark:text-white truncate">{c.name}</p>
                           <p className="text-[10px] text-slate-500">{c.ruc}</p>
                         </button>
                       ))}
-                      <button 
+                      <button type="button" 
                         onClick={() => { setShowClientModal(true); setClientSearchTerm(''); }}
                         className="w-full px-3 py-2 text-left bg-sky-50 dark:bg-sky-500/10 hover:bg-sky-100 text-sky-500 dark:text-sky-400 text-xs font-black flex items-center gap-2"
                       >
@@ -557,16 +561,16 @@ const QuickSaleForm: React.FC<QuickSaleFormProps> = ({ products, clients = [], s
                     <p className="text-[9px] text-slate-400 font-bold">${item.unitPrice.toFixed(2)} c/u · IVA {item.taxRate}%</p>
                   </div>
                   <div className="flex items-center gap-1">
-                    <button onClick={() => updateQuantity(item.productId, -1)} className="w-7 h-7 rounded-lg bg-slate-200 dark:bg-slate-600 flex items-center justify-center hover:bg-slate-300 dark:hover:bg-slate-500">
+                    <button type="submit" onClick={() => updateQuantity(item.productId, -1)} className="w-7 h-7 rounded-lg bg-slate-200 dark:bg-slate-600 flex items-center justify-center hover:bg-slate-300 dark:hover:bg-slate-500">
                       <MinusIcon className="w-3 h-3 text-slate-600 dark:text-slate-300" />
                     </button>
                     <span className="w-8 text-center font-black text-sm">{item.quantity}</span>
-                    <button onClick={() => updateQuantity(item.productId, 1)} className="w-7 h-7 rounded-lg bg-sky-100 dark:bg-sky-500/20 flex items-center justify-center hover:bg-sky-200">
+                    <button type="submit" onClick={() => updateQuantity(item.productId, 1)} className="w-7 h-7 rounded-lg bg-sky-100 dark:bg-sky-500/20 flex items-center justify-center hover:bg-sky-200">
                       <PlusIcon className="w-3 h-3 text-sky-500 dark:text-sky-400" />
                     </button>
                   </div>
                   <p className="font-black text-sm w-16 text-right">${item.total.toFixed(2)}</p>
-                  <button onClick={() => removeItem(item.productId)} className="text-slate-300 hover:text-red-500">
+                  <button type="button" onClick={() => removeItem(item.productId)} className="text-slate-300 hover:text-red-500">
                     <XMarkIcon className="w-4 h-4" />
                   </button>
                 </div>
@@ -591,7 +595,7 @@ const QuickSaleForm: React.FC<QuickSaleFormProps> = ({ products, clients = [], s
                 { value: 'TARJETA', label: 'Tarjeta', icon: CreditCardIcon },
                 { value: 'TRANSFERENCIA', label: 'Transf.', icon: ArrowPathIcon },
               ].map(opt => (
-                <button
+                <button type="button"
                   key={opt.value}
                   onClick={() => setPaymentMethod(opt.value)}
                   className={`p-2 rounded-xl text-[10px] font-black uppercase transition-all flex flex-col items-center gap-1 ${paymentMethod === opt.value
@@ -615,7 +619,7 @@ const QuickSaleForm: React.FC<QuickSaleFormProps> = ({ products, clients = [], s
                   Efectivo Recibido
                 </p>
                 <div className="flex gap-1 flex-wrap justify-end">
-                  <button 
+                  <button type="button" 
                     onClick={() => setAmountReceived(total)} 
                     className="px-2 py-1 bg-emerald-100 dark:bg-emerald-500/20 text-emerald-700 dark:text-emerald-400 rounded-lg text-[10px] font-black hover:bg-emerald-200 dark:hover:bg-emerald-500/30 transition-colors"
                   >
@@ -623,7 +627,7 @@ const QuickSaleForm: React.FC<QuickSaleFormProps> = ({ products, clients = [], s
                   </button>
                   {[5, 10, 20, 50, 100].map(amt => (
                     total <= amt && (
-                      <button 
+                      <button type="button" 
                         key={amt} 
                         onClick={() => setAmountReceived(amt)} 
                         className="px-2 py-1 bg-white dark:bg-slate-600 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-500 rounded-lg text-[10px] font-bold hover:bg-slate-50 dark:hover:bg-slate-500 transition-colors shadow-sm"
@@ -671,7 +675,7 @@ const QuickSaleForm: React.FC<QuickSaleFormProps> = ({ products, clients = [], s
           )}
 
           {/* Botón cobrar */}
-          <button
+          <button type="submit"
             onClick={handleCharge}
             disabled={cart.length === 0 || isSubmitting || (paymentMethod === 'EFECTIVO' && amountReceived !== '' && amountReceived < total)}
             className="mt-4 w-full py-4 rounded-2xl font-black text-sm uppercase bg-emerald-600 text-white hover:bg-emerald-500 disabled:bg-slate-300 dark:disabled:bg-slate-700 disabled:text-slate-500 transition-colors shadow-lg flex items-center justify-center gap-2"
@@ -691,16 +695,17 @@ const QuickSaleForm: React.FC<QuickSaleFormProps> = ({ products, clients = [], s
           <div className="bg-white dark:bg-slate-800 rounded-3xl shadow-2xl w-full max-w-md overflow-hidden animate-in zoom-in-95 duration-200">
             <div className="p-6 border-b border-slate-100 dark:border-slate-700 flex justify-between items-center">
               <h3 className="text-lg font-black text-slate-800 dark:text-white uppercase">Nuevo Cliente</h3>
-              <button onClick={() => setShowClientModal(false)} className="p-2 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-full transition-colors">
+              <button type="button" onClick={() => setShowClientModal(false)} className="p-2 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-full transition-colors">
                 <XMarkIcon className="w-5 h-5 text-slate-400" />
               </button>
             </div>
             
             <form onSubmit={handleCreateClient} className="p-6 space-y-4">
               <div className="space-y-1">
-                <label className="text-xs font-bold text-slate-500 uppercase">Cédula / RUC *</label>
-                <input 
-                  type="text" 
+                <label htmlFor={`${fieldId}-ruc`} className="text-xs font-bold text-slate-500 uppercase">Cédula / RUC *</label>
+                <input
+                  id={`${fieldId}-ruc`}
+                  type="text"
                   value={newClientData.ruc}
                   onChange={e => setNewClientData({...newClientData, ruc: e.target.value})}
                   className="w-full p-3 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl outline-none focus:border-sky-500 text-sm font-bold dark:text-white"
@@ -708,9 +713,10 @@ const QuickSaleForm: React.FC<QuickSaleFormProps> = ({ products, clients = [], s
                 />
               </div>
               <div className="space-y-1">
-                <label className="text-xs font-bold text-slate-500 uppercase">Razón Social / Nombre *</label>
-                <input 
-                  type="text" 
+                <label htmlFor={`${fieldId}-name`} className="text-xs font-bold text-slate-500 uppercase">Razón Social / Nombre *</label>
+                <input
+                  id={`${fieldId}-name`}
+                  type="text"
                   value={newClientData.name}
                   onChange={e => setNewClientData({...newClientData, name: e.target.value})}
                   className="w-full p-3 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl outline-none focus:border-sky-500 text-sm font-bold dark:text-white"
@@ -719,18 +725,20 @@ const QuickSaleForm: React.FC<QuickSaleFormProps> = ({ products, clients = [], s
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-1">
-                  <label className="text-xs font-bold text-slate-500 uppercase">Email</label>
-                  <input 
-                    type="email" 
+                  <label htmlFor={`${fieldId}-email`} className="text-xs font-bold text-slate-500 uppercase">Email</label>
+                  <input
+                    id={`${fieldId}-email`}
+                    type="email"
                     value={newClientData.email}
                     onChange={e => setNewClientData({...newClientData, email: e.target.value})}
                     className="w-full p-3 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl outline-none focus:border-sky-500 text-sm dark:text-white"
                   />
                 </div>
                 <div className="space-y-1">
-                  <label className="text-xs font-bold text-slate-500 uppercase">Teléfono</label>
-                  <input 
-                    type="text" 
+                  <label htmlFor={`${fieldId}-phone`} className="text-xs font-bold text-slate-500 uppercase">Teléfono</label>
+                  <input
+                    id={`${fieldId}-phone`}
+                    type="text"
                     value={newClientData.phone}
                     onChange={e => setNewClientData({...newClientData, phone: e.target.value})}
                     className="w-full p-3 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl outline-none focus:border-sky-500 text-sm dark:text-white"
@@ -738,9 +746,10 @@ const QuickSaleForm: React.FC<QuickSaleFormProps> = ({ products, clients = [], s
                 </div>
               </div>
               <div className="space-y-1">
-                <label className="text-xs font-bold text-slate-500 uppercase">Dirección</label>
-                <input 
-                  type="text" 
+                <label htmlFor={`${fieldId}-address`} className="text-xs font-bold text-slate-500 uppercase">Dirección</label>
+                <input
+                  id={`${fieldId}-address`}
+                  type="text"
                   value={newClientData.address}
                   onChange={e => setNewClientData({...newClientData, address: e.target.value})}
                   className="w-full p-3 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl outline-none focus:border-sky-500 text-sm dark:text-white"
@@ -748,7 +757,7 @@ const QuickSaleForm: React.FC<QuickSaleFormProps> = ({ products, clients = [], s
               </div>
               
               <div className="pt-4 flex gap-3">
-                <button 
+                <button aria-label="Acción" 
                   type="button" 
                   onClick={() => setShowClientModal(false)}
                   className="flex-1 py-3 bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 font-bold rounded-xl text-sm hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors"

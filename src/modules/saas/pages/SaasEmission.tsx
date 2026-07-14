@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect, useId } from 'react';
 import {
   BeakerIcon,
   CalendarDaysIcon,
@@ -67,6 +67,7 @@ export default function SaasEmission({ businesses, subscriptions, onNotify }: Sa
   
   const [selectedBusiness, setSelectedBusiness] = useState<Business | null>(null);
   const [selectedSubscription, setSelectedSubscription] = useState<SaasSubscription | null>(null);
+  const fieldId = useId();
   const [loading, setLoading] = useState(false);
   const [plans, setPlans] = useState<SaasSubscription[]>([]);
   const [loadingPlans, setLoadingPlans] = useState(true);
@@ -483,10 +484,11 @@ export default function SaasEmission({ businesses, subscriptions, onNotify }: Sa
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {/* Selector de empresa */}
             <div className="space-y-2">
-              <label className="text-sm font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wide">
+              <label htmlFor={`${fieldId}-business`} className="text-sm font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wide">
                 Empresa / Cliente
               </label>
               <select
+                id={`${fieldId}-business`}
                 value={selectedBusiness?.id || ''}
                 onChange={(e) => {
                   const business = businessList.find(b => b.id === e.target.value);
@@ -505,10 +507,11 @@ export default function SaasEmission({ businesses, subscriptions, onNotify }: Sa
 
             {/* Selector de plan */}
             <div className="space-y-2">
-              <label className="text-sm font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wide">
+              <label htmlFor={`${fieldId}-plan`} className="text-sm font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wide">
                 Plan de Suscripción
               </label>
               <select
+                id={`${fieldId}-plan`}
                 value={selectedSubscription?.id || ''}
                 onChange={(e) => {
                   const sub = activeSubscriptions.find(s => s.id === e.target.value);
@@ -690,7 +693,7 @@ export default function SaasEmission({ businesses, subscriptions, onNotify }: Sa
 
             {/* Botones de emitir */}
             <div className="flex gap-4 mt-2">
-              <button
+              <button type="button"
                 className="flex-1 py-4 bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-200 font-bold rounded-xl hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors"
                 onClick={() => {
                   setSelectedBusiness(null);
@@ -701,7 +704,7 @@ export default function SaasEmission({ businesses, subscriptions, onNotify }: Sa
               </button>
               
               {emissionMode === 'LOCAL' ? (
-                <button
+                <button type="button"
                   onClick={handleEmitInvoiceLocal}
                   disabled={loading || !selectedBusiness || !selectedSubscription}
                   className={`flex-[2] py-4 font-bold rounded-xl shadow-lg transition-all ${
@@ -719,7 +722,7 @@ export default function SaasEmission({ businesses, subscriptions, onNotify }: Sa
                   )}
                 </button>
               ) : (
-                <button
+                <button type="submit"
                   onClick={handleEmitInvoiceSRI}
                   disabled={loading || !selectedBusiness || !selectedSubscription}
                   className={`flex-[2] py-4 font-bold rounded-xl shadow-lg transition-all ${

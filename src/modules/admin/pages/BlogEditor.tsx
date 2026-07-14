@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useId } from 'react';
 import { PlusIcon, PencilIcon, TrashIcon, EyeIcon, CheckCircleIcon, ExclamationTriangleIcon } from '@heroicons/react/24/outline';
 
 interface BlogPost {
@@ -25,6 +25,7 @@ const BlogEditor: React.FC = () => {
   const [form, setForm] = useState({ title: '', content: '', excerpt: '', coverImage: '', category: 'tutoriales', tags: '', videoUrl: '', published: false });
   const [notify, setNotify] = useState('');
   const [saving, setSaving] = useState(false);
+  const fieldId = useId();
 
   const token = localStorage.getItem('adminToken');
 
@@ -89,7 +90,7 @@ const BlogEditor: React.FC = () => {
           <h3 className="text-2xl font-black text-slate-800 tracking-tight">Blog & Capacitaciones</h3>
           <p className="text-xs text-slate-400 font-bold uppercase tracking-widest mt-1">Gestiona articulos, tutoriales y webinars</p>
         </div>
-        <button onClick={() => { setEditing(null); resetForm(); }}
+        <button type="button" onClick={() => { setEditing(null); resetForm(); }}
           className="bg-sky-500 text-white px-6 py-3 rounded-xl font-black text-xs uppercase hover:bg-sky-600 flex items-center gap-2">
           <PlusIcon className="w-4 h-4" /> Nuevo Post
         </button>
@@ -107,12 +108,12 @@ const BlogEditor: React.FC = () => {
           <h4 className="text-lg font-black text-slate-800">{editing ? 'Editar Post' : 'Nuevo Post'}</h4>
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-1">
-              <label className="text-[10px] font-black text-slate-400 uppercase">Titulo</label>
-              <input value={form.title} onChange={e => setForm({ ...form, title: e.target.value })} className="w-full p-3 bg-slate-50 rounded-xl font-bold text-sm" />
+              <label htmlFor={`${fieldId}-title`} className="text-[10px] font-black text-slate-400 uppercase">Titulo</label>
+              <input id={`${fieldId}-title`} value={form.title} onChange={e => setForm({ ...form, title: e.target.value })} className="w-full p-3 bg-slate-50 rounded-xl font-bold text-sm" />
             </div>
             <div className="space-y-1">
-              <label className="text-[10px] font-black text-slate-400 uppercase">Categoria</label>
-              <select value={form.category} onChange={e => setForm({ ...form, category: e.target.value })} className="w-full p-3 bg-slate-50 rounded-xl font-bold text-sm">
+              <label htmlFor={`${fieldId}-category`} className="text-[10px] font-black text-slate-400 uppercase">Categoria</label>
+              <select id={`${fieldId}-category`} value={form.category} onChange={e => setForm({ ...form, category: e.target.value })} className="w-full p-3 bg-slate-50 rounded-xl font-bold text-sm">
                 <option value="tutoriales">Tutoriales</option>
                 <option value="capacitaciones">Capacitaciones</option>
                 <option value="noticias">Noticias</option>
@@ -122,25 +123,25 @@ const BlogEditor: React.FC = () => {
           </div>
           <div className="grid grid-cols-3 gap-4">
             <div className="space-y-1">
-              <label className="text-[10px] font-black text-slate-400 uppercase">Imagen Portada (URL)</label>
-              <input value={form.coverImage} onChange={e => setForm({ ...form, coverImage: e.target.value })} className="w-full p-3 bg-slate-50 rounded-xl font-bold text-sm" placeholder="https://..." />
+              <label htmlFor={`${fieldId}-cover`} className="text-[10px] font-black text-slate-400 uppercase">Imagen Portada (URL)</label>
+              <input id={`${fieldId}-cover`} value={form.coverImage} onChange={e => setForm({ ...form, coverImage: e.target.value })} className="w-full p-3 bg-slate-50 rounded-xl font-bold text-sm" placeholder="https://..." />
             </div>
             <div className="space-y-1">
-              <label className="text-[10px] font-black text-slate-400 uppercase">Video URL (YouTube)</label>
-              <input value={form.videoUrl} onChange={e => setForm({ ...form, videoUrl: e.target.value })} className="w-full p-3 bg-slate-50 rounded-xl font-bold text-sm" placeholder="https://youtube.com/watch?v=..." />
+              <label htmlFor={`${fieldId}-video`} className="text-[10px] font-black text-slate-400 uppercase">Video URL (YouTube)</label>
+              <input id={`${fieldId}-video`} value={form.videoUrl} onChange={e => setForm({ ...form, videoUrl: e.target.value })} className="w-full p-3 bg-slate-50 rounded-xl font-bold text-sm" placeholder="https://youtube.com/watch?v=..." />
             </div>
             <div className="space-y-1">
-              <label className="text-[10px] font-black text-slate-400 uppercase">Etiquetas (coma separado)</label>
-              <input value={form.tags} onChange={e => setForm({ ...form, tags: e.target.value })} className="w-full p-3 bg-slate-50 rounded-xl font-bold text-sm" placeholder="facturacion, sri, tutorial" />
+              <label htmlFor={`${fieldId}-tags`} className="text-[10px] font-black text-slate-400 uppercase">Etiquetas (coma separado)</label>
+              <input id={`${fieldId}-tags`} value={form.tags} onChange={e => setForm({ ...form, tags: e.target.value })} className="w-full p-3 bg-slate-50 rounded-xl font-bold text-sm" placeholder="facturacion, sri, tutorial" />
             </div>
           </div>
           <div className="space-y-1">
-            <label className="text-[10px] font-black text-slate-400 uppercase">Resumen (excerpt)</label>
-            <textarea value={form.excerpt} onChange={e => setForm({ ...form, excerpt: e.target.value })} className="w-full p-3 bg-slate-50 rounded-xl font-bold text-sm" rows={2} />
+            <label htmlFor={`${fieldId}-excerpt`} className="text-[10px] font-black text-slate-400 uppercase">Resumen (excerpt)</label>
+            <textarea id={`${fieldId}-excerpt`} value={form.excerpt} onChange={e => setForm({ ...form, excerpt: e.target.value })} className="w-full p-3 bg-slate-50 rounded-xl font-bold text-sm" rows={2} />
           </div>
           <div className="space-y-1">
-            <label className="text-[10px] font-black text-slate-400 uppercase">Contenido (HTML)</label>
-            <textarea value={form.content} onChange={e => setForm({ ...form, content: e.target.value })} className="w-full p-3 bg-slate-50 rounded-xl font-mono text-sm" rows={8} placeholder="<h2>Titulo</h2><p>Contenido del articulo...</p>" />
+            <label htmlFor={`${fieldId}-content`} className="text-[10px] font-black text-slate-400 uppercase">Contenido (HTML)</label>
+            <textarea id={`${fieldId}-content`} value={form.content} onChange={e => setForm({ ...form, content: e.target.value })} className="w-full p-3 bg-slate-50 rounded-xl font-mono text-sm" rows={8} placeholder="<h2>Titulo</h2><p>Contenido del articulo...</p>" />
           </div>
           <div className="flex items-center justify-between">
             <label className="flex items-center gap-2 cursor-pointer text-sm font-bold text-slate-600">
@@ -148,8 +149,8 @@ const BlogEditor: React.FC = () => {
               Publicado (visible en el blog)
             </label>
             <div className="flex gap-3">
-              <button onClick={() => { setEditing(undefined as any); resetForm(); }} className="px-6 py-3 bg-slate-100 rounded-xl font-bold text-xs uppercase">Cancelar</button>
-              <button onClick={save} disabled={saving}
+              <button type="button" onClick={() => { setEditing(undefined as any); resetForm(); }} className="px-6 py-3 bg-slate-100 rounded-xl font-bold text-xs uppercase">Cancelar</button>
+              <button type="submit" onClick={save} disabled={saving}
                 className="px-8 py-3 bg-sky-500 text-white rounded-xl font-bold text-xs uppercase hover:bg-sky-600 disabled:opacity-50">
                 {saving ? 'Guardando...' : 'Guardar Post'}
               </button>
@@ -179,8 +180,8 @@ const BlogEditor: React.FC = () => {
                 <td className="py-3 text-center">{post.videoUrl ? '🎥' : '-'}</td>
                 <td className="py-3 text-right text-xs text-slate-400">{new Date(post.createdAt).toLocaleDateString()}</td>
                 <td className="py-3 px-6 text-right flex justify-end gap-2">
-                  <button onClick={() => edit(post)} className="px-3 py-1.5 bg-sky-50 text-sky-500 rounded-lg text-[9px] font-black uppercase"><PencilIcon className="w-3 h-3" /></button>
-                  <button onClick={() => remove(post.id)} className="px-3 py-1.5 bg-rose-50 text-rose-500 rounded-lg text-[9px] font-black uppercase"><TrashIcon className="w-3 h-3" /></button>
+                  <button type="button" onClick={() => edit(post)} className="px-3 py-1.5 bg-sky-50 text-sky-500 rounded-lg text-[9px] font-black uppercase"><PencilIcon className="w-3 h-3" /></button>
+                  <button type="button" onClick={() => remove(post.id)} className="px-3 py-1.5 bg-rose-50 text-rose-500 rounded-lg text-[9px] font-black uppercase"><TrashIcon className="w-3 h-3" /></button>
                 </td>
               </tr>
             ))}

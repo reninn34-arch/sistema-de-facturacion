@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useId } from 'react';
 import { Document, DocumentType, SriStatus, InvoiceItem } from '../../../types/types';
 import {
   MagnifyingGlassIcon,
@@ -59,6 +59,7 @@ export default function SaasCreditNote({ businesses, documents, onNotify }: Saas
   
   // Estado para facturas
   const [invoices, setInvoices] = useState<Document[]>([]);
+  const fieldId = useId();
   const [loadingInvoices, setLoadingInvoices] = useState(true);
   const [searchInvoice, setSearchInvoice] = useState('');
   
@@ -336,9 +337,9 @@ export default function SaasCreditNote({ businesses, documents, onNotify }: Saas
       const businessId = selectedInvoice.businessId;
       
       // Calcular los días a devolver basándose en el monto
-      const planPrices: Record<string, number> = { 'FREE': 0, 'BASIC': 34.49, 'GASTRONOMICO': 91.99, 'PRO': 172.49, 'ENTERPRISE': 287.49, 'UNLIMITED': 0 };
+      const planPrices: Record<string, number> = { 'FREE': 0, 'BASIC': 35.00, 'GASTRONOMICO': 90.00, 'PRO': 150.00, 'ENTERPRISE': 250.00, 'UNLIMITED': 0 };
       const businessPlan = (selectedInvoice as any).plan || (selectedInvoice as any).business?.plan || 'BASIC';
-      const monthlyPrice = planPrices[businessPlan] || 34.49;
+      const monthlyPrice = planPrices[businessPlan] || 35.00;
       const dailyRate = monthlyPrice / 30;
       const daysToRefund = Math.ceil(total / dailyRate);
       
@@ -484,7 +485,7 @@ export default function SaasCreditNote({ businesses, documents, onNotify }: Saas
             
             {/* Tabs */}
             <div className="flex bg-white dark:bg-slate-800 rounded-lg p-1 shadow-md">
-              <button
+              <button type="button"
                 onClick={() => setActiveTab('invoices')}
                 className={`px-4 py-2 rounded-md font-medium transition-all ${
                   activeTab === 'invoices'
@@ -494,7 +495,7 @@ export default function SaasCreditNote({ businesses, documents, onNotify }: Saas
               >
                 <DocumentTextIcon className="w-4 h-4 inline" /> Facturas
               </button>
-              <button
+              <button type="button"
                 onClick={() => setActiveTab('credit-notes')}
                 className={`px-4 py-2 rounded-md font-medium transition-all ${
                   activeTab === 'credit-notes'
@@ -543,10 +544,12 @@ export default function SaasCreditNote({ businesses, documents, onNotify }: Saas
               ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 max-h-96 overflow-y-auto">
                   {filteredInvoices.map(invoice => (
-                    <div
+                    <button
+                      type="button"
                       key={invoice.id}
                       onClick={() => setSelectedInvoice(invoice)}
-                      className={`p-4 border-2 rounded-lg cursor-pointer transition-all ${
+                      aria-pressed={selectedInvoice?.id === invoice.id}
+                      className={`p-4 border-2 rounded-lg cursor-pointer transition-all text-left w-full ${
                         selectedInvoice?.id === invoice.id
                           ? 'border-sky-500 bg-sky-50 dark:bg-sky-900/30'
                           : 'border-slate-200 dark:border-slate-600 hover:border-sky-300'
@@ -558,7 +561,7 @@ export default function SaasCreditNote({ businesses, documents, onNotify }: Saas
                       <div className="text-lg font-bold text-sky-600 mt-2">
                         ${invoice.total.toFixed(2)}
                       </div>
-                    </div>
+                    </button>
                   ))}
                 </div>
               )}
@@ -581,10 +584,11 @@ export default function SaasCreditNote({ businesses, documents, onNotify }: Saas
 
                 {/* Razón */}
                 <div className="mb-6">
-                  <label className="block text-sm font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wide mb-2">
+                  <label htmlFor={`${fieldId}-reason`} className="block text-sm font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wide mb-2">
                     Razón de la Nota de Crédito
                   </label>
                   <select
+                    id={`${fieldId}-reason`}
                     value={reason}
                     onChange={(e) => setReason(e.target.value)}
                     className="w-full p-3 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-800 dark:text-white"
@@ -641,9 +645,9 @@ export default function SaasCreditNote({ businesses, documents, onNotify }: Saas
                 {/* Items a devolver */}
                 <div className="mb-6">
                   <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 mb-2">
-                    <label className="block text-sm font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wide">
+                    <span className="block text-sm font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wide">
                       Items a Devolver
-                    </label>
+                    </span>
                     {items.length === 0 && (
                       <span className="text-xs text-amber-600 dark:text-amber-400">
                         <ExclamationTriangleIcon className="w-4 h-4 inline" /> Los items de la factura no están disponibles. Agregue los items manualmente.
@@ -665,7 +669,7 @@ export default function SaasCreditNote({ businesses, documents, onNotify }: Saas
                       </thead>
                       <tbody>
                         {items.map((item, index) => (
-                          <tr key={index} className="border-t border-slate-200 dark:border-slate-600">
+                          <tr key={item.productId || item.id} className="border-t border-slate-200 dark:border-slate-600">
                             <td className="p-3">
                               <input
                                 type="text"
@@ -748,7 +752,7 @@ export default function SaasCreditNote({ businesses, documents, onNotify }: Saas
                         {items.length > 0 && (
                           <tr>
                             <td colSpan={7} className="p-3">
-                              <button
+                              <button aria-label="Acción"
                                 type="button"
                                 onClick={() => setItems([...items, {
                                   productId: 'manual',
@@ -794,10 +798,11 @@ export default function SaasCreditNote({ businesses, documents, onNotify }: Saas
 
                 {/* Información adicional */}
                 <div className="mb-6">
-                  <label className="block text-sm font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wide mb-2">
+                  <label htmlFor={`${fieldId}-additionalInfo`} className="block text-sm font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wide mb-2">
                     Información Adicional (Opcional)
                   </label>
                   <textarea
+                    id={`${fieldId}-additionalInfo`}
                     value={additionalInfo}
                     onChange={(e) => setAdditionalInfo(e.target.value)}
                     placeholder="Agregue información adicional si es necesario..."
@@ -808,7 +813,7 @@ export default function SaasCreditNote({ businesses, documents, onNotify }: Saas
 
                 {/* Botones */}
                 <div className="flex gap-4">
-                  <button
+                  <button type="button"
                     onClick={handleProcess}
                     disabled={isProcessing || validItemsCount() === 0}
                     className={`flex-1 py-3 px-6 rounded-lg font-bold text-white transition-all ${
@@ -829,7 +834,7 @@ export default function SaasCreditNote({ businesses, documents, onNotify }: Saas
                       <><CheckCircleIcon className="w-5 h-5 inline" /> Generar Nota de Crédito</>
                     )}
                   </button>
-                  <button
+                  <button type="button"
                     onClick={resetForm}
                     className="px-6 py-3 border border-slate-300 dark:border-slate-600 rounded-lg font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 transition-all"
                   >
@@ -877,8 +882,8 @@ export default function SaasCreditNote({ businesses, documents, onNotify }: Saas
                     </tr>
                   </thead>
                   <tbody>
-                    {creditNotes.map((note, index) => (
-                      <tr key={index} className="border-t border-slate-200 dark:border-slate-600">
+                    {creditNotes.map((note) => (
+                      <tr key={note.numero} className="border-t border-slate-200 dark:border-slate-600">
                         <td className="p-3 font-medium text-slate-800 dark:text-white">{note.numero}</td>
                         <td className="p-3 text-slate-600 dark:text-slate-300">{note.fecha}</td>
                         <td className="p-3 text-slate-600 dark:text-slate-300">{note.invoiceNumber}</td>

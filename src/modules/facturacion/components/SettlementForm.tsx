@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useId } from 'react';
 import { ChartBarIcon, UserIcon, ShoppingCartIcon, PlusIcon, TrashIcon, BanknotesIcon } from '@heroicons/react/24/outline';
 import { PurchaseSettlement, SettlementPayment, InvoiceItem, BusinessInfo, Client, Product } from '../../../types/types';
 import { generateSettlementXML } from '../../../services/settlementService';
@@ -12,11 +12,13 @@ interface SettlementFormProps {
 }
 
 export default function SettlementForm({ business, clients, products, onSubmit }: SettlementFormProps) {
+  const fieldId = useId();
   const [supplierRuc, setSupplierRuc] = useState('');
   const [supplierName, setSupplierName] = useState('');
   const [supplierEmail, setSupplierEmail] = useState('');
   const [supplierAddress, setSupplierAddress] = useState('');
-  const [items, setItems] = useState<InvoiceItem[]>([]);
+  // _key: id estable por fila para las keys de React (se añaden/eliminan filas)
+  const [items, setItems] = useState<(InvoiceItem & { _key?: string })[]>([]);
   const [payments, setPayments] = useState<SettlementPayment[]>([{
     paymentMethodCode: '01',
     total: 0
@@ -37,6 +39,7 @@ export default function SettlementForm({ business, clients, products, onSubmit }
 
   const addItem = () => {
     setItems([...items, {
+      _key: crypto.randomUUID(),
       productId: '',
       description: '',
       quantity: 1,
@@ -173,28 +176,39 @@ export default function SettlementForm({ business, clients, products, onSubmit }
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-2">
+                <label htmlFor={`${fieldId}-selectClient`} className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-2">
                   Seleccionar Proveedor (Opcional)
                 </label>
                 <select
+                  id={`${fieldId}-selectClient`}
                   value={selectedClient}
                   onChange={(e) => handleClientSelect(e.target.value)}
                   className="w-full px-4 py-2 border border-gray-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-purple-500 bg-white dark:bg-slate-900/50 text-gray-800 dark:text-white"
                 >
                   <option value="" className="dark:bg-slate-800">Seleccione o ingrese manualmente</option>
-                  {(Array.isArray(clients) ? clients : []).filter(c => c.type !== 'CLIENTE').map(client => (
-                    <option key={client.id} value={client.id} className="dark:bg-slate-800">
-                      {client.name} - {client.ruc}
-                    </option>
-                  ))}
+                  {(() => {
+                    const list = [];
+                    const orig = Array.isArray(clients) ? clients : [];
+                    for (const c of orig) {
+                      if (c.type !== 'CLIENTE') {
+                        list.push(c);
+                      }
+                    }
+                    return list.map(client => (
+                      <option key={client.id} value={client.id} className="dark:bg-slate-800">
+                        {client.name} - {client.ruc}
+                      </option>
+                    ));
+                  })()}
                 </select>
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-2">
+                <label htmlFor={`${fieldId}-supplierRuc`} className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-2">
                   Cédula o RUC del Proveedor *
                 </label>
                 <input
+                  id={`${fieldId}-supplierRuc`}
                   type="text"
                   value={supplierRuc}
                   onChange={(e) => setSupplierRuc(e.target.value)}
@@ -206,10 +220,11 @@ export default function SettlementForm({ business, clients, products, onSubmit }
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-2">
+                <label htmlFor={`${fieldId}-supplierName`} className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-2">
                   Nombre del Proveedor *
                 </label>
                 <input
+                  id={`${fieldId}-supplierName`}
                   type="text"
                   value={supplierName}
                   onChange={(e) => setSupplierName(e.target.value)}
@@ -219,10 +234,11 @@ export default function SettlementForm({ business, clients, products, onSubmit }
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-2">
+                <label htmlFor={`${fieldId}-supplierEmail`} className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-2">
                   Email del Proveedor
                 </label>
                 <input
+                  id={`${fieldId}-supplierEmail`}
                   type="email"
                   value={supplierEmail}
                   onChange={(e) => setSupplierEmail(e.target.value)}
@@ -231,10 +247,11 @@ export default function SettlementForm({ business, clients, products, onSubmit }
               </div>
 
               <div className="md:col-span-2">
-                <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-2">
+                <label htmlFor={`${fieldId}-supplierAddress`} className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-2">
                   Dirección del Proveedor *
                 </label>
                 <input
+                  id={`${fieldId}-supplierAddress`}
                   type="text"
                   value={supplierAddress}
                   onChange={(e) => setSupplierAddress(e.target.value)}
@@ -269,7 +286,7 @@ export default function SettlementForm({ business, clients, products, onSubmit }
             ) : (
               <div className="space-y-4">
                 {items.map((item, index) => (
-                  <div key={index} className="border border-gray-250 dark:border-slate-700 rounded-lg p-4 bg-gray-50 dark:bg-slate-900/30">
+                  <div key={item._key} className="border border-gray-250 dark:border-slate-700 rounded-lg p-4 bg-gray-50 dark:bg-slate-900/30">
                     <div className="flex justify-between items-start mb-4">
                       <h4 className="font-medium text-gray-700 dark:text-slate-300">Ítem {index + 1}</h4>
                       <button
@@ -283,10 +300,11 @@ export default function SettlementForm({ business, clients, products, onSubmit }
 
                     <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                       <div className="md:col-span-4">
-                        <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-2">
+                        <label htmlFor={`${fieldId}-item-product-${index}`} className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-2">
                           Seleccionar Producto (Opcional)
                         </label>
                         <select
+                          id={`${fieldId}-item-product-${index}`}
                           onChange={(e) => selectProduct(index, e.target.value)}
                           className="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-900/50 text-gray-800 dark:text-white"
                         >
@@ -300,10 +318,11 @@ export default function SettlementForm({ business, clients, products, onSubmit }
                       </div>
 
                       <div className="md:col-span-2">
-                        <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-2">
+                        <label htmlFor={`${fieldId}-item-desc-${index}`} className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-2">
                           Descripción
                         </label>
                         <input
+                          id={`${fieldId}-item-desc-${index}`}
                           type="text"
                           value={item.description}
                           onChange={(e) => updateItem(index, 'description', e.target.value)}
@@ -312,10 +331,11 @@ export default function SettlementForm({ business, clients, products, onSubmit }
                       </div>
 
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-2">
+                        <label htmlFor={`${fieldId}-item-qty-${index}`} className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-2">
                           Cantidad
                         </label>
                         <input
+                          id={`${fieldId}-item-qty-${index}`}
                           type="number"
                           step="0.01"
                           value={item.quantity}
@@ -325,10 +345,11 @@ export default function SettlementForm({ business, clients, products, onSubmit }
                       </div>
 
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-2">
+                        <label htmlFor={`${fieldId}-item-price-${index}`} className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-2">
                           Precio Unitario
                         </label>
                         <input
+                          id={`${fieldId}-item-price-${index}`}
                           type="number"
                           step="0.01"
                           value={item.unitPrice}
@@ -338,10 +359,11 @@ export default function SettlementForm({ business, clients, products, onSubmit }
                       </div>
 
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-2">
+                        <label htmlFor={`${fieldId}-item-discount-${index}`} className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-2">
                           Descuento
                         </label>
                         <input
+                          id={`${fieldId}-item-discount-${index}`}
                           type="number"
                           step="0.01"
                           value={item.discount}
@@ -351,10 +373,11 @@ export default function SettlementForm({ business, clients, products, onSubmit }
                       </div>
 
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-2">
+                        <label htmlFor={`${fieldId}-item-tax-${index}`} className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-2">
                           IVA (%)
                         </label>
                         <select
+                          id={`${fieldId}-item-tax-${index}`}
                           value={item.taxRate}
                           onChange={(e) => updateItem(index, 'taxRate', parseFloat(e.target.value))}
                           className="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-900/50 text-gray-800 dark:text-white"
@@ -365,10 +388,11 @@ export default function SettlementForm({ business, clients, products, onSubmit }
                       </div>
 
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-2">
+                        <label htmlFor={`${fieldId}-item-total-${index}`} className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-2">
                           Total
                         </label>
                         <input
+                          id={`${fieldId}-item-total-${index}`}
                           type="number"
                           step="0.01"
                           value={item.total.toFixed(2)}
@@ -392,10 +416,11 @@ export default function SettlementForm({ business, clients, products, onSubmit }
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-2">
+                <label htmlFor={`${fieldId}-paymentMethod`} className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-2">
                   Método de Pago
                 </label>
                 <select
+                  id={`${fieldId}-paymentMethod`}
                   value={payments[0]?.paymentMethodCode || '01'}
                   onChange={(e) => {
                     const newPayments = [...payments];
@@ -414,10 +439,11 @@ export default function SettlementForm({ business, clients, products, onSubmit }
 
           {/* Información Adicional */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-2">
+            <label htmlFor={`${fieldId}-additionalInfo`} className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-2">
               Información Adicional
             </label>
             <textarea
+              id={`${fieldId}-additionalInfo`}
               value={additionalInfo}
               onChange={(e) => setAdditionalInfo(e.target.value)}
               rows={3}

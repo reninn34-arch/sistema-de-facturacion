@@ -27,7 +27,7 @@ describe('🟫 CAJA GRIS: Pruebas de Integración con Base de Datos', () => {
   beforeAll(async () => {
     // Login para obtener token
     const loginResponse = await request(API_BASE_URL)
-      .post('/api/auth/login')
+      .post('/api/login')
       .send({
         email: 'demo@empresa.com',
         password: 'demo123456'
@@ -56,7 +56,7 @@ describe('🟫 CAJA GRIS: Pruebas de Integración con Base de Datos', () => {
       const timestamp = Date.now();
       const clientData = {
         name: `Cliente GreyBox ${timestamp}`,
-        identification: `179${timestamp.toString().substring(0, 7)}`,
+        identification: '179' + timestamp.toString().substring(0, 10),
         email: `greybox_${timestamp}@prueba.com`,
         phone: '0991234567',
         address: 'Dirección de prueba GreyBox'
@@ -73,7 +73,7 @@ describe('🟫 CAJA GRIS: Pruebas de Integración con Base de Datos', () => {
       // 2. Verificar que el cliente existe en la base de datos
       const dbClient = await prisma.client.findFirst({
         where: { 
-          identification: clientData.identification,
+          ruc: clientData.identification,
           businessId: testBusinessId
         }
       });
@@ -133,7 +133,7 @@ describe('🟫 CAJA GRIS: Pruebas de Integración con Base de Datos', () => {
       });
 
       expect(dbProduct).not.toBeNull();
-      expect(dbProduct.name).toBe(productData.name);
+      expect(dbProduct.description).toBe(productData.name);
       expect(parseFloat(dbProduct.price)).toBe(productData.price);
 
       createdProductId = dbProduct.id;
@@ -235,7 +235,7 @@ describe('🟫 CAJA GRIS: Pruebas de Workflow de Facturación', () => {
 
   beforeAll(async () => {
     const loginResponse = await request(API_BASE_URL)
-      .post('/api/auth/login')
+      .post('/api/login')
       .send({
         email: 'demo@empresa.com',
         password: 'demo123456'
@@ -262,7 +262,7 @@ describe('🟫 CAJA GRIS: Pruebas de Workflow de Facturación', () => {
         .set('Authorization', `Bearer ${authToken}`)
         .send({
           name: `Cliente Factura ${timestamp}`,
-          identification: `179${timestamp.toString().substring(0, 7)}`,
+          identification: '179' + timestamp.toString().substring(0, 10),
           email: `factura_${timestamp}@prueba.com`
         });
 
@@ -291,9 +291,10 @@ describe('🟫 CAJA GRIS: Pruebas de Workflow de Facturación', () => {
 
       // 4. Obtener producto de la DB
       const dbProduct = await prisma.product.findFirst({
-        where: { businessId: testBusinessId },
-        orderBy: { createdAt: 'desc' },
-        take: 1
+        where: { 
+          code: `FAC-${timestamp}`,
+          businessId: testBusinessId 
+        }
       });
 
       // 5. Crear factura
@@ -357,7 +358,7 @@ describe('🟫 CAJA GRIS: Pruebas de Seguridad con Acceso a DB', () => {
 
   beforeAll(async () => {
     const loginResponse = await request(API_BASE_URL)
-      .post('/api/auth/login')
+      .post('/api/login')
       .send({
         email: 'demo@empresa.com',
         password: 'demo123456'
@@ -426,7 +427,7 @@ describe('🟫 CAJA GRIS: Pruebas de Seguridad con Acceso a DB', () => {
 
       // Intentar login
       const loginResponse = await request(API_BASE_URL)
-        .post('/api/auth/login')
+        .post('/api/login')
         .send({
           email: `inactive_${timestamp}@test.com`,
           password: 'test123'
@@ -447,7 +448,7 @@ describe('🟫 CAJA GRIS: Pruebas de Rendimiento', () => {
 
   beforeAll(async () => {
     const loginResponse = await request(API_BASE_URL)
-      .post('/api/auth/login')
+      .post('/api/login')
       .send({
         email: 'demo@empresa.com',
         password: 'demo123456'
@@ -551,7 +552,7 @@ describe('🟫 CAJA GRIS: Pruebas de Recuperación', () => {
 
   beforeAll(async () => {
     const loginResponse = await request(API_BASE_URL)
-      .post('/api/auth/login')
+      .post('/api/login')
       .send({
         email: 'demo@empresa.com',
         password: 'demo123456'
@@ -578,7 +579,7 @@ describe('🟫 CAJA GRIS: Pruebas de Recuperación', () => {
       }
 
       const response = await request(API_BASE_URL)
-        .patch('/api/auth/login') // POST esperado, PATCH enviado
+        .patch('/api/login') // POST esperado, PATCH enviado
         .send({});
 
       // Express retorna 405 (Method Not Allowed), 400 (Bad Request), o 404 para método incorrecto en ruta

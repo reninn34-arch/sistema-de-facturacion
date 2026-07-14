@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useId } from 'react';
 import { ShieldCheckIcon, BuildingOffice2Icon, UserPlusIcon, CheckCircleIcon, CheckBadgeIcon, UsersIcon, MagnifyingGlassIcon, EyeIcon, XMarkIcon, Cog6ToothIcon, ArrowPathIcon, PauseIcon, PlayIcon, TrashIcon, UserIcon, PencilIcon, PlusIcon, EyeSlashIcon, UserMinusIcon } from '@heroicons/react/24/outline';
 import { BUSINESS_TYPES, BusinessType } from '../../../types/types';
 
@@ -43,15 +43,25 @@ interface SaasAdminProps {
 
 const SaasAdmin: React.FC<SaasAdminProps> = ({ onNotify }) => {
   const [users, setUsers] = useState<User[]>([]);
+  const superadmins = useMemo(() => users.filter(u => u.role === 'SUPERADMIN'), [users]);
+  const businessUsersList = useMemo(() => users.filter(u => u.role !== 'SUPERADMIN'), [users]);
   const [businesses, setBusinesses] = useState<Business[]>([]);
   const [selectedBusiness, setSelectedBusiness] = useState<Business | null>(null);
   const [businessUsers, setBusinessUsers] = useState<User[]>([]);
+  const fieldId = useId();
   const [loading, setLoading] = useState(false);
   const [expiringBusinesses, setExpiringBusinesses] = useState<any[]>([]);
   const [loadingExpiring, setLoadingExpiring] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [processing, setProcessing] = useState(false);
-  const [activeTab, setActiveTab] = useState<'businesses' | 'superadmins' | 'users' | 'subscription-payments' | 'config' | 'expiring'>('businesses');
+  const [activeTab, setActiveTab] = useState<'businesses' | 'superadmins' | 'users' | 'subscription-payments' | 'config' | 'expiring'>(() => {
+    const initialTab = sessionStorage.getItem('saasAdminTab');
+    if (initialTab === 'expiring') {
+      sessionStorage.removeItem('saasAdminTab');
+      return 'expiring';
+    }
+    return 'businesses';
+  });
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
 
   // Estados para historial de pagos de suscripciones
@@ -145,78 +155,6 @@ const SaasAdmin: React.FC<SaasAdminProps> = ({ onNotify }) => {
     password: '',
     businessType: 'GENERAL' as string
   });
-
-  // Estado para configuración de pagos
-  const [paymentConfig, setPaymentConfig] = useState({
-    bankAccounts: [] as Array<{
-      id: string;
-      bankName: string;
-      bankAccount: string;
-      bankAccountType: string;
-      bankHolderName: string;
-      bankHolderRuc: string;
-    }>,
-    paypalEnabled: true,
-    transferEnabled: true,
-    cardEnabled: false
-  });
-  const [savingConfig, setSavingConfig] = useState(false);
-  const [loadingConfig, setLoadingConfig] = useState(true);
-
-  const loadPaymentConfig = async () => {
-    try {
-      const token = localStorage.getItem('adminToken');
-      const response = await fetch(`${API_URL}/api/admin/settings`, {
-        headers: { 'Authorization': `Bearer ${token}` }
-      });
-      if (response.ok) {
-        const data = await response.json();
-        if (data) {
-          setPaymentConfig({
-            bankAccounts: data.bankAccounts || [],
-            paypalEnabled: data.paypalEnabled !== false,
-            transferEnabled: data.transferEnabled !== false,
-            cardEnabled: data.cardEnabled || false
-          });
-        }
-      }
-    } catch (error) {
-      console.error('Error cargando config:', error);
-    } finally {
-      setLoadingConfig(false);
-    }
-  };
-
-  const savePaymentConfig = async () => {
-    setSavingConfig(true);
-    try {
-      const token = localStorage.getItem('adminToken');
-      const response = await fetch(`${API_URL}/api/admin/settings`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify(paymentConfig)
-      });
-      if (response.ok) {
-        onNotify('Configuración de pagos guardada correctamente', 'success');
-      } else {
-        onNotify('Error al guardar configuración', 'error');
-      }
-    } catch (error) {
-      onNotify('Error de conexión', 'error');
-    } finally {
-      setSavingConfig(false);
-    }
-  };
-
-  // Cargar configuración al entrar a la pestaña config
-  useEffect(() => {
-    if (activeTab === 'config') {
-      loadPaymentConfig();
-    }
-  }, [activeTab]);
 
   // Cargar usuarios de la empresa seleccionada
   const loadBusinessUsers = async (businessId: string) => {
@@ -533,12 +471,7 @@ const SaasAdmin: React.FC<SaasAdminProps> = ({ onNotify }) => {
     loadPlans();
     loadExpiringBusinesses();
 
-    // Leer tab inicial desde sessionStorage (para enlaces desde Dashboard)
-    const initialTab = sessionStorage.getItem('saasAdminTab');
-    if (initialTab === 'expiring') {
-      setActiveTab('expiring');
-      sessionStorage.removeItem('saasAdminTab');
-    }
+
     
     // Escuchar actualizaciones de planes desde otras páginas
     const handlePlansUpdate = () => {
@@ -784,9 +717,9 @@ const SaasAdmin: React.FC<SaasAdminProps> = ({ onNotify }) => {
         {/* Header */}
         <header className="sticky top-0 z-50 w-full bg-white dark:bg-slate-900 border-b border-solid border-[#e7ebf3] dark:border-slate-800 px-4 py-3">
           <div className="max-w-7xl mx-auto">
-            <div className="flex items-center justify-between whitespace-nowrap mb-3">
-              <div className="flex items-center gap-6">
-                <div className="flex items-center gap-2 text-sky-500">
+            <div className="flex items-center justify-between gap-3 whitespace-nowrap mb-3 md:mb-0">
+              <div className="flex items-center gap-4 lg:gap-6 min-w-0">
+                <div className="flex items-center gap-2 text-sky-500 flex-shrink-0">
                   <div className="size-8 flex items-center justify-center bg-sky-500 rounded-lg text-white">
                     <ShieldCheckIcon className="w-5 h-5" />
                   </div>
@@ -794,32 +727,32 @@ const SaasAdmin: React.FC<SaasAdminProps> = ({ onNotify }) => {
                 </div>
                 {/* Tabs */}
                 <div className="hidden md:flex gap-1">
-                  <button 
-                    className={`px-3 py-1 text-sm font-medium transition-colors rounded-lg ${activeTab === 'businesses' ? 'bg-sky-50 dark:bg-sky-500/20 text-sky-500 dark:text-sky-300' : 'text-[#4c669a] dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'}`}
+                  <button type="button" 
+                    className={`px-3 py-1.5 text-sm font-medium transition-colors rounded-lg ${activeTab === 'businesses' ? 'bg-sky-50 dark:bg-sky-500/20 text-sky-500 dark:text-sky-300' : 'text-[#4c669a] dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'}`}
                     onClick={() => setActiveTab('businesses')}
                   >
                     Empresas
                   </button>
-                  <button 
-                    className={`px-3 py-1 text-sm font-medium transition-colors rounded-lg ${activeTab === 'superadmins' ? 'bg-sky-50 dark:bg-sky-500/20 text-sky-500 dark:text-sky-300' : 'text-[#4c669a] dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'}`}
+                  <button type="button" 
+                    className={`px-3 py-1.5 text-sm font-medium transition-colors rounded-lg ${activeTab === 'superadmins' ? 'bg-sky-50 dark:bg-sky-500/20 text-sky-500 dark:text-sky-300' : 'text-[#4c669a] dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'}`}
                     onClick={() => setActiveTab('superadmins')}
                   >
                     Superadmins
                   </button>
-                  <button 
-                    className={`px-3 py-1 text-sm font-medium transition-colors rounded-lg ${activeTab === 'users' ? 'bg-sky-50 dark:bg-sky-500/20 text-sky-500 dark:text-sky-300' : 'text-[#4c669a] dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'}`}
+                  <button type="button" 
+                    className={`px-3 py-1.5 text-sm font-medium transition-colors rounded-lg ${activeTab === 'users' ? 'bg-sky-50 dark:bg-sky-500/20 text-sky-500 dark:text-sky-300' : 'text-[#4c669a] dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'}`}
                     onClick={() => setActiveTab('users')}
                   >
                     Usuarios
                   </button>
-                  <button 
-                    className={`px-3 py-1 text-sm font-medium transition-colors rounded-lg ${activeTab === 'subscription-payments' ? 'bg-sky-50 dark:bg-sky-500/20 text-sky-500 dark:text-sky-300' : 'text-[#4c669a] dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'}`}
+                  <button type="button" 
+                    className={`px-3 py-1.5 text-sm font-medium transition-colors rounded-lg ${activeTab === 'subscription-payments' ? 'bg-sky-50 dark:bg-sky-500/20 text-sky-500 dark:text-sky-300' : 'text-[#4c669a] dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'}`}
                     onClick={() => setActiveTab('subscription-payments')}
                   >
                     Pagos
                   </button>
-                  <button 
-                    className={`px-3 py-1 text-sm font-medium transition-colors rounded-lg inline-flex items-center gap-1.5 ${activeTab === 'expiring' ? 'bg-amber-100 dark:bg-amber-500/20 text-amber-700 dark:text-amber-400' : 'text-[#4c669a] dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'}`}
+                  <button type="button" 
+                    className={`px-3 py-1.5 text-sm font-medium transition-colors rounded-lg inline-flex items-center gap-1.5 ${activeTab === 'expiring' ? 'bg-amber-100 dark:bg-amber-500/20 text-amber-700 dark:text-amber-400' : 'text-[#4c669a] dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'}`}
                     onClick={() => setActiveTab('expiring')}
                   >
                     Por Vencer
@@ -829,59 +762,53 @@ const SaasAdmin: React.FC<SaasAdminProps> = ({ onNotify }) => {
                       </span>
                     )}
                   </button>
-                  <button 
-                    className={`px-3 py-1 text-sm font-medium transition-colors rounded-lg ${activeTab === 'config' ? 'bg-sky-50 dark:bg-sky-500/20 text-sky-500 dark:text-sky-300' : 'text-[#4c669a] dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'}`}
-                    onClick={() => setActiveTab('config')}
-                  >
-                    Métodos de Pago
-                  </button>
                 </div>
               </div>
-              <div className="flex items-center gap-2">
-                <button 
+              <div className="flex items-center gap-2 flex-shrink-0">
+                <button type="button"
                   onClick={() => setShowBusinessModal(true)}
                   className="flex items-center gap-1 md:gap-2 px-2 md:px-4 py-2 bg-[#0ea5e9] text-white text-xs md:text-sm font-medium rounded-lg hover:opacity-90 transition-opacity"
                 >
                   <BuildingOffice2Icon className="w-[18px] h-[18px] md:w-5 md:h-5" />
-                  <span className="hidden sm:inline">Nueva Empresa</span>
+                  <span className="hidden lg:inline">Nueva Empresa</span>
                 </button>
-                <button 
+                <button type="button" 
                   onClick={() => setShowUserModal(true)}
                   className="flex items-center gap-1 md:gap-2 px-2 md:px-4 py-2 bg-slate-100 dark:bg-slate-800 text-[#0d121b] dark:text-white text-xs md:text-sm font-medium rounded-lg hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
                 >
                   <UserPlusIcon className="w-[18px] h-[18px] md:w-5 md:h-5" />
-                  <span className="hidden sm:inline">Nuevo Admin</span>
+                  <span className="hidden lg:inline">Nuevo Admin</span>
                 </button>
               </div>
             </div>
             {/* Mobile Tabs */}
             <div className="flex md:hidden gap-2 overflow-x-auto -mx-4 px-4 pb-2" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
-              <button 
-                className={`flex-shrink-0 px-3 py-1 text-sm font-medium transition-colors rounded-lg whitespace-nowrap ${activeTab === 'businesses' ? 'bg-[#0ea5e9]/10 text-[#0ea5e9]' : 'text-[#4c669a] dark:text-slate-400'}`}
+              <button type="button" 
+                className={`flex-shrink-0 px-3 py-1.5 text-sm font-medium transition-colors rounded-lg whitespace-nowrap ${activeTab === 'businesses' ? 'bg-[#0ea5e9]/10 text-[#0ea5e9]' : 'text-[#4c669a] dark:text-slate-400'}`}
                 onClick={() => setActiveTab('businesses')}
               >
                 Empresas
               </button>
-              <button 
-                className={`flex-shrink-0 px-3 py-1 text-sm font-medium transition-colors rounded-lg whitespace-nowrap ${activeTab === 'superadmins' ? 'bg-[#0ea5e9]/10 text-[#0ea5e9]' : 'text-[#4c669a] dark:text-slate-400'}`}
+              <button type="button" 
+                className={`flex-shrink-0 px-3 py-1.5 text-sm font-medium transition-colors rounded-lg whitespace-nowrap ${activeTab === 'superadmins' ? 'bg-[#0ea5e9]/10 text-[#0ea5e9]' : 'text-[#4c669a] dark:text-slate-400'}`}
                 onClick={() => setActiveTab('superadmins')}
               >
                 Superadmins
               </button>
-              <button 
-                className={`flex-shrink-0 px-3 py-1 text-sm font-medium transition-colors rounded-lg whitespace-nowrap ${activeTab === 'users' ? 'bg-[#0ea5e9]/10 text-[#0ea5e9]' : 'text-[#4c669a] dark:text-slate-400'}`}
+              <button type="button" 
+                className={`flex-shrink-0 px-3 py-1.5 text-sm font-medium transition-colors rounded-lg whitespace-nowrap ${activeTab === 'users' ? 'bg-[#0ea5e9]/10 text-[#0ea5e9]' : 'text-[#4c669a] dark:text-slate-400'}`}
                 onClick={() => setActiveTab('users')}
               >
                 Usuarios
               </button>
-              <button 
-                className={`flex-shrink-0 px-3 py-1 text-sm font-medium transition-colors rounded-lg whitespace-nowrap ${activeTab === 'subscription-payments' ? 'bg-[#0ea5e9]/10 text-[#0ea5e9]' : 'text-[#4c669a] dark:text-slate-400'}`}
+              <button type="button" 
+                className={`flex-shrink-0 px-3 py-1.5 text-sm font-medium transition-colors rounded-lg whitespace-nowrap ${activeTab === 'subscription-payments' ? 'bg-[#0ea5e9]/10 text-[#0ea5e9]' : 'text-[#4c669a] dark:text-slate-400'}`}
                 onClick={() => setActiveTab('subscription-payments')}
               >
                 Pagos
               </button>
-              <button 
-                className={`flex-shrink-0 px-3 py-1 text-sm font-medium transition-colors rounded-lg whitespace-nowrap inline-flex items-center gap-1 ${activeTab === 'expiring' ? 'bg-amber-100 dark:bg-amber-500/20 text-amber-700 dark:text-amber-400' : 'text-[#4c669a] dark:text-slate-400'}`}
+              <button type="button" 
+                className={`flex-shrink-0 px-3 py-1.5 text-sm font-medium transition-colors rounded-lg whitespace-nowrap inline-flex items-center gap-1 ${activeTab === 'expiring' ? 'bg-amber-100 dark:bg-amber-500/20 text-amber-700 dark:text-amber-400' : 'text-[#4c669a] dark:text-slate-400'}`}
                 onClick={() => setActiveTab('expiring')}
               >
                 Por Vencer
@@ -890,12 +817,6 @@ const SaasAdmin: React.FC<SaasAdminProps> = ({ onNotify }) => {
                     {expiringRiskCount}
                   </span>
                 )}
-              </button>
-              <button 
-                className={`flex-shrink-0 px-3 py-1 text-sm font-medium transition-colors rounded-lg whitespace-nowrap ${activeTab === 'config' ? 'bg-[#0ea5e9]/10 text-[#0ea5e9]' : 'text-[#4c669a] dark:text-slate-400'}`}
-                onClick={() => setActiveTab('config')}
-              >
-                Métodos de Pago
               </button>
             </div>
           </div>
@@ -908,7 +829,7 @@ const SaasAdmin: React.FC<SaasAdminProps> = ({ onNotify }) => {
             <div className="flex flex-col gap-2 rounded-xl p-4 md:p-6 bg-white dark:bg-slate-900 border border-[#cfd7e7] dark:border-slate-800 shadow-sm">
               <div className="flex items-center justify-between">
                 <p className="text-[#4c669a] dark:text-slate-400 text-xs md:text-sm font-medium">Total Empresas</p>
-                <BuildingOffice2Icon className="w-[18px] h-[18px] md:w-5 md:h-5 text-[#0ea5e9] bg-[#0ea5e9]/10 p-1.5 md:p-2 rounded-lg" />
+                <BuildingOffice2Icon className="w-8 h-8 md:w-9 md:h-9 text-[#0ea5e9] bg-[#0ea5e9]/10 p-1.5 md:p-2 rounded-lg flex-shrink-0" />
               </div>
               <p className="text-[#0d121b] dark:text-white text-2xl md:text-3xl font-bold">{businesses.length}</p>
               <p className="text-[#07883b] text-xs md:text-sm font-medium flex items-center gap-1">
@@ -918,7 +839,7 @@ const SaasAdmin: React.FC<SaasAdminProps> = ({ onNotify }) => {
             <div className="flex flex-col gap-2 rounded-xl p-4 md:p-6 bg-white dark:bg-slate-900 border border-[#cfd7e7] dark:border-slate-800 shadow-sm">
               <div className="flex items-center justify-between">
                 <p className="text-[#4c669a] dark:text-slate-400 text-xs md:text-sm font-medium">Empresas Activas</p>
-                <CheckBadgeIcon className="w-[18px] h-[18px] md:w-5 md:h-5 text-[#07883b] bg-[#07883b]/10 p-1.5 md:p-2 rounded-lg" />
+                <CheckBadgeIcon className="w-8 h-8 md:w-9 md:h-9 text-[#07883b] bg-[#07883b]/10 p-1.5 md:p-2 rounded-lg flex-shrink-0" />
               </div>
               <p className="text-[#0d121b] dark:text-white text-2xl md:text-3xl font-bold">
                 {businesses.filter(b => b.isActive).length}
@@ -930,7 +851,7 @@ const SaasAdmin: React.FC<SaasAdminProps> = ({ onNotify }) => {
             <div className="flex flex-col gap-2 rounded-xl p-4 md:p-6 bg-white dark:bg-slate-900 border border-[#cfd7e7] dark:border-slate-800 shadow-sm sm:col-span-2 lg:col-span-1">
               <div className="flex items-center justify-between">
                 <p className="text-[#4c669a] dark:text-slate-400 text-xs md:text-sm font-medium">Usuarios Totales</p>
-                <UsersIcon className="w-[18px] h-[18px] md:w-5 md:h-5 text-[#0ea5e9] bg-[#0ea5e9]/10 p-1.5 md:p-2 rounded-lg" />
+                <UsersIcon className="w-8 h-8 md:w-9 md:h-9 text-[#0ea5e9] bg-[#0ea5e9]/10 p-1.5 md:p-2 rounded-lg flex-shrink-0" />
               </div>
               <p className="text-[#0d121b] dark:text-white text-2xl md:text-3xl font-bold">{users.length}</p>
               <p className="text-[#4c669a] dark:text-slate-400 text-xs md:text-sm font-medium">Registrados</p>
@@ -1005,7 +926,7 @@ const SaasAdmin: React.FC<SaasAdminProps> = ({ onNotify }) => {
                               </span>
                             </td>
                             <td className="px-4 py-3 text-right">
-                              <button 
+                              <button type="button" 
                                 onClick={() => setSelectedBusiness(b)}
                                 className="p-1.5 rounded-lg bg-[#0ea5e9]/10 text-[#0ea5e9] hover:bg-[#0ea5e9] hover:text-white transition-all" 
                                 title="Ver detalles"
@@ -1048,7 +969,7 @@ const SaasAdmin: React.FC<SaasAdminProps> = ({ onNotify }) => {
                           <span className="text-xs text-[#4c669a] dark:text-slate-400">
                             {b.plan || 'Básico'} • {b.subscriptionEnd ? new Date(b.subscriptionEnd).toLocaleDateString() : 'Sin fecha'}
                           </span>
-                          <button onClick={() => setSelectedBusiness(b)} className="p-1 rounded bg-[#0ea5e9]/10 text-[#0ea5e9]">
+                          <button type="button" onClick={() => setSelectedBusiness(b)} className="p-1 rounded bg-[#0ea5e9]/10 text-[#0ea5e9]">
                             <EyeIcon className="w-4 h-4" />
                           </button>
                         </div>
@@ -1078,7 +999,7 @@ const SaasAdmin: React.FC<SaasAdminProps> = ({ onNotify }) => {
                   <h2 className="text-[#0d121b] dark:text-white text-lg md:text-xl font-bold">Por Vencer</h2>
                   <span className="text-sm text-[#4c669a] dark:text-slate-400 font-medium">Próximos 30 días</span>
                 </div>
-                <button
+                <button type="submit"
                   onClick={loadExpiringBusinesses}
                   className="px-3 py-1.5 text-xs font-medium bg-slate-100 dark:bg-slate-800 text-[#4c669a] dark:text-slate-400 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
                 >
@@ -1147,7 +1068,7 @@ const SaasAdmin: React.FC<SaasAdminProps> = ({ onNotify }) => {
                                 </span>
                               </td>
                               <td className="px-4 py-3 text-right">
-                                <button
+                                <button type="button"
                                   onClick={() => setSelectedBusiness(b)}
                                   className="p-1.5 rounded-lg bg-[#0ea5e9]/10 text-[#0ea5e9] hover:bg-[#0ea5e9] hover:text-white transition-all"
                                   title="Ver detalles"
@@ -1226,9 +1147,7 @@ const SaasAdmin: React.FC<SaasAdminProps> = ({ onNotify }) => {
                         {loading ? (
                           <tr><td colSpan={4} className="p-8 text-center text-slate-400">Cargando...</td></tr>
                         ) : (
-                          users
-                            .filter(u => u.role === 'SUPERADMIN')
-                            .map(user => (
+                          superadmins.map(user => (
                               <tr key={user.id} className={`hover:bg-[#0ea5e9]/5 transition-colors ${selectedUser?.id === user.id ? 'bg-[#0ea5e9]/10' : ''}`}>
                                 <td className="px-4 py-3">
                                   <div className="flex items-center gap-3">
@@ -1245,7 +1164,7 @@ const SaasAdmin: React.FC<SaasAdminProps> = ({ onNotify }) => {
                                   </span>
                                 </td>
                                 <td className="px-4 py-3 text-right">
-                                  <button 
+                                  <button type="button" 
                                     onClick={() => setSelectedUser(user)}
                                     className="p-1.5 rounded-lg bg-[#0ea5e9]/10 text-[#0ea5e9] hover:bg-[#0ea5e9] hover:text-white transition-all"
                                   >
@@ -1261,9 +1180,7 @@ const SaasAdmin: React.FC<SaasAdminProps> = ({ onNotify }) => {
                   
                   {/* Mobile View */}
                   <div className="md:hidden divide-y divide-[#cfd7e7] dark:divide-slate-800">
-                    {users
-                      .filter(u => u.role === 'SUPERADMIN')
-                      .map(user => (
+                    {superadmins.map(user => (
                         <div key={user.id} className={`p-3 flex flex-col gap-2 ${selectedUser?.id === user.id ? 'bg-[#0ea5e9]/10' : ''}`}>
                           <div className="flex justify-between items-start">
                             <div className="flex items-center gap-3">
@@ -1280,7 +1197,7 @@ const SaasAdmin: React.FC<SaasAdminProps> = ({ onNotify }) => {
                             </span>
                           </div>
                           <div className="flex justify-end">
-                            <button onClick={() => setSelectedUser(user)} className="p-1 rounded bg-[#0ea5e9]/10 text-[#0ea5e9]">
+                            <button type="button" onClick={() => setSelectedUser(user)} className="p-1 rounded bg-[#0ea5e9]/10 text-[#0ea5e9]">
                               <EyeIcon className="w-4 h-4" />
                             </button>
                           </div>
@@ -1295,7 +1212,7 @@ const SaasAdmin: React.FC<SaasAdminProps> = ({ onNotify }) => {
                 <div className="mt-6">
                   <div className="flex items-center justify-between mb-4">
                     <h2 className="text-[#0d121b] dark:text-white text-lg md:text-xl font-bold">Detalles del Superadmin</h2>
-                    <button onClick={() => setSelectedUser(null)} className="text-[#4c669a] hover:text-[#0ea5e9]">
+                    <button type="button" onClick={() => setSelectedUser(null)} className="text-[#4c669a] hover:text-[#0ea5e9]">
                       <XMarkIcon className="w-5 h-5" />
                     </button>
                   </div>
@@ -1332,21 +1249,21 @@ const SaasAdmin: React.FC<SaasAdminProps> = ({ onNotify }) => {
                         Acciones
                       </h3>
                       <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
-                        <button
+                        <button type="button"
                           onClick={() => { setSelectedUserToReset(selectedUser); setTempPassword(''); setShowResetUserModal(true); }}
                           className="flex items-center justify-center gap-2 py-2 px-3 bg-slate-100 dark:bg-slate-800 text-[#0d121b] dark:text-white rounded-lg text-sm font-medium hover:bg-[#0ea5e9] hover:text-white transition-all"
                         >
                           <ArrowPathIcon className="w-[18px] h-[18px]" />
                           Password
                         </button>
-                        <button
+                        <button type="button"
                           onClick={() => handleToggleUserStatus(selectedUser)}
                           className={`flex items-center justify-center gap-2 py-2 px-3 rounded-lg text-sm font-medium transition-all ${selectedUser.isActive ? 'bg-amber-100 text-amber-600 hover:bg-amber-600 hover:text-white' : 'bg-emerald-100 text-emerald-600 hover:bg-emerald-600 hover:text-white'}`}
                         >
                           {selectedUser.isActive ? <PauseIcon className="w-[18px] h-[18px]" /> : <PlayIcon className="w-[18px] h-[18px]" />}
                           {selectedUser.isActive ? 'Desactivar' : 'Activar'}
                         </button>
-                        <button
+                        <button type="button"
                           onClick={() => { setUserToDelete(selectedUser); setShowUserDeleteModal(true); }}
                           className="flex items-center justify-center gap-2 py-2 px-3 bg-red-100 text-red-600 rounded-lg text-sm font-medium hover:bg-red-600 hover:text-white transition-all"
                         >
@@ -1383,10 +1300,10 @@ const SaasAdmin: React.FC<SaasAdminProps> = ({ onNotify }) => {
                       <tbody className="divide-y divide-[#cfd7e7] dark:divide-slate-800">
                         {loading ? (
                           <tr><td colSpan={5} className="p-8 text-center text-slate-400">Cargando...</td></tr>
-                        ) : users.filter(u => u.role !== 'SUPERADMIN').length === 0 ? (
+                        ) : businessUsersList.length === 0 ? (
                           <tr><td colSpan={5} className="p-8 text-center text-slate-400">No se encontraron usuarios de empresas</td></tr>
                         ) : (
-                          users.filter(u => u.role !== 'SUPERADMIN').map(user => (
+                          businessUsersList.map(user => (
                             <tr key={user.id} className={`hover:bg-[#0ea5e9]/5 transition-colors ${selectedUser?.id === user.id ? 'bg-[#0ea5e9]/10' : ''}`}>
                               <td className="px-4 py-3">
                                 <div className="flex items-center gap-3">
@@ -1413,7 +1330,7 @@ const SaasAdmin: React.FC<SaasAdminProps> = ({ onNotify }) => {
                                 </span>
                               </td>
                               <td className="px-4 py-3 text-right">
-                                <button 
+                                <button type="button" 
                                   onClick={() => setSelectedUser(user)}
                                   className="p-1.5 rounded-lg bg-[#0ea5e9]/10 text-[#0ea5e9] hover:bg-[#0ea5e9] hover:text-white transition-all"
                                 >
@@ -1431,10 +1348,10 @@ const SaasAdmin: React.FC<SaasAdminProps> = ({ onNotify }) => {
                   <div className="md:hidden divide-y divide-[#cfd7e7] dark:divide-slate-800">
                     {loading ? (
                       <div className="p-6 text-center text-slate-400">Cargando...</div>
-                    ) : users.filter(u => u.role !== 'SUPERADMIN').length === 0 ? (
+                    ) : businessUsersList.length === 0 ? (
                       <div className="p-6 text-center text-slate-400">No se encontraron usuarios de empresas</div>
                     ) : (
-                      users.filter(u => u.role !== 'SUPERADMIN').map(user => (
+                      businessUsersList.map(user => (
                         <div key={user.id} className={`p-3 flex flex-col gap-2 ${selectedUser?.id === user.id ? 'bg-[#0ea5e9]/10' : ''}`}>
                           <div className="flex justify-between items-start">
                             <div className="flex items-center gap-3">
@@ -1452,7 +1369,7 @@ const SaasAdmin: React.FC<SaasAdminProps> = ({ onNotify }) => {
                           </div>
                           <div className="flex justify-between items-center">
                             <span className="text-xs text-[#4c669a] dark:text-slate-400">{user.role}</span>
-                            <button onClick={() => setSelectedUser(user)} className="p-1 rounded bg-[#0ea5e9]/10 text-[#0ea5e9]">
+                            <button type="button" onClick={() => setSelectedUser(user)} className="p-1 rounded bg-[#0ea5e9]/10 text-[#0ea5e9]">
                               <EyeIcon className="w-4 h-4" />
                             </button>
                           </div>
@@ -1468,7 +1385,7 @@ const SaasAdmin: React.FC<SaasAdminProps> = ({ onNotify }) => {
                 <div className="mt-6">
                   <div className="flex items-center justify-between mb-4">
                     <h2 className="text-[#0d121b] dark:text-white text-lg md:text-xl font-bold">Detalles del Usuario</h2>
-                    <button onClick={() => setSelectedUser(null)} className="text-[#4c669a] hover:text-[#0ea5e9]">
+                    <button type="button" onClick={() => setSelectedUser(null)} className="text-[#4c669a] hover:text-[#0ea5e9]">
                       <XMarkIcon className="w-5 h-5" />
                     </button>
                   </div>
@@ -1513,28 +1430,28 @@ const SaasAdmin: React.FC<SaasAdminProps> = ({ onNotify }) => {
                         Acciones
                       </h3>
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                        <button
+                        <button type="button"
                           onClick={() => { setSelectedUserToEdit(selectedUser); setEditUserForm({ name: selectedUser.name || '', role: selectedUser.role }); setShowEditUserModal(true); }}
                           className="flex items-center justify-center gap-2 py-2 px-3 bg-purple-100 text-purple-600 rounded-lg text-sm font-medium hover:bg-purple-600 hover:text-white transition-all"
                         >
                           <PencilIcon className="w-[18px] h-[18px]" />
                           Editar
                         </button>
-                        <button
+                        <button type="button"
                           onClick={() => { setSelectedUserToReset(selectedUser); setTempPassword(''); setShowResetUserModal(true); }}
                           className="flex items-center justify-center gap-2 py-2 px-3 bg-slate-100 dark:bg-slate-800 text-[#0d121b] dark:text-white rounded-lg text-sm font-medium hover:bg-[#0ea5e9] hover:text-white transition-all"
                         >
                           <ArrowPathIcon className="w-[18px] h-[18px]" />
                           Password
                         </button>
-                        <button
+                        <button type="button"
                           onClick={() => handleToggleUserStatus(selectedUser)}
                           className={`flex items-center justify-center gap-2 py-2 px-3 rounded-lg text-sm font-medium transition-all ${selectedUser.isActive ? 'bg-amber-100 text-amber-600 hover:bg-amber-600 hover:text-white' : 'bg-emerald-100 text-emerald-600 hover:bg-emerald-600 hover:text-white'}`}
                         >
                           {selectedUser.isActive ? <PauseIcon className="w-[18px] h-[18px]" /> : <PlayIcon className="w-[18px] h-[18px]" />}
                           {selectedUser.isActive ? 'Desactivar' : 'Activar'}
                         </button>
-                        <button
+                        <button type="button"
                           onClick={() => { setUserToDelete(selectedUser); setShowUserDeleteModal(true); }}
                           className="flex items-center justify-center gap-2 py-2 px-3 bg-red-100 text-red-600 rounded-lg text-sm font-medium hover:bg-red-600 hover:text-white transition-all"
                         >
@@ -1614,7 +1531,7 @@ const SaasAdmin: React.FC<SaasAdminProps> = ({ onNotify }) => {
                               </span>
                             </td>
                             <td className="px-4 py-3 text-right">
-                              <button
+                              <button type="button"
                                 onClick={() => { setPaymentToDelete(payment); setShowDeletePaymentModal(true); }}
                                 className="p-2 text-red-600 hover:bg-red-100 dark:hover:bg-red-900/30 rounded-lg transition-colors"
                                 title="Eliminar"
@@ -1671,7 +1588,7 @@ const SaasAdmin: React.FC<SaasAdminProps> = ({ onNotify }) => {
                           </div>
                         </div>
                         <div className="mt-3 flex justify-end">
-                          <button
+                          <button type="button"
                             onClick={() => { setPaymentToDelete(payment); setShowDeletePaymentModal(true); }}
                             className="p-2 text-red-600 hover:bg-red-100 dark:hover:bg-red-900/30 rounded-lg transition-colors"
                           >
@@ -1691,7 +1608,7 @@ const SaasAdmin: React.FC<SaasAdminProps> = ({ onNotify }) => {
             <div className="mt-6">
               <div className="flex items-center justify-between mb-4">
                 <h2 className="text-[#0d121b] dark:text-white text-lg md:text-xl font-bold">Detalles de {selectedBusiness.name}</h2>
-                <button onClick={() => setSelectedBusiness(null)} className="text-[#4c669a] hover:text-[#0ea5e9]">
+                <button type="button" onClick={() => setSelectedBusiness(null)} className="text-[#4c669a] hover:text-[#0ea5e9]">
                   <XMarkIcon className="w-5 h-5" />
                 </button>
               </div>
@@ -1740,7 +1657,7 @@ const SaasAdmin: React.FC<SaasAdminProps> = ({ onNotify }) => {
                       <UsersIcon className="w-5 h-5 text-[#0ea5e9]" />
                       Usuarios ({businessUsers.length})
                     </h3>
-                    <button
+                    <button type="button"
                       onClick={() => setShowNewUserModal(true)}
                       className="text-xs flex items-center gap-1 px-2 py-1 bg-[#0ea5e9] text-white rounded-lg"
                     >
@@ -1777,7 +1694,7 @@ const SaasAdmin: React.FC<SaasAdminProps> = ({ onNotify }) => {
                     Acciones
                   </h3>
                   <div className="grid grid-cols-1 sm:grid-cols-4 gap-2">
-                    <button
+                    <button type="button"
                       onClick={() => {
                         if (selectedBusiness) {
                           setEditBusinessForm({
@@ -1796,14 +1713,14 @@ const SaasAdmin: React.FC<SaasAdminProps> = ({ onNotify }) => {
                       <PencilIcon className="w-[18px] h-[18px]" />
                       Editar
                     </button>
-                    <button
+                    <button type="button"
                       onClick={() => handleResetAdminPassword()}
                       className="flex items-center justify-center gap-2 py-2 px-3 bg-[#0ea5e9]/10 text-[#0ea5e9] rounded-lg text-sm font-medium hover:bg-[#0ea5e9] hover:text-white transition-all"
                     >
                       <ArrowPathIcon className="w-[18px] h-[18px]" />
                       Resetear Password
                     </button>
-                    <button
+                    <button type="button"
                       onClick={() => toggleBusinessStatus(selectedBusiness.id, selectedBusiness.isActive)}
                       className={`flex items-center justify-center gap-2 py-2 px-3 rounded-lg text-sm font-medium transition-all ${
                         selectedBusiness.isActive 
@@ -1814,7 +1731,7 @@ const SaasAdmin: React.FC<SaasAdminProps> = ({ onNotify }) => {
                       {selectedBusiness.isActive ? <PauseIcon className="w-[18px] h-[18px]" /> : <PlayIcon className="w-[18px] h-[18px]" />}
                       {selectedBusiness.isActive ? 'Pausar' : 'Activar'}
                     </button>
-                    <button
+                    <button type="button"
                       onClick={() => setShowDeleteModal(true)}
                       className="flex items-center justify-center gap-2 py-2 px-3 bg-red-100 text-red-600 rounded-lg text-sm font-medium hover:bg-red-600 hover:text-white transition-all"
                     >
@@ -1846,9 +1763,10 @@ const SaasAdmin: React.FC<SaasAdminProps> = ({ onNotify }) => {
                   <h3 className="text-lg font-bold text-[#0d121b] dark:text-white mb-4">Nuevo Superadmin</h3>
                   <form onSubmit={handleCreateUser} className="space-y-3">
                       <div>
-                          <label className="text-xs font-semibold text-[#4c669a] dark:text-slate-400">Correo</label>
-                          <input 
-                              type="email" 
+                          <label htmlFor={`${fieldId}-user-email`} className="text-xs font-semibold text-[#4c669a] dark:text-slate-400">Correo</label>
+                          <input
+                              id={`${fieldId}-user-email`}
+                              type="email"
                               required
                               className="mt-1 w-full p-2.5 border border-[#cfd7e7] dark:border-slate-700 dark:bg-slate-800 dark:text-white rounded-lg text-sm focus:border-[#0ea5e9] outline-none"
                               value={userFormData.email}
@@ -1856,8 +1774,9 @@ const SaasAdmin: React.FC<SaasAdminProps> = ({ onNotify }) => {
                           />
                       </div>
                       <div className="relative">
-                          <label className="text-xs font-semibold text-[#4c669a] dark:text-slate-400">Contraseña</label>
-                          <input 
+                          <label htmlFor={`${fieldId}-user-password`} className="text-xs font-semibold text-[#4c669a] dark:text-slate-400">Contraseña</label>
+                          <input
+                              id={`${fieldId}-user-password`}
                               type={showPassword ? "text" : "password"}
                               required
                               className="mt-1 w-full p-2.5 border border-[#cfd7e7] dark:border-slate-700 dark:bg-slate-800 dark:text-white rounded-lg text-sm focus:border-[#0ea5e9] outline-none"
@@ -1869,8 +1788,9 @@ const SaasAdmin: React.FC<SaasAdminProps> = ({ onNotify }) => {
                           </button>
                       </div>
                       <div className="relative">
-                          <label className="text-xs font-semibold text-[#4c669a] dark:text-slate-400">Confirmar</label>
-                          <input 
+                          <label htmlFor={`${fieldId}-user-confirm`} className="text-xs font-semibold text-[#4c669a] dark:text-slate-400">Confirmar</label>
+                          <input
+                              id={`${fieldId}-user-confirm`}
                               type={showPassword ? "text" : "password"}
                               required
                               className="mt-1 w-full p-2.5 pr-10 border border-[#cfd7e7] dark:border-slate-700 dark:bg-slate-800 dark:text-white rounded-lg text-sm focus:border-[#0ea5e9] outline-none"
@@ -1897,45 +1817,45 @@ const SaasAdmin: React.FC<SaasAdminProps> = ({ onNotify }) => {
                   <h3 className="text-lg font-bold text-[#0d121b] dark:text-white mb-4">Nueva Empresa</h3>
                   <form onSubmit={handleCreateBusiness} className="space-y-3">
                       <div>
-                          <label className="text-xs font-semibold text-[#4c669a] dark:text-slate-400">Razón Social</label>
-                          <input required className="mt-1 w-full p-2.5 border border-[#cfd7e7] dark:border-slate-700 dark:bg-slate-800 dark:text-white rounded-lg text-sm focus:border-[#0ea5e9] outline-none"
+                          <label htmlFor={`${fieldId}-biz-name`} className="text-xs font-semibold text-[#4c669a] dark:text-slate-400">Razón Social</label>
+                          <input id={`${fieldId}-biz-name`} required className="mt-1 w-full p-2.5 border border-[#cfd7e7] dark:border-slate-700 dark:bg-slate-800 dark:text-white rounded-lg text-sm focus:border-[#0ea5e9] outline-none"
                               value={businessFormData.name} onChange={e => setBusinessFormData({...businessFormData, name: e.target.value})} />
                       </div>
-                      <div className="grid grid-cols-2 gap-3">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                         <div>
-                            <label className="text-xs font-semibold text-[#4c669a] dark:text-slate-400">RUC</label>
-                            <input required className="mt-1 w-full p-2.5 border border-[#cfd7e7] dark:border-slate-700 dark:bg-slate-800 dark:text-white rounded-lg text-sm focus:border-[#0ea5e9] outline-none"
+                            <label htmlFor={`${fieldId}-biz-ruc`} className="text-xs font-semibold text-[#4c669a] dark:text-slate-400">RUC</label>
+                            <input id={`${fieldId}-biz-ruc`} required className="mt-1 w-full p-2.5 border border-[#cfd7e7] dark:border-slate-700 dark:bg-slate-800 dark:text-white rounded-lg text-sm focus:border-[#0ea5e9] outline-none"
                                 value={businessFormData.ruc} onChange={e => setBusinessFormData({...businessFormData, ruc: e.target.value})} />
                         </div>
                         <div>
-                            <label className="text-xs font-semibold text-[#4c669a] dark:text-slate-400">Email</label>
-                            <input type="email" required className="mt-1 w-full p-2.5 border border-[#cfd7e7] dark:border-slate-700 dark:bg-slate-800 dark:text-white rounded-lg text-sm focus:border-[#0ea5e9] outline-none"
+                            <label htmlFor={`${fieldId}-biz-email`} className="text-xs font-semibold text-[#4c669a] dark:text-slate-400">Email</label>
+                            <input id={`${fieldId}-biz-email`} type="email" required className="mt-1 w-full p-2.5 border border-[#cfd7e7] dark:border-slate-700 dark:bg-slate-800 dark:text-white rounded-lg text-sm focus:border-[#0ea5e9] outline-none"
                                 value={businessFormData.email} onChange={e => setBusinessFormData({...businessFormData, email: e.target.value})} />
                         </div>
                       </div>
                       <div className="relative">
-                          <label className="text-xs font-semibold text-[#4c669a] dark:text-slate-400">Password Admin</label>
-                          <input type={showPassword ? "text" : "password"} required className="mt-1 w-full p-2.5 pr-10 border border-[#cfd7e7] dark:border-slate-700 dark:bg-slate-800 dark:text-white rounded-lg text-sm focus:border-[#0ea5e9] outline-none"
+                          <label htmlFor={`${fieldId}-biz-password`} className="text-xs font-semibold text-[#4c669a] dark:text-slate-400">Password Admin</label>
+                          <input id={`${fieldId}-biz-password`} type={showPassword ? "text" : "password"} required className="mt-1 w-full p-2.5 pr-10 border border-[#cfd7e7] dark:border-slate-700 dark:bg-slate-800 dark:text-white rounded-lg text-sm focus:border-[#0ea5e9] outline-none"
                               value={businessFormData.password} onChange={e => setBusinessFormData({...businessFormData, password: e.target.value})} />
                           <button type="button" className="absolute right-2 top-8 text-slate-400 hover:text-slate-600" onClick={() => setShowPassword(!showPassword)}>
                               {showPassword ? <EyeSlashIcon className="w-[18px] h-[18px]" /> : <EyeIcon className="w-[18px] h-[18px]" />}
                           </button>
                       </div>
-                      <div className="grid grid-cols-2 gap-3">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                         <div>
-                            <label className="text-xs font-semibold text-[#4c669a] dark:text-slate-400">Teléfono</label>
-                            <input className="mt-1 w-full p-2.5 border border-[#cfd7e7] dark:border-slate-700 dark:bg-slate-800 dark:text-white rounded-lg text-sm focus:border-[#0ea5e9] outline-none"
+                            <label htmlFor={`${fieldId}-biz-phone`} className="text-xs font-semibold text-[#4c669a] dark:text-slate-400">Teléfono</label>
+                            <input id={`${fieldId}-biz-phone`} className="mt-1 w-full p-2.5 border border-[#cfd7e7] dark:border-slate-700 dark:bg-slate-800 dark:text-white rounded-lg text-sm focus:border-[#0ea5e9] outline-none"
                                 value={businessFormData.phone} onChange={e => setBusinessFormData({...businessFormData, phone: e.target.value})} />
                         </div>
                         <div>
-                            <label className="text-xs font-semibold text-[#4c669a] dark:text-slate-400">Dirección</label>
-                            <input className="mt-1 w-full p-2.5 border border-[#cfd7e7] dark:border-slate-700 dark:bg-slate-800 dark:text-white rounded-lg text-sm focus:border-[#0ea5e9] outline-none"
+                            <label htmlFor={`${fieldId}-biz-address`} className="text-xs font-semibold text-[#4c669a] dark:text-slate-400">Dirección</label>
+                            <input id={`${fieldId}-biz-address`} className="mt-1 w-full p-2.5 border border-[#cfd7e7] dark:border-slate-700 dark:bg-slate-800 dark:text-white rounded-lg text-sm focus:border-[#0ea5e9] outline-none"
                                 value={businessFormData.address} onChange={e => setBusinessFormData({...businessFormData, address: e.target.value})} />
                         </div>
                       </div>
                       <div>
-                          <label className="text-xs font-semibold text-[#4c669a] dark:text-slate-400">Tipo de Negocio</label>
-                          <select className="mt-1 w-full p-2.5 border border-[#cfd7e7] dark:border-slate-700 dark:bg-slate-800 dark:text-white rounded-lg text-sm focus:border-[#0ea5e9] outline-none"
+                          <label htmlFor={`${fieldId}-biz-type`} className="text-xs font-semibold text-[#4c669a] dark:text-slate-400">Tipo de Negocio</label>
+                          <select id={`${fieldId}-biz-type`} className="mt-1 w-full p-2.5 border border-[#cfd7e7] dark:border-slate-700 dark:bg-slate-800 dark:text-white rounded-lg text-sm focus:border-[#0ea5e9] outline-none"
                               value={businessFormData.businessType} onChange={e => setBusinessFormData({...businessFormData, businessType: e.target.value})}>
                               {Object.entries(BUSINESS_TYPES).map(([key, val]) => (
                                   <option key={key} value={key}>{val.icon} {val.label}</option>
@@ -1958,18 +1878,18 @@ const SaasAdmin: React.FC<SaasAdminProps> = ({ onNotify }) => {
                   <h3 className="text-lg font-bold text-[#0d121b] dark:text-white mb-4">Editar Empresa</h3>
                   <form onSubmit={handleUpdateBusiness} className="space-y-3">
                       <div>
-                          <label className="text-xs font-semibold text-[#4c669a] dark:text-slate-400">Razón Social</label>
-                          <input required className="mt-1 w-full p-2.5 border border-[#cfd7e7] dark:border-slate-700 dark:bg-slate-800 dark:text-white rounded-lg text-sm focus:border-[#0ea5e9] outline-none"
+                          <label htmlFor={`${fieldId}-editbiz-name`} className="text-xs font-semibold text-[#4c669a] dark:text-slate-400">Razón Social</label>
+                          <input id={`${fieldId}-editbiz-name`} required className="mt-1 w-full p-2.5 border border-[#cfd7e7] dark:border-slate-700 dark:bg-slate-800 dark:text-white rounded-lg text-sm focus:border-[#0ea5e9] outline-none"
                               value={editBusinessForm.name} onChange={e => setEditBusinessForm({...editBusinessForm, name: e.target.value})} />
                       </div>
-                      <div className="grid grid-cols-2 gap-3">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                         <div>
-                            <label className="text-xs font-semibold text-[#4c669a] dark:text-slate-400">RUC</label>
-                            <input required className="mt-1 w-full p-2.5 border border-[#cfd7e7] dark:border-slate-700 dark:bg-slate-800 dark:text-white rounded-lg text-sm focus:border-[#0ea5e9] outline-none"
+                            <label htmlFor={`${fieldId}-editbiz-ruc`} className="text-xs font-semibold text-[#4c669a] dark:text-slate-400">RUC</label>
+                            <input id={`${fieldId}-editbiz-ruc`} required className="mt-1 w-full p-2.5 border border-[#cfd7e7] dark:border-slate-700 dark:bg-slate-800 dark:text-white rounded-lg text-sm focus:border-[#0ea5e9] outline-none"
                                 value={editBusinessForm.ruc} onChange={e => setEditBusinessForm({...editBusinessForm, ruc: e.target.value})} />
                         </div>
                         <div>
-                            <label className="text-xs font-semibold text-[#4c669a] dark:text-slate-400">Plan</label>
+                            <span className="text-xs font-semibold text-[#4c669a] dark:text-slate-400 block">Plan</span>
                             <div className="mt-1 w-full p-2.5 border border-[#cfd7e7] dark:border-slate-700 dark:bg-slate-800/50 dark:text-white rounded-lg text-sm bg-slate-50 dark:bg-slate-800/50">
                                 {selectedBusiness.plan === 'MONTHLY' ? 'Mensual' :
                                  selectedBusiness.plan === 'SEMIANNUAL' ? 'Semestral' :
@@ -1985,25 +1905,25 @@ const SaasAdmin: React.FC<SaasAdminProps> = ({ onNotify }) => {
                         </div>
                       </div>
                       <div>
-                          <label className="text-xs font-semibold text-[#4c669a] dark:text-slate-400">Email</label>
-                          <input type="email" required className="mt-1 w-full p-2.5 border border-[#cfd7e7] dark:border-slate-700 dark:bg-slate-800 dark:text-white rounded-lg text-sm focus:border-[#0ea5e9] outline-none"
+                          <label htmlFor={`${fieldId}-editbiz-email`} className="text-xs font-semibold text-[#4c669a] dark:text-slate-400">Email</label>
+                          <input id={`${fieldId}-editbiz-email`} type="email" required className="mt-1 w-full p-2.5 border border-[#cfd7e7] dark:border-slate-700 dark:bg-slate-800 dark:text-white rounded-lg text-sm focus:border-[#0ea5e9] outline-none"
                               value={editBusinessForm.email} onChange={e => setEditBusinessForm({...editBusinessForm, email: e.target.value})} />
                       </div>
-                      <div className="grid grid-cols-2 gap-3">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                         <div>
-                            <label className="text-xs font-semibold text-[#4c669a] dark:text-slate-400">Teléfono</label>
-                            <input className="mt-1 w-full p-2.5 border border-[#cfd7e7] dark:border-slate-700 dark:bg-slate-800 dark:text-white rounded-lg text-sm focus:border-[#0ea5e9] outline-none"
+                            <label htmlFor={`${fieldId}-editbiz-phone`} className="text-xs font-semibold text-[#4c669a] dark:text-slate-400">Teléfono</label>
+                            <input id={`${fieldId}-editbiz-phone`} className="mt-1 w-full p-2.5 border border-[#cfd7e7] dark:border-slate-700 dark:bg-slate-800 dark:text-white rounded-lg text-sm focus:border-[#0ea5e9] outline-none"
                                 value={editBusinessForm.phone} onChange={e => setEditBusinessForm({...editBusinessForm, phone: e.target.value})} />
                         </div>
                         <div>
-                            <label className="text-xs font-semibold text-[#4c669a] dark:text-slate-400">Dirección</label>
-                            <input className="mt-1 w-full p-2.5 border border-[#cfd7e7] dark:border-slate-700 dark:bg-slate-800 dark:text-white rounded-lg text-sm focus:border-[#0ea5e9] outline-none"
+                            <label htmlFor={`${fieldId}-editbiz-address`} className="text-xs font-semibold text-[#4c669a] dark:text-slate-400">Dirección</label>
+                            <input id={`${fieldId}-editbiz-address`} className="mt-1 w-full p-2.5 border border-[#cfd7e7] dark:border-slate-700 dark:bg-slate-800 dark:text-white rounded-lg text-sm focus:border-[#0ea5e9] outline-none"
                                 value={editBusinessForm.address} onChange={e => setEditBusinessForm({...editBusinessForm, address: e.target.value})} />
                         </div>
                       </div>
                       <div>
-                          <label className="text-xs font-semibold text-[#4c669a] dark:text-slate-400">Tipo de Negocio</label>
-                          <select className="mt-1 w-full p-2.5 border border-[#cfd7e7] dark:border-slate-700 dark:bg-slate-800 dark:text-white rounded-lg text-sm focus:border-[#0ea5e9] outline-none"
+                          <label htmlFor={`${fieldId}-editbiz-type`} className="text-xs font-semibold text-[#4c669a] dark:text-slate-400">Tipo de Negocio</label>
+                          <select id={`${fieldId}-editbiz-type`} className="mt-1 w-full p-2.5 border border-[#cfd7e7] dark:border-slate-700 dark:bg-slate-800 dark:text-white rounded-lg text-sm focus:border-[#0ea5e9] outline-none"
                               value={editBusinessForm.businessType} onChange={e => setEditBusinessForm({...editBusinessForm, businessType: e.target.value})}>
                               {Object.entries(BUSINESS_TYPES).map(([key, val]) => (
                                   <option key={key} value={key}>{val.icon} {val.label}</option>
@@ -2012,7 +1932,7 @@ const SaasAdmin: React.FC<SaasAdminProps> = ({ onNotify }) => {
                       </div>
                       <div className="flex gap-2 pt-2">
                           <button type="button" onClick={() => setShowEditBusinessModal(false)} className="flex-1 py-2.5 rounded-lg text-sm font-medium text-[#4c669a] hover:bg-slate-100 dark:hover:bg-slate-800">Cancelar</button>
-                          <button type="submit" className="flex-1 py-2.5 bg-[#0ea5e9] text-white rounded-lg text-sm font-medium hover:opacity-90">Guardar</button>
+                          <button aria-label="Acción" type="submit" className="flex-1 py-2.5 bg-[#0ea5e9] text-white rounded-lg text-sm font-medium hover:opacity-90">Guardar</button>
                       </div>
                   </form>
               </div>
@@ -2029,8 +1949,8 @@ const SaasAdmin: React.FC<SaasAdminProps> = ({ onNotify }) => {
               <h3 className="text-lg font-bold text-[#0d121b] dark:text-white mb-2">¿Eliminar?</h3>
               <p className="text-xs text-[#4c669a] dark:text-slate-400 mb-4">¿Eliminar <strong>{selectedBusiness.name}</strong>?</p>
               <div className="flex gap-2">
-                <button onClick={() => setShowDeleteModal(false)} className="flex-1 py-2.5 rounded-lg text-sm font-medium text-[#4c669a] hover:bg-slate-100 dark:hover:bg-slate-800">Cancelar</button>
-                <button onClick={handleDeleteBusiness} className="flex-1 py-2.5 bg-red-600 text-white rounded-lg text-sm font-medium hover:bg-red-700">Eliminar</button>
+                <button type="button" aria-label="Acción" onClick={() => setShowDeleteModal(false)} className="flex-1 py-2.5 rounded-lg text-sm font-medium text-[#4c669a] hover:bg-slate-100 dark:hover:bg-slate-800">Cancelar</button>
+                <button type="button" onClick={handleDeleteBusiness} className="flex-1 py-2.5 bg-red-600 text-white rounded-lg text-sm font-medium hover:bg-red-700">Eliminar</button>
               </div>
             </div>
           </div>
@@ -2048,8 +1968,8 @@ const SaasAdmin: React.FC<SaasAdminProps> = ({ onNotify }) => {
                 ¿Eliminar el pago de <strong>{paymentToDelete.business?.name}</strong> por <strong>${paymentToDelete.amount?.toFixed(2)}</strong>?
               </p>
               <div className="flex gap-2">
-                <button onClick={() => { setShowDeletePaymentModal(false); setPaymentToDelete(null); }} className="flex-1 py-2.5 rounded-lg text-sm font-medium text-[#4c669a] hover:bg-slate-100 dark:hover:bg-slate-800">Cancelar</button>
-                <button onClick={handleDeletePayment} disabled={processing} className="flex-1 py-2.5 bg-red-600 text-white rounded-lg text-sm font-medium hover:bg-red-700 disabled:opacity-50">Eliminar</button>
+                <button type="button" onClick={() => { setShowDeletePaymentModal(false); setPaymentToDelete(null); }} className="flex-1 py-2.5 rounded-lg text-sm font-medium text-[#4c669a] hover:bg-slate-100 dark:hover:bg-slate-800">Cancelar</button>
+                <button type="button" onClick={handleDeletePayment} disabled={processing} className="flex-1 py-2.5 bg-red-600 text-white rounded-lg text-sm font-medium hover:bg-red-700 disabled:opacity-50">Eliminar</button>
               </div>
             </div>
           </div>
@@ -2063,28 +1983,28 @@ const SaasAdmin: React.FC<SaasAdminProps> = ({ onNotify }) => {
                   <p className="text-xs text-[#4c669a] dark:text-slate-400 mb-4">{selectedBusiness.name}</p>
                   <form onSubmit={handleCreateBusinessUser} className="space-y-3">
                       <div>
-                          <label className="text-xs font-semibold text-[#4c669a] dark:text-slate-400">Email</label>
-                          <input type="email" required className="mt-1 w-full p-2.5 border border-[#cfd7e7] dark:border-slate-700 dark:bg-slate-800 dark:text-white rounded-lg text-sm focus:border-[#0ea5e9] outline-none"
+                          <label htmlFor={`${fieldId}-newuser-email`} className="text-xs font-semibold text-[#4c669a] dark:text-slate-400">Email</label>
+                          <input id={`${fieldId}-newuser-email`} type="email" required className="mt-1 w-full p-2.5 border border-[#cfd7e7] dark:border-slate-700 dark:bg-slate-800 dark:text-white rounded-lg text-sm focus:border-[#0ea5e9] outline-none"
                               value={newUserFormData.email} onChange={e => setNewUserFormData({...newUserFormData, email: e.target.value})} />
                       </div>
                       <div className="relative">
-                          <label className="text-xs font-semibold text-[#4c669a] dark:text-slate-400">Password</label>
-                          <input type={showPassword ? "text" : "password"} required className="mt-1 w-full p-2.5 pr-10 border border-[#cfd7e7] dark:border-slate-700 dark:bg-slate-800 dark:text-white rounded-lg text-sm focus:border-[#0ea5e9] outline-none"
+                          <label htmlFor={`${fieldId}-newuser-password`} className="text-xs font-semibold text-[#4c669a] dark:text-slate-400">Password</label>
+                          <input id={`${fieldId}-newuser-password`} type={showPassword ? "text" : "password"} required className="mt-1 w-full p-2.5 pr-10 border border-[#cfd7e7] dark:border-slate-700 dark:bg-slate-800 dark:text-white rounded-lg text-sm focus:border-[#0ea5e9] outline-none"
                               value={newUserFormData.password} onChange={e => setNewUserFormData({...newUserFormData, password: e.target.value})} />
                           <button type="button" className="absolute right-2 top-8 text-slate-400 hover:text-slate-600" onClick={() => setShowPassword(!showPassword)}>
                               {showPassword ? <EyeSlashIcon className="w-[18px] h-[18px]" /> : <EyeIcon className="w-[18px] h-[18px]" />}
                           </button>
                       </div>
                       <div>
-                          <label className="text-xs font-semibold text-[#4c669a] dark:text-slate-400">Rol</label>
-                          <select className="mt-1 w-full p-2.5 border border-[#cfd7e7] dark:border-slate-700 dark:bg-slate-800 dark:text-white rounded-lg text-sm focus:border-[#0ea5e9] outline-none"
+                          <label htmlFor={`${fieldId}-newuser-role`} className="text-xs font-semibold text-[#4c669a] dark:text-slate-400">Rol</label>
+                          <select id={`${fieldId}-newuser-role`} className="mt-1 w-full p-2.5 border border-[#cfd7e7] dark:border-slate-700 dark:bg-slate-800 dark:text-white rounded-lg text-sm focus:border-[#0ea5e9] outline-none"
                               value={newUserFormData.role} onChange={e => setNewUserFormData({...newUserFormData, role: e.target.value})}>
                               <option value="ADMIN">Admin</option>
                               <option value="USER">Usuario</option>
                           </select>
                       </div>
                       <div className="flex gap-2 pt-2">
-                          <button type="button" onClick={() => setShowNewUserModal(false)} className="flex-1 py-2.5 rounded-lg text-sm font-medium text-[#4c669a] hover:bg-slate-100 dark:hover:bg-slate-800">Cancelar</button>
+                          <button aria-label="Acción" type="button" onClick={() => setShowNewUserModal(false)} className="flex-1 py-2.5 rounded-lg text-sm font-medium text-[#4c669a] hover:bg-slate-100 dark:hover:bg-slate-800">Cancelar</button>
                           <button type="submit" className="flex-1 py-2.5 bg-[#0ea5e9] text-white rounded-lg text-sm font-medium hover:opacity-90">Crear</button>
                       </div>
                   </form>
@@ -2102,8 +2022,8 @@ const SaasAdmin: React.FC<SaasAdminProps> = ({ onNotify }) => {
               <h3 className="text-lg font-bold text-[#0d121b] dark:text-white mb-2">¿Eliminar usuario?</h3>
               <p className="text-xs text-[#4c669a] dark:text-slate-400 mb-4">{userToDelete.email}</p>
               <div className="flex gap-2">
-                <button onClick={() => setShowUserDeleteModal(false)} className="flex-1 py-2.5 rounded-lg text-sm font-medium text-[#4c669a] hover:bg-slate-100 dark:hover:bg-slate-800">Cancelar</button>
-                <button onClick={handleDeleteUser} className="flex-1 py-2.5 bg-red-600 text-white rounded-lg text-sm font-medium hover:bg-red-700">Eliminar</button>
+                <button type="button" onClick={() => setShowUserDeleteModal(false)} className="flex-1 py-2.5 rounded-lg text-sm font-medium text-[#4c669a] hover:bg-slate-100 dark:hover:bg-slate-800">Cancelar</button>
+                <button type="button" aria-label="Acción" onClick={handleDeleteUser} className="flex-1 py-2.5 bg-red-600 text-white rounded-lg text-sm font-medium hover:bg-red-700">Eliminar</button>
               </div>
             </div>
           </div>
@@ -2117,8 +2037,8 @@ const SaasAdmin: React.FC<SaasAdminProps> = ({ onNotify }) => {
                   <p className="text-xs text-[#4c669a] dark:text-slate-400 mb-4">{selectedUserToReset.email}</p>
                   <form onSubmit={(e) => { e.preventDefault(); handleResetUserPassword(); }} className="space-y-3">
                       <div className="relative">
-                          <label className="text-xs font-semibold text-[#4c669a] dark:text-slate-400">Nueva Password</label>
-                          <input type={showPassword ? "text" : "password"} required className="mt-1 w-full p-2.5 pr-10 border border-[#cfd7e7] dark:border-slate-700 dark:bg-slate-800 dark:text-white rounded-lg text-sm focus:border-[#0ea5e9] outline-none"
+                          <label htmlFor={`${fieldId}-resetUser-pw`} className="text-xs font-semibold text-[#4c669a] dark:text-slate-400">Nueva Password</label>
+                          <input id={`${fieldId}-resetUser-pw`} type={showPassword ? "text" : "password"} required className="mt-1 w-full p-2.5 pr-10 border border-[#cfd7e7] dark:border-slate-700 dark:bg-slate-800 dark:text-white rounded-lg text-sm focus:border-[#0ea5e9] outline-none"
                               value={tempPassword} onChange={e => setTempPassword(e.target.value)} placeholder="Nueva password" />
                           <button type="button" className="absolute right-2 top-8 text-slate-400 hover:text-slate-600" onClick={() => setShowPassword(!showPassword)}>
                               {showPassword ? <EyeSlashIcon className="w-[18px] h-[18px]" /> : <EyeIcon className="w-[18px] h-[18px]" />}
@@ -2141,8 +2061,8 @@ const SaasAdmin: React.FC<SaasAdminProps> = ({ onNotify }) => {
                   <p className="text-xs text-[#4c669a] dark:text-slate-400 mb-4">{selectedAdminUser.email}</p>
                   <form onSubmit={(e) => { e.preventDefault(); confirmResetAdminPassword(); }} className="space-y-3">
                       <div className="relative">
-                          <label className="text-xs font-semibold text-[#4c669a] dark:text-slate-400">Nueva Password</label>
-                          <input type={showPassword ? "text" : "password"} required className="mt-1 w-full p-2.5 pr-10 border border-[#cfd7e7] dark:border-slate-700 dark:bg-slate-800 dark:text-white rounded-lg text-sm focus:border-[#0ea5e9] outline-none"
+                          <label htmlFor={`${fieldId}-resetAdmin-pw`} className="text-xs font-semibold text-[#4c669a] dark:text-slate-400">Nueva Password</label>
+                          <input id={`${fieldId}-resetAdmin-pw`} type={showPassword ? "text" : "password"} required className="mt-1 w-full p-2.5 pr-10 border border-[#cfd7e7] dark:border-slate-700 dark:bg-slate-800 dark:text-white rounded-lg text-sm focus:border-[#0ea5e9] outline-none"
                               value={adminPassword} onChange={e => setAdminPassword(e.target.value)} placeholder="Nueva password" />
                           <button type="button" className="absolute right-2 top-8 text-slate-400 hover:text-slate-600" onClick={() => setShowPassword(!showPassword)}>
                               {showPassword ? <EyeSlashIcon className="w-[18px] h-[18px]" /> : <EyeIcon className="w-[18px] h-[18px]" />}
@@ -2165,13 +2085,13 @@ const SaasAdmin: React.FC<SaasAdminProps> = ({ onNotify }) => {
                   <p className="text-xs text-[#4c669a] dark:text-slate-400 mb-4">{selectedUserToEdit.email}</p>
                   <form onSubmit={confirmEditUser} className="space-y-3">
                       <div>
-                          <label className="text-xs font-semibold text-[#4c669a] dark:text-slate-400">Nombre</label>
-                          <input type="text" className="mt-1 w-full p-2.5 border border-[#cfd7e7] dark:border-slate-700 dark:bg-slate-800 dark:text-white rounded-lg text-sm focus:border-purple-500 outline-none"
+                          <label htmlFor={`${fieldId}-edituser-name`} className="text-xs font-semibold text-[#4c669a] dark:text-slate-400">Nombre</label>
+                          <input id={`${fieldId}-edituser-name`} type="text" className="mt-1 w-full p-2.5 border border-[#cfd7e7] dark:border-slate-700 dark:bg-slate-800 dark:text-white rounded-lg text-sm focus:border-purple-500 outline-none"
                               value={editUserForm.name} onChange={e => setEditUserForm({ ...editUserForm, name: e.target.value })} />
                       </div>
                       <div>
-                          <label className="text-xs font-semibold text-[#4c669a] dark:text-slate-400">Rol</label>
-                          <select className="mt-1 w-full p-2.5 border border-[#cfd7e7] dark:border-slate-700 dark:bg-slate-800 dark:text-white rounded-lg text-sm focus:border-purple-500 outline-none"
+                          <label htmlFor={`${fieldId}-edituser-role`} className="text-xs font-semibold text-[#4c669a] dark:text-slate-400">Rol</label>
+                          <select id={`${fieldId}-edituser-role`} className="mt-1 w-full p-2.5 border border-[#cfd7e7] dark:border-slate-700 dark:bg-slate-800 dark:text-white rounded-lg text-sm focus:border-purple-500 outline-none"
                               value={editUserForm.role} onChange={e => setEditUserForm({ ...editUserForm, role: e.target.value })}>
                               <option value="ADMIN">Admin</option>
                               <option value="VENDEDOR">Vendedor</option>
@@ -2197,8 +2117,9 @@ const SaasAdmin: React.FC<SaasAdminProps> = ({ onNotify }) => {
           
           <div className="space-y-4">
             <div>
-              <label className="block text-sm font-medium mb-1">Código</label>
+              <label htmlFor={`${fieldId}-sub-code`} className="block text-sm font-medium mb-1">Código</label>
               <input
+                id={`${fieldId}-sub-code`}
                 type="text"
                 value={subscriptionForm.code}
                 onChange={(e) => setSubscriptionForm({...subscriptionForm, code: e.target.value})}
@@ -2208,8 +2129,9 @@ const SaasAdmin: React.FC<SaasAdminProps> = ({ onNotify }) => {
             </div>
             
             <div>
-              <label className="block text-sm font-medium mb-1">Nombre</label>
+              <label htmlFor={`${fieldId}-sub-name`} className="block text-sm font-medium mb-1">Nombre</label>
               <input
+                id={`${fieldId}-sub-name`}
                 type="text"
                 value={subscriptionForm.name}
                 onChange={(e) => setSubscriptionForm({...subscriptionForm, name: e.target.value})}
@@ -2219,8 +2141,9 @@ const SaasAdmin: React.FC<SaasAdminProps> = ({ onNotify }) => {
             </div>
             
             <div>
-              <label className="block text-sm font-medium mb-1">Descripción</label>
+              <label htmlFor={`${fieldId}-sub-description`} className="block text-sm font-medium mb-1">Descripción</label>
               <textarea
+                id={`${fieldId}-sub-description`}
                 value={subscriptionForm.description}
                 onChange={(e) => setSubscriptionForm({...subscriptionForm, description: e.target.value})}
                 className="w-full p-2 border rounded-lg dark:bg-slate-800"
@@ -2228,10 +2151,11 @@ const SaasAdmin: React.FC<SaasAdminProps> = ({ onNotify }) => {
               />
             </div>
             
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium mb-1">Precio ($)</label>
+                <label htmlFor={`${fieldId}-sub-price`} className="block text-sm font-medium mb-1">Precio ($)</label>
                 <input
+                  id={`${fieldId}-sub-price`}
                   type="number"
                   step="0.01"
                   value={subscriptionForm.price}
@@ -2241,8 +2165,9 @@ const SaasAdmin: React.FC<SaasAdminProps> = ({ onNotify }) => {
               </div>
               
               <div>
-                <label className="block text-sm font-medium mb-1">Período</label>
+                <label htmlFor={`${fieldId}-sub-period`} className="block text-sm font-medium mb-1">Período</label>
                 <select
+                  id={`${fieldId}-sub-period`}
                   value={subscriptionForm.period}
                   onChange={(e) => setSubscriptionForm({...subscriptionForm, period: e.target.value as any})}
                   className="w-full p-2 border rounded-lg dark:bg-slate-800"
@@ -2257,8 +2182,9 @@ const SaasAdmin: React.FC<SaasAdminProps> = ({ onNotify }) => {
             </div>
             
             <div>
-              <label className="block text-sm font-medium mb-1">Duración (días)</label>
+              <label htmlFor={`${fieldId}-sub-duration`} className="block text-sm font-medium mb-1">Duración (días)</label>
               <input
+                id={`${fieldId}-sub-duration`}
                 type="number"
                 value={subscriptionForm.durationDays}
                 onChange={(e) => setSubscriptionForm({...subscriptionForm, durationDays: Number(e.target.value)})}
@@ -2267,8 +2193,9 @@ const SaasAdmin: React.FC<SaasAdminProps> = ({ onNotify }) => {
             </div>
             
             <div>
-              <label className="block text-sm font-medium mb-1">Características (separadas por coma)</label>
+              <label htmlFor={`${fieldId}-sub-features`} className="block text-sm font-medium mb-1">Características (separadas por coma)</label>
               <textarea
+                id={`${fieldId}-sub-features`}
                 value={subscriptionForm.features}
                 onChange={(e) => setSubscriptionForm({...subscriptionForm, features: e.target.value})}
                 className="w-full p-2 border rounded-lg dark:bg-slate-800"
@@ -2290,13 +2217,13 @@ const SaasAdmin: React.FC<SaasAdminProps> = ({ onNotify }) => {
           </div>
           
           <div className="flex gap-3 mt-6">
-            <button
+            <button type="button"
               onClick={() => setShowSubscriptionModal(false)}
               className="flex-1 px-4 py-2 bg-slate-200 dark:bg-slate-700 rounded-lg font-medium hover:bg-slate-300 dark:hover:bg-slate-600 transition-colors"
             >
               Cancelar
             </button>
-            <button
+            <button type="submit"
               onClick={() => {
                 if (!subscriptionForm.code || !subscriptionForm.name) {
                   onNotify('Código y nombre son obligatorios', 'error');
@@ -2332,133 +2259,7 @@ const SaasAdmin: React.FC<SaasAdminProps> = ({ onNotify }) => {
       </div>
         )}
       
-      {/* Configuración de Pagos */}
-      {activeTab === 'config' && (
-        <div className="max-w-2xl mx-auto">
-          <div className="bg-white dark:bg-slate-900 rounded-xl border border-[#cfd7e7] dark:border-slate-800 overflow-hidden shadow-sm p-6 md:p-8">
-            <h2 className="text-[#0d121b] dark:text-white text-lg font-bold mb-6">Configuración de Métodos de Pago</h2>
-            
-            {loadingConfig ? (
-              <p className="text-slate-400">Cargando...</p>
-            ) : (
-              <div className="space-y-6">
-                {/* Toggles */}
-                <div className="grid grid-cols-3 gap-3 mb-6">
-                  <label className={`flex items-center justify-center gap-2 p-3 rounded-xl border-2 cursor-pointer transition-all ${paymentConfig.paypalEnabled ? 'border-sky-500 bg-sky-50 dark:bg-sky-500/10' : 'border-slate-200 dark:border-slate-700'}`}>
-                    <input type="checkbox" checked={paymentConfig.paypalEnabled} onChange={e => setPaymentConfig({...paymentConfig, paypalEnabled: e.target.checked})} className="sr-only" />
-                    <span className="text-sm font-bold">PayPal</span>
-                  </label>
-                  <label className={`flex items-center justify-center gap-2 p-3 rounded-xl border-2 cursor-pointer transition-all ${paymentConfig.transferEnabled ? 'border-sky-500 bg-sky-50 dark:bg-sky-500/10' : 'border-slate-200 dark:border-slate-700'}`}>
-                    <input type="checkbox" checked={paymentConfig.transferEnabled} onChange={e => setPaymentConfig({...paymentConfig, transferEnabled: e.target.checked})} className="sr-only" />
-                    <span className="text-sm font-bold">Transferencia</span>
-                  </label>
-                  <label className={`flex items-center justify-center gap-2 p-3 rounded-xl border-2 cursor-pointer transition-all ${paymentConfig.cardEnabled ? 'border-sky-500 bg-sky-50 dark:bg-sky-500/10' : 'border-slate-200 dark:border-slate-700'}`}>
-                    <input type="checkbox" checked={paymentConfig.cardEnabled} onChange={e => setPaymentConfig({...paymentConfig, cardEnabled: e.target.checked})} className="sr-only" />
-                    <span className="text-sm font-bold">Tarjeta</span>
-                  </label>
-                </div>
 
-                {/* Datos bancarios */}
-                <div className="border-t border-slate-100 dark:border-slate-700 pt-6">
-                  <div className="flex justify-between items-center mb-4">
-                    <h3 className="font-bold text-slate-700 dark:text-slate-300 text-sm uppercase tracking-wider">Cuentas Bancarias</h3>
-                    <button onClick={() => {
-                      setPaymentConfig({
-                        ...paymentConfig,
-                        bankAccounts: [
-                          ...paymentConfig.bankAccounts,
-                          {
-                            id: Math.random().toString(36).substring(7),
-                            bankName: '',
-                            bankAccount: '',
-                            bankAccountType: 'Cuenta Corriente',
-                            bankHolderName: '',
-                            bankHolderRuc: ''
-                          }
-                        ]
-                      });
-                    }} className="flex items-center gap-1 text-xs bg-sky-100 text-sky-500 px-3 py-1.5 rounded-lg hover:bg-sky-200 transition-colors">
-                      <PlusIcon className="w-4 h-4" /> Agregar Cuenta
-                    </button>
-                  </div>
-                  
-                  <div className="space-y-4">
-                    {paymentConfig.bankAccounts.length === 0 && (
-                      <p className="text-sm text-slate-500 text-center py-4 bg-slate-50 dark:bg-slate-800/50 rounded-xl">No hay cuentas bancarias configuradas.</p>
-                    )}
-                    {paymentConfig.bankAccounts.map((acc, index) => (
-                      <div key={acc.id} className="p-4 border border-slate-200 dark:border-slate-700 rounded-xl relative bg-slate-50 dark:bg-slate-800/30">
-                        <div className="absolute top-4 right-4">
-                          <button onClick={() => {
-                            setPaymentConfig({
-                              ...paymentConfig,
-                              bankAccounts: paymentConfig.bankAccounts.filter(a => a.id !== acc.id)
-                            });
-                          }} className="text-red-500 hover:text-red-700 p-1 bg-red-50 hover:bg-red-100 rounded-lg transition-colors" title="Eliminar cuenta">
-                            <TrashIcon className="w-4 h-4" />
-                          </button>
-                        </div>
-                        <h4 className="text-xs font-bold text-sky-600 mb-3">Cuenta #{index + 1}</h4>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                          <div>
-                            <label className="text-xs font-bold text-slate-400 uppercase mb-1 block">Banco</label>
-                            <input type="text" value={acc.bankName} onChange={e => {
-                              const newAccounts = [...paymentConfig.bankAccounts];
-                              newAccounts[index].bankName = e.target.value;
-                              setPaymentConfig({...paymentConfig, bankAccounts: newAccounts});
-                            }} className="w-full p-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl font-medium text-sm outline-none focus:border-sky-500" placeholder="Ej: Banco Pichincha" />
-                          </div>
-                          <div>
-                            <label className="text-xs font-bold text-slate-400 uppercase mb-1 block">N° de Cuenta</label>
-                            <input type="text" value={acc.bankAccount} onChange={e => {
-                              const newAccounts = [...paymentConfig.bankAccounts];
-                              newAccounts[index].bankAccount = e.target.value;
-                              setPaymentConfig({...paymentConfig, bankAccounts: newAccounts});
-                            }} className="w-full p-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl font-medium text-sm outline-none focus:border-sky-500" placeholder="Ej: 1234567890" />
-                          </div>
-                          <div>
-                            <label className="text-xs font-bold text-slate-400 uppercase mb-1 block">Tipo de Cuenta</label>
-                            <select value={acc.bankAccountType} onChange={e => {
-                              const newAccounts = [...paymentConfig.bankAccounts];
-                              newAccounts[index].bankAccountType = e.target.value;
-                              setPaymentConfig({...paymentConfig, bankAccounts: newAccounts});
-                            }} className="w-full p-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl font-medium text-sm outline-none focus:border-sky-500">
-                              <option>Cuenta Corriente</option>
-                              <option>Cuenta de Ahorros</option>
-                            </select>
-                          </div>
-                          <div>
-                            <label className="text-xs font-bold text-slate-400 uppercase mb-1 block">Titular</label>
-                            <input type="text" value={acc.bankHolderName} onChange={e => {
-                              const newAccounts = [...paymentConfig.bankAccounts];
-                              newAccounts[index].bankHolderName = e.target.value;
-                              setPaymentConfig({...paymentConfig, bankAccounts: newAccounts});
-                            }} className="w-full p-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl font-medium text-sm outline-none focus:border-sky-500" placeholder="Ej: Azul S.A." />
-                          </div>
-                          <div className="md:col-span-2">
-                            <label className="text-xs font-bold text-slate-400 uppercase mb-1 block">RUC del Titular</label>
-                            <input type="text" value={acc.bankHolderRuc} onChange={e => {
-                              const newAccounts = [...paymentConfig.bankAccounts];
-                              newAccounts[index].bankHolderRuc = e.target.value;
-                              setPaymentConfig({...paymentConfig, bankAccounts: newAccounts});
-                            }} className="w-full p-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl font-medium text-sm outline-none focus:border-sky-500" placeholder="Ej: 0953443769" />
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                <div className="border-t border-slate-100 dark:border-slate-700 pt-4">
-                  <button onClick={savePaymentConfig} disabled={savingConfig} className="w-full py-3 bg-sky-500 text-white font-bold rounded-xl hover:bg-sky-600 transition-colors disabled:opacity-50">
-                    {savingConfig ? 'Guardando...' : 'Guardar Configuración'}
-                  </button>
-                </div>
-              </div>
-            )}
-          </div>
-        </div>
-      )}
       </div>
     </>
   );

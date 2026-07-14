@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { ShieldCheckIcon, XMarkIcon } from '@heroicons/react/24/outline';
 
 interface CookieBannerProps {
@@ -52,12 +52,14 @@ const CookieBanner: React.FC<CookieBannerProps> = ({
             </div>
             <div className="flex items-center gap-2 flex-shrink-0">
               <button
+                type="button"
                 onClick={reject}
                 className="px-4 py-2.5 rounded-xl text-sm font-bold text-slate-500 hover:text-slate-700 hover:bg-slate-100 transition-colors"
               >
                 Rechazar
               </button>
               <button
+                type="button"
                 onClick={accept}
                 className="px-6 py-2.5 rounded-xl text-sm font-bold bg-[#0EA5E9] text-white hover:bg-[#0369A1] transition-all shadow-lg shadow-[#0EA5E9]/20"
               >

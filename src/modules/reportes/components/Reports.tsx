@@ -28,23 +28,25 @@ const Reports: React.FC<ReportsProps> = ({ documents, businessInfo, onConvertPro
     let totalIva = 0;
     let totalNeto = 0;
     
-    safeDocuments.filter(d => d.type === DocumentType.INVOICE && d.status === SriStatus.AUTHORIZED).forEach(doc => {
-      if (doc.items && doc.items.length > 0) {
-        doc.items.forEach(it => {
-          const base = it.quantity * it.unitPrice - it.discount;
-          if (it.taxRate > 0) {
-            sub15 += base;
-            totalIva += base * (it.taxRate / 100);
-          } else {
-            sub0 += base;
-          }
-        });
-      } else {
-        const s15 = doc.total / 1.15;
-        sub15 += s15;
-        totalIva += doc.total - s15;
+    safeDocuments.forEach(doc => {
+      if (doc.type === DocumentType.INVOICE && doc.status === SriStatus.AUTHORIZED) {
+        if (doc.items && doc.items.length > 0) {
+          doc.items.forEach(it => {
+            const base = it.quantity * it.unitPrice - it.discount;
+            if (it.taxRate > 0) {
+              sub15 += base;
+              totalIva += base * (it.taxRate / 100);
+            } else {
+              sub0 += base;
+            }
+          });
+        } else {
+          const s15 = doc.total / 1.15;
+          sub15 += s15;
+          totalIva += doc.total - s15;
+        }
+        totalNeto += doc.total;
       }
-      totalNeto += doc.total;
     });
     return { sub15, sub0, totalIva, totalNeto };
   }, [documents]);
@@ -59,11 +61,13 @@ const Reports: React.FC<ReportsProps> = ({ documents, businessInfo, onConvertPro
 
   const topClients = useMemo(() => {
     const clientMap: Record<string, { name: string; total: number; count: number }> = {};
-    safeDocuments.filter(d => d.type === DocumentType.INVOICE && d.status === SriStatus.AUTHORIZED).forEach(doc => {
-      const key = doc.entityName || 'CONSUMIDOR FINAL';
-      if (!clientMap[key]) clientMap[key] = { name: key, total: 0, count: 0 };
-      clientMap[key].total += doc.total || 0;
-      clientMap[key].count += 1;
+    safeDocuments.forEach(doc => {
+      if (doc.type === DocumentType.INVOICE && doc.status === SriStatus.AUTHORIZED) {
+        const key = doc.entityName || 'CONSUMIDOR FINAL';
+        if (!clientMap[key]) clientMap[key] = { name: key, total: 0, count: 0 };
+        clientMap[key].total += doc.total || 0;
+        clientMap[key].count += 1;
+      }
     });
     return Object.values(clientMap).sort((a, b) => b.total - a.total).slice(0, 10);
   }, [safeDocuments]);
@@ -89,7 +93,7 @@ const Reports: React.FC<ReportsProps> = ({ documents, businessInfo, onConvertPro
   }, [safeDocuments, sriStatusFilter]);
 
   const getStatusBadge = (doc: Document) => {
-    const status = doc.status;
+    const status = doc.status as any;
     if (status === SriStatus.AUTHORIZED || status === 'AUTORIZADO') {
       return { color: 'bg-emerald-100 text-emerald-600 dark:bg-emerald-950/30 dark:text-emerald-400', label: 'Autorizado' };
     }
@@ -102,8 +106,10 @@ const Reports: React.FC<ReportsProps> = ({ documents, businessInfo, onConvertPro
     return { color: 'bg-slate-100 text-slate-500 dark:bg-slate-800 dark:text-slate-400', label: status };
   };
 
-  const isRejected = (doc: Document) =>
-    doc.status === SriStatus.REJECTED || doc.status === 'RECHAZADO' || doc.status === 'NO_AUTORIZADO' || doc.status === 'DEVUELTO';
+  const isRejected = (doc: Document) => {
+    const status = doc.status as any;
+    return status === SriStatus.REJECTED || status === 'RECHAZADO' || status === 'NO_AUTORIZADO' || status === 'DEVUELTO';
+  };
 
   const handleReemit = (doc: Document) => {
     if (onReemitDocument) {
@@ -120,7 +126,7 @@ const Reports: React.FC<ReportsProps> = ({ documents, businessInfo, onConvertPro
           { id: 'SRI', label: 'Documentos SRI', icon: <BuildingOffice2Icon className="w-4 h-4" /> },
           { id: 'PROFORMAS', label: 'Proformas', icon: <DocumentTextIcon className="w-4 h-4" /> },
         ].map(tab => (
-          <button
+          <button type="button"
             key={tab.id}
             onClick={() => setActiveSubTab(tab.id as any)}
             className={`px-8 py-4 rounded-[1.5rem] flex items-center gap-3 text-xs font-black uppercase tracking-widest transition-all ${
@@ -203,14 +209,14 @@ const Reports: React.FC<ReportsProps> = ({ documents, businessInfo, onConvertPro
                       )}
                       <td className="py-6 px-10 text-right">
                         <div className="flex justify-end gap-2">
-                          <button 
+                          <button type="button" 
                             onClick={() => setSelectedDocForRide(doc)}
                             className="px-4 py-2 bg-sky-500 text-white hover:bg-sky-600 rounded-lg text-[9px] font-black uppercase transition-all"
                           >
                             Ver RIDE
                           </button>
                           {rejected && onReemitDocument && (
-                            <button 
+                            <button type="button" 
                               onClick={() => handleReemit(doc)}
                               className="px-4 py-2 bg-red-500 text-white hover:bg-red-600 rounded-lg text-[9px] font-black uppercase transition-all flex items-center gap-1"
                             >
@@ -317,14 +323,14 @@ const Reports: React.FC<ReportsProps> = ({ documents, businessInfo, onConvertPro
                       <td className="py-6 text-right font-black text-amber-500">${(doc.total || 0).toFixed(2)}</td>
                       <td className="py-6 px-10 text-right">
                         <div className="flex justify-end gap-2">
-                          <button
+                          <button type="button"
                             onClick={() => setSelectedDocForRide(doc)}
                             className="px-4 py-2 bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 rounded-lg text-[9px] font-black uppercase transition-all"
                           >
                             Ver RIDE
                           </button>
                           {onConvertProforma && (
-                            <button
+                            <button type="button"
                               onClick={() => onConvertProforma(doc)}
                               className="px-4 py-2 bg-sky-500 text-white hover:bg-sky-600 rounded-lg text-[9px] font-black uppercase transition-all flex items-center gap-1"
                             >

@@ -3,7 +3,7 @@ import { Routes, Route, Navigate, useParams, useNavigate } from 'react-router-do
 import { useAppContext } from './context/AppContext';
 import Layout from './layouts/Layout';
 import { SunIcon, MoonIcon } from '@heroicons/react/24/outline';
-import renderConfigContent from './renderers/renderConfigContent';
+import ConfigContent from './renderers/renderConfigContent';
 import Login from './modules/autenticacion/pages/Login';
 import ClientLogin from './modules/autenticacion/pages/ClientLogin';
 import ClientDashboard from './modules/clientes/pages/ClientDashboard';
@@ -37,6 +37,7 @@ const SaasAdmin = React.lazy(() => import('./modules/saas/pages/SaasAdmin'));
 const SaasEmission = React.lazy(() => import('./modules/saas/pages/SaasEmission'));
 const SubscriptionPlansManager = React.lazy(() => import('./modules/saas/pages/SubscriptionPlansManager'));
 const SaasCreditNote = React.lazy(() => import('./modules/saas/pages/SaasCreditNote'));
+const SaasPaymentMethods = React.lazy(() => import('./modules/saas/pages/SaasPaymentMethods'));
 const SalesSummary = React.lazy(() => import('./modules/saas/pages/SalesSummary'));
 const PagoInterno = React.lazy(() => import('./modules/saas/pages/SubscriptionPayment'));
 const ActivationRequests = React.lazy(() => import('./modules/admin/pages/ActivationRequests'));
@@ -92,6 +93,8 @@ const AppShell: React.FC = () => {
   const { tab } = useParams<{ tab: string }>();
   const navigate = useNavigate();
 
+  // La URL es la fuente de verdad: el param :tab actualiza el estado,
+  // y solo se navega cuando el estado cambia por otra vía (setActiveTab).
   useEffect(() => {
     if (tab && tab !== ctx.activeTab) {
       ctx.setActiveTab(tab);
@@ -99,32 +102,23 @@ const AppShell: React.FC = () => {
   }, [tab]);
 
   useEffect(() => {
-    const pathPrefix = '/app/';
-    const path = window.location.pathname;
-    if (path.startsWith(pathPrefix)) {
-      const pathTab = path.slice(pathPrefix.length);
-      if (pathTab !== ctx.activeTab) {
-        navigate(`/app/${ctx.activeTab}`, { replace: true });
-      }
+    if (tab && tab !== ctx.activeTab) {
+      navigate(`/app/${ctx.activeTab}`, { replace: true });
     }
   }, [ctx.activeTab]);
+
   const {
     activeTab, setActiveTab, notifications, businessInfo, currentUser, subscriptionExpired,
     pendingActivationCount, currentPlanHasAI, currentPlanHasAudit, currentPlanDurationDays,
-    currentPlanMaxInvoices, currentPlanMaxEmissionPoints, pointsProgramEnabled,
+    currentPlanMaxInvoices, pointsProgramEnabled,
     preloadRejectedDoc, reportsFilter, setReportsFilter, hasModuleControl, modulePermissions,
     clients, setClients, documents, setDocuments, products, setProducts,
     emissionPoints, selectedEmissionPoint, setSelectedEmissionPoint,
     signatureFile, signatureBuffer, signaturePassword,
     notificationSettings, quicksales, setQuicksales, isDemoMode, showNotify,
     handleDocumentAuthorized, handleActivateProduction, toggleDarkMode,
-    saveBusinessField, saveBusinessConfig, handleUpdateProfile, handleChangePassword,
-    handleSignatureFileChange, handleSaveNotificationSettings,
-    personalEmail, passwordData, showProfilePassword, showSignaturePassword,
-    setBusinessInfo, setPersonalEmail, setPasswordData, setShowProfilePassword,
-    setSignatureFile, setSignatureBuffer, setSignaturePassword: setSigPwd,
-    setShowSignaturePassword, setEmissionPoints,
-    logoInputRef,
+    handleSaveNotificationSettings,
+    setBusinessInfo,
   } = ctx;
 
   const renderContent = () => {
@@ -134,13 +128,13 @@ const AppShell: React.FC = () => {
       return (
         <PagoInterno
           businessInfo={{
-            id: (businessInfo as any).id || '',
+            id: businessInfo.id || '',
             name: businessInfo.name || '',
             ruc: businessInfo.ruc || '',
             email: businessInfo.email || '',
-            plan: (businessInfo as any).plan || 'FREE',
+            plan: businessInfo.plan || 'FREE',
             subscriptionEnd: businessInfo.subscriptionEnd || null,
-            isActive: (businessInfo as any).isActive ?? true
+            isActive: businessInfo.isActive ?? true
           }}
           isExpired={true}
           onPaymentComplete={async () => {
@@ -180,13 +174,13 @@ const AppShell: React.FC = () => {
         return (
           <PagoInterno
             businessInfo={{
-              id: (businessInfo as any).id || '',
+              id: businessInfo.id || '',
               name: businessInfo.name || '',
               ruc: businessInfo.ruc || '',
               email: businessInfo.email || '',
-              plan: (businessInfo as any).plan || 'FREE',
+              plan: businessInfo.plan || 'FREE',
               subscriptionEnd: businessInfo.subscriptionEnd || null,
-              isActive: (businessInfo as any).isActive ?? true
+              isActive: businessInfo.isActive ?? true
             }}
             isExpired={subscriptionExpired}
             onPaymentComplete={() => {
@@ -262,6 +256,13 @@ const AppShell: React.FC = () => {
           return <Dashboard documents={documents} products={products} setActiveTab={setActiveTab} currentUser={currentUser} />;
         }
         return <SubscriptionPlansManager onNotify={showNotify} />;
+
+      case 'saas-payment-methods':
+        if (currentUser?.role !== 'SUPERADMIN') {
+          showNotify('Acceso restringido', 'error');
+          return <Dashboard documents={documents} products={products} setActiveTab={setActiveTab} currentUser={currentUser} />;
+        }
+        return <SaasPaymentMethods onNotify={showNotify} />;
 
       case 'points-admin':
         if (currentUser?.role !== 'SUPERADMIN') {
@@ -341,18 +342,7 @@ const AppShell: React.FC = () => {
       case 'pending-sri': return <PendingTickets tickets={quicksales} setTickets={setQuicksales} products={products} businessInfo={effectiveBusinessInfo} signatureFile={signatureFile} signaturePassword={signaturePassword} onNotify={showNotify} onAuthorize={handleDocumentAuthorized} />;
       case 'integrations': return <Integrations products={products} clients={clients} businessInfo={businessInfo} onOrderAuthorized={handleDocumentAuthorized} onNotify={showNotify} onUpdateProducts={setProducts} />;
       case 'config':
-        return renderConfigContent({
-          businessInfo, personalEmail, passwordData, showProfilePassword,
-          signatureFile, signaturePassword, showSignaturePassword,
-          emissionPoints, selectedEmissionPoint, currentPlanMaxEmissionPoints,
-          currentUser,
-          setBusinessInfo, setPersonalEmail, setPasswordData, setShowProfilePassword,
-          setSignatureFile, setSignatureBuffer, setSignaturePassword: setSigPwd, setShowSignaturePassword,
-          setEmissionPoints, setSelectedEmissionPoint,
-          handleUpdateProfile, handleChangePassword, toggleDarkMode,
-          showNotify, saveBusinessField, saveBusinessConfig,
-          handleSignatureFileChange, logoInputRef: logoInputRef as any,
-        });
+        return <ConfigContent />;
       default: return <Dashboard documents={documents} products={products} setActiveTab={setActiveTab} />;
     }
   };
@@ -380,11 +370,11 @@ const AppShell: React.FC = () => {
 
       {currentUser?.role === 'SUPERADMIN' && (
         <div className="fixed top-5 right-24 z-[90] flex items-center gap-3 bg-white/90 dark:bg-slate-800/90 backdrop-blur-sm px-4 py-2 rounded-full shadow-sm border border-slate-200 dark:border-slate-600/50 transition-colors duration-300">
-          <button
+          <button type="button"
             onClick={toggleDarkMode}
             className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-slate-500 dark:text-slate-400 hover:text-sky-500 dark:hover:text-sky-400 transition-colors"
           >
-            {((businessInfo as any).features?.isDarkMode ?? false) ? (
+            {(businessInfo.features?.isDarkMode ?? false) ? (
               <><SunIcon className="w-4 h-4" /> Claro</>
             ) : (
               <><MoonIcon className="w-4 h-4" /> Oscuro</>

@@ -1,4 +1,4 @@
-﻿import React, { useState } from 'react';
+﻿import React, { useState, useId } from 'react';
 import {
   RocketLaunchIcon,
   EnvelopeIcon,
@@ -28,6 +28,7 @@ const NotificationSettingsComponent: React.FC<NotificationSettingsProps> = ({ se
   const [localSettings, setLocalSettings] = useState<NotificationSettings>(settings);
   const [activeTab, setActiveTab] = useState<'email' | 'sms' | 'whatsapp' | 'reminders'>('email');
   const [showWhatsAppGuide, setShowWhatsAppGuide] = useState(false);
+  const fieldId = useId();
 
   const handleSave = () => {
     onSave(localSettings);
@@ -97,7 +98,7 @@ const NotificationSettingsComponent: React.FC<NotificationSettingsProps> = ({ se
             { id: 'whatsapp', label: 'WhatsApp', icon: <DevicePhoneMobileIcon className="w-4 h-4 inline" /> },
             { id: 'reminders', label: 'Recordatorios', icon: <ClockIcon className="w-4 h-4 inline" /> }
           ].map(tab => (
-            <button
+            <button type="button"
               key={tab.id}
               onClick={() => setActiveTab(tab.id as any)}
               className={`px-6 py-3 font-bold text-sm rounded-t-xl ${
@@ -124,6 +125,7 @@ const NotificationSettingsComponent: React.FC<NotificationSettingsProps> = ({ se
                   onChange={e => setLocalSettings({ ...localSettings, emailEnabled: e.target.checked })}
                   className="sr-only peer"
                 />
+                <span className="sr-only">Activar Email</span>
                 <div className="w-14 h-7 bg-slate-300 rounded-full peer peer-checked:bg-sky-700 peer-checked:after:translate-x-full after:absolute after:top-0.5 after:left-1 after:bg-white after:rounded-full after:h-6 after:w-6 after:transition-all"></div>
               </label>
             </div>
@@ -172,8 +174,9 @@ const NotificationSettingsComponent: React.FC<NotificationSettingsProps> = ({ se
                   {localSettings.emailProvider === 'smtp' && (
                     <>
                       <div>
-                        <label className="block text-xs font-black text-slate-700 mb-2">Host SMTP</label>
+                        <label htmlFor={`${fieldId}-smtpHost`} className="block text-xs font-black text-slate-700 mb-2">Host SMTP</label>
                         <input
+                          id={`${fieldId}-smtpHost`}
                           type="text"
                           placeholder="smtp.gmail.com"
                           value={localSettings.smtpHost || ''}
@@ -182,8 +185,9 @@ const NotificationSettingsComponent: React.FC<NotificationSettingsProps> = ({ se
                         />
                       </div>
                       <div>
-                        <label className="block text-xs font-black text-slate-700 mb-2">Puerto SMTP</label>
+                        <label htmlFor={`${fieldId}-smtpPort`} className="block text-xs font-black text-slate-700 mb-2">Puerto SMTP</label>
                         <input
+                          id={`${fieldId}-smtpPort`}
                           type="number"
                           placeholder="587"
                           value={localSettings.smtpPort || ''}
@@ -192,8 +196,9 @@ const NotificationSettingsComponent: React.FC<NotificationSettingsProps> = ({ se
                         />
                       </div>
                       <div>
-                        <label className="block text-xs font-black text-slate-700 mb-2">Usuario (Email)</label>
+                        <label htmlFor={`${fieldId}-smtpUser`} className="block text-xs font-black text-slate-700 mb-2">Usuario (Email)</label>
                         <input
+                          id={`${fieldId}-smtpUser`}
                           type="email"
                           placeholder="tu-correo@gmail.com"
                           value={localSettings.smtpUser || ''}
@@ -202,8 +207,9 @@ const NotificationSettingsComponent: React.FC<NotificationSettingsProps> = ({ se
                         />
                       </div>
                       <div>
-                        <label className="block text-xs font-black text-slate-700 mb-2">Contraseña / App Password</label>
+                        <label htmlFor={`${fieldId}-smtpPassword`} className="block text-xs font-black text-slate-700 mb-2">Contraseña / App Password</label>
                         <input
+                          id={`${fieldId}-smtpPassword`}
                           type="password"
                           placeholder="••••••••••••••••"
                           value={localSettings.smtpPassword || ''}
@@ -211,7 +217,7 @@ const NotificationSettingsComponent: React.FC<NotificationSettingsProps> = ({ se
                           className="w-full p-3 bg-slate-50 border rounded-xl font-mono text-sm"
                         />
                         <p className="text-xs text-sky-500 mt-1 font-bold">
-                          <InboxArrowDownIcon className="w-4 h-4 inline" /> Gmail: <a href="https://myaccount.google.com/apppasswords" target="_blank" rel="noopener" className="underline">Crear contraseña de aplicación</a>
+                          <InboxArrowDownIcon className="w-4 h-4 inline" /> Gmail: <a href="https://myaccount.google.com/apppasswords" target="_blank" rel="noopener noreferrer" className="underline">Crear contraseña de aplicación</a>
                         </p>
                       </div>
                     </>
@@ -220,8 +226,9 @@ const NotificationSettingsComponent: React.FC<NotificationSettingsProps> = ({ se
                   {localSettings.emailProvider === 'sendgrid' && (
                     <>
                       <div>
-                        <label className="block text-xs font-black text-slate-700 mb-2">SendGrid API Key</label>
+                        <label htmlFor={`${fieldId}-sendgridKey`} className="block text-xs font-black text-slate-700 mb-2">SendGrid API Key</label>
                         <input
+                          id={`${fieldId}-sendgridKey`}
                           type="password"
                           placeholder="SG.xxxxxxxxxxxxxxxxxxxx"
                           value={localSettings.sendgridApiKey || ''}
@@ -229,7 +236,7 @@ const NotificationSettingsComponent: React.FC<NotificationSettingsProps> = ({ se
                           className="w-full p-3 bg-slate-50 border rounded-xl font-mono text-sm"
                         />
                         <p className="text-xs text-sky-500 mt-1 font-bold">
-                          <InboxArrowDownIcon className="w-4 h-4 inline" /> Obtén tu API Key en: <a href="https://app.sendgrid.com/settings/api_keys" target="_blank" rel="noopener" className="underline">SendGrid Dashboard</a>
+                          <InboxArrowDownIcon className="w-4 h-4 inline" /> Obtén tu API Key en: <a href="https://app.sendgrid.com/settings/api_keys" target="_blank" rel="noopener noreferrer" className="underline">SendGrid Dashboard</a>
                         </p>
                       </div>
                     </>
@@ -238,8 +245,9 @@ const NotificationSettingsComponent: React.FC<NotificationSettingsProps> = ({ se
                   {localSettings.emailProvider === 'mailgun' && (
                     <>
                       <div>
-                        <label className="block text-xs font-black text-slate-700 mb-2">Mailgun API Key</label>
+                        <label htmlFor={`${fieldId}-mailgunKey`} className="block text-xs font-black text-slate-700 mb-2">Mailgun API Key</label>
                         <input
+                          id={`${fieldId}-mailgunKey`}
                           type="password"
                           placeholder="key-xxxxxxxxxxxxxxxxxxxx"
                           value={localSettings.mailgunApiKey || ''}
@@ -248,8 +256,9 @@ const NotificationSettingsComponent: React.FC<NotificationSettingsProps> = ({ se
                         />
                       </div>
                       <div>
-                        <label className="block text-xs font-black text-slate-700 mb-2">Mailgun Domain</label>
+                        <label htmlFor={`${fieldId}-mailgunDomain`} className="block text-xs font-black text-slate-700 mb-2">Mailgun Domain</label>
                         <input
+                          id={`${fieldId}-mailgunDomain`}
                           type="text"
                           placeholder="sandbox123.mailgun.org"
                           value={localSettings.mailgunDomain || ''}
@@ -261,8 +270,9 @@ const NotificationSettingsComponent: React.FC<NotificationSettingsProps> = ({ se
                   )}
 
                   <div>
-                    <label className="block text-xs font-black text-slate-700 mb-2">Email Remitente</label>
+                    <label htmlFor={`${fieldId}-senderEmail`} className="block text-xs font-black text-slate-700 mb-2">Email Remitente</label>
                     <input
+                      id={`${fieldId}-senderEmail`}
                       type="email"
                       placeholder="facturacion@tu-empresa.com"
                       value={localSettings.senderEmail || ''}
@@ -272,7 +282,7 @@ const NotificationSettingsComponent: React.FC<NotificationSettingsProps> = ({ se
                   </div>
                 </div>
 
-                <button
+                <button type="submit"
                   onClick={testEmail}
                   disabled={!localSettings.senderEmail}
                   className="w-full py-3 bg-sky-500 text-white rounded-xl font-bold hover:bg-sky-600 disabled:opacity-50"
@@ -298,6 +308,7 @@ const NotificationSettingsComponent: React.FC<NotificationSettingsProps> = ({ se
                   onChange={e => setLocalSettings({ ...localSettings, whatsappEnabled: e.target.checked })}
                   className="sr-only peer"
                 />
+                <span className="sr-only">Activar WhatsApp</span>
                 <div className="w-14 h-7 bg-slate-300 rounded-full peer peer-checked:bg-emerald-600 peer-checked:after:translate-x-full after:absolute after:top-0.5 after:left-1 after:bg-white after:rounded-full after:h-6 after:w-6 after:transition-all"></div>
               </label>
             </div>
@@ -327,7 +338,7 @@ const NotificationSettingsComponent: React.FC<NotificationSettingsProps> = ({ se
                           </ol>
                         </div>
                       </div>
-                      <button
+                      <button type="button"
                         onClick={() => setShowWhatsAppGuide(!showWhatsAppGuide)}
                         className="mt-4 px-4 py-2 bg-emerald-600 text-white rounded-xl font-bold hover:bg-emerald-700"
                       >
@@ -411,7 +422,7 @@ const NotificationSettingsComponent: React.FC<NotificationSettingsProps> = ({ se
                   )}
                 </div>
 
-                <button
+                <button type="submit"
                   onClick={testWhatsApp}
                   disabled={!localSettings.whatsappNumber}
                   className="w-full py-3 bg-emerald-600 text-white rounded-xl font-bold hover:bg-emerald-700 disabled:opacity-50"
@@ -431,7 +442,7 @@ const NotificationSettingsComponent: React.FC<NotificationSettingsProps> = ({ se
         )}
 
         <div className="mt-8 pt-6 border-t">
-          <button
+          <button type="submit"
             onClick={handleSave}
             className="w-full py-4 bg-sky-500 hover:bg-sky-600 text-white rounded-2xl font-black uppercase shadow-lg"
           >

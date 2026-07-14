@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useId } from 'react';
 import { TruckIcon, MapPinIcon, PlusIcon, TrashIcon, CubeIcon } from '@heroicons/react/24/outline';
 import { RemittanceGuide, RemittanceRecipient, RemittanceItem, BusinessInfo, Client, Product } from '../../../types/types';
 import { generateRemittanceXML } from '../../../services/remittanceService';
@@ -12,6 +12,7 @@ interface RemittanceFormProps {
 }
 
 export default function RemittanceForm({ business, clients, products, onSubmit }: RemittanceFormProps) {
+  const fieldId = useId();
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
   const [originAddress, setOriginAddress] = useState(business.address);
@@ -20,11 +21,14 @@ export default function RemittanceForm({ business, clients, products, onSubmit }
   const [carrierName, setCarrierName] = useState('');
   const [licensePlate, setLicensePlate] = useState('');
   const [route, setRoute] = useState('');
-  const [recipients, setRecipients] = useState<RemittanceRecipient[]>([]);
-  const [items, setItems] = useState<RemittanceItem[]>([]);
+  // _key: id estable por fila para las keys de React (las filas se pueden
+  // añadir y eliminar, y el índice cambiaría de fila al eliminar).
+  const [recipients, setRecipients] = useState<(RemittanceRecipient & { _key?: string })[]>([]);
+  const [items, setItems] = useState<(RemittanceItem & { _key?: string })[]>([]);
 
   const addRecipient = () => {
     setRecipients([...recipients, {
+      _key: crypto.randomUUID(),
       ruc: '',
       name: '',
       address: '',
@@ -56,6 +60,7 @@ export default function RemittanceForm({ business, clients, products, onSubmit }
 
   const addItem = () => {
     setItems([...items, {
+      _key: crypto.randomUUID(),
       productCode: '',
       description: '',
       quantity: 1,
@@ -134,10 +139,11 @@ export default function RemittanceForm({ business, clients, products, onSubmit }
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-2">
+                <label htmlFor={`${fieldId}-startDate`} className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-2">
                   Fecha Inicio Transporte *
                 </label>
                 <input
+                  id={`${fieldId}-startDate`}
                   type="date"
                   value={startDate}
                   onChange={(e) => setStartDate(e.target.value)}
@@ -147,10 +153,11 @@ export default function RemittanceForm({ business, clients, products, onSubmit }
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-2">
+                <label htmlFor={`${fieldId}-endDate`} className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-2">
                   Fecha Fin Transporte *
                 </label>
                 <input
+                  id={`${fieldId}-endDate`}
                   type="date"
                   value={endDate}
                   onChange={(e) => setEndDate(e.target.value)}
@@ -160,10 +167,11 @@ export default function RemittanceForm({ business, clients, products, onSubmit }
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-2">
+                <label htmlFor={`${fieldId}-originAddress`} className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-2">
                   Dirección de Partida *
                 </label>
                 <input
+                  id={`${fieldId}-originAddress`}
                   type="text"
                   value={originAddress}
                   onChange={(e) => setOriginAddress(e.target.value)}
@@ -173,10 +181,11 @@ export default function RemittanceForm({ business, clients, products, onSubmit }
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-2">
+                <label htmlFor={`${fieldId}-route`} className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-2">
                   Ruta
                 </label>
                 <input
+                  id={`${fieldId}-route`}
                   type="text"
                   value={route}
                   onChange={(e) => setRoute(e.target.value)}
@@ -193,10 +202,11 @@ export default function RemittanceForm({ business, clients, products, onSubmit }
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-2">
+                <label htmlFor={`${fieldId}-carrierRuc`} className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-2">
                   RUC del Transportista *
                 </label>
                 <input
+                  id={`${fieldId}-carrierRuc`}
                   type="text"
                   value={carrierRuc}
                   onChange={(e) => setCarrierRuc(e.target.value)}
@@ -208,10 +218,11 @@ export default function RemittanceForm({ business, clients, products, onSubmit }
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-2">
+                <label htmlFor={`${fieldId}-carrierName`} className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-2">
                   Nombre del Transportista *
                 </label>
                 <input
+                  id={`${fieldId}-carrierName`}
                   type="text"
                   value={carrierName}
                   onChange={(e) => setCarrierName(e.target.value)}
@@ -221,10 +232,11 @@ export default function RemittanceForm({ business, clients, products, onSubmit }
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-2">
+                <label htmlFor={`${fieldId}-licensePlate`} className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-2">
                   Placa del Vehículo *
                 </label>
                 <input
+                  id={`${fieldId}-licensePlate`}
                   type="text"
                   value={licensePlate}
                   onChange={(e) => setLicensePlate(e.target.value.toUpperCase())}
@@ -261,7 +273,7 @@ export default function RemittanceForm({ business, clients, products, onSubmit }
             ) : (
               <div className="space-y-4">
                 {recipients.map((recipient, index) => (
-                  <div key={index} className="border border-gray-250 dark:border-slate-700 rounded-lg p-4 bg-gray-50 dark:bg-slate-900/30">
+                  <div key={recipient._key} className="border border-gray-250 dark:border-slate-700 rounded-lg p-4 bg-gray-50 dark:bg-slate-900/30">
                     <div className="flex justify-between items-start mb-4">
                       <h4 className="font-medium text-gray-700 dark:text-slate-300">Destinatario {index + 1}</h4>
                       <button
@@ -275,10 +287,11 @@ export default function RemittanceForm({ business, clients, products, onSubmit }
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div className="md:col-span-2">
-                        <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-2">
+                        <label htmlFor={`${fieldId}-rec-client-${index}`} className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-2">
                           Seleccionar Cliente
                         </label>
                         <select
+                          id={`${fieldId}-rec-client-${index}`}
                           onChange={(e) => selectClientForRecipient(index, e.target.value)}
                           className="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-900/50 text-gray-800 dark:text-white"
                         >
@@ -292,10 +305,11 @@ export default function RemittanceForm({ business, clients, products, onSubmit }
                       </div>
 
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-2">
+                        <label htmlFor={`${fieldId}-rec-ruc-${index}`} className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-2">
                           RUC
                         </label>
                         <input
+                          id={`${fieldId}-rec-ruc-${index}`}
                           type="text"
                           value={recipient.ruc}
                           onChange={(e) => updateRecipient(index, 'ruc', e.target.value)}
@@ -304,10 +318,11 @@ export default function RemittanceForm({ business, clients, products, onSubmit }
                       </div>
 
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-2">
+                        <label htmlFor={`${fieldId}-rec-name-${index}`} className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-2">
                           Nombre
                         </label>
                         <input
+                          id={`${fieldId}-rec-name-${index}`}
                           type="text"
                           value={recipient.name}
                           onChange={(e) => updateRecipient(index, 'name', e.target.value)}
@@ -316,10 +331,11 @@ export default function RemittanceForm({ business, clients, products, onSubmit }
                       </div>
 
                       <div className="md:col-span-2">
-                        <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-2">
+                        <label htmlFor={`${fieldId}-rec-address-${index}`} className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-2">
                           Dirección
                         </label>
                         <input
+                          id={`${fieldId}-rec-address-${index}`}
                           type="text"
                           value={recipient.address}
                           onChange={(e) => updateRecipient(index, 'address', e.target.value)}
@@ -328,10 +344,11 @@ export default function RemittanceForm({ business, clients, products, onSubmit }
                       </div>
 
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-2">
+                        <label htmlFor={`${fieldId}-rec-reason-${index}`} className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-2">
                           Motivo del Traslado
                         </label>
                         <select
+                          id={`${fieldId}-rec-reason-${index}`}
                           value={recipient.reasonForTransfer}
                           onChange={(e) => updateRecipient(index, 'reasonForTransfer', e.target.value)}
                           className="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-900/50 text-gray-800 dark:text-white"
@@ -346,10 +363,11 @@ export default function RemittanceForm({ business, clients, products, onSubmit }
                       </div>
 
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-2">
+                        <label htmlFor={`${fieldId}-rec-fiscalDoc-${index}`} className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-2">
                           Número Documento Fiscal
                         </label>
                         <input
+                          id={`${fieldId}-rec-fiscalDoc-${index}`}
                           type="text"
                           value={recipient.fiscalDocNumber || ''}
                           onChange={(e) => updateRecipient(index, 'fiscalDocNumber', e.target.value)}
@@ -388,7 +406,7 @@ export default function RemittanceForm({ business, clients, products, onSubmit }
             ) : (
               <div className="space-y-4">
                 {items.map((item, index) => (
-                  <div key={index} className="border border-gray-250 dark:border-slate-700 rounded-lg p-4 bg-gray-50 dark:bg-slate-900/30">
+                  <div key={item._key} className="border border-gray-250 dark:border-slate-700 rounded-lg p-4 bg-gray-50 dark:bg-slate-900/30">
                     <div className="flex justify-between items-start mb-4">
                       <h4 className="font-medium text-gray-700 dark:text-slate-300">Producto {index + 1}</h4>
                       <button
@@ -402,10 +420,11 @@ export default function RemittanceForm({ business, clients, products, onSubmit }
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div className="md:col-span-2">
-                        <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-2">
+                        <label htmlFor={`${fieldId}-item-product-${index}`} className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-2">
                           Seleccionar Producto
                         </label>
                         <select
+                          id={`${fieldId}-item-product-${index}`}
                           onChange={(e) => selectProduct(index, e.target.value)}
                           className="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-900/50 text-gray-800 dark:text-white"
                         >
@@ -419,10 +438,11 @@ export default function RemittanceForm({ business, clients, products, onSubmit }
                       </div>
 
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-2">
+                        <label htmlFor={`${fieldId}-item-code-${index}`} className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-2">
                           Código
                         </label>
                         <input
+                          id={`${fieldId}-item-code-${index}`}
                           type="text"
                           value={item.productCode}
                           onChange={(e) => updateItem(index, 'productCode', e.target.value)}
@@ -431,10 +451,11 @@ export default function RemittanceForm({ business, clients, products, onSubmit }
                       </div>
 
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-2">
+                        <label htmlFor={`${fieldId}-item-qty-${index}`} className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-2">
                           Cantidad
                         </label>
                         <input
+                          id={`${fieldId}-item-qty-${index}`}
                           type="number"
                           step="0.01"
                           value={item.quantity}
@@ -444,10 +465,11 @@ export default function RemittanceForm({ business, clients, products, onSubmit }
                       </div>
 
                       <div className="md:col-span-2">
-                        <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-2">
+                        <label htmlFor={`${fieldId}-item-desc-${index}`} className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-2">
                           Descripción
                         </label>
                         <input
+                          id={`${fieldId}-item-desc-${index}`}
                           type="text"
                           value={item.description}
                           onChange={(e) => updateItem(index, 'description', e.target.value)}

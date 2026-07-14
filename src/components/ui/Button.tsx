@@ -36,7 +36,7 @@ const Button: React.FC<ButtonProps> = ({
   ...props
 }) => {
   return (
-    <button
+    <button type="button"
       disabled={disabled || loading}
       className={`
         inline-flex items-center justify-center gap-2

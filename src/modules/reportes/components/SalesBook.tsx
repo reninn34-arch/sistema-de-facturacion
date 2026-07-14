@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useId } from 'react';
 import { Document, BusinessInfo, SalesBookEntry } from '../../../types/types';
 import { BookOpenIcon, ArrowDownTrayIcon, EnvelopeIcon } from '@heroicons/react/24/outline';
 
@@ -9,6 +9,7 @@ interface SalesBookProps {
 }
 
 export default function SalesBook({ documents, business, onNotify }: SalesBookProps) {
+  const fieldId = useId();
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
   const [filterType, setFilterType] = useState<'ALL' | '01' | '04'>('ALL');
@@ -16,36 +17,43 @@ export default function SalesBook({ documents, business, onNotify }: SalesBookPr
   const salesEntries = useMemo((): SalesBookEntry[] => {
     if (!Array.isArray(documents)) return [];
     
-    return documents
-      .filter(doc => {
-        if (doc.status !== 'AUTORIZADA') return false;
-        if (filterType !== 'ALL' && doc.type !== filterType) return false;
-        
-        const docDate = new Date(doc.issueDate);
-        if (startDate && docDate < new Date(startDate)) return false;
-        if (endDate && docDate > new Date(endDate)) return false;
-        
-        return true;
-      })
-      .map(doc => {
-        const subtotal = doc.items?.reduce((sum, item) => sum + (item.unitPrice * item.quantity - item.discount), 0) || 0;
-        const subtotal0 = doc.items?.filter(i => i.taxRate === 0).reduce((sum, item) => sum + (item.unitPrice * item.quantity - item.discount), 0) || 0;
-        const subtotal12 = doc.items?.filter(i => i.taxRate > 0).reduce((sum, item) => sum + (item.unitPrice * item.quantity - item.discount), 0) || 0;
-        const iva = subtotal12 * 0.15;
-        
-        return {
-          date: doc.issueDate,
-          documentType: doc.type === '01' ? 'FACTURA' : doc.type === '04' ? 'NOTA DE CRÉDITO' : 'OTRO',
-          documentNumber: doc.number,
-          authorizationNumber: doc.accessKey,
-          clientRuc: doc.entityName.split(' - ')[0] || '',
-          clientName: doc.entityName,
-          subtotal0,
-          subtotal12,
-          iva,
-          total: doc.total
-        };
+    const entries: SalesBookEntry[] = [];
+    for (const doc of documents) {
+      if (doc.status !== 'AUTORIZADA') continue;
+      if (filterType !== 'ALL' && doc.type !== filterType) continue;
+      
+      const docDate = new Date(doc.issueDate);
+      if (startDate && docDate < new Date(startDate)) continue;
+      if (endDate && docDate > new Date(endDate)) continue;
+      
+      let subtotal0 = 0;
+      let subtotal12 = 0;
+      if (doc.items) {
+        for (const item of doc.items) {
+          const base = item.unitPrice * item.quantity - item.discount;
+          if (item.taxRate === 0) {
+            subtotal0 += base;
+          } else {
+            subtotal12 += base;
+          }
+        }
+      }
+      const iva = subtotal12 * 0.15;
+      
+      entries.push({
+        date: doc.issueDate,
+        documentType: doc.type === '01' ? 'FACTURA' : doc.type === '04' ? 'NOTA DE CRÉDITO' : 'OTRO',
+        documentNumber: doc.number,
+        authorizationNumber: doc.accessKey,
+        clientRuc: doc.entityName.split(' - ')[0] || '',
+        clientName: doc.entityName,
+        subtotal0,
+        subtotal12,
+        iva,
+        total: doc.total
       });
+    }
+    return entries;
   }, [documents, startDate, endDate, filterType]);
 
   const totals = useMemo(() => {
@@ -86,7 +94,7 @@ export default function SalesBook({ documents, business, onNotify }: SalesBookPr
               <p className="text-sm text-slate-500 dark:text-slate-400 font-bold">Registro detallado de documentos emitidos</p>
             </div>
           </div>
-          <button
+          <button type="button"
             onClick={exportToCSV}
             disabled={salesEntries.length === 0}
             className="px-6 py-3 bg-sky-500 text-white rounded-xl font-bold text-sm hover:bg-sky-600 disabled:opacity-50 disabled:cursor-not-allowed inline-flex items-center gap-2"
@@ -97,8 +105,9 @@ export default function SalesBook({ documents, business, onNotify }: SalesBookPr
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
           <div className="space-y-2">
-            <label className="text-xs font-bold text-slate-600 dark:text-slate-400 uppercase">Fecha Inicio</label>
+            <label htmlFor={`${fieldId}-startDate`} className="text-xs font-bold text-slate-600 dark:text-slate-400 uppercase">Fecha Inicio</label>
             <input
+              id={`${fieldId}-startDate`}
               type="date"
               value={startDate}
               onChange={e => setStartDate(e.target.value)}
@@ -106,8 +115,9 @@ export default function SalesBook({ documents, business, onNotify }: SalesBookPr
             />
           </div>
           <div className="space-y-2">
-            <label className="text-xs font-bold text-slate-600 dark:text-slate-400 uppercase">Fecha Fin</label>
+            <label htmlFor={`${fieldId}-endDate`} className="text-xs font-bold text-slate-600 dark:text-slate-400 uppercase">Fecha Fin</label>
             <input
+              id={`${fieldId}-endDate`}
               type="date"
               value={endDate}
               onChange={e => setEndDate(e.target.value)}
@@ -115,8 +125,9 @@ export default function SalesBook({ documents, business, onNotify }: SalesBookPr
             />
           </div>
           <div className="space-y-2">
-            <label className="text-xs font-bold text-slate-600 dark:text-slate-400 uppercase">Tipo</label>
+            <label htmlFor={`${fieldId}-filterType`} className="text-xs font-bold text-slate-600 dark:text-slate-400 uppercase">Tipo</label>
             <select
+              id={`${fieldId}-filterType`}
               value={filterType}
               onChange={e => setFilterType(e.target.value as any)}
               className="w-full p-3 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-xl font-bold text-sm text-slate-800 dark:text-slate-200"
@@ -143,8 +154,8 @@ export default function SalesBook({ documents, business, onNotify }: SalesBookPr
               </tr>
             </thead>
             <tbody>
-              {salesEntries.map((entry, idx) => (
-                <tr key={idx} className="border-b border-slate-100 dark:border-slate-700/50 hover:bg-slate-50 dark:hover:bg-slate-700/30">
+              {salesEntries.map((entry) => (
+                <tr key={entry.documentNumber} className="border-b border-slate-100 dark:border-slate-700/50 hover:bg-slate-50 dark:hover:bg-slate-700/30">
                   <td className="p-3 font-bold text-slate-600 dark:text-slate-400">{new Date(entry.date).toLocaleDateString()}</td>
                   <td className="p-3 font-bold text-slate-600 dark:text-slate-400">{entry.documentType}</td>
                   <td className="p-3 font-mono text-xs text-slate-700 dark:text-slate-300">{entry.documentNumber}</td>

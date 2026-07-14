@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useId } from 'react';
 import { CubeIcon, ArrowDownTrayIcon, InboxIcon } from '@heroicons/react/24/outline';
 import { Product, Document, InventoryMovement } from '../../../types/types';
 
@@ -9,6 +9,7 @@ interface KardexProps {
 }
 
 export default function Kardex({ products, documents, onNotify }: KardexProps) {
+  const fieldId = useId();
   const [selectedProductId, setSelectedProductId] = useState('');
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
@@ -108,7 +109,7 @@ export default function Kardex({ products, documents, onNotify }: KardexProps) {
               <p className="text-sm text-slate-505 dark:text-slate-450 font-bold">Control de movimientos por producto</p>
             </div>
           </div>
-          <button
+          <button type="button"
             onClick={exportToCSV}
             disabled={movements.length === 0}
             className="px-6 py-3 bg-sky-500 text-white rounded-xl font-bold text-sm hover:bg-sky-600 disabled:opacity-50 disabled:cursor-not-allowed"
@@ -119,23 +120,34 @@ export default function Kardex({ products, documents, onNotify }: KardexProps) {
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
           <div className="space-y-2">
-            <label className="text-xs font-bold text-slate-600 dark:text-slate-400 uppercase">Producto</label>
+            <label htmlFor={`${fieldId}-producto`} className="text-xs font-bold text-slate-600 dark:text-slate-400 uppercase">Producto</label>
             <select
+              id={`${fieldId}-producto`}
               value={selectedProductId}
               onChange={e => setSelectedProductId(e.target.value)}
               className="w-full p-3 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-xl font-bold text-sm text-slate-800 dark:text-white"
             >
               <option value="" className="dark:bg-slate-800">Selecciona producto</option>
-              {(Array.isArray(products) ? products : []).filter(p => p.type === 'FISICO').map(product => (
-                <option key={product.id} value={product.id} className="dark:bg-slate-800">
-                  {product.code} - {product.description}
-                </option>
-              ))}
+              {(() => {
+                const list = [];
+                const orig = Array.isArray(products) ? products : [];
+                for (const p of orig) {
+                  if (p.type === 'FISICO') {
+                    list.push(p);
+                  }
+                }
+                return list.map(product => (
+                  <option key={product.id} value={product.id} className="dark:bg-slate-800">
+                    {product.code} - {product.description}
+                  </option>
+                ));
+              })()}
             </select>
           </div>
           <div className="space-y-2">
-            <label className="text-xs font-bold text-slate-600 dark:text-slate-400 uppercase">Fecha Inicio</label>
+            <label htmlFor={`${fieldId}-startDate`} className="text-xs font-bold text-slate-600 dark:text-slate-400 uppercase">Fecha Inicio</label>
             <input
+              id={`${fieldId}-startDate`}
               type="date"
               value={startDate}
               onChange={e => setStartDate(e.target.value)}
@@ -143,8 +155,9 @@ export default function Kardex({ products, documents, onNotify }: KardexProps) {
             />
           </div>
           <div className="space-y-2">
-            <label className="text-xs font-bold text-slate-600 dark:text-slate-400 uppercase">Fecha Fin</label>
+            <label htmlFor={`${fieldId}-endDate`} className="text-xs font-bold text-slate-600 dark:text-slate-400 uppercase">Fecha Fin</label>
             <input
+              id={`${fieldId}-endDate`}
               type="date"
               value={endDate}
               onChange={e => setEndDate(e.target.value)}
@@ -190,8 +203,8 @@ export default function Kardex({ products, documents, onNotify }: KardexProps) {
               </tr>
             </thead>
             <tbody>
-              {movements.map((mov, idx) => (
-                <tr key={idx} className="border-b border-slate-100 dark:border-slate-700/50 hover:bg-slate-50 dark:hover:bg-slate-900/10">
+              {movements.map((mov) => (
+                <tr key={`${mov.documentNumber}-${mov.description}-${mov.balance}`} className="border-b border-slate-100 dark:border-slate-700/50 hover:bg-slate-50 dark:hover:bg-slate-900/10">
                   <td className="p-3 font-bold text-slate-600 dark:text-slate-400">{new Date(mov.date).toLocaleDateString()}</td>
                   <td className="p-3 font-bold text-slate-600 dark:text-slate-400">{mov.documentType}</td>
                   <td className="p-3 font-mono text-xs text-slate-700 dark:text-slate-300">{mov.documentNumber}</td>

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useId } from 'react';
 import {
   ChevronDownIcon,
   ChevronUpIcon,
@@ -21,13 +21,13 @@ interface LandingContent {
     primaryCta: string;
     secondaryCta: string;
   };
-  stats: Array<{ value: number; label: string; suffix: string }>;
-  painPoints: Array<{ title: string; description: string }>;
-  why: Array<{ title: string; description: string }>;
-  features: Array<{ title: string; description: string }>;
-  howItWorks: Array<{ step: string; title: string; description: string }>;
-  testimonials: Array<{ name: string; business: string; quote: string; rating: number }>;
-  faq: Array<{ question: string; answer: string }>;
+  stats: Array<{ id?: string; value: number; label: string; suffix: string }>;
+  painPoints: Array<{ id?: string; title: string; description: string }>;
+  why: Array<{ id?: string; title: string; description: string }>;
+  features: Array<{ id?: string; title: string; description: string }>;
+  howItWorks: Array<{ id?: string; step: string; title: string; description: string }>;
+  testimonials: Array<{ id?: string; name: string; business: string; quote: string; rating: number }>;
+  faq: Array<{ id?: string; question: string; answer: string }>;
   finalCta: {
     headline: string;
     subheadline: string;
@@ -36,7 +36,7 @@ interface LandingContent {
   };
   contact: { phone: string; email: string; hours: string };
   footer: { tagline: string; facebook: string; twitter: string; instagram: string; linkedin: string };
-  ayudaPage: { title: string; subtitle: string; faqs: Array<{ question: string; answer: string }> };
+  ayudaPage: { title: string; subtitle: string; faqs: Array<{ id?: string; question: string; answer: string }> };
   contactoPage: { title: string; subtitle: string };
   legalPage: { title: string; terms: { title: string; content: string }; privacy: { title: string; content: string }; cookies: { title: string; content: string } };
   cookieBanner: { message: string };
@@ -268,21 +268,23 @@ const labelClass = 'text-[10px] font-black text-slate-400 uppercase tracking-wid
 function CollapsibleSection({
   title,
   defaultOpen = false,
+  icon,
   children,
 }: {
   title: string;
   defaultOpen?: boolean;
+  icon?: React.ReactNode;
   children: React.ReactNode;
 }) {
   const [open, setOpen] = useState(defaultOpen);
 
   return (
     <div className={sectionCard}>
-      <button
+      <button type="button"
         onClick={() => setOpen(!open)}
         className="w-full flex items-center justify-between gap-2"
       >
-        <h3 className={`${sectionHeader} text-lg`}>{title}</h3>
+        <h3 className={`${sectionHeader} text-lg flex items-center gap-2`}>{icon}{title}</h3>
         {open ? (
           <ChevronUpIcon className="w-5 h-5 text-slate-400 flex-shrink-0" />
         ) : (
@@ -306,8 +308,30 @@ const deepMerge = (target: any, source: any): any => {
   return result;
 };
 
+const decorateWithIds = (content: LandingContent): LandingContent => {
+  const ensureIds = (arr: any[], prefix: string) => {
+    return (arr || []).map((item, index) => ({
+      id: item.id || `${prefix}-${index}`,
+      ...item
+    }));
+  };
+  const result = { ...content };
+  result.stats = ensureIds(result.stats, 'stat');
+  result.painPoints = ensureIds(result.painPoints, 'pain');
+  result.why = ensureIds(result.why, 'why');
+  result.features = ensureIds(result.features, 'feature');
+  result.howItWorks = ensureIds(result.howItWorks, 'how');
+  result.testimonials = ensureIds(result.testimonials, 'testi');
+  result.faq = ensureIds(result.faq, 'faq');
+  if (result.ayudaPage) {
+    result.ayudaPage.faqs = ensureIds(result.ayudaPage.faqs, 'faq-ayuda');
+  }
+  return result;
+};
+
 const LandingPageEditor: React.FC = () => {
-  const [content, setContent] = useState<LandingContent>(getDefaultContent());
+  const [content, setContent] = useState<LandingContent>(() => decorateWithIds(getDefaultContent()));
+  const fieldId = useId();
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
@@ -326,7 +350,7 @@ const LandingPageEditor: React.FC = () => {
       .then((data) => {
         const apiContent = data?.landingContent;
         if (apiContent && Object.keys(apiContent).length > 0) {
-          setContent(deepMerge(getDefaultContent(), apiContent));
+          setContent(decorateWithIds(deepMerge(getDefaultContent(), apiContent)));
         }
       })
       .catch(() => setLoadError('No se pudo cargar el contenido actual'))
@@ -476,7 +500,7 @@ const LandingPageEditor: React.FC = () => {
       ...prev,
       ayudaPage: {
         ...prev.ayudaPage,
-        faqs: [...prev.ayudaPage.faqs, { question: '', answer: '' }],
+        faqs: [...prev.ayudaPage.faqs, { id: `faq-ayuda-${crypto.randomUUID()}`, question: '', answer: '' }],
       },
     }));
   };
@@ -513,8 +537,8 @@ const LandingPageEditor: React.FC = () => {
     }));
   };
 
-  const SaveButton = ({ className = '' }: { className?: string }) => (
-    <button
+  const renderSaveButton = (className = '') => (
+    <button type="submit"
       onClick={handleSave}
       disabled={saving}
       className={`px-6 py-3 bg-sky-500 text-white rounded-xl font-bold text-sm hover:bg-sky-600 transition-all shadow-lg shadow-sky-500/20 disabled:opacity-60 disabled:cursor-not-allowed flex items-center gap-2 ${className}`}
@@ -546,14 +570,14 @@ const LandingPageEditor: React.FC = () => {
           Contenido de la Landing Page
         </h1>
         <div className="flex gap-3">
-          <button
+          <button type="button"
             onClick={() => setShowPreview(!showPreview)}
             className={`px-4 py-2 rounded-xl font-bold text-xs uppercase flex items-center gap-2 transition-all ${showPreview ? 'bg-sky-500 text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'}`}
           >
             {showPreview ? <EyeSlashIcon className="w-4 h-4" /> : <EyeIcon className="w-4 h-4" />}
             {showPreview ? 'Ocultar Preview' : 'Vista Previa'}
           </button>
-          <SaveButton />
+          {renderSaveButton()}
         </div>
       </div>
 
@@ -582,8 +606,9 @@ const LandingPageEditor: React.FC = () => {
       <CollapsibleSection title="Hero" defaultOpen>
         <div className="space-y-3">
           <div className="space-y-1">
-            <label className={labelClass}>Badge</label>
+            <label htmlFor={`${fieldId}-hero-badge`} className={labelClass}>Badge</label>
             <input
+              id={`${fieldId}-hero-badge`}
               type="text"
               value={content.hero.badge}
               onChange={(e) => updateHero('badge', e.target.value)}
@@ -591,8 +616,9 @@ const LandingPageEditor: React.FC = () => {
             />
           </div>
           <div className="space-y-1">
-            <label className={labelClass}>Headline</label>
+            <label htmlFor={`${fieldId}-hero-headline`} className={labelClass}>Headline</label>
             <input
+              id={`${fieldId}-hero-headline`}
               type="text"
               value={content.hero.headline}
               onChange={(e) => updateHero('headline', e.target.value)}
@@ -600,8 +626,9 @@ const LandingPageEditor: React.FC = () => {
             />
           </div>
           <div className="space-y-1">
-            <label className={labelClass}>Subheadline</label>
+            <label htmlFor={`${fieldId}-hero-subheadline`} className={labelClass}>Subheadline</label>
             <textarea
+              id={`${fieldId}-hero-subheadline`}
               value={content.hero.subheadline}
               onChange={(e) => updateHero('subheadline', e.target.value)}
               className={`w-full ${inputClass}`}
@@ -610,8 +637,9 @@ const LandingPageEditor: React.FC = () => {
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div className="space-y-1">
-              <label className={labelClass}>Primary CTA</label>
+              <label htmlFor={`${fieldId}-hero-primaryCta`} className={labelClass}>Primary CTA</label>
               <input
+                id={`${fieldId}-hero-primaryCta`}
                 type="text"
                 value={content.hero.primaryCta}
                 onChange={(e) => updateHero('primaryCta', e.target.value)}
@@ -619,8 +647,9 @@ const LandingPageEditor: React.FC = () => {
               />
             </div>
             <div className="space-y-1">
-              <label className={labelClass}>Secondary CTA</label>
+              <label htmlFor={`${fieldId}-hero-secondaryCta`} className={labelClass}>Secondary CTA</label>
               <input
+                id={`${fieldId}-hero-secondaryCta`}
                 type="text"
                 value={content.hero.secondaryCta}
                 onChange={(e) => updateHero('secondaryCta', e.target.value)}
@@ -635,10 +664,11 @@ const LandingPageEditor: React.FC = () => {
       <CollapsibleSection title="Estadísticas">
         <div className="space-y-4">
           {content.stats.map((stat, idx) => (
-            <div key={idx} className="grid grid-cols-3 gap-3 p-4 bg-slate-50 rounded-xl border border-slate-100">
+            <div key={stat.id} className="grid grid-cols-3 gap-3 p-4 bg-slate-50 rounded-xl border border-slate-100">
               <div className="space-y-1">
-                <label className={labelClass}>Valor #{idx + 1}</label>
+                <label htmlFor={`${fieldId}-stat-value-${idx}`} className={labelClass}>Valor #{idx + 1}</label>
                 <input
+                  id={`${fieldId}-stat-value-${idx}`}
                   type="number"
                   value={stat.value}
                   onChange={(e) => updateStat(idx, 'value', e.target.value)}
@@ -646,8 +676,9 @@ const LandingPageEditor: React.FC = () => {
                 />
               </div>
               <div className="space-y-1">
-                <label className={labelClass}>Etiqueta #{idx + 1}</label>
+                <label htmlFor={`${fieldId}-stat-label-${idx}`} className={labelClass}>Etiqueta #{idx + 1}</label>
                 <input
+                  id={`${fieldId}-stat-label-${idx}`}
                   type="text"
                   value={stat.label}
                   onChange={(e) => updateStat(idx, 'label', e.target.value)}
@@ -655,8 +686,9 @@ const LandingPageEditor: React.FC = () => {
                 />
               </div>
               <div className="space-y-1">
-                <label className={labelClass}>Sufijo #{idx + 1}</label>
+                <label htmlFor={`${fieldId}-stat-suffix-${idx}`} className={labelClass}>Sufijo #{idx + 1}</label>
                 <input
+                  id={`${fieldId}-stat-suffix-${idx}`}
                   type="text"
                   value={stat.suffix}
                   onChange={(e) => updateStat(idx, 'suffix', e.target.value)}
@@ -672,10 +704,11 @@ const LandingPageEditor: React.FC = () => {
       <CollapsibleSection title="Puntos de Dolor">
         <div className="space-y-4">
           {content.painPoints.map((pp, idx) => (
-            <div key={idx} className="p-4 bg-slate-50 rounded-xl border border-slate-100 space-y-3">
+            <div key={pp.id} className="p-4 bg-slate-50 rounded-xl border border-slate-100 space-y-3">
               <div className="space-y-1">
-                <label className={labelClass}>Título #{idx + 1}</label>
+                <label htmlFor={`${fieldId}-pain-title-${idx}`} className={labelClass}>Título #{idx + 1}</label>
                 <input
+                  id={`${fieldId}-pain-title-${idx}`}
                   type="text"
                   value={pp.title}
                   onChange={(e) => updatePainPoint(idx, 'title', e.target.value)}
@@ -683,8 +716,9 @@ const LandingPageEditor: React.FC = () => {
                 />
               </div>
               <div className="space-y-1">
-                <label className={labelClass}>Descripción #{idx + 1}</label>
+                <label htmlFor={`${fieldId}-pain-desc-${idx}`} className={labelClass}>Descripción #{idx + 1}</label>
                 <textarea
+                  id={`${fieldId}-pain-desc-${idx}`}
                   value={pp.description}
                   onChange={(e) => updatePainPoint(idx, 'description', e.target.value)}
                   className={`w-full ${inputClass}`}
@@ -700,10 +734,11 @@ const LandingPageEditor: React.FC = () => {
       <CollapsibleSection title="Por Qué Elegirnos">
         <div className="space-y-4">
           {content.why.map((item, idx) => (
-            <div key={idx} className="p-4 bg-slate-50 rounded-xl border border-slate-100 space-y-3">
+            <div key={item.id} className="p-4 bg-slate-50 rounded-xl border border-slate-100 space-y-3">
               <div className="space-y-1">
-                <label className={labelClass}>Título #{idx + 1}</label>
+                <label htmlFor={`${fieldId}-why-title-${idx}`} className={labelClass}>Título #{idx + 1}</label>
                 <input
+                  id={`${fieldId}-why-title-${idx}`}
                   type="text"
                   value={item.title}
                   onChange={(e) => updateWhy(idx, 'title', e.target.value)}
@@ -711,8 +746,9 @@ const LandingPageEditor: React.FC = () => {
                 />
               </div>
               <div className="space-y-1">
-                <label className={labelClass}>Descripción #{idx + 1}</label>
+                <label htmlFor={`${fieldId}-why-desc-${idx}`} className={labelClass}>Descripción #{idx + 1}</label>
                 <textarea
+                  id={`${fieldId}-why-desc-${idx}`}
                   value={item.description}
                   onChange={(e) => updateWhy(idx, 'description', e.target.value)}
                   className={`w-full ${inputClass}`}
@@ -728,10 +764,11 @@ const LandingPageEditor: React.FC = () => {
       <CollapsibleSection title="Funcionalidades">
         <div className="space-y-4">
           {content.features.map((feat, idx) => (
-            <div key={idx} className="p-4 bg-slate-50 rounded-xl border border-slate-100 space-y-3">
+            <div key={feat.id} className="p-4 bg-slate-50 rounded-xl border border-slate-100 space-y-3">
               <div className="space-y-1">
-                <label className={labelClass}>Título #{idx + 1}</label>
+                <label htmlFor={`${fieldId}-feat-title-${idx}`} className={labelClass}>Título #{idx + 1}</label>
                 <input
+                  id={`${fieldId}-feat-title-${idx}`}
                   type="text"
                   value={feat.title}
                   onChange={(e) => updateFeature(idx, 'title', e.target.value)}
@@ -739,8 +776,9 @@ const LandingPageEditor: React.FC = () => {
                 />
               </div>
               <div className="space-y-1">
-                <label className={labelClass}>Descripción #{idx + 1}</label>
+                <label htmlFor={`${fieldId}-feat-desc-${idx}`} className={labelClass}>Descripción #{idx + 1}</label>
                 <textarea
+                  id={`${fieldId}-feat-desc-${idx}`}
                   value={feat.description}
                   onChange={(e) => updateFeature(idx, 'description', e.target.value)}
                   className={`w-full ${inputClass}`}
@@ -756,11 +794,12 @@ const LandingPageEditor: React.FC = () => {
       <CollapsibleSection title="Cómo Funciona">
         <div className="space-y-4">
           {content.howItWorks.map((step, idx) => (
-            <div key={idx} className="p-4 bg-slate-50 rounded-xl border border-slate-100 space-y-3">
+            <div key={step.id} className="p-4 bg-slate-50 rounded-xl border border-slate-100 space-y-3">
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                 <div className="space-y-1">
-                  <label className={labelClass}>Paso #{idx + 1}</label>
+                  <label htmlFor={`${fieldId}-how-step-${idx}`} className={labelClass}>Paso #{idx + 1}</label>
                   <input
+                    id={`${fieldId}-how-step-${idx}`}
                     type="text"
                     value={step.step}
                     onChange={(e) => updateHowItWorks(idx, 'step', e.target.value)}
@@ -768,8 +807,9 @@ const LandingPageEditor: React.FC = () => {
                   />
                 </div>
                 <div className="space-y-1 sm:col-span-2">
-                  <label className={labelClass}>Título #{idx + 1}</label>
+                  <label htmlFor={`${fieldId}-how-title-${idx}`} className={labelClass}>Título #{idx + 1}</label>
                   <input
+                    id={`${fieldId}-how-title-${idx}`}
                     type="text"
                     value={step.title}
                     onChange={(e) => updateHowItWorks(idx, 'title', e.target.value)}
@@ -778,8 +818,9 @@ const LandingPageEditor: React.FC = () => {
                 </div>
               </div>
               <div className="space-y-1">
-                <label className={labelClass}>Descripción #{idx + 1}</label>
+                <label htmlFor={`${fieldId}-how-desc-${idx}`} className={labelClass}>Descripción #{idx + 1}</label>
                 <textarea
+                  id={`${fieldId}-how-desc-${idx}`}
                   value={step.description}
                   onChange={(e) => updateHowItWorks(idx, 'description', e.target.value)}
                   className={`w-full ${inputClass}`}
@@ -795,11 +836,12 @@ const LandingPageEditor: React.FC = () => {
       <CollapsibleSection title="Testimonios">
         <div className="space-y-4">
           {content.testimonials.map((t, idx) => (
-            <div key={idx} className="p-4 bg-slate-50 rounded-xl border border-slate-100 space-y-3">
+            <div key={t.id} className="p-4 bg-slate-50 rounded-xl border border-slate-100 space-y-3">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div className="space-y-1">
-                  <label className={labelClass}>Nombre #{idx + 1}</label>
+                  <label htmlFor={`${fieldId}-testi-name-${idx}`} className={labelClass}>Nombre #{idx + 1}</label>
                   <input
+                    id={`${fieldId}-testi-name-${idx}`}
                     type="text"
                     value={t.name}
                     onChange={(e) => updateTestimonial(idx, 'name', e.target.value)}
@@ -807,8 +849,9 @@ const LandingPageEditor: React.FC = () => {
                   />
                 </div>
                 <div className="space-y-1">
-                  <label className={labelClass}>Negocio #{idx + 1}</label>
+                  <label htmlFor={`${fieldId}-testi-business-${idx}`} className={labelClass}>Negocio #{idx + 1}</label>
                   <input
+                    id={`${fieldId}-testi-business-${idx}`}
                     type="text"
                     value={t.business}
                     onChange={(e) => updateTestimonial(idx, 'business', e.target.value)}
@@ -817,8 +860,9 @@ const LandingPageEditor: React.FC = () => {
                 </div>
               </div>
               <div className="space-y-1">
-                <label className={labelClass}>Cita #{idx + 1}</label>
+                <label htmlFor={`${fieldId}-testi-quote-${idx}`} className={labelClass}>Cita #{idx + 1}</label>
                 <textarea
+                  id={`${fieldId}-testi-quote-${idx}`}
                   value={t.quote}
                   onChange={(e) => updateTestimonial(idx, 'quote', e.target.value)}
                   className={`w-full ${inputClass}`}
@@ -826,8 +870,9 @@ const LandingPageEditor: React.FC = () => {
                 />
               </div>
               <div className="space-y-1 w-32">
-                <label className={labelClass}>Rating (1-5)</label>
+                <label htmlFor={`${fieldId}-testi-rating-${idx}`} className={labelClass}>Rating (1-5)</label>
                 <input
+                  id={`${fieldId}-testi-rating-${idx}`}
                   type="number"
                   min={1}
                   max={5}
@@ -845,10 +890,11 @@ const LandingPageEditor: React.FC = () => {
       <CollapsibleSection title="Preguntas Frecuentes">
         <div className="space-y-4">
           {content.faq.map((item, idx) => (
-            <div key={idx} className="p-4 bg-slate-50 rounded-xl border border-slate-100 space-y-3">
+            <div key={item.id} className="p-4 bg-slate-50 rounded-xl border border-slate-100 space-y-3">
               <div className="space-y-1">
-                <label className={labelClass}>Pregunta #{idx + 1}</label>
+                <label htmlFor={`${fieldId}-faq-question-${idx}`} className={labelClass}>Pregunta #{idx + 1}</label>
                 <input
+                  id={`${fieldId}-faq-question-${idx}`}
                   type="text"
                   value={item.question}
                   onChange={(e) => updateFaq(idx, 'question', e.target.value)}
@@ -856,8 +902,9 @@ const LandingPageEditor: React.FC = () => {
                 />
               </div>
               <div className="space-y-1">
-                <label className={labelClass}>Respuesta #{idx + 1}</label>
+                <label htmlFor={`${fieldId}-faq-answer-${idx}`} className={labelClass}>Respuesta #{idx + 1}</label>
                 <textarea
+                  id={`${fieldId}-faq-answer-${idx}`}
                   value={item.answer}
                   onChange={(e) => updateFaq(idx, 'answer', e.target.value)}
                   className={`w-full ${inputClass}`}
@@ -873,8 +920,9 @@ const LandingPageEditor: React.FC = () => {
       <CollapsibleSection title="CTA Final">
         <div className="space-y-3">
           <div className="space-y-1">
-            <label className={labelClass}>Headline</label>
+            <label htmlFor={`${fieldId}-finalCta-headline`} className={labelClass}>Headline</label>
             <input
+              id={`${fieldId}-finalCta-headline`}
               type="text"
               value={content.finalCta.headline}
               onChange={(e) => updateFinalCta('headline', e.target.value)}
@@ -882,8 +930,9 @@ const LandingPageEditor: React.FC = () => {
             />
           </div>
           <div className="space-y-1">
-            <label className={labelClass}>Subheadline</label>
+            <label htmlFor={`${fieldId}-finalCta-subheadline`} className={labelClass}>Subheadline</label>
             <textarea
+              id={`${fieldId}-finalCta-subheadline`}
               value={content.finalCta.subheadline}
               onChange={(e) => updateFinalCta('subheadline', e.target.value)}
               className={`w-full ${inputClass}`}
@@ -892,8 +941,9 @@ const LandingPageEditor: React.FC = () => {
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div className="space-y-1">
-              <label className={labelClass}>Primary CTA</label>
+              <label htmlFor={`${fieldId}-finalCta-primaryCta`} className={labelClass}>Primary CTA</label>
               <input
+                id={`${fieldId}-finalCta-primaryCta`}
                 type="text"
                 value={content.finalCta.primaryCta}
                 onChange={(e) => updateFinalCta('primaryCta', e.target.value)}
@@ -901,8 +951,9 @@ const LandingPageEditor: React.FC = () => {
               />
             </div>
             <div className="space-y-1">
-              <label className={labelClass}>Secondary CTA</label>
+              <label htmlFor={`${fieldId}-finalCta-secondaryCta`} className={labelClass}>Secondary CTA</label>
               <input
+                id={`${fieldId}-finalCta-secondaryCta`}
                 type="text"
                 value={content.finalCta.secondaryCta}
                 onChange={(e) => updateFinalCta('secondaryCta', e.target.value)}
@@ -917,8 +968,9 @@ const LandingPageEditor: React.FC = () => {
       <CollapsibleSection title="Contacto">
         <div className="space-y-3">
           <div className="space-y-1">
-            <label className={labelClass}>Teléfono</label>
+            <label htmlFor={`${fieldId}-contact-phone`} className={labelClass}>Teléfono</label>
             <input
+              id={`${fieldId}-contact-phone`}
               type="text"
               value={content.contact.phone}
               onChange={(e) => updateContact('phone', e.target.value)}
@@ -926,8 +978,9 @@ const LandingPageEditor: React.FC = () => {
             />
           </div>
           <div className="space-y-1">
-            <label className={labelClass}>Email</label>
+            <label htmlFor={`${fieldId}-contact-email`} className={labelClass}>Email</label>
             <input
+              id={`${fieldId}-contact-email`}
               type="text"
               value={content.contact.email}
               onChange={(e) => updateContact('email', e.target.value)}
@@ -935,8 +988,9 @@ const LandingPageEditor: React.FC = () => {
             />
           </div>
           <div className="space-y-1">
-            <label className={labelClass}>Horario</label>
+            <label htmlFor={`${fieldId}-contact-hours`} className={labelClass}>Horario</label>
             <input
+              id={`${fieldId}-contact-hours`}
               type="text"
               value={content.contact.hours}
               onChange={(e) => updateContact('hours', e.target.value)}
@@ -950,8 +1004,9 @@ const LandingPageEditor: React.FC = () => {
       <CollapsibleSection title="Footer">
         <div className="space-y-3">
           <div className="space-y-1">
-            <label className={labelClass}>Tagline</label>
+            <label htmlFor={`${fieldId}-footer-tagline`} className={labelClass}>Tagline</label>
             <textarea
+              id={`${fieldId}-footer-tagline`}
               value={content.footer.tagline}
               onChange={(e) => updateFooter('tagline', e.target.value)}
               className={`w-full ${inputClass}`}
@@ -960,8 +1015,9 @@ const LandingPageEditor: React.FC = () => {
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div className="space-y-1">
-              <label className={labelClass}>Facebook URL</label>
+              <label htmlFor={`${fieldId}-footer-facebook`} className={labelClass}>Facebook URL</label>
               <input
+                id={`${fieldId}-footer-facebook`}
                 type="text"
                 value={content.footer.facebook}
                 onChange={(e) => updateFooter('facebook', e.target.value)}
@@ -970,8 +1026,9 @@ const LandingPageEditor: React.FC = () => {
               />
             </div>
             <div className="space-y-1">
-              <label className={labelClass}>Twitter URL</label>
+              <label htmlFor={`${fieldId}-footer-twitter`} className={labelClass}>Twitter URL</label>
               <input
+                id={`${fieldId}-footer-twitter`}
                 type="text"
                 value={content.footer.twitter}
                 onChange={(e) => updateFooter('twitter', e.target.value)}
@@ -980,8 +1037,9 @@ const LandingPageEditor: React.FC = () => {
               />
             </div>
             <div className="space-y-1">
-              <label className={labelClass}>Instagram URL</label>
+              <label htmlFor={`${fieldId}-footer-instagram`} className={labelClass}>Instagram URL</label>
               <input
+                id={`${fieldId}-footer-instagram`}
                 type="text"
                 value={content.footer.instagram}
                 onChange={(e) => updateFooter('instagram', e.target.value)}
@@ -990,8 +1048,9 @@ const LandingPageEditor: React.FC = () => {
               />
             </div>
             <div className="space-y-1">
-              <label className={labelClass}>LinkedIn URL</label>
+              <label htmlFor={`${fieldId}-footer-linkedin`} className={labelClass}>LinkedIn URL</label>
               <input
+                id={`${fieldId}-footer-linkedin`}
                 type="text"
                 value={content.footer.linkedin}
                 onChange={(e) => updateFooter('linkedin', e.target.value)}
@@ -1007,8 +1066,9 @@ const LandingPageEditor: React.FC = () => {
       <CollapsibleSection title="Página de Ayuda">
         <div className="space-y-3">
           <div className="space-y-1">
-            <label className={labelClass}>Título</label>
+            <label htmlFor={`${fieldId}-ayuda-title`} className={labelClass}>Título</label>
             <input
+              id={`${fieldId}-ayuda-title`}
               type="text"
               value={content.ayudaPage.title}
               onChange={(e) => updateAyudaPage('title', e.target.value)}
@@ -1016,8 +1076,9 @@ const LandingPageEditor: React.FC = () => {
             />
           </div>
           <div className="space-y-1">
-            <label className={labelClass}>Subtítulo</label>
+            <label htmlFor={`${fieldId}-ayuda-subtitle`} className={labelClass}>Subtítulo</label>
             <input
+              id={`${fieldId}-ayuda-subtitle`}
               type="text"
               value={content.ayudaPage.subtitle}
               onChange={(e) => updateAyudaPage('subtitle', e.target.value)}
@@ -1036,9 +1097,9 @@ const LandingPageEditor: React.FC = () => {
               </button>
             </div>
             {content.ayudaPage.faqs.map((faq, idx) => (
-              <div key={idx} className="p-4 bg-slate-50 rounded-xl border border-slate-100 space-y-3">
+              <div key={faq.id} className="p-4 bg-slate-50 rounded-xl border border-slate-100 space-y-3">
                 <div className="flex items-center justify-between">
-                  <label className={labelClass}>FAQ #{idx + 1}</label>
+                  <span className={labelClass}>FAQ #{idx + 1}</span>
                   <button
                     type="button"
                     onClick={() => removeAyudaFaq(idx)}
@@ -1048,8 +1109,9 @@ const LandingPageEditor: React.FC = () => {
                   </button>
                 </div>
                 <div className="space-y-1">
-                  <label className={labelClass}>Pregunta</label>
+                  <label htmlFor={`${fieldId}-ayudaFaq-question-${idx}`} className={labelClass}>Pregunta</label>
                   <input
+                    id={`${fieldId}-ayudaFaq-question-${idx}`}
                     type="text"
                     value={faq.question}
                     onChange={(e) => updateAyudaFaq(idx, 'question', e.target.value)}
@@ -1057,8 +1119,9 @@ const LandingPageEditor: React.FC = () => {
                   />
                 </div>
                 <div className="space-y-1">
-                  <label className={labelClass}>Respuesta</label>
+                  <label htmlFor={`${fieldId}-ayudaFaq-answer-${idx}`} className={labelClass}>Respuesta</label>
                   <textarea
+                    id={`${fieldId}-ayudaFaq-answer-${idx}`}
                     value={faq.answer}
                     onChange={(e) => updateAyudaFaq(idx, 'answer', e.target.value)}
                     className={`w-full ${inputClass}`}
@@ -1075,8 +1138,9 @@ const LandingPageEditor: React.FC = () => {
       <CollapsibleSection title="Página de Contacto">
         <div className="space-y-3">
           <div className="space-y-1">
-            <label className={labelClass}>Título</label>
+            <label htmlFor={`${fieldId}-contactoPage-title`} className={labelClass}>Título</label>
             <input
+              id={`${fieldId}-contactoPage-title`}
               type="text"
               value={content.contactoPage.title}
               onChange={(e) => updateContactoPage('title', e.target.value)}
@@ -1084,8 +1148,9 @@ const LandingPageEditor: React.FC = () => {
             />
           </div>
           <div className="space-y-1">
-            <label className={labelClass}>Subtítulo</label>
+            <label htmlFor={`${fieldId}-contactoPage-subtitle`} className={labelClass}>Subtítulo</label>
             <textarea
+              id={`${fieldId}-contactoPage-subtitle`}
               value={content.contactoPage.subtitle}
               onChange={(e) => updateContactoPage('subtitle', e.target.value)}
               className={`w-full ${inputClass}`}
@@ -1099,8 +1164,9 @@ const LandingPageEditor: React.FC = () => {
       <CollapsibleSection title="Página Legal">
         <div className="space-y-4">
           <div className="space-y-1">
-            <label className={labelClass}>Título de la Página</label>
+            <label htmlFor={`${fieldId}-legalPage-title`} className={labelClass}>Título de la Página</label>
             <input
+              id={`${fieldId}-legalPage-title`}
               type="text"
               value={content.legalPage.title}
               onChange={(e) => updateLegalPage('title', e.target.value)}
@@ -1112,8 +1178,9 @@ const LandingPageEditor: React.FC = () => {
           <div className="p-4 bg-slate-50 rounded-xl border border-slate-100 space-y-3">
             <h4 className="text-sm font-bold text-slate-700">Términos y Condiciones</h4>
             <div className="space-y-1">
-              <label className={labelClass}>Título</label>
+              <label htmlFor={`${fieldId}-legal-terms-title`} className={labelClass}>Título</label>
               <input
+                id={`${fieldId}-legal-terms-title`}
                 type="text"
                 value={content.legalPage.terms.title}
                 onChange={(e) => updateLegalSubSection('terms', 'title', e.target.value)}
@@ -1121,8 +1188,8 @@ const LandingPageEditor: React.FC = () => {
               />
             </div>
             <div className="space-y-1">
-              <label className={labelClass}>Contenido (HTML)</label>
-              <RichTextEditor value={content.legalPage.terms.content} onChange={(html) => updateLegalSubSection('terms', 'content', html)} />
+              <label id={`${fieldId}-legal-terms-content-label`} htmlFor={`${fieldId}-legal-terms-content`} className={labelClass}>Contenido (HTML)</label>
+              <RichTextEditor id={`${fieldId}-legal-terms-content`} ariaLabelledBy={`${fieldId}-legal-terms-content-label`} value={content.legalPage.terms.content} onChange={(html) => updateLegalSubSection('terms', 'content', html)} />
             </div>
           </div>
 
@@ -1130,8 +1197,9 @@ const LandingPageEditor: React.FC = () => {
           <div className="p-4 bg-slate-50 rounded-xl border border-slate-100 space-y-3">
             <h4 className="text-sm font-bold text-slate-700">Política de Privacidad</h4>
             <div className="space-y-1">
-              <label className={labelClass}>Título</label>
+              <label htmlFor={`${fieldId}-legal-privacy-title`} className={labelClass}>Título</label>
               <input
+                id={`${fieldId}-legal-privacy-title`}
                 type="text"
                 value={content.legalPage.privacy.title}
                 onChange={(e) => updateLegalSubSection('privacy', 'title', e.target.value)}
@@ -1139,8 +1207,8 @@ const LandingPageEditor: React.FC = () => {
               />
             </div>
             <div className="space-y-1">
-              <label className={labelClass}>Contenido (HTML)</label>
-              <RichTextEditor value={content.legalPage.privacy.content} onChange={(html) => updateLegalSubSection('privacy', 'content', html)} />
+              <label id={`${fieldId}-legal-privacy-content-label`} htmlFor={`${fieldId}-legal-privacy-content`} className={labelClass}>Contenido (HTML)</label>
+              <RichTextEditor id={`${fieldId}-legal-privacy-content`} ariaLabelledBy={`${fieldId}-legal-privacy-content-label`} value={content.legalPage.privacy.content} onChange={(html) => updateLegalSubSection('privacy', 'content', html)} />
             </div>
           </div>
 
@@ -1148,8 +1216,9 @@ const LandingPageEditor: React.FC = () => {
           <div className="p-4 bg-slate-50 rounded-xl border border-slate-100 space-y-3">
             <h4 className="text-sm font-bold text-slate-700">Política de Cookies</h4>
             <div className="space-y-1">
-              <label className={labelClass}>Título</label>
+              <label htmlFor={`${fieldId}-legal-cookies-title`} className={labelClass}>Título</label>
               <input
+                id={`${fieldId}-legal-cookies-title`}
                 type="text"
                 value={content.legalPage.cookies.title}
                 onChange={(e) => updateLegalSubSection('cookies', 'title', e.target.value)}
@@ -1157,8 +1226,8 @@ const LandingPageEditor: React.FC = () => {
               />
             </div>
             <div className="space-y-1">
-              <label className={labelClass}>Contenido (HTML)</label>
-              <RichTextEditor value={content.legalPage.cookies.content} onChange={(html) => updateLegalSubSection('cookies', 'content', html)} />
+              <label id={`${fieldId}-legal-cookies-content-label`} htmlFor={`${fieldId}-legal-cookies-content`} className={labelClass}>Contenido (HTML)</label>
+              <RichTextEditor id={`${fieldId}-legal-cookies-content`} ariaLabelledBy={`${fieldId}-legal-cookies-content-label`} value={content.legalPage.cookies.content} onChange={(html) => updateLegalSubSection('cookies', 'content', html)} />
             </div>
           </div>
         </div>
@@ -1167,8 +1236,9 @@ const LandingPageEditor: React.FC = () => {
       <CollapsibleSection title="Banner de Cookies">
         <div className="space-y-3">
           <div className="space-y-1">
-            <label className={labelClass}>Mensaje del Banner</label>
+            <label htmlFor={`${fieldId}-cookieBanner-message`} className={labelClass}>Mensaje del Banner</label>
             <textarea
+              id={`${fieldId}-cookieBanner-message`}
               value={content.cookieBanner.message}
               onChange={(e) => setContent(prev => ({ ...prev, cookieBanner: { ...prev.cookieBanner, message: e.target.value } }))}
               className={`w-full ${inputClass}`}
@@ -1229,7 +1299,7 @@ const LandingPageEditor: React.FC = () => {
                 }} />
               </label>
               {landingLogo && (
-                <button onClick={async () => {
+                <button type="button" onClick={async () => {
                   setSavingLogo(true);
                   try {
                     const token = localStorage.getItem('adminToken');
@@ -1260,7 +1330,7 @@ const LandingPageEditor: React.FC = () => {
 
       {/* Bottom save button */}
       <div className="flex justify-end pt-2">
-        <SaveButton />
+        {renderSaveButton()}
       </div>
       </div>
 
@@ -1284,8 +1354,8 @@ const LandingPageEditor: React.FC = () => {
 
             {/* Stats */}
             <div className="grid grid-cols-2 gap-2">
-              {content.stats.slice(0, 4).map((s, i) => (
-                <div key={i} className="bg-sky-50 rounded-xl p-3 text-center">
+              {content.stats.slice(0, 4).map((s) => (
+                <div key={s.id} className="bg-sky-50 rounded-xl p-3 text-center">
                   <p className="text-lg font-black text-sky-600">{s.value}{s.suffix}</p>
                   <p className="text-[9px] font-bold text-slate-400 uppercase">{s.label}</p>
                 </div>
@@ -1296,8 +1366,8 @@ const LandingPageEditor: React.FC = () => {
             <div>
               <h3 className="text-sm font-black text-slate-800 mb-2 text-center">Funcionalidades</h3>
               <div className="grid grid-cols-2 gap-1.5">
-                {content.features.slice(0, 6).map((f, i) => (
-                  <div key={i} className="bg-slate-50 rounded-xl p-2.5">
+                {content.features.slice(0, 6).map((f) => (
+                  <div key={f.id} className="bg-slate-50 rounded-xl p-2.5">
                     <p className="text-[10px] font-bold text-slate-700">{f.title}</p>
                     <p className="text-[9px] text-slate-400 leading-tight">{f.description.substring(0, 50)}...</p>
                   </div>
@@ -1309,8 +1379,8 @@ const LandingPageEditor: React.FC = () => {
             <div>
               <h3 className="text-sm font-black text-slate-800 mb-2 text-center">Como Funciona</h3>
               <div className="flex gap-2">
-                {content.howItWorks.slice(0, 3).map((s, i) => (
-                  <div key={i} className="flex-1 bg-white border border-slate-200 rounded-xl p-2.5 text-center">
+                {content.howItWorks.slice(0, 3).map((s) => (
+                  <div key={s.id} className="flex-1 bg-white border border-slate-200 rounded-xl p-2.5 text-center">
                     <div className="w-6 h-6 rounded-full bg-sky-500 text-white flex items-center justify-center text-[10px] font-black mx-auto mb-1">{s.step}</div>
                     <p className="text-[9px] font-bold text-slate-700">{s.title}</p>
                   </div>
@@ -1322,8 +1392,8 @@ const LandingPageEditor: React.FC = () => {
             <div>
               <h3 className="text-sm font-black text-slate-800 mb-2 text-center">Testimonios</h3>
               <div className="space-y-1.5">
-                {content.testimonials.slice(0, 3).map((t, i) => (
-                  <div key={i} className="bg-slate-50 rounded-xl p-2.5">
+                {content.testimonials.slice(0, 3).map((t) => (
+                  <div key={t.id} className="bg-slate-50 rounded-xl p-2.5">
                     <p className="text-[10px] italic text-slate-600">"{t.quote.substring(0, 80)}..."</p>
                     <p className="text-[9px] font-bold text-slate-700 mt-1">{t.name} - {t.business}</p>
                   </div>
@@ -1335,8 +1405,8 @@ const LandingPageEditor: React.FC = () => {
             <div>
               <h3 className="text-sm font-black text-slate-800 mb-2 text-center">FAQ</h3>
               <div className="space-y-1">
-                {content.faq.slice(0, 3).map((f, i) => (
-                  <div key={i} className="bg-slate-50 rounded-lg p-2">
+                {content.faq.slice(0, 3).map((f) => (
+                  <div key={f.id} className="bg-slate-50 rounded-lg p-2">
                     <p className="text-[9px] font-bold text-slate-700">{f.question}</p>
                     <p className="text-[8px] text-slate-400">{f.answer.substring(0, 60)}...</p>
                   </div>

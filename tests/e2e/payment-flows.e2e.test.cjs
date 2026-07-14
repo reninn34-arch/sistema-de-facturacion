@@ -21,17 +21,17 @@
 const { test, expect } = require('@playwright/test');
 
 // URL base del frontend
-const BASE_URL = process.env.FRONTEND_URL || 'http://localhost:5173';
+const BASE_URL = process.env.FRONTEND_URL || 'http://localhost:3000';
 
 test.describe('🟦 E2E: Página de Login', () => {
   
   test.beforeEach(async ({ page }) => {
-    await page.goto(BASE_URL);
+    await page.goto(BASE_URL + '/login');
   });
 
   test('TC-E2E-001: La página de login carga correctamente', async ({ page }) => {
     // Verificar que la página cargó
-    await expect(page).toHaveTitle(/Ecuafact/i);
+    await expect(page).toHaveTitle(/Azul/i);
     
     // Verificar que existe el formulario de login
     const loginForm = page.locator('form');
@@ -100,15 +100,18 @@ test.describe('🟦 E2E: Página de Login', () => {
 test.describe('🟦 E2E: Página de Planes de Suscripción', () => {
   
   test.beforeEach(async ({ page }) => {
-    await page.goto(BASE_URL + '/subscription');
+    await page.goto(BASE_URL + '/suscripcion');
   });
 
   test('TC-E2E-005: La página de suscripción carga con los planes', async ({ page }) => {
     // Verificar que la página cargó
-    await expect(page).toHaveTitle(/Suscripción/i);
+    await expect(page).toHaveTitle(/Azul/i);
+    
+    // Esperar a que los planes terminen de cargar
+    await page.locator('text=Cargando planes...').waitFor({ state: 'hidden', timeout: 10000 }).catch(() => {});
     
     // Verificar que hay botones de planes
-    const planButtons = page.locator('button:has-text("Suscribirse"), button:has-text("Obtener")');
+    const planButtons = page.locator('button:has-text("Suscribirse"), button:has-text("Obtener"), button:has-text("Oferta"), button:has-text("Ahora")');
     const count = await planButtons.count();
     
     // Debe haber al menos un plan
@@ -207,7 +210,7 @@ test.describe('🟦 E2E: Dashboard del Cliente', () => {
 test.describe('🟦 E2E: Métodos de Pago en Proceso de Suscripción', () => {
   
   test('TC-E2E-012: Selección de método PAYPAL funciona', async ({ page }) => {
-    await page.goto(BASE_URL + '/subscription');
+    await page.goto(BASE_URL + '/suscripcion');
     await page.waitForLoadState('networkidle');
     
     // Buscar botón de PayPal
@@ -220,7 +223,7 @@ test.describe('🟦 E2E: Métodos de Pago en Proceso de Suscripción', () => {
   });
 
   test('TC-E2E-013: Selección de método TRANSFER funciona', async ({ page }) => {
-    await page.goto(BASE_URL + '/subscription');
+    await page.goto(BASE_URL + '/suscripcion');
     await page.waitForLoadState('networkidle');
     
     // Buscar botón de Transferencia
@@ -233,7 +236,7 @@ test.describe('🟦 E2E: Métodos de Pago en Proceso de Suscripción', () => {
   });
 
   test('TC-E2E-014: Botón de volver funciona', async ({ page }) => {
-    await page.goto(BASE_URL + '/subscription');
+    await page.goto(BASE_URL + '/suscripcion');
     await page.waitForLoadState('networkidle');
     
     // Buscar botón de volver

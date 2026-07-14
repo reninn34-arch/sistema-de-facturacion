@@ -1,7 +1,8 @@
-﻿import React, { useState } from 'react';
+import React, { useState, useId } from 'react';
 import { EnvelopeIcon, LockClosedIcon, EyeIcon, EyeSlashIcon, ShieldCheckIcon, ExclamationCircleIcon, DocumentTextIcon } from '@heroicons/react/24/outline';
 
 const ClientLogin = () => {
+  const fieldId = useId();
   const [identification, setIdentification] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -24,7 +25,7 @@ const ClientLogin = () => {
       const data = await response.json();
 
       if (data.success) {
-        localStorage.setItem('clientToken', data.token);
+        localStorage.setItem('clientToken', 'cookie_authenticated');
         localStorage.setItem('clientUser', JSON.stringify(data.user));
         if (data.requirePasswordChange) {
           localStorage.setItem('requirePasswordChange', 'true');
@@ -74,13 +75,14 @@ const ClientLogin = () => {
 
             <form className="flex flex-col gap-5" onSubmit={handleLogin}>
               <div className="flex flex-col gap-2">
-                <label className="text-slate-700 dark:text-slate-200 text-sm font-semibold">Número de Cédula o RUC</label>
+                <label htmlFor={`${fieldId}-identification`} className="text-slate-700 dark:text-slate-200 text-sm font-semibold">Número de Cédula o RUC</label>
                 <div className="flex w-full items-stretch rounded-lg group">
                   <div className="text-slate-400 flex border border-r-0 border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-700 items-center justify-center px-3 rounded-l-lg">
                     <DocumentTextIcon className="w-5 h-5" />
                   </div>
                   <input
                     className="flex w-full min-w-0 flex-1 rounded-r-lg text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-sky-500/20 border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 focus:border-sky-500 h-12 placeholder:text-slate-400 p-3 text-base"
+                    id={`${fieldId}-identification`}
                     placeholder="Ej: 1712345678"
                     type="text"
                     value={identification}
@@ -92,7 +94,7 @@ const ClientLogin = () => {
 
               <div className="flex flex-col gap-2">
                 <div className="flex justify-between items-center">
-                  <label className="text-slate-700 dark:text-slate-200 text-sm font-semibold">Contraseña</label>
+                  <label htmlFor={`${fieldId}-password`} className="text-slate-700 dark:text-slate-200 text-sm font-semibold">Contraseña</label>
                   <a href="/portal/reset-password" className="text-sky-500 dark:text-sky-400 text-xs font-bold hover:underline">Olvidaste tu contraseña?</a>
                 </div>
                 <div className="flex w-full items-stretch rounded-lg group">
@@ -102,6 +104,7 @@ const ClientLogin = () => {
                   <div className="relative flex-1">
                     <input
                       className="w-full rounded-r-lg text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-sky-500/20 border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 focus:border-sky-500 h-12 placeholder:text-slate-400 p-3 text-base pr-10"
+                      id={`${fieldId}-password`}
                       placeholder="Primer acceso: ingrese su Cédula o RUC"
                       type={showPassword ? "text" : "password"}
                       value={password}

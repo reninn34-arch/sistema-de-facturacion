@@ -43,6 +43,17 @@ const SessionsPage: React.FC<SessionsPageProps> = ({ currentUser, onNotify }) =>
   const [sessions, setSessions] = useState<SessionData[]>([]);
   const [loading, setLoading] = useState(true);
   const [currentSessionId, setCurrentSessionId] = useState<string | null>(null);
+  const [confirmModal, setConfirmModal] = useState<{
+    show: boolean;
+    title: string;
+    message: string;
+    onConfirm: () => void;
+  }>({
+    show: false,
+    title: '',
+    message: '',
+    onConfirm: () => {}
+  });
 
   const isAdmin = currentUser?.role === 'ADMIN' || currentUser?.role === 'SUPERADMIN';
 
@@ -86,9 +97,7 @@ const SessionsPage: React.FC<SessionsPageProps> = ({ currentUser, onNotify }) =>
     };
   }, []);
 
-  const handleRevoke = async (sessionId: string) => {
-    if (!confirm('¿Estás seguro de cerrar esta sesión? El usuario será desconectado de ese dispositivo.')) return;
-
+  const executeRevoke = async (sessionId: string) => {
     // Optimistic update: marcar como inactiva al instante
     setSessions(prev => prev.map(s => s.id === sessionId ? { ...s, status: 'REVOKED' } : s));
 
@@ -115,23 +124,49 @@ const SessionsPage: React.FC<SessionsPageProps> = ({ currentUser, onNotify }) =>
     }
   };
 
-  const handleRevokeAll = async () => {
-    if (!confirm('¿Cerrar todas las demás sesiones? Esto desconectará a los usuarios de todos los demás dispositivos.')) return;
+  const handleRevoke = (sessionId: string) => {
+    setConfirmModal({
+      show: true,
+      title: 'Cerrar Sesión Activa',
+      message: '¿Estás seguro de cerrar esta sesión? El usuario será desconectado de ese dispositivo.',
+      onConfirm: () => {
+        executeRevoke(sessionId);
+        setConfirmModal(prev => ({ ...prev, show: false }));
+      }
+    });
+  };
 
+  const executeRevokeAll = async () => {
     const otherSessions = sessions.filter(s => s.status === 'ACTIVE' && s.id !== currentSessionId);
-    let revoked = 0;
-    for (const s of otherSessions) {
-      try {
-        const token = localStorage.getItem('adminToken');
-        const response = await fetch(`${API_URL}/api/business/sessions/${s.id}/revoke`, {
-          method: 'PUT',
-          headers: { 'Authorization': `Bearer ${token}` }
-        });
-        if (response.ok) revoked++;
-      } catch (e) {}
-    }
+    const token = localStorage.getItem('adminToken');
+    const results = await Promise.all(
+      otherSessions.map(async (s) => {
+        try {
+          const response = await fetch(`${API_URL}/api/business/sessions/${s.id}/revoke`, {
+            method: 'PUT',
+            headers: { 'Authorization': `Bearer ${token}` }
+          });
+          return response.ok;
+        } catch (e) {
+          return false;
+        }
+      })
+    );
+    const revoked = results.filter(Boolean).length;
     onNotify(`${revoked} sesiones cerradas`, 'success');
     loadSessions();
+  };
+
+  const handleRevokeAll = () => {
+    setConfirmModal({
+      show: true,
+      title: 'Cerrar Todas las Demás Sesiones',
+      message: '¿Cerrar todas las demás sesiones? Esto desconectará a los usuarios de todos los demás dispositivos.',
+      onConfirm: () => {
+        executeRevokeAll();
+        setConfirmModal(prev => ({ ...prev, show: false }));
+      }
+    });
   };
 
   const formatDate = (dateStr: string) => {
@@ -160,14 +195,14 @@ const SessionsPage: React.FC<SessionsPageProps> = ({ currentUser, onNotify }) =>
             </p>
           </div>
           <div className="flex gap-3">
-            <button
+            <button type="submit"
               onClick={loadSessions}
               className="px-4 py-3 bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 rounded-xl font-bold text-sm hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors flex items-center gap-2"
             >
               <ArrowPathIcon className="w-4 h-4" /> Actualizar
             </button>
             {otherActiveSessions.length > 0 && (
-              <button
+              <button type="button"
                 onClick={handleRevokeAll}
                 className="px-4 py-3 bg-red-500 text-white rounded-xl font-bold text-sm hover:bg-red-600 transition-colors shadow-lg shadow-red-500/20 flex items-center gap-2"
               >
@@ -211,7 +246,15 @@ const SessionsPage: React.FC<SessionsPageProps> = ({ currentUser, onNotify }) =>
             <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">IPs Únicas</span>
           </div>
           <p className="text-2xl font-black text-slate-800 dark:text-white">
-            {new Set(sessions.filter(s => s.status === 'ACTIVE').map(s => s.ipAddress).filter(Boolean)).size}
+            {(() => {
+              const uniqueIps = new Set<string>();
+              for (const s of sessions) {
+                if (s.status === 'ACTIVE' && s.ipAddress) {
+                  uniqueIps.add(s.ipAddress);
+                }
+              }
+              return uniqueIps.size;
+            })()}
           </p>
         </div>
       </div>
@@ -344,7 +387,7 @@ const SessionsPage: React.FC<SessionsPageProps> = ({ currentUser, onNotify }) =>
                       <td className="px-6 py-4">
                         <div className="flex items-center justify-end">
                           {session.status === 'ACTIVE' && !isCurrent && (
-                            <button
+                            <button type="button"
                               onClick={() => handleRevoke(session.id)}
                               className="px-4 py-2 bg-red-50 dark:bg-red-500/10 text-red-600 dark:text-red-400 rounded-xl font-bold text-xs hover:bg-red-100 dark:hover:bg-red-500/20 transition-colors flex items-center gap-1"
                             >
@@ -365,6 +408,42 @@ const SessionsPage: React.FC<SessionsPageProps> = ({ currentUser, onNotify }) =>
           </div>
         )}
       </div>
+
+      {confirmModal.show && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-fade-in">
+          <div className="bg-white dark:bg-slate-800 rounded-[2rem] max-w-md w-full p-8 border border-slate-100 dark:border-slate-700/50 shadow-2xl animate-scale-in">
+            <div className="flex items-start gap-4">
+              <div className="w-12 h-12 rounded-2xl bg-amber-50 dark:bg-amber-950/30 flex items-center justify-center text-amber-500 flex-shrink-0">
+                <ExclamationTriangleIcon className="w-6 h-6" />
+              </div>
+              <div className="flex-1">
+                <h3 className="text-xl font-black text-slate-800 dark:text-white tracking-tight uppercase">
+                  {confirmModal.title}
+                </h3>
+                <p className="mt-2 text-sm text-slate-500 dark:text-slate-400 font-semibold leading-relaxed">
+                  {confirmModal.message}
+                </p>
+              </div>
+            </div>
+            <div className="mt-8 flex justify-end gap-3">
+              <button
+                type="button"
+                onClick={() => setConfirmModal(prev => ({ ...prev, show: false }))}
+                className="px-5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 text-sm font-bold text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors uppercase tracking-wider"
+              >
+                Cancelar
+              </button>
+              <button
+                type="button"
+                onClick={confirmModal.onConfirm}
+                className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-700 hover:to-rose-700 text-sm font-bold text-white transition-all shadow-md hover:shadow-lg shadow-red-500/20 uppercase tracking-wider"
+              >
+                Confirmar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

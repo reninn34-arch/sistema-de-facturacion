@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useId } from 'react';
 import { ChartBarIcon, InformationCircleIcon, ArrowDownTrayIcon } from '@heroicons/react/24/outline';
 import { Document, BusinessInfo, ATSPurchase, ATSSale } from '../../../types/types';
 import { generateATSXML } from '../../../services/atsService';
@@ -10,6 +10,7 @@ interface ATSReportProps {
 }
 
 export default function ATSReport({ documents, business, onNotify }: ATSReportProps) {
+  const fieldId = useId();
   const [month, setMonth] = useState('');
   const [year, setYear] = useState(new Date().getFullYear().toString());
 
@@ -30,15 +31,24 @@ export default function ATSReport({ documents, business, onNotify }: ATSReportPr
     });
 
     // Generar ventas del ATS
-    const sales: ATSSale[] = filteredDocs
-      .filter(doc => doc.type === '01' && (doc as any).source !== 'RECEIVED')
-      .map(doc => {
-        const subtotal0 = doc.items?.filter(i => i.taxRate === 0).reduce((sum, item) => sum + (item.unitPrice * item.quantity - item.discount), 0) || 0;
-        const subtotal12 = doc.items?.filter(i => i.taxRate > 0).reduce((sum, item) => sum + (item.unitPrice * item.quantity - item.discount), 0) || 0;
+    const sales: ATSSale[] = [];
+    for (const doc of filteredDocs) {
+      if (doc.type === '01' && (doc as any).source !== 'RECEIVED') {
+        let subtotal0 = 0;
+        let subtotal12 = 0;
+        if (doc.items) {
+          for (const item of doc.items) {
+            const amount = item.unitPrice * item.quantity - item.discount;
+            if (item.taxRate === 0) {
+              subtotal0 += amount;
+            } else {
+              subtotal12 += amount;
+            }
+          }
+        }
         const iva = subtotal12 * 0.15;
         const clientId = doc.entityName.split(' - ')[0] || '';
-        
-        return {
+        sales.push({
           establishmentType: '01' as const,
           documentType: doc.type,
           documentNumber: doc.number,
@@ -50,20 +60,30 @@ export default function ATSReport({ documents, business, onNotify }: ATSReportPr
           subtotal0,
           subtotal12,
           iva
-        };
-      });
+        });
+      }
+    }
 
     // Compras: documentos recibidos (source=RECEIVED)
-    const purchases: ATSPurchase[] = filteredDocs
-      .filter(doc => doc.type === '01' && (doc as any).source === 'RECEIVED')
-      .map(doc => {
-        const subtotal0 = doc.items?.filter(i => i.taxRate === 0).reduce((sum, item) => sum + (item.unitPrice * item.quantity - item.discount), 0) || 0;
-        const subtotal12 = doc.items?.filter(i => i.taxRate > 0).reduce((sum, item) => sum + (item.unitPrice * item.quantity - item.discount), 0) || 0;
+    const purchases: ATSPurchase[] = [];
+    for (const doc of filteredDocs) {
+      if (doc.type === '01' && (doc as any).source === 'RECEIVED') {
+        let subtotal0 = 0;
+        let subtotal12 = 0;
+        if (doc.items) {
+          for (const item of doc.items) {
+            const amount = item.unitPrice * item.quantity - item.discount;
+            if (item.taxRate === 0) {
+              subtotal0 += amount;
+            } else {
+              subtotal12 += amount;
+            }
+          }
+        }
         const iva = subtotal12 * 0.15;
         const providerId = doc.entityRuc || '9999999999999';
         const idType = providerId.length === 13 ? '01' : '02';
-
-        return {
+        purchases.push({
           establishmentType: '01' as const,
           idProviderType: idType as '01' | '02',
           providerRuc: providerId,
@@ -79,8 +99,9 @@ export default function ATSReport({ documents, business, onNotify }: ATSReportPr
           ice: 0,
           retentionPercentage: 0,
           retentionAmount: 0
-        };
-      });
+        });
+      }
+    }
 
     const xml = generateATSXML({
       ruc: business.ruc,
@@ -114,8 +135,9 @@ export default function ATSReport({ documents, business, onNotify }: ATSReportPr
         <div className="space-y-6">
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <label className="text-xs font-bold text-slate-600 dark:text-slate-400 uppercase">Mes</label>
+              <label htmlFor={`${fieldId}-month`} className="text-xs font-bold text-slate-600 dark:text-slate-400 uppercase">Mes</label>
               <select
+                id={`${fieldId}-month`}
                 value={month}
                 onChange={e => setMonth(e.target.value)}
                 className="w-full p-4 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-xl font-bold text-sm text-slate-800 dark:text-slate-200"
@@ -136,8 +158,9 @@ export default function ATSReport({ documents, business, onNotify }: ATSReportPr
               </select>
             </div>
             <div className="space-y-2">
-              <label className="text-xs font-bold text-slate-600 dark:text-slate-400 uppercase">Año</label>
+              <label htmlFor={`${fieldId}-year`} className="text-xs font-bold text-slate-600 dark:text-slate-400 uppercase">Año</label>
               <input
+                id={`${fieldId}-year`}
                 type="number"
                 value={year}
                 onChange={e => setYear(e.target.value)}
@@ -158,7 +181,7 @@ export default function ATSReport({ documents, business, onNotify }: ATSReportPr
             </ul>
           </div>
 
-          <button
+          <button type="button"
             onClick={generateATS}
             className="w-full py-4 bg-sky-500 hover:bg-sky-600 text-white rounded-2xl font-black uppercase text-sm tracking-wide shadow-lg shadow-sky-500/20"
           >

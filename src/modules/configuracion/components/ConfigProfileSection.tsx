@@ -1,4 +1,4 @@
-import React, { useRef } from 'react';
+import React, { useRef, useId } from 'react';
 import { CameraIcon, SunIcon, MoonIcon, UserIcon, EyeIcon, EyeSlashIcon } from '@heroicons/react/24/outline';
 
 interface ConfigProfileSectionProps {
@@ -26,6 +26,7 @@ const ConfigProfileSection: React.FC<ConfigProfileSectionProps> = ({
   saveBusinessField, logoInputRef
 }) => {
   const isUserAdmin = true;
+  const fieldId = useId();
 
   return (
     <>
@@ -33,10 +34,19 @@ const ConfigProfileSection: React.FC<ConfigProfileSectionProps> = ({
       <div className="bg-white dark:bg-slate-800 p-10 rounded-[3.5rem] shadow-sm dark:shadow-lg dark:shadow-black/10 border border-slate-100 dark:border-slate-700/50 flex flex-col md:flex-row justify-between items-center gap-8 transition-colors duration-300">
         <div className="flex items-center gap-6">
           <div
+            role="button"
+            tabIndex={isUserAdmin ? 0 : -1}
+            aria-label="Cambiar logo de la empresa"
             className="w-24 h-24 bg-slate-50 dark:bg-slate-800 border-2 border-dashed border-slate-200 dark:border-slate-600 rounded-[2.5rem] flex items-center justify-center cursor-pointer overflow-hidden group relative"
             onClick={() => isUserAdmin && logoInputRef.current?.click()}
+            onKeyDown={(e) => {
+              if (isUserAdmin && (e.key === 'Enter' || e.key === ' ')) {
+                e.preventDefault();
+                logoInputRef.current?.click();
+              }
+            }}
           >
-            {businessInfo.logo ? <img src={businessInfo.logo} className="w-full h-full object-cover" /> : <CameraIcon className="w-8 h-8 text-slate-300 dark:text-slate-600" />}
+            {businessInfo.logo ? <img src={businessInfo.logo} alt="Logo de la empresa" className="w-full h-full object-cover" /> : <CameraIcon className="w-8 h-8 text-slate-300 dark:text-slate-600" />}
             {isUserAdmin && <div className="absolute inset-0 bg-sky-700/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-[10px] font-black text-white uppercase">Editar</div>}
             <input type="file" ref={logoInputRef as any} className="hidden" accept="image/*" onChange={(e) => {
               const file = e.target.files?.[0];
@@ -59,7 +69,7 @@ const ConfigProfileSection: React.FC<ConfigProfileSectionProps> = ({
         </div>
 
         <div className="flex gap-4 flex-wrap items-center">
-          <button onClick={() => {
+          <button type="button" onClick={() => {
             const newType = businessInfo.taxpayerType === 'EMPRESA' ? 'PERSONA_NATURAL' : 'EMPRESA';
             setBusinessInfo((prev: any) => ({ ...prev, taxpayerType: newType }));
             showNotify(`Cambiado a ${newType === 'EMPRESA' ? 'Empresa' : 'Persona Natural'}`);
@@ -67,7 +77,7 @@ const ConfigProfileSection: React.FC<ConfigProfileSectionProps> = ({
             className={`px-8 py-5 rounded-2xl font-black text-[10px] uppercase tracking-widest transition-all shadow-xl ${businessInfo.taxpayerType === 'EMPRESA' ? 'bg-sky-500 text-white shadow-sky-500/20' : 'bg-purple-600 text-white shadow-purple-600/20'}`}>
             {businessInfo.taxpayerType === 'EMPRESA' ? 'Empresa' : 'Persona Natural'}
           </button>
-          <button onClick={toggleDarkMode}
+          <button type="button" onClick={toggleDarkMode}
             className={`px-8 py-5 rounded-2xl font-black text-[10px] uppercase tracking-widest transition-all shadow-xl inline-flex items-center gap-2 ${(businessInfo as any).features?.isDarkMode ? 'bg-slate-900 border border-slate-700/50 text-white shadow-black/20 hover:bg-slate-950' : 'bg-amber-500 text-white shadow-amber-500/20 hover:bg-amber-600'}`}>
             {(businessInfo as any).features?.isDarkMode ? <><MoonIcon className="w-4 h-4" /> Modo Oscuro</> : <><SunIcon className="w-4 h-4" /> Modo Claro</>}
           </button>
@@ -84,11 +94,11 @@ const ConfigProfileSection: React.FC<ConfigProfileSectionProps> = ({
         </h3>
         <div className="grid grid-cols-1 gap-6">
           <div className="space-y-2">
-            <label className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest ml-1">Correo Electrónico Personal (Login)</label>
+            <label htmlFor={`${fieldId}-personalEmail`} className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest ml-1">Correo Electrónico Personal (Login)</label>
             <div className="flex gap-2">
-              <input type="email" value={personalEmail} onChange={(e) => setPersonalEmail(e.target.value)}
+              <input id={`${fieldId}-personalEmail`} type="email" value={personalEmail} onChange={(e) => setPersonalEmail(e.target.value)}
                 className="w-full p-4 bg-slate-50 dark:bg-slate-800/50 dark:text-white rounded-2xl font-bold text-sm outline-none border-2 border-transparent focus:border-purple-500 transition-colors" />
-              <button onClick={handleUpdateProfile} className="px-6 bg-purple-100 dark:bg-purple-500/10 text-purple-600 dark:text-purple-400 rounded-2xl font-bold text-xs hover:bg-purple-200 dark:hover:bg-purple-500/20 transition-colors">Guardar</button>
+              <button type="submit" onClick={handleUpdateProfile} className="px-6 bg-purple-100 dark:bg-purple-500/10 text-purple-600 dark:text-purple-400 rounded-2xl font-bold text-xs hover:bg-purple-200 dark:hover:bg-purple-500/20 transition-colors">Guardar</button>
             </div>
           </div>
           <div className="pt-6 border-t border-slate-50 dark:border-slate-700/50">
@@ -111,7 +121,7 @@ const ConfigProfileSection: React.FC<ConfigProfileSectionProps> = ({
                 value={passwordData.confirm} onChange={(e) => setPasswordData((prev: any) => ({ ...prev, confirm: e.target.value }))}
                 className="w-full p-4 bg-slate-50 dark:bg-slate-800/50 dark:text-white rounded-2xl font-bold text-sm outline-none border-2 border-transparent focus:border-purple-500 transition-colors" />
             </div>
-            <button onClick={handleChangePassword} disabled={!passwordData.current || !passwordData.new}
+            <button type="submit" onClick={handleChangePassword} disabled={!passwordData.current || !passwordData.new}
               className="mt-4 w-full md:w-auto px-8 py-3 bg-slate-800 dark:bg-slate-700 text-white rounded-2xl font-bold text-xs hover:bg-slate-700 dark:hover:bg-slate-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed uppercase tracking-widest">
               Actualizar Contraseña
             </button>

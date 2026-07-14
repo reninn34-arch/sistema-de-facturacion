@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useId } from 'react';
 import { BeakerIcon, PlusIcon, TrashIcon, PencilIcon, XMarkIcon, ExclamationTriangleIcon } from '@heroicons/react/24/outline';
 import { Recipe, RecipeIngredient, Product, UNITS_OF_MEASURE } from '../../../types/types';
 import { client } from '../../../api/client';
@@ -10,6 +10,7 @@ interface RecipeManagerProps {
 
 export default function RecipeManager({ products, onNotify }: RecipeManagerProps) {
   const [recipes, setRecipes] = useState<Recipe[]>([]);
+  const fieldId = useId();
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
   const [editingRecipe, setEditingRecipe] = useState<Recipe | null>(null);
@@ -19,8 +20,9 @@ export default function RecipeManager({ products, onNotify }: RecipeManagerProps
   const [formInstructions, setFormInstructions] = useState('');
   const [formProductId, setFormProductId] = useState('');
   const [formYield, setFormYield] = useState(1);
-  const [formIngredients, setFormIngredients] = useState<RecipeIngredient[]>([
-    { productId: '', quantity: 0, unitOfMeasure: 'kg', estimatedCost: 0 }
+  // _key: id estable por fila para las keys de React (se añaden/eliminan filas)
+  const [formIngredients, setFormIngredients] = useState<(RecipeIngredient & { _key?: string })[]>([
+    { _key: crypto.randomUUID(), productId: '', quantity: 0, unitOfMeasure: 'kg', estimatedCost: 0 }
   ]);
 
   const fetchRecipes = async () => {
@@ -43,7 +45,7 @@ export default function RecipeManager({ products, onNotify }: RecipeManagerProps
     setFormInstructions('');
     setFormProductId('');
     setFormYield(1);
-    setFormIngredients([{ productId: '', quantity: 0, unitOfMeasure: 'kg', estimatedCost: 0 }]);
+    setFormIngredients([{ _key: crypto.randomUUID(), productId: '', quantity: 0, unitOfMeasure: 'kg', estimatedCost: 0 }]);
     setShowForm(true);
   };
 
@@ -56,6 +58,7 @@ export default function RecipeManager({ products, onNotify }: RecipeManagerProps
     setFormYield(recipe.yield);
     setFormIngredients(
       recipe.ingredients.map((ing) => ({
+        _key: crypto.randomUUID(),
         productId: ing.productId,
         quantity: ing.quantity,
         unitOfMeasure: ing.unitOfMeasure || 'kg',
@@ -66,7 +69,7 @@ export default function RecipeManager({ products, onNotify }: RecipeManagerProps
   };
 
   const addIngredient = () => {
-    setFormIngredients([...formIngredients, { productId: '', quantity: 0, unitOfMeasure: 'kg', estimatedCost: 0 }]);
+    setFormIngredients([...formIngredients, { _key: crypto.randomUUID(), productId: '', quantity: 0, unitOfMeasure: 'kg', estimatedCost: 0 }]);
   };
 
   const removeIngredient = (idx: number) => {
@@ -116,7 +119,7 @@ export default function RecipeManager({ products, onNotify }: RecipeManagerProps
       setShowForm(false);
       fetchRecipes();
     } catch (e: any) {
-      onNotify(e.response?.data?.message || 'Error al guardar receta', 'error');
+      onNotify(e.response?.data?.message || 'Error al guardar receta', 'warning');
     }
   };
 
@@ -127,7 +130,7 @@ export default function RecipeManager({ products, onNotify }: RecipeManagerProps
       onNotify('Receta eliminada');
       fetchRecipes();
     } catch (e: any) {
-      onNotify(e.response?.data?.message || 'Error al eliminar', 'error');
+      onNotify(e.response?.data?.message || 'Error al eliminar', 'warning');
     }
   };
 
@@ -151,7 +154,7 @@ export default function RecipeManager({ products, onNotify }: RecipeManagerProps
                 <p className="text-sm text-slate-500 font-bold">Gestiona las recetas y fórmulas de producción</p>
               </div>
             </div>
-            <button
+            <button type="button"
               onClick={openNewForm}
               className="px-6 py-3 bg-amber-600 text-white rounded-xl font-bold text-sm hover:bg-amber-700 transition-all shadow-lg shadow-amber-600/20 inline-flex items-center gap-2"
             >
@@ -188,10 +191,10 @@ export default function RecipeManager({ products, onNotify }: RecipeManagerProps
                       <td className="p-4 text-center text-slate-500 font-semibold">{recipe.ingredients?.length || 0}</td>
                       <td className="p-4 text-right">
                         <div className="flex items-center gap-1 justify-end">
-                          <button onClick={() => openEditForm(recipe)} className="p-2 text-slate-400 hover:text-sky-500 hover:bg-sky-50 rounded-lg transition-all">
+                          <button type="button" onClick={() => openEditForm(recipe)} className="p-2 text-slate-400 hover:text-sky-500 hover:bg-sky-50 rounded-lg transition-all">
                             <PencilIcon className="w-4 h-4" />
                           </button>
-                          <button onClick={() => handleDelete(recipe.id)} className="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all">
+                          <button type="button" onClick={() => handleDelete(recipe.id)} className="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all">
                             <TrashIcon className="w-4 h-4" />
                           </button>
                         </div>
@@ -223,8 +226,9 @@ export default function RecipeManager({ products, onNotify }: RecipeManagerProps
                 <div className="space-y-5">
                   {/* Nombre */}
                   <div>
-                    <label className="text-xs font-bold text-slate-600 uppercase mb-1.5 block">Nombre de la Receta *</label>
+                    <label htmlFor={`${fieldId}-name`} className="text-xs font-bold text-slate-600 uppercase mb-1.5 block">Nombre de la Receta *</label>
                     <input
+                      id={`${fieldId}-name`}
                       value={formName}
                       onChange={(e) => setFormName(e.target.value)}
                       placeholder="Ej: Pan de Chocolate"
@@ -234,8 +238,9 @@ export default function RecipeManager({ products, onNotify }: RecipeManagerProps
                   </div>
 
                   <div>
-                    <label className="text-xs font-bold text-slate-600 uppercase mb-1.5 block">Descripción</label>
+                    <label htmlFor={`${fieldId}-description`} className="text-xs font-bold text-slate-600 uppercase mb-1.5 block">Descripción</label>
                     <textarea
+                      id={`${fieldId}-description`}
                       value={formDescription}
                       onChange={(e) => setFormDescription(e.target.value)}
                       placeholder="Describe brevemente la receta..."
@@ -247,24 +252,32 @@ export default function RecipeManager({ products, onNotify }: RecipeManagerProps
                   {/* Producto y Rendimiento */}
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
-                      <label className="text-xs font-bold text-slate-600 uppercase mb-1.5 block">Producto Terminado *</label>
+                      <label htmlFor={`${fieldId}-product`} className="text-xs font-bold text-slate-600 uppercase mb-1.5 block">Producto Terminado *</label>
                       <select
+                        id={`${fieldId}-product`}
                         value={formProductId}
                         onChange={(e) => setFormProductId(e.target.value)}
                         className="w-full p-3.5 bg-slate-50 border border-slate-200 rounded-xl font-bold text-sm focus:outline-none focus:ring-2 focus:ring-amber-500/30 focus:border-amber-500"
                         required
                       >
                         <option value="">Selecciona producto</option>
-                        {safeProducts
-                          .filter((p) => p.type === 'FISICO' && !(p as any).isRawMaterial)
-                          .map((p) => (
+                        {(() => {
+                          const list = [];
+                          for (const p of safeProducts) {
+                            if (p.type === 'FISICO' && !(p as any).isRawMaterial) {
+                              list.push(p);
+                            }
+                          }
+                          return list.map((p) => (
                             <option key={p.id} value={p.id}>{p.code} - {p.description} ({p.unitOfMeasure || 'u'})</option>
-                          ))}
+                          ));
+                        })()}
                       </select>
                     </div>
                     <div>
-                      <label className="text-xs font-bold text-slate-600 uppercase mb-1.5 block">Rendimiento (unidades)</label>
+                      <label htmlFor={`${fieldId}-yield`} className="text-xs font-bold text-slate-600 uppercase mb-1.5 block">Rendimiento (unidades)</label>
                       <input
+                        id={`${fieldId}-yield`}
                         type="number"
                         min="0.1"
                         step="0.1"
@@ -276,8 +289,9 @@ export default function RecipeManager({ products, onNotify }: RecipeManagerProps
                   </div>
 
                   <div>
-                    <label className="text-xs font-bold text-slate-600 uppercase mb-1.5 block">Instrucciones</label>
+                    <label htmlFor={`${fieldId}-instructions`} className="text-xs font-bold text-slate-600 uppercase mb-1.5 block">Instrucciones</label>
                     <textarea
+                      id={`${fieldId}-instructions`}
                       value={formInstructions}
                       onChange={(e) => setFormInstructions(e.target.value)}
                       placeholder="Paso a paso de la preparación..."
@@ -289,7 +303,7 @@ export default function RecipeManager({ products, onNotify }: RecipeManagerProps
                   {/* INGREDIENTES */}
                   <div>
                     <div className="flex items-center justify-between mb-3">
-                      <label className="text-xs font-bold text-slate-600 uppercase">Ingredientes</label>
+                      <span className="text-xs font-bold text-slate-600 uppercase">Ingredientes</span>
                       <button
                         type="button"
                         onClick={addIngredient}
@@ -301,7 +315,7 @@ export default function RecipeManager({ products, onNotify }: RecipeManagerProps
 
                     <div className="space-y-3">
                       {formIngredients.map((ing, idx) => (
-                        <div key={idx} className="bg-slate-50 rounded-2xl p-4 border border-slate-100">
+                        <div key={ing._key} className="bg-slate-50 rounded-2xl p-4 border border-slate-100">
                           <div className="flex items-center justify-between mb-3">
                             <span className="text-xs font-black text-slate-500 uppercase">Ingrediente #{idx + 1}</span>
                             {formIngredients.length > 1 && (
@@ -323,13 +337,19 @@ export default function RecipeManager({ products, onNotify }: RecipeManagerProps
                                 required
                               >
                                 <option value="">Selecciona insumo</option>
-                                {safeProducts
-                                  .filter((p) => p.type === 'FISICO')
-                                  .map((p) => (
-                                    <option key={p.id} value={p.id}>
-                                      {p.code} - {p.description} ({p.unitOfMeasure || 'N/D'}) - ${(p.price || 0).toFixed(2)}
-                                    </option>
-                                  ))}
+                                 {(() => {
+                                   const list = [];
+                                   for (const p of safeProducts) {
+                                     if (p.type === 'FISICO') {
+                                       list.push(p);
+                                     }
+                                   }
+                                   return list.map((p) => (
+                                     <option key={p.id} value={p.id}>
+                                       {p.code} - {p.description} ({p.unitOfMeasure || 'N/D'}) - ${(p.price || 0).toFixed(2)}
+                                     </option>
+                                   ));
+                                 })()}
                               </select>
                             </div>
                             <div>

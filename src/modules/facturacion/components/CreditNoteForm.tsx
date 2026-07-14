@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useId } from 'react';
 import { ArrowPathIcon, MagnifyingGlassIcon, ClockIcon, CheckCircleIcon, XCircleIcon } from '@heroicons/react/24/outline';
 import { Client, Product, Document, DocumentType, SriStatus, PaymentStatus, InvoiceItem, BusinessInfo } from '../../../types/types';
 import { buildCreditNoteXml, authorizeWithSRI } from '../../../services/sriService';
@@ -34,6 +34,7 @@ const CreditNoteForm: React.FC<Props> = ({
   );
 
   const [selectedInvoice, setSelectedInvoice] = useState<Document | null>(null);
+  const fieldId = useId();
   const [searchInvoice, setSearchInvoice] = useState('');
   const [reason, setReason] = useState('01');
   const [customReason, setCustomReason] = useState('');
@@ -44,7 +45,7 @@ const CreditNoteForm: React.FC<Props> = ({
   const [isAuthorizing, setIsAuthorizing] = useState(false);
   const [authStatus, setAuthStatus] = useState<'idle' | 'processing' | 'success' | 'error'>('idle');
   const [authMessage, setAuthMessage] = useState('');
-  const [authSteps, setAuthSteps] = useState<string[]>([]);
+  const [authSteps, setAuthSteps] = useState<{ id: string; text: string }[]>([]);
   const [generatedXml, setGeneratedXml] = useState('');
 
   useEffect(() => {
@@ -158,9 +159,9 @@ const CreditNoteForm: React.FC<Props> = ({
         businessInfo.isProduction,
         signatureOptions,
         (step) => {
-          setAuthSteps(prev => [...prev, step]);
+          setAuthSteps(prev => [...prev, { id: crypto.randomUUID(), text: step }]);
         },
-        (businessInfo as any).isDemo || false
+        businessInfo.isDemo || false
       );
 
       if (result.status === SriStatus.AUTHORIZED) {
@@ -242,10 +243,12 @@ const CreditNoteForm: React.FC<Props> = ({
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 max-h-64 overflow-y-auto">
             {filteredInvoices.map(invoice => (
-              <div
+              <button
+                type="button"
                 key={invoice.id}
                 onClick={() => handleInvoiceSelect(invoice.id)}
-                className={`p-4 border-2 rounded-lg cursor-pointer transition-all ${selectedInvoice?.id === invoice.id
+                aria-pressed={selectedInvoice?.id === invoice.id}
+                className={`p-4 border-2 rounded-lg cursor-pointer transition-all text-left w-full ${selectedInvoice?.id === invoice.id
                   ? 'border-sky-500 bg-sky-50 dark:bg-sky-950/20 dark:border-sky-450'
                   : 'border-gray-200 dark:border-slate-700 hover:border-sky-300 dark:hover:border-sky-500 bg-white dark:bg-slate-800/50'
                   }`}
@@ -256,7 +259,7 @@ const CreditNoteForm: React.FC<Props> = ({
                 <div className="text-lg font-bold text-sky-600 dark:text-sky-400 mt-2">
                   ${invoice.total.toFixed(2)}
                 </div>
-              </div>
+              </button>
             ))}
           </div>
 
@@ -312,7 +315,7 @@ const CreditNoteForm: React.FC<Props> = ({
                       const originalItem = selectedInvoice.items?.[index];
                       const subtotal = item.quantity * item.unitPrice - item.discount;
                       return (
-                        <tr key={index} className="hover:bg-gray-50/50 dark:hover:bg-slate-900/10">
+                        <tr key={item.productId} className="hover:bg-gray-50/50 dark:hover:bg-slate-900/10">
                           <td className="px-4 py-3 text-sm text-gray-800 dark:text-slate-200">{item.description}</td>
                           <td className="px-4 py-3 text-center text-sm text-gray-600 dark:text-slate-400">
                             {originalItem?.quantity || 0}
@@ -365,10 +368,11 @@ const CreditNoteForm: React.FC<Props> = ({
 
             {/* Información Adicional */}
             <div className="mb-6">
-              <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-2">
+              <label htmlFor={`${fieldId}-additionalInfo`} className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-2">
                 Información Adicional (Opcional)
               </label>
               <textarea
+                id={`${fieldId}-additionalInfo`}
                 value={additionalInfo}
                 onChange={(e) => setAdditionalInfo(e.target.value)}
                 rows={3}
@@ -379,7 +383,7 @@ const CreditNoteForm: React.FC<Props> = ({
 
             {/* Botón Autorizar */}
             <div className="flex gap-4">
-              <button
+              <button type="button"
                 onClick={handleAuthorize}
                 disabled={isAuthorizing || items.filter(i => i.quantity > 0).length === 0}
                 className="flex-1 bg-sky-600 hover:bg-sky-700 disabled:bg-gray-400 dark:disabled:bg-slate-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors flex items-center justify-center gap-2"
@@ -397,7 +401,7 @@ const CreditNoteForm: React.FC<Props> = ({
                 )}
               </button>
 
-              <button
+              <button type="button"
                 onClick={resetForm}
                 disabled={isAuthorizing}
                 className="px-6 py-3 border border-gray-300 dark:border-slate-600 rounded-lg text-gray-700 dark:text-slate-300 hover:bg-gray-50 dark:hover:bg-slate-700/50 transition-colors"
@@ -415,10 +419,10 @@ const CreditNoteForm: React.FC<Props> = ({
           <h3 className="text-lg font-semibold mb-4 text-gray-800 dark:text-white">Estado de Autorización</h3>
 
           <div className="space-y-2 mb-4">
-            {authSteps.map((step, index) => (
-              <div key={index} className="flex items-start gap-2 text-sm text-gray-700 dark:text-slate-300">
+            {authSteps.map((step) => (
+              <div key={step.id} className="flex items-start gap-2 text-sm text-gray-700 dark:text-slate-300">
                 <span className="text-sky-600 dark:text-sky-400">▸</span>
-                <span>{step}</span>
+                <span>{step.text}</span>
               </div>
             ))}
           </div>

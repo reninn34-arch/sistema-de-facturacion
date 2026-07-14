@@ -64,7 +64,7 @@ const ConfigEmissionPointsSection: React.FC<ConfigEmissionPointsSectionProps> = 
       <div className="space-y-4">
         <div className="flex justify-between items-center">
           <p className="text-xs text-slate-400 font-bold uppercase tracking-widest">Puntos configurados para tu plan</p>
-          <button onClick={handleAddEmissionPoint}
+          <button type="button" onClick={handleAddEmissionPoint}
             disabled={emissionPoints.length >= (currentPlanMaxEmissionPoints || 3)}
             className="bg-sky-500 text-white px-3 py-2 rounded-xl font-black text-[10px] uppercase disabled:opacity-40 hover:bg-sky-600 transition-all">
             + Agregar ({emissionPoints.length}/{currentPlanMaxEmissionPoints || 3})
@@ -82,12 +82,12 @@ const ConfigEmissionPointsSection: React.FC<ConfigEmissionPointsSectionProps> = 
                   <p className="text-[10px] text-slate-400">{ep.description || 'Sin descripción'}</p>
                 </div>
                 <div className="flex gap-1">
-                  <button onClick={() => { setSelectedEmissionPoint(ep); showNotify(`Punto ${ep.establishmentCode}-${ep.emissionPointCode} seleccionado`); }}
+                  <button type="button" onClick={() => { setSelectedEmissionPoint(ep); showNotify(`Punto ${ep.establishmentCode}-${ep.emissionPointCode} seleccionado`); }}
                     className={`px-2 py-1 rounded-lg text-[9px] font-black uppercase transition-all ${selectedEmissionPoint?.id === ep.id ? 'bg-sky-500 text-white' : 'bg-white dark:bg-slate-700 text-slate-500 hover:bg-sky-100'}`}>
                     {selectedEmissionPoint?.id === ep.id ? '✓ Activo' : 'Usar'}
                   </button>
                   {emissionPoints.length > 1 && (
-                    <button onClick={() => handleDeleteEmissionPoint(ep)}
+                    <button type="button" onClick={() => handleDeleteEmissionPoint(ep)}
                       className="px-2 py-1 bg-rose-50 text-rose-500 rounded-lg text-[9px] font-black uppercase hover:bg-rose-100">✕</button>
                   )}
                 </div>

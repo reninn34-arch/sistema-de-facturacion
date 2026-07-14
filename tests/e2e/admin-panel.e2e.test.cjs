@@ -12,7 +12,7 @@
 
 const { test, expect } = require('@playwright/test');
 
-const BASE_URL = process.env.FRONTEND_URL || 'http://localhost:5173';
+const BASE_URL = process.env.FRONTEND_URL || 'http://localhost:3000';
 
 // Credenciales de prueba (ajustar según el seed)
 const ADMIN_CREDENTIALS = {
@@ -42,6 +42,10 @@ test.describe('🟦 E2E: Panel de Administración SAAS', () => {
       await page.waitForTimeout(2000);
     }
   }
+
+  test.beforeEach(async ({ page }) => {
+    await loginAsAdmin(page);
+  });
 
   test('TC-E2E-021: El panel SaaS carga correctamente', async ({ page }) => {
     // Ir directamente al panel SaaS (puede requerir login)

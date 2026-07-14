@@ -85,11 +85,16 @@ class ProductionService {
     let totalCost = 0;
     const insufficientStock = [];
 
-    for (const ing of recipe.ingredients) {
-      const requiredQty = ing.quantity * quantity;
-      const product = await this.repo.findProductByIdAndBusiness(ing.productId, businessId);
-      if (!product) throw new AppError(`Insumo no encontrado: ${ing.productId}`, 404);
+    const products = await Promise.all(
+      recipe.ingredients.map(async (ing) => {
+        const product = await this.repo.findProductByIdAndBusiness(ing.productId, businessId);
+        if (!product) throw new AppError(`Insumo no encontrado: ${ing.productId}`, 404);
+        return { ing, product };
+      })
+    );
 
+    for (const { ing, product } of products) {
+      const requiredQty = ing.quantity * quantity;
       if (product.stock < requiredQty) {
         insufficientStock.push({
           name: product.description,
@@ -107,28 +112,32 @@ class ProductionService {
       );
     }
 
+    // Calcular el costo total en memoria de forma limpia y concurrente
+    totalCost = recipe.ingredients.reduce((sum, ing) => sum + (ing.estimatedCost || 0) * quantity, 0);
+
     const record = await this.repo.transaction(async (tx) => {
-      for (const ing of recipe.ingredients) {
-        const requiredQty = ing.quantity * quantity;
-        const product = await tx.product.findFirst({ where: { id: ing.productId, businessId } });
+      await Promise.all(
+        recipe.ingredients.map(async (ing) => {
+          const requiredQty = ing.quantity * quantity;
+          const product = await tx.product.findFirst({ where: { id: ing.productId, businessId } });
+          const previousStock = product ? product.stock : 0;
 
-        totalCost += (ing.estimatedCost || 0) * quantity;
+          await tx.product.update({
+            where: { id: ing.productId },
+            data: { stock: { decrement: requiredQty } }
+          });
 
-        await tx.product.update({
-          where: { id: ing.productId },
-          data: { stock: { decrement: requiredQty } }
-        });
-
-        await tx.inventoryMovement.create({
-          data: {
-            productId: ing.productId,
-            type: 'PRODUCCION',
-            quantity: -requiredQty,
-            previousStock: product.stock,
-            newStock: product.stock - requiredQty
-          }
-        });
-      }
+          await tx.inventoryMovement.create({
+            data: {
+              productId: ing.productId,
+              type: 'PRODUCCION',
+              quantity: -requiredQty,
+              previousStock,
+              newStock: previousStock - requiredQty
+            }
+          });
+        })
+      );
 
       const finishedProduct = await tx.product.findFirst({ where: { id: recipe.productId, businessId } });
 

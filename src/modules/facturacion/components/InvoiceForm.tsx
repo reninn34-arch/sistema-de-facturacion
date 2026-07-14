@@ -1,5 +1,5 @@
 
-import React, { useState, useRef, useEffect, useMemo } from 'react';
+import React, { useState, useRef, useEffect, useMemo, useId } from 'react';
 import { Client, Product, InvoiceItem, SriStatus, DocumentType, Document, PaymentStatus, BusinessInfo, NotificationSettings, EmissionPoint, ReimbursementDetail, ExportDetails } from '../../../types/types';
 import { SRI_PAYMENT_METHODS } from '../../../constants';
 import { generateAccessKey } from '../../../utils/sri';
@@ -34,6 +34,7 @@ const InvoiceForm: React.FC<InvoiceFormProps> = ({ clients, setClients, isDemoMo
   const isDarkMode = (businessInfo as any)?.features?.isDarkMode ?? false;
   const API_URL = import.meta.env.VITE_BACKEND_URL || '';
 
+  const fieldId = useId();
   const [isNewClient, setIsNewClient] = useState(false);
   const [newClientData, setNewClientData] = useState({ ruc: '', name: '', email: '', phone: '', address: '' });
 
@@ -44,7 +45,7 @@ const InvoiceForm: React.FC<InvoiceFormProps> = ({ clients, setClients, isDemoMo
   const [searchTerm, setSearchTerm] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [authStep, setAuthStep] = useState('');
-  const [authLogs, setAuthLogs] = useState<string[]>([]);
+  const [authLogs, setAuthLogs] = useState<{ id: string; text: string }[]>([]);
   const [showProductDropdown, setShowProductDropdown] = useState(false);
   const [showPreview, setShowPreview] = useState(false);
 
@@ -599,13 +600,13 @@ const InvoiceForm: React.FC<InvoiceFormProps> = ({ clients, setClients, isDemoMo
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  // Cargar documento rechazado para re-emision
-  useEffect(() => {
-    if (!preloadRejected) return;
-    
+  const [prevPreloadRejected, setPrevPreloadRejected] = useState<any>(null);
+
+  if (preloadRejected && preloadRejected !== prevPreloadRejected) {
+    setPrevPreloadRejected(preloadRejected);
     const doc = preloadRejected;
     if (doc.items && doc.items.length > 0) {
-      setItems(doc.items.map(i => ({ ...i })));
+      setItems(doc.items.map((i: any) => ({ ...i })));
     }
     if (doc.entityRuc && doc.entityRuc !== '9999999999999') {
       const client = clients.find(c => c.ruc === doc.entityRuc);
@@ -624,6 +625,11 @@ const InvoiceForm: React.FC<InvoiceFormProps> = ({ clients, setClients, isDemoMo
     }
     if (doc.paymentMethod) setPaymentMethod(doc.paymentMethod);
     if (doc.additionalInfo) setAdditionalInfo(doc.additionalInfo);
+  }
+
+  // Cargar documento rechazado para re-emision
+  useEffect(() => {
+    if (!preloadRejected) return;
     if (onClearPreload) onClearPreload();
     onNotify('Documento rechazado cargado. Corrija los errores y vuelva a emitir.', 'info');
   }, [preloadRejected]);
@@ -746,7 +752,7 @@ const InvoiceForm: React.FC<InvoiceFormProps> = ({ clients, setClients, isDemoMo
 
     const log = (msg: string) => {
       setAuthStep(msg);
-      setAuthLogs(prev => [...prev, `[${new Date().toLocaleTimeString()}] ${msg}`]);
+      setAuthLogs(prev => [...prev, { id: crypto.randomUUID(), text: `[${new Date().toLocaleTimeString()}] ${msg}` }]);
     };
 
     // Generar número secuencial desde el backend (DB Sequence)
@@ -1008,9 +1014,9 @@ const InvoiceForm: React.FC<InvoiceFormProps> = ({ clients, setClients, isDemoMo
               </div>
             </div>
             <div className="flex flex-col sm:flex-row gap-3 w-full md:w-auto">
-              <button onClick={() => setShowRide(true)} className={`${isDarkMode ? 'bg-slate-700 text-emerald-400' : 'bg-white text-emerald-600'} px-6 py-3 rounded-xl lg:rounded-2xl font-black text-[10px] uppercase tracking-widest hover:scale-105 transition-all inline-flex items-center gap-2`}><PrinterIcon className="w-4 h-4" /> Ver RIDE</button>
+              <button type="button" onClick={() => setShowRide(true)} className={`${isDarkMode ? 'bg-slate-700 text-emerald-400' : 'bg-white text-emerald-600'} px-6 py-3 rounded-xl lg:rounded-2xl font-black text-[10px] uppercase tracking-widest hover:scale-105 transition-all inline-flex items-center gap-2`}><PrinterIcon className="w-4 h-4" /> Ver RIDE</button>
               {lastDocument.type === DocumentType.PROFORMA ? (
-                <button onClick={() => {
+                <button type="button" onClick={() => {
                   const proformaData = lastDocument;
                   setLastDocument(null);
                   if (proformaData.entityRuc) {
@@ -1026,7 +1032,7 @@ const InvoiceForm: React.FC<InvoiceFormProps> = ({ clients, setClients, isDemoMo
               ) : (
                 <>
                   {lastDocument.entityEmail && (
-                    <button
+                    <button type="submit"
                       onClick={handleSendEmail}
                       disabled={sendingEmail}
                       className={`${isDarkMode ? 'bg-slate-700 text-sky-400' : 'bg-white text-sky-500'} px-6 py-3 rounded-xl lg:rounded-2xl font-black text-[10px] uppercase tracking-widest hover:scale-105 transition-all disabled:opacity-50 disabled:cursor-not-allowed`}
@@ -1043,7 +1049,7 @@ const InvoiceForm: React.FC<InvoiceFormProps> = ({ clients, setClients, isDemoMo
                   )}
                 </>
               )}
-              <button onClick={() => setLastDocument(null)} className={`${lastDocument.type === DocumentType.PROFORMA ? 'bg-amber-700 hover:bg-amber-800' : 'bg-emerald-700 hover:bg-emerald-800'} text-white px-6 py-3 rounded-xl lg:rounded-2xl font-black text-[10px] uppercase tracking-widest transition-all`}>{lastDocument.type === DocumentType.PROFORMA ? 'Nueva Proforma' : 'Nueva Factura'}</button>
+              <button type="button" onClick={() => setLastDocument(null)} className={`${lastDocument.type === DocumentType.PROFORMA ? 'bg-amber-700 hover:bg-amber-800' : 'bg-emerald-700 hover:bg-emerald-800'} text-white px-6 py-3 rounded-xl lg:rounded-2xl font-black text-[10px] uppercase tracking-widest transition-all`}>{lastDocument.type === DocumentType.PROFORMA ? 'Nueva Proforma' : 'Nueva Factura'}</button>
             </div>
           </div>
         )}
@@ -1053,7 +1059,7 @@ const InvoiceForm: React.FC<InvoiceFormProps> = ({ clients, setClients, isDemoMo
             {/* TIPOS DE FACTURA */}
             <div className={`flex flex-wrap gap-2 mb-6 ${isDarkMode ? 'bg-slate-800 border-slate-700' : 'bg-white border-slate-100'} p-3 rounded-2xl shadow-sm border`}>
               {['Factura Simple', 'Factura Básica', 'Factura Exportación', 'Factura Reembolso'].map(type => (
-                <button
+                <button type="button"
                   key={type}
                   onClick={() => setInvoiceType(type)}
                   className={`px-4 py-2 rounded-xl text-xs font-black transition-all ${invoiceType === type ? 'bg-slate-900 text-white dark:bg-sky-500 dark:text-white shadow-md' : (isDarkMode ? 'bg-slate-700 text-slate-300 hover:bg-slate-600' : 'bg-slate-100 text-slate-500 hover:bg-slate-200')}`}
@@ -1067,7 +1073,7 @@ const InvoiceForm: React.FC<InvoiceFormProps> = ({ clients, setClients, isDemoMo
               <div className="flex flex-col md:flex-row gap-4 sm:gap-6 items-stretch md:items-end">
                 <div className="flex-1 space-y-2">
                   <div className="flex justify-between items-center mb-1">
-                    <label className={`text-[10px] font-black uppercase tracking-widest ${isDarkMode ? 'text-slate-500' : 'text-slate-400'} px-1 block`}>Cliente Receptor</label>
+                    <label htmlFor={`${fieldId}-clienteReceptor`} className={`text-[10px] font-black uppercase tracking-widest ${isDarkMode ? 'text-slate-500' : 'text-slate-400'} px-1 block`}>Cliente Receptor</label>
                     <div className="flex bg-slate-100 dark:bg-slate-700 p-0.5 rounded-lg text-[9px] font-black">
                       <button
                         type="button"
@@ -1086,7 +1092,7 @@ const InvoiceForm: React.FC<InvoiceFormProps> = ({ clients, setClients, isDemoMo
                     </div>
                   </div>
                   {!isNewClient ? (
-                    <select className={`w-full ${isDarkMode ? 'bg-slate-700 text-white border-slate-600' : 'bg-slate-50'} p-3 sm:p-4 rounded-2xl font-bold outline-none border-2 border-transparent focus:border-sky-500 transition-all text-sm min-h-[48px]`} onChange={e => setSelectedClient(clients.find(c => c.id === e.target.value) || null)} value={selectedClient?.id || ''}>
+                    <select id={`${fieldId}-clienteReceptor`} className={`w-full ${isDarkMode ? 'bg-slate-700 text-white border-slate-600' : 'bg-slate-50'} p-3 sm:p-4 rounded-2xl font-bold outline-none border-2 border-transparent focus:border-sky-500 transition-all text-sm min-h-[48px]`} onChange={e => setSelectedClient(clients.find(c => c.id === e.target.value) || null)} value={selectedClient?.id || ''}>
                       <option value="">Consumidor Final (9999999999999)</option>
                       {(Array.isArray(clients) ? clients : []).map(c => <option key={c.id} value={c.id}>{c.name} ({c.ruc})</option>)}
                     </select>
@@ -1098,8 +1104,9 @@ const InvoiceForm: React.FC<InvoiceFormProps> = ({ clients, setClients, isDemoMo
                 </div>
                 {(emissionPoints && emissionPoints.length > 1) && (
                   <div className="md:w-48 space-y-2">
-                    <label className={`text-[10px] font-black uppercase tracking-widest ${isDarkMode ? 'text-slate-500' : 'text-slate-400'} px-1 block`}>Pto. Emisión</label>
+                    <label htmlFor={`${fieldId}-ptoEmision`} className={`text-[10px] font-black uppercase tracking-widest ${isDarkMode ? 'text-slate-500' : 'text-slate-400'} px-1 block`}>Pto. Emisión</label>
                     <select
+                      id={`${fieldId}-ptoEmision`}
                       className={`w-full ${isDarkMode ? 'bg-slate-700 text-white border-slate-600' : 'bg-slate-50'} p-3 sm:p-4 rounded-2xl font-bold outline-none border-2 border-transparent focus:border-sky-500 transition-all text-xs min-h-[48px]`}
                       value={selectedEmissionPoint?.id || ''}
                       onChange={e => {
@@ -1114,8 +1121,8 @@ const InvoiceForm: React.FC<InvoiceFormProps> = ({ clients, setClients, isDemoMo
                   </div>
                 )}
                 <div className="md:w-64 space-y-2">
-                  <label className={`text-[10px] font-black uppercase tracking-widest ${isDarkMode ? 'text-slate-500' : 'text-slate-400'} px-1 block`}>Esquema Tarifario</label>
-                  <select className={`w-full ${isDarkMode ? 'bg-slate-700 text-blue-300 border-slate-600' : 'bg-sky-50 text-sky-500'} p-3 sm:p-4 rounded-2xl font-black outline-none border-2 text-sm min-h-[48px]`} value={priceTier} onChange={e => setPriceTier(e.target.value as any)}>
+                  <label htmlFor={`${fieldId}-priceTier`} className={`text-[10px] font-black uppercase tracking-widest ${isDarkMode ? 'text-slate-500' : 'text-slate-400'} px-1 block`}>Esquema Tarifario</label>
+                  <select id={`${fieldId}-priceTier`} className={`w-full ${isDarkMode ? 'bg-slate-700 text-blue-300 border-slate-600' : 'bg-sky-50 text-sky-500'} p-3 sm:p-4 rounded-2xl font-black outline-none border-2 text-sm min-h-[48px]`} value={priceTier} onChange={e => setPriceTier(e.target.value as any)}>
                     <option value="price">PVP PÚBLICO</option>
                     <option value="wholesalePrice">MAYORISTA</option>
                     <option value="distributorPrice">DISTRIBUIDOR</option>
@@ -1127,9 +1134,10 @@ const InvoiceForm: React.FC<InvoiceFormProps> = ({ clients, setClients, isDemoMo
               {isNewClient && (
                 <div className="grid grid-cols-1 md:grid-cols-5 gap-4 pt-4 border-t border-slate-100 dark:border-slate-700/50">
                   <div className="md:col-span-2 space-y-2">
-                    <label className={`text-[10px] font-black uppercase tracking-widest ${isDarkMode ? 'text-slate-500' : 'text-slate-400'} px-1 block`}>Identificación (RUC / Cédula) *</label>
+                    <label htmlFor={`${fieldId}-newClientRuc`} className={`text-[10px] font-black uppercase tracking-widest ${isDarkMode ? 'text-slate-500' : 'text-slate-400'} px-1 block`}>Identificación (RUC / Cédula) *</label>
                     <div className="relative">
                       <input
+                        id={`${fieldId}-newClientRuc`}
                         type="text"
                         placeholder="Ej: 1722334455001"
                         value={newClientData.ruc}
@@ -1148,8 +1156,9 @@ const InvoiceForm: React.FC<InvoiceFormProps> = ({ clients, setClients, isDemoMo
                     </div>
                   </div>
                   <div className="md:col-span-3 space-y-2">
-                    <label className={`text-[10px] font-black uppercase tracking-widest ${isDarkMode ? 'text-slate-500' : 'text-slate-400'} px-1 block`}>Razón Social / Nombre Completo *</label>
+                    <label htmlFor={`${fieldId}-newClientName`} className={`text-[10px] font-black uppercase tracking-widest ${isDarkMode ? 'text-slate-500' : 'text-slate-400'} px-1 block`}>Razón Social / Nombre Completo *</label>
                     <input
+                      id={`${fieldId}-newClientName`}
                       type="text"
                       placeholder="Ej: Juan Pérez o Empresa S.A."
                       value={newClientData.name}
@@ -1158,8 +1167,9 @@ const InvoiceForm: React.FC<InvoiceFormProps> = ({ clients, setClients, isDemoMo
                     />
                   </div>
                   <div className="md:col-span-2 space-y-2">
-                    <label className={`text-[10px] font-black uppercase tracking-widest ${isDarkMode ? 'text-slate-500' : 'text-slate-400'} px-1 block`}>Correo Electrónico</label>
+                    <label htmlFor={`${fieldId}-newClientEmail`} className={`text-[10px] font-black uppercase tracking-widest ${isDarkMode ? 'text-slate-500' : 'text-slate-400'} px-1 block`}>Correo Electrónico</label>
                     <input
+                      id={`${fieldId}-newClientEmail`}
                       type="email"
                       placeholder="ejemplo@correo.com"
                       value={newClientData.email}
@@ -1168,8 +1178,9 @@ const InvoiceForm: React.FC<InvoiceFormProps> = ({ clients, setClients, isDemoMo
                     />
                   </div>
                   <div className="md:col-span-1 space-y-2">
-                    <label className={`text-[10px] font-black uppercase tracking-widest ${isDarkMode ? 'text-slate-500' : 'text-slate-400'} px-1 block`}>Teléfono</label>
+                    <label htmlFor={`${fieldId}-newClientPhone`} className={`text-[10px] font-black uppercase tracking-widest ${isDarkMode ? 'text-slate-500' : 'text-slate-400'} px-1 block`}>Teléfono</label>
                     <input
+                      id={`${fieldId}-newClientPhone`}
                       type="text"
                       placeholder="0999999999"
                       value={newClientData.phone}
@@ -1178,8 +1189,9 @@ const InvoiceForm: React.FC<InvoiceFormProps> = ({ clients, setClients, isDemoMo
                     />
                   </div>
                   <div className="md:col-span-2 space-y-2">
-                    <label className={`text-[10px] font-black uppercase tracking-widest ${isDarkMode ? 'text-slate-500' : 'text-slate-400'} px-1 block`}>Dirección Completa</label>
+                    <label htmlFor={`${fieldId}-newClientAddress`} className={`text-[10px] font-black uppercase tracking-widest ${isDarkMode ? 'text-slate-500' : 'text-slate-400'} px-1 block`}>Dirección Completa</label>
                     <input
+                      id={`${fieldId}-newClientAddress`}
                       type="text"
                       placeholder="Ej: Av. Amazonas y Colón, Quito"
                       value={newClientData.address}
@@ -1194,9 +1206,10 @@ const InvoiceForm: React.FC<InvoiceFormProps> = ({ clients, setClients, isDemoMo
               {selectedClient && (
                 <div className="flex flex-col sm:flex-row gap-4 pt-4 border-t border-slate-100 dark:border-slate-700/50">
                   <div className="flex-1 space-y-2">
-                    <label className={`text-[10px] font-black uppercase tracking-widest ${isDarkMode ? 'text-slate-500' : 'text-slate-400'} px-1 block`}>Correo 2 (Opcional)</label>
-                    <input 
-                      type="email" 
+                    <label htmlFor={`${fieldId}-correo2`} className={`text-[10px] font-black uppercase tracking-widest ${isDarkMode ? 'text-slate-500' : 'text-slate-400'} px-1 block`}>Correo 2 (Opcional)</label>
+                    <input
+                      id={`${fieldId}-correo2`}
+                      type="email"
                       placeholder={selectedClient.email || 'ejemplo@correo.com'}
                       className={`w-full ${isDarkMode ? 'bg-slate-700 text-white border-slate-600' : 'bg-slate-50'} p-3 rounded-xl font-bold outline-none border-2 border-transparent focus:border-sky-500 transition-all text-sm`}
                       value={customEmail}
@@ -1204,9 +1217,10 @@ const InvoiceForm: React.FC<InvoiceFormProps> = ({ clients, setClients, isDemoMo
                     />
                   </div>
                   <div className="flex-1 space-y-2">
-                    <label className={`text-[10px] font-black uppercase tracking-widest ${isDarkMode ? 'text-slate-500' : 'text-slate-400'} px-1 block`}>Teléfono 2 (Opcional)</label>
-                    <input 
-                      type="text" 
+                    <label htmlFor={`${fieldId}-telefono2`} className={`text-[10px] font-black uppercase tracking-widest ${isDarkMode ? 'text-slate-500' : 'text-slate-400'} px-1 block`}>Teléfono 2 (Opcional)</label>
+                    <input
+                      id={`${fieldId}-telefono2`}
+                      type="text"
                       placeholder={selectedClient.phone || '0999999999'}
                       className={`w-full ${isDarkMode ? 'bg-slate-700 text-white border-slate-600' : 'bg-slate-50'} p-3 rounded-xl font-bold outline-none border-2 border-transparent focus:border-sky-500 transition-all text-sm`}
                       value={customPhone}
@@ -1251,30 +1265,30 @@ const InvoiceForm: React.FC<InvoiceFormProps> = ({ clients, setClients, isDemoMo
                   <h4 className={`text-xs font-black uppercase tracking-widest ${isDarkMode ? 'text-slate-300' : 'text-slate-700'}`}>Datos de Comercio Exterior</h4>
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                     <div className="space-y-2">
-                      <label className={`text-[10px] font-black uppercase tracking-widest ${isDarkMode ? 'text-slate-500' : 'text-slate-400'} px-1 block`}>Comercio Exterior</label>
-                      <input type="text" className={`w-full ${isDarkMode ? 'bg-slate-700 text-white border-slate-600' : 'bg-slate-50'} p-3 rounded-xl font-bold outline-none border-2 border-transparent focus:border-sky-500 transition-all text-sm`} value={exportDetails.comercioExterior} onChange={e => setExportDetails({...exportDetails, comercioExterior: e.target.value})} />
+                      <label htmlFor={`${fieldId}-comercioExterior`} className={`text-[10px] font-black uppercase tracking-widest ${isDarkMode ? 'text-slate-500' : 'text-slate-400'} px-1 block`}>Comercio Exterior</label>
+                      <input id={`${fieldId}-comercioExterior`} type="text" className={`w-full ${isDarkMode ? 'bg-slate-700 text-white border-slate-600' : 'bg-slate-50'} p-3 rounded-xl font-bold outline-none border-2 border-transparent focus:border-sky-500 transition-all text-sm`} value={exportDetails.comercioExterior} onChange={e => setExportDetails({...exportDetails, comercioExterior: e.target.value})} />
                     </div>
                     <div className="space-y-2">
-                      <label className={`text-[10px] font-black uppercase tracking-widest ${isDarkMode ? 'text-slate-500' : 'text-slate-400'} px-1 block`}>Lugar Inco Term</label>
-                      <input type="text" placeholder="Ej: Miami" className={`w-full ${isDarkMode ? 'bg-slate-700 text-white border-slate-600' : 'bg-slate-50'} p-3 rounded-xl font-bold outline-none border-2 border-transparent focus:border-sky-500 transition-all text-sm`} value={exportDetails.lugarIncoterm} onChange={e => setExportDetails({...exportDetails, lugarIncoterm: e.target.value})} />
+                      <label htmlFor={`${fieldId}-lugarIncoterm`} className={`text-[10px] font-black uppercase tracking-widest ${isDarkMode ? 'text-slate-500' : 'text-slate-400'} px-1 block`}>Lugar Inco Term</label>
+                      <input id={`${fieldId}-lugarIncoterm`} type="text" placeholder="Ej: Miami" className={`w-full ${isDarkMode ? 'bg-slate-700 text-white border-slate-600' : 'bg-slate-50'} p-3 rounded-xl font-bold outline-none border-2 border-transparent focus:border-sky-500 transition-all text-sm`} value={exportDetails.lugarIncoterm} onChange={e => setExportDetails({...exportDetails, lugarIncoterm: e.target.value})} />
                     </div>
                     <div className="space-y-2">
-                      <label className={`text-[10px] font-black uppercase tracking-widest ${isDarkMode ? 'text-slate-500' : 'text-slate-400'} px-1 block`}>Inco Term Total</label>
-                      <select className={`w-full ${isDarkMode ? 'bg-slate-700 text-white border-slate-600' : 'bg-slate-50'} p-3 rounded-xl font-bold outline-none border-2 border-transparent focus:border-sky-500 transition-all text-sm`} value={exportDetails.incoTermTotalSinImpuestos} onChange={e => setExportDetails({...exportDetails, incoTermTotalSinImpuestos: e.target.value})}>
+                      <label htmlFor={`${fieldId}-incoTermTotal`} className={`text-[10px] font-black uppercase tracking-widest ${isDarkMode ? 'text-slate-500' : 'text-slate-400'} px-1 block`}>Inco Term Total</label>
+                      <select id={`${fieldId}-incoTermTotal`} className={`w-full ${isDarkMode ? 'bg-slate-700 text-white border-slate-600' : 'bg-slate-50'} p-3 rounded-xl font-bold outline-none border-2 border-transparent focus:border-sky-500 transition-all text-sm`} value={exportDetails.incoTermTotalSinImpuestos} onChange={e => setExportDetails({...exportDetails, incoTermTotalSinImpuestos: e.target.value})}>
                         <option value="">Seleccione</option><option value="FOB">FOB</option><option value="CIF">CIF</option><option value="EXW">EXW</option>
                       </select>
                     </div>
                     <div className="space-y-2">
-                      <label className={`text-[10px] font-black uppercase tracking-widest ${isDarkMode ? 'text-slate-500' : 'text-slate-400'} px-1 block`}>Puerto Embarque</label>
-                      <input type="text" className={`w-full ${isDarkMode ? 'bg-slate-700 text-white border-slate-600' : 'bg-slate-50'} p-3 rounded-xl font-bold outline-none border-2 border-transparent focus:border-sky-500 transition-all text-sm`} value={exportDetails.puertoEmbarque} onChange={e => setExportDetails({...exportDetails, puertoEmbarque: e.target.value})} />
+                      <label htmlFor={`${fieldId}-puertoEmbarque`} className={`text-[10px] font-black uppercase tracking-widest ${isDarkMode ? 'text-slate-500' : 'text-slate-400'} px-1 block`}>Puerto Embarque</label>
+                      <input id={`${fieldId}-puertoEmbarque`} type="text" className={`w-full ${isDarkMode ? 'bg-slate-700 text-white border-slate-600' : 'bg-slate-50'} p-3 rounded-xl font-bold outline-none border-2 border-transparent focus:border-sky-500 transition-all text-sm`} value={exportDetails.puertoEmbarque} onChange={e => setExportDetails({...exportDetails, puertoEmbarque: e.target.value})} />
                     </div>
                     <div className="space-y-2">
-                      <label className={`text-[10px] font-black uppercase tracking-widest ${isDarkMode ? 'text-slate-500' : 'text-slate-400'} px-1 block`}>Puerto Destino</label>
-                      <input type="text" className={`w-full ${isDarkMode ? 'bg-slate-700 text-white border-slate-600' : 'bg-slate-50'} p-3 rounded-xl font-bold outline-none border-2 border-transparent focus:border-sky-500 transition-all text-sm`} value={exportDetails.puertoDestino} onChange={e => setExportDetails({...exportDetails, puertoDestino: e.target.value})} />
+                      <label htmlFor={`${fieldId}-puertoDestino`} className={`text-[10px] font-black uppercase tracking-widest ${isDarkMode ? 'text-slate-500' : 'text-slate-400'} px-1 block`}>Puerto Destino</label>
+                      <input id={`${fieldId}-puertoDestino`} type="text" className={`w-full ${isDarkMode ? 'bg-slate-700 text-white border-slate-600' : 'bg-slate-50'} p-3 rounded-xl font-bold outline-none border-2 border-transparent focus:border-sky-500 transition-all text-sm`} value={exportDetails.puertoDestino} onChange={e => setExportDetails({...exportDetails, puertoDestino: e.target.value})} />
                     </div>
                     <div className="space-y-2">
-                      <label className={`text-[10px] font-black uppercase tracking-widest ${isDarkMode ? 'text-slate-500' : 'text-slate-400'} px-1 block`}>País Destino</label>
-                      <select className={`w-full ${isDarkMode ? 'bg-slate-700 text-white border-slate-600' : 'bg-slate-50'} p-3 rounded-xl font-bold outline-none border-2 border-transparent focus:border-sky-500 transition-all text-sm`} value={exportDetails.paisDestino} onChange={e => setExportDetails({...exportDetails, paisDestino: e.target.value})}>
+                      <label htmlFor={`${fieldId}-paisDestino`} className={`text-[10px] font-black uppercase tracking-widest ${isDarkMode ? 'text-slate-500' : 'text-slate-400'} px-1 block`}>País Destino</label>
+                      <select id={`${fieldId}-paisDestino`} className={`w-full ${isDarkMode ? 'bg-slate-700 text-white border-slate-600' : 'bg-slate-50'} p-3 rounded-xl font-bold outline-none border-2 border-transparent focus:border-sky-500 transition-all text-sm`} value={exportDetails.paisDestino} onChange={e => setExportDetails({...exportDetails, paisDestino: e.target.value})}>
                         <option value="">Seleccione</option><option value="US">Estados Unidos</option><option value="CO">Colombia</option><option value="PE">Perú</option>
                       </select>
                     </div>
@@ -1286,10 +1300,10 @@ const InvoiceForm: React.FC<InvoiceFormProps> = ({ clients, setClients, isDemoMo
               {invoiceType === 'Factura Reembolso' && (
                 <div className="pt-4 border-t border-slate-100 dark:border-slate-700/50">
                   <div className="flex border-b border-slate-200 dark:border-slate-700 mb-4">
-                    <button onClick={() => setReimbursementTab('PRODUCTO')} className={`flex-1 py-3 text-sm font-black uppercase tracking-widest border-b-2 transition-all ${reimbursementTab === 'PRODUCTO' ? 'border-sky-500 text-sky-500' : 'border-transparent text-slate-400 hover:text-slate-500'}`}>
+                    <button type="button" onClick={() => setReimbursementTab('PRODUCTO')} className={`flex-1 py-3 text-sm font-black uppercase tracking-widest border-b-2 transition-all ${reimbursementTab === 'PRODUCTO' ? 'border-sky-500 text-sky-500' : 'border-transparent text-slate-400 hover:text-slate-500'}`}>
                       Sección Producto
                     </button>
-                    <button onClick={() => setReimbursementTab('REEMBOLSO')} className={`flex-1 py-3 text-sm font-black uppercase tracking-widest border-b-2 transition-all ${reimbursementTab === 'REEMBOLSO' ? 'border-sky-500 text-sky-500' : 'border-transparent text-slate-400 hover:text-slate-500'}`}>
+                    <button type="button" onClick={() => setReimbursementTab('REEMBOLSO')} className={`flex-1 py-3 text-sm font-black uppercase tracking-widest border-b-2 transition-all ${reimbursementTab === 'REEMBOLSO' ? 'border-sky-500 text-sky-500' : 'border-transparent text-slate-400 hover:text-slate-500'}`}>
                       Sección Reembolso
                     </button>
                   </div>
@@ -1298,7 +1312,7 @@ const InvoiceForm: React.FC<InvoiceFormProps> = ({ clients, setClients, isDemoMo
                        {reimbursements.length > 0 ? (
                          <div className="mb-4 space-y-2">
                            {reimbursements.map((r, idx) => (
-                             <div key={idx} className={`p-4 rounded-xl text-left border ${isDarkMode ? 'bg-slate-700 border-slate-600 text-slate-200' : 'bg-slate-50 border-slate-200 text-slate-800'} flex justify-between items-center`}>
+                             <div key={`${r.estabDocReembolso}-${r.ptoEmiDocReembolso}-${r.secuencialDocReembolso}`} className={`p-4 rounded-xl text-left border ${isDarkMode ? 'bg-slate-700 border-slate-600 text-slate-200' : 'bg-slate-50 border-slate-200 text-slate-800'} flex justify-between items-center`}>
                                <div>
                                  <div className="font-bold text-sm">Factura: {r.estabDocReembolso}-{r.ptoEmiDocReembolso}-{r.secuencialDocReembolso}</div>
                                  <div className="text-xs opacity-70">RUC: {r.identificacionProveedorReembolso}</div>
@@ -1314,50 +1328,50 @@ const InvoiceForm: React.FC<InvoiceFormProps> = ({ clients, setClients, isDemoMo
                        )}
                        
                        {!showReimbursementForm ? (
-                         <button onClick={() => setShowReimbursementForm(true)} className="mt-2 bg-sky-50 text-sky-600 px-6 py-2 rounded-xl font-bold hover:bg-sky-100 dark:bg-sky-900/30 dark:hover:bg-sky-900/50 transition-all border border-sky-200 dark:border-sky-800">Añadir Comprobante</button>
+                         <button type="button" onClick={() => setShowReimbursementForm(true)} className="mt-2 bg-sky-50 text-sky-600 px-6 py-2 rounded-xl font-bold hover:bg-sky-100 dark:bg-sky-900/30 dark:hover:bg-sky-900/50 transition-all border border-sky-200 dark:border-sky-800">Añadir Comprobante</button>
                        ) : (
                          <div className={`mt-4 p-4 text-left border rounded-2xl ${isDarkMode ? 'border-slate-600 bg-slate-800 text-white' : 'border-slate-200 bg-white text-slate-800'} shadow-sm`}>
                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                               <div className="space-y-1">
-                                <label className="text-[10px] font-black uppercase tracking-widest opacity-70">RUC Proveedor</label>
-                                <input type="text" className="w-full p-2 border-2 border-slate-200 dark:border-slate-600 rounded-xl dark:bg-slate-700 outline-none focus:border-sky-500 text-sm font-bold transition-all" value={reimbursementForm.identificacionProveedorReembolso || ''} onChange={e => setReimbursementForm({...reimbursementForm, identificacionProveedorReembolso: e.target.value})} />
+                                <label htmlFor={`${fieldId}-reimb-ruc`} className="text-[10px] font-black uppercase tracking-widest opacity-70">RUC Proveedor</label>
+                                <input id={`${fieldId}-reimb-ruc`} type="text" className="w-full p-2 border-2 border-slate-200 dark:border-slate-600 rounded-xl dark:bg-slate-700 outline-none focus:border-sky-500 text-sm font-bold transition-all" value={reimbursementForm.identificacionProveedorReembolso || ''} onChange={e => setReimbursementForm({...reimbursementForm, identificacionProveedorReembolso: e.target.value})} />
                               </div>
                               <div className="space-y-1">
-                                <label className="text-[10px] font-black uppercase tracking-widest opacity-70">Establecimiento (001)</label>
-                                <input type="text" className="w-full p-2 border-2 border-slate-200 dark:border-slate-600 rounded-xl dark:bg-slate-700 outline-none focus:border-sky-500 text-sm font-bold transition-all" value={reimbursementForm.estabDocReembolso || ''} onChange={e => setReimbursementForm({...reimbursementForm, estabDocReembolso: e.target.value})} />
+                                <label htmlFor={`${fieldId}-reimb-estab`} className="text-[10px] font-black uppercase tracking-widest opacity-70">Establecimiento (001)</label>
+                                <input id={`${fieldId}-reimb-estab`} type="text" className="w-full p-2 border-2 border-slate-200 dark:border-slate-600 rounded-xl dark:bg-slate-700 outline-none focus:border-sky-500 text-sm font-bold transition-all" value={reimbursementForm.estabDocReembolso || ''} onChange={e => setReimbursementForm({...reimbursementForm, estabDocReembolso: e.target.value})} />
                               </div>
                               <div className="space-y-1">
-                                <label className="text-[10px] font-black uppercase tracking-widest opacity-70">Pto. Emisión (001)</label>
-                                <input type="text" className="w-full p-2 border-2 border-slate-200 dark:border-slate-600 rounded-xl dark:bg-slate-700 outline-none focus:border-sky-500 text-sm font-bold transition-all" value={reimbursementForm.ptoEmiDocReembolso || ''} onChange={e => setReimbursementForm({...reimbursementForm, ptoEmiDocReembolso: e.target.value})} />
+                                <label htmlFor={`${fieldId}-reimb-ptoemi`} className="text-[10px] font-black uppercase tracking-widest opacity-70">Pto. Emisión (001)</label>
+                                <input id={`${fieldId}-reimb-ptoemi`} type="text" className="w-full p-2 border-2 border-slate-200 dark:border-slate-600 rounded-xl dark:bg-slate-700 outline-none focus:border-sky-500 text-sm font-bold transition-all" value={reimbursementForm.ptoEmiDocReembolso || ''} onChange={e => setReimbursementForm({...reimbursementForm, ptoEmiDocReembolso: e.target.value})} />
                               </div>
                               <div className="space-y-1">
-                                <label className="text-[10px] font-black uppercase tracking-widest opacity-70">Secuencial</label>
-                                <input type="text" className="w-full p-2 border-2 border-slate-200 dark:border-slate-600 rounded-xl dark:bg-slate-700 outline-none focus:border-sky-500 text-sm font-bold transition-all" value={reimbursementForm.secuencialDocReembolso || ''} onChange={e => setReimbursementForm({...reimbursementForm, secuencialDocReembolso: e.target.value})} />
+                                <label htmlFor={`${fieldId}-reimb-secuencial`} className="text-[10px] font-black uppercase tracking-widest opacity-70">Secuencial</label>
+                                <input id={`${fieldId}-reimb-secuencial`} type="text" className="w-full p-2 border-2 border-slate-200 dark:border-slate-600 rounded-xl dark:bg-slate-700 outline-none focus:border-sky-500 text-sm font-bold transition-all" value={reimbursementForm.secuencialDocReembolso || ''} onChange={e => setReimbursementForm({...reimbursementForm, secuencialDocReembolso: e.target.value})} />
                               </div>
                               <div className="space-y-1">
-                                <label className="text-[10px] font-black uppercase tracking-widest opacity-70">Fecha (DD/MM/YYYY)</label>
-                                <input type="text" className="w-full p-2 border-2 border-slate-200 dark:border-slate-600 rounded-xl dark:bg-slate-700 outline-none focus:border-sky-500 text-sm font-bold transition-all" value={reimbursementForm.fechaEmisionDocReembolso || ''} onChange={e => setReimbursementForm({...reimbursementForm, fechaEmisionDocReembolso: e.target.value})} />
+                                <label htmlFor={`${fieldId}-reimb-fecha`} className="text-[10px] font-black uppercase tracking-widest opacity-70">Fecha (DD/MM/YYYY)</label>
+                                <input id={`${fieldId}-reimb-fecha`} type="text" className="w-full p-2 border-2 border-slate-200 dark:border-slate-600 rounded-xl dark:bg-slate-700 outline-none focus:border-sky-500 text-sm font-bold transition-all" value={reimbursementForm.fechaEmisionDocReembolso || ''} onChange={e => setReimbursementForm({...reimbursementForm, fechaEmisionDocReembolso: e.target.value})} />
                               </div>
                               <div className="space-y-1">
-                                <label className="text-[10px] font-black uppercase tracking-widest opacity-70">Autorización</label>
-                                <input type="text" className="w-full p-2 border-2 border-slate-200 dark:border-slate-600 rounded-xl dark:bg-slate-700 outline-none focus:border-sky-500 text-sm font-bold transition-all" value={reimbursementForm.numeroautorizacionDocReemb || ''} onChange={e => setReimbursementForm({...reimbursementForm, numeroautorizacionDocReemb: e.target.value})} />
+                                <label htmlFor={`${fieldId}-reimb-autorizacion`} className="text-[10px] font-black uppercase tracking-widest opacity-70">Autorización</label>
+                                <input id={`${fieldId}-reimb-autorizacion`} type="text" className="w-full p-2 border-2 border-slate-200 dark:border-slate-600 rounded-xl dark:bg-slate-700 outline-none focus:border-sky-500 text-sm font-bold transition-all" value={reimbursementForm.numeroautorizacionDocReemb || ''} onChange={e => setReimbursementForm({...reimbursementForm, numeroautorizacionDocReemb: e.target.value})} />
                               </div>
                               <div className="space-y-1">
-                                <label className="text-[10px] font-black uppercase tracking-widest opacity-70 text-sky-600 dark:text-sky-400">Base Sin IVA ($)</label>
-                                <input type="number" className="w-full p-2 border-2 border-slate-200 dark:border-slate-600 rounded-xl dark:bg-slate-700 outline-none focus:border-sky-500 text-sm font-bold transition-all" value={reimbursementForm.baseImponibleSinIva || ''} onChange={e => setReimbursementForm({...reimbursementForm, baseImponibleSinIva: parseFloat(e.target.value) || 0})} />
+                                <label htmlFor={`${fieldId}-reimb-baseSinIva`} className="text-[10px] font-black uppercase tracking-widest opacity-70 text-sky-600 dark:text-sky-400">Base Sin IVA ($)</label>
+                                <input id={`${fieldId}-reimb-baseSinIva`} type="number" className="w-full p-2 border-2 border-slate-200 dark:border-slate-600 rounded-xl dark:bg-slate-700 outline-none focus:border-sky-500 text-sm font-bold transition-all" value={reimbursementForm.baseImponibleSinIva || ''} onChange={e => setReimbursementForm({...reimbursementForm, baseImponibleSinIva: parseFloat(e.target.value) || 0})} />
                               </div>
                               <div className="space-y-1">
-                                <label className="text-[10px] font-black uppercase tracking-widest opacity-70 text-sky-600 dark:text-sky-400">Base Con IVA ($)</label>
-                                <input type="number" className="w-full p-2 border-2 border-slate-200 dark:border-slate-600 rounded-xl dark:bg-slate-700 outline-none focus:border-sky-500 text-sm font-bold transition-all" value={reimbursementForm.baseImponibleConIva || ''} onChange={e => setReimbursementForm({...reimbursementForm, baseImponibleConIva: parseFloat(e.target.value) || 0})} />
+                                <label htmlFor={`${fieldId}-reimb-baseConIva`} className="text-[10px] font-black uppercase tracking-widest opacity-70 text-sky-600 dark:text-sky-400">Base Con IVA ($)</label>
+                                <input id={`${fieldId}-reimb-baseConIva`} type="number" className="w-full p-2 border-2 border-slate-200 dark:border-slate-600 rounded-xl dark:bg-slate-700 outline-none focus:border-sky-500 text-sm font-bold transition-all" value={reimbursementForm.baseImponibleConIva || ''} onChange={e => setReimbursementForm({...reimbursementForm, baseImponibleConIva: parseFloat(e.target.value) || 0})} />
                               </div>
                               <div className="space-y-1">
-                                <label className="text-[10px] font-black uppercase tracking-widest opacity-70 text-sky-600 dark:text-sky-400">Valor IVA ($)</label>
-                                <input type="number" className="w-full p-2 border-2 border-slate-200 dark:border-slate-600 rounded-xl dark:bg-slate-700 outline-none focus:border-sky-500 text-sm font-bold transition-all" value={reimbursementForm.impuestoReembolso || ''} onChange={e => setReimbursementForm({...reimbursementForm, impuestoReembolso: parseFloat(e.target.value) || 0})} />
+                                <label htmlFor={`${fieldId}-reimb-valorIva`} className="text-[10px] font-black uppercase tracking-widest opacity-70 text-sky-600 dark:text-sky-400">Valor IVA ($)</label>
+                                <input id={`${fieldId}-reimb-valorIva`} type="number" className="w-full p-2 border-2 border-slate-200 dark:border-slate-600 rounded-xl dark:bg-slate-700 outline-none focus:border-sky-500 text-sm font-bold transition-all" value={reimbursementForm.impuestoReembolso || ''} onChange={e => setReimbursementForm({...reimbursementForm, impuestoReembolso: parseFloat(e.target.value) || 0})} />
                               </div>
                            </div>
                            <div className="mt-6 flex gap-3">
-                             <button onClick={addReimbursement} className="bg-sky-500 hover:bg-sky-600 text-white px-6 py-2.5 rounded-xl font-bold shadow-md transition-all text-sm">Guardar Comprobante</button>
-                             <button onClick={() => setShowReimbursementForm(false)} className="bg-slate-100 hover:bg-slate-200 text-slate-700 dark:bg-slate-700 dark:hover:bg-slate-600 dark:text-slate-300 px-6 py-2.5 rounded-xl font-bold transition-all text-sm">Cancelar</button>
+                             <button type="submit" onClick={addReimbursement} className="bg-sky-500 hover:bg-sky-600 text-white px-6 py-2.5 rounded-xl font-bold shadow-md transition-all text-sm">Guardar Comprobante</button>
+                             <button type="button" onClick={() => setShowReimbursementForm(false)} className="bg-slate-100 hover:bg-slate-200 text-slate-700 dark:bg-slate-700 dark:hover:bg-slate-600 dark:text-slate-300 px-6 py-2.5 rounded-xl font-bold transition-all text-sm">Cancelar</button>
                            </div>
                          </div>
                        )}
@@ -1382,46 +1396,48 @@ const InvoiceForm: React.FC<InvoiceFormProps> = ({ clients, setClients, isDemoMo
                   />
                   {showProductDropdown && searchTerm && (
                     <div className={`absolute top-full left-0 right-0 ${isDarkMode ? 'bg-slate-800 border-slate-600' : 'bg-white border-sky-200'} rounded-2xl mt-2 shadow-2xl z-[100] max-h-64 sm:max-h-96 overflow-y-auto`}>
-                      {(Array.isArray(products) ? products : []).filter(p =>
-                        !p.isRawMaterial && (
-                        p.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                        p.code.toLowerCase().includes(searchTerm.toLowerCase()))
-                      ).length > 0 ? (
-                        <div className="p-2">
-                          {(Array.isArray(products) ? products : []).filter(p =>
-                            !p.isRawMaterial && (
-                            p.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                            p.code.toLowerCase().includes(searchTerm.toLowerCase()))
-                          ).map(p => (
-                            <button
-                              key={p.id}
-                              onClick={() => addItem(p)}
-                              className="w-full text-left p-3 hover:bg-sky-50 rounded-xl flex items-center gap-4 transition-colors group"
-                            >
-                              {p.imageUrl ? (
-                                <img src={p.imageUrl} alt={p.description} className="w-14 h-14 rounded-lg object-cover border border-slate-200 group-hover:border-indigo-400" />
-                              ) : (
-                                <div className="w-14 h-14 rounded-lg bg-slate-100 flex items-center justify-center"><CubeIcon className="w-6 h-6 text-slate-400" /></div>
-                              )}
-                              <div className="flex-1 min-w-0">
-                                <p className={`font-bold text-sm ${isDarkMode ? 'text-white' : 'text-slate-800'} truncate`}>{p.description}</p>
-                                <div className="flex items-center gap-3 mt-1">
-                                  <span className={`text-xs ${isDarkMode ? 'text-slate-400' : 'text-slate-500'}`}>{p.code}</span>
-                                  <span className={`text-xs font-bold ${isDarkMode ? 'text-sky-400' : 'text-sky-500'}`}>${p[priceTier].toFixed(2)}</span>
-                                  <span className={`text-xs ${isDarkMode ? 'text-slate-500' : 'text-slate-400'}`}>Stock: {p.stock}</span>
-                                </div>
-                              </div>
-                              <span className="text-sky-500 text-xl opacity-0 group-hover:opacity-100 transition-opacity">+</span>
-                            </button>
-                          ))}
-                        </div>
-                      ) : (
-                        <div className={`p-8 text-center ${isDarkMode ? 'text-slate-500' : 'text-slate-400'}`}>
-                          <p className="text-3xl mb-2"><MagnifyingGlassIcon className="w-10 h-10 mx-auto text-slate-300 dark:text-slate-600" /></p>
-                          <p className="font-bold">No se encontraron productos</p>
-                          <p className="text-sm">Intenta con otro término de búsqueda</p>
-                        </div>
-                      )}
+                      {(() => {
+                        const list = (Array.isArray(products) ? products : []).filter(p =>
+                          !p.isRawMaterial && (
+                          p.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                          p.code.toLowerCase().includes(searchTerm.toLowerCase()))
+                        );
+                        if (list.length > 0) {
+                          return (
+                            <div className="p-2">
+                              {list.map(p => (
+                                <button type="button"
+                                  key={p.id}
+                                  onClick={() => addItem(p)}
+                                  className="w-full text-left p-3 hover:bg-sky-50 rounded-xl flex items-center gap-4 transition-colors group"
+                                >
+                                  {p.imageUrl ? (
+                                    <img src={p.imageUrl} alt={p.description} className="w-14 h-14 rounded-lg object-cover border border-slate-200 group-hover:border-indigo-400" />
+                                  ) : (
+                                    <div className="w-14 h-14 rounded-lg bg-slate-100 flex items-center justify-center"><CubeIcon className="w-6 h-6 text-slate-400" /></div>
+                                  )}
+                                  <div className="flex-1 min-w-0">
+                                    <p className={`font-bold text-sm ${isDarkMode ? 'text-white' : 'text-slate-800'} truncate`}>{p.description}</p>
+                                    <div className="flex items-center gap-3 mt-1">
+                                      <span className={`text-xs ${isDarkMode ? 'text-slate-400' : 'text-slate-500'}`}>{p.code}</span>
+                                      <span className={`text-xs font-bold ${isDarkMode ? 'text-sky-400' : 'text-sky-500'}`}>${p[priceTier].toFixed(2)}</span>
+                                      <span className={`text-xs ${isDarkMode ? 'text-slate-500' : 'text-slate-400'}`}>Stock: {p.stock}</span>
+                                    </div>
+                                  </div>
+                                  <span className="text-sky-500 text-xl opacity-0 group-hover:opacity-100 transition-opacity">+</span>
+                                </button>
+                              ))}
+                            </div>
+                          );
+                        }
+                        return (
+                          <div className={`p-8 text-center ${isDarkMode ? 'text-slate-500' : 'text-slate-400'}`}>
+                            <p className="text-3xl mb-2"><MagnifyingGlassIcon className="w-10 h-10 mx-auto text-slate-300 dark:text-slate-600" /></p>
+                            <p className="font-bold">No se encontraron productos</p>
+                            <p className="text-sm">Intenta con otro término de búsqueda</p>
+                          </div>
+                        );
+                      })()}
                     </div>
                   )}
                 </div>
@@ -1488,7 +1504,7 @@ const InvoiceForm: React.FC<InvoiceFormProps> = ({ clients, setClients, isDemoMo
                         </td>
                         <td className="py-4 text-right font-black text-sky-500 px-4">${item.total.toFixed(2)}</td>
                         <td className="py-4 px-4 text-right">
-                          <button onClick={() => setItems(items.filter(i => i.productId !== item.productId))} className={`${isDarkMode ? 'text-slate-500 hover:text-rose-400' : 'text-slate-300 hover:text-rose-500'} text-lg`}>✕</button>
+                          <button type="button" onClick={() => setItems(items.filter(i => i.productId !== item.productId))} className={`${isDarkMode ? 'text-slate-500 hover:text-rose-400' : 'text-slate-300 hover:text-rose-500'} text-lg`}>✕</button>
                         </td>
                       </tr>
                     ))}
@@ -1506,8 +1522,9 @@ const InvoiceForm: React.FC<InvoiceFormProps> = ({ clients, setClients, isDemoMo
 
               {/* Detalle Textarea */}
               <div className="mt-8 space-y-2">
-                <label className={`text-[10px] font-black uppercase tracking-widest ${isDarkMode ? 'text-slate-500' : 'text-slate-400'} px-1 block`}>Detalle / Información Adicional</label>
+                <label htmlFor={`${fieldId}-additionalInfo`} className={`text-[10px] font-black uppercase tracking-widest ${isDarkMode ? 'text-slate-500' : 'text-slate-400'} px-1 block`}>Detalle / Información Adicional</label>
                 <textarea
+                  id={`${fieldId}-additionalInfo`}
                   className={`w-full ${isDarkMode ? 'bg-slate-700 text-white border-slate-600' : 'bg-slate-50'} p-4 rounded-2xl font-bold outline-none border-2 border-transparent focus:border-sky-500 transition-all text-sm min-h-[80px] resize-none`}
                   placeholder="Este campo permite hasta máximo 300 caracteres."
                   maxLength={300}
@@ -1554,7 +1571,7 @@ const InvoiceForm: React.FC<InvoiceFormProps> = ({ clients, setClients, isDemoMo
               </div>
             </div>
 
-            <button
+            <button type="button"
               disabled={items.length === 0 || isSubmitting}
               onClick={() => setShowPreview(true)}
               className="w-full bg-sky-500 text-white font-black py-5 rounded-2xl hover:bg-sky-600 transition-all disabled:opacity-50 text-[10px] uppercase tracking-widest"
@@ -1577,7 +1594,7 @@ const InvoiceForm: React.FC<InvoiceFormProps> = ({ clients, setClients, isDemoMo
             </div>
 
             {isProforma && (
-              <button
+              <button type="button"
                 disabled={items.length === 0 || isSubmitting}
                 onClick={() => setShowPreview(true)}
                 className="w-full bg-amber-500 text-white font-black py-4 rounded-2xl hover:bg-amber-600 transition-all disabled:opacity-50 text-[10px] uppercase tracking-widest mt-3"
@@ -1601,10 +1618,10 @@ const InvoiceForm: React.FC<InvoiceFormProps> = ({ clients, setClients, isDemoMo
             </div>
 
             <div className="bg-slate-900 rounded-3xl p-6 h-64 overflow-y-auto font-mono text-[10px] text-blue-300/80 space-y-1">
-              {authLogs.map((l, i) => (
-                <div key={i} className="flex gap-3">
+              {authLogs.map((l) => (
+                <div key={l.id} className="flex gap-3">
                   <span className={`${isDarkMode ? 'text-slate-400' : 'text-slate-600'} flex-shrink-0`}>➜</span>
-                  <span>{l}</span>
+                  <span>{l.text}</span>
                 </div>
               ))}
               <div className="animate-pulse">_</div>
@@ -1618,7 +1635,7 @@ const InvoiceForm: React.FC<InvoiceFormProps> = ({ clients, setClients, isDemoMo
           <div className={`${isDarkMode ? 'bg-slate-800 border-slate-700' : 'bg-white rounded-[3.5rem] w-full max-w-2xl shadow-2xl animate-in zoom-in duration-300 overflow-hidden'}`}>
             <div className={`p-10 border-b ${isDarkMode ? 'border-slate-700' : 'border-slate-50'} flex justify-between items-center`}>
               <h2 className={`text-2xl font-black ${isDarkMode ? 'text-white' : 'text-slate-900'} tracking-tighter uppercase`}>Confirmar Comprobante</h2>
-              <button onClick={() => setShowPreview(false)} className={`${isDarkMode ? 'text-slate-400 hover:text-rose-400' : 'text-slate-400 hover:text-rose-500'}`}>✕</button>
+              <button type="button" onClick={() => setShowPreview(false)} className={`${isDarkMode ? 'text-slate-400 hover:text-rose-400' : 'text-slate-400 hover:text-rose-500'}`}>✕</button>
             </div>
             <div className="p-10 space-y-6">
               <div className={`${isDarkMode ? 'bg-slate-700' : 'bg-slate-50'} p-6 rounded-3xl space-y-2`}>
@@ -1632,7 +1649,7 @@ const InvoiceForm: React.FC<InvoiceFormProps> = ({ clients, setClients, isDemoMo
                   <p className={`text-[10px] font-black ${isDarkMode ? 'text-slate-500' : 'text-slate-400'} uppercase tracking-widest`}>A pagar</p>
                   <p className={`text-4xl font-black ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>${(totals.total + tip).toFixed(2)}</p>
                 </div>
-                <button
+                <button type="button"
                   onClick={handleProcess}
                   className="bg-sky-500 text-white px-10 py-5 rounded-2xl font-black text-xs uppercase tracking-widest shadow-xl shadow-indigo-100 hover:scale-105 transition-all"
                 >

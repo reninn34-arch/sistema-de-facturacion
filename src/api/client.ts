@@ -1,11 +1,15 @@
 import axios from 'axios';
 
-// URL del backend definida en variable de entorno o fallback
+// En desarrollo, baseURL queda vacío para que las peticiones vayan
+// a través del proxy de Vite (/api → localhost:3001) y las cookies
+// HttpOnly funcionen en same-origin. En producción se usa la URL real.
 const API_URL = import.meta.env.VITE_BACKEND_URL || '';
+const BASE_URL = import.meta.env.DEV ? '' : API_URL;
 
 // Crear cliente axios con configuración base
 export const client = axios.create({
-  baseURL: API_URL,
+  baseURL: BASE_URL,
+  withCredentials: true,
   headers: {
     'Content-Type': 'application/json',
   },
@@ -66,14 +70,15 @@ client.interceptors.response.use(
         isRefreshing = true;
 
         try {
-          const response = await axios.post(`${API_URL}/api/refresh-token`, {
+          // Usamos el mismo cliente para que pase por el proxy y las cookies funcionen
+          const response = await client.post('/api/refresh-token', {
             refreshToken,
           });
 
-          const { token: newToken, refreshToken: newRefreshToken } = response.data;
-          localStorage.setItem('adminToken', newToken);
-          localStorage.setItem('refreshToken', newRefreshToken);
-          originalRequest.headers.Authorization = `Bearer ${newToken}`;
+          const { token: newToken } = response.data;
+          localStorage.setItem('adminToken', 'cookie_authenticated');
+          localStorage.setItem('refreshToken', 'cookie_authenticated');
+          originalRequest.headers.Authorization = `Bearer cookie_authenticated`;
 
           processQueue(null, newToken);
           return client(originalRequest);

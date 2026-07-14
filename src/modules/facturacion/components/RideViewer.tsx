@@ -254,7 +254,7 @@ const RideViewer: React.FC<RideViewerProps> = ({ document, businessInfo, items, 
           {/* Header de controles (No se imprime) - FIXED al top */}
           <div className="sticky top-0 z-10 bg-white shadow-md flex justify-between items-center px-6 py-4 border-b border-slate-200 print:hidden">
             <div className="flex items-center gap-4">
-              <button 
+              <button type="button" 
                 onClick={onClose} 
                 className="flex items-center gap-2 px-4 py-2 hover:bg-slate-100 rounded-xl transition-all font-semibold text-slate-700"
               >
@@ -263,7 +263,7 @@ const RideViewer: React.FC<RideViewerProps> = ({ document, businessInfo, items, 
               <h2 className="font-black text-slate-800 uppercase tracking-tight text-lg">RIDE - Factura Electrónica</h2>
             </div>
             <div className="flex gap-3">
-              <button 
+              <button type="submit" 
                 onClick={handleDownloadPDF}
                 disabled={isGeneratingPdf}
                 className="flex items-center gap-2 bg-red-600 text-white px-6 py-3 rounded-xl font-bold text-sm uppercase tracking-wide shadow-lg shadow-red-200 hover:bg-red-700 hover:scale-105 transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
@@ -279,7 +279,7 @@ const RideViewer: React.FC<RideViewerProps> = ({ document, businessInfo, items, 
                   </>
                 )}
               </button>
-              <button 
+              <button type="button" 
                 onClick={handlePrint}
                 className="flex items-center gap-2 bg-sky-500 text-white px-6 py-3 rounded-xl font-bold text-sm uppercase tracking-wide shadow-lg shadow-sky-200 hover:bg-sky-600 hover:scale-105 transition-all"
               >
@@ -345,7 +345,7 @@ const RideViewer: React.FC<RideViewerProps> = ({ document, businessInfo, items, 
             </thead>
             <tbody>
               {items.map((it, idx) => (
-                <tr key={idx}>
+                <tr key={`${it.productId}-${it.description}`}>
                   <td className="p-1 border border-slate-300 text-[8px]">ITM-{idx+1}</td>
                   <td className="p-1 border border-slate-300 text-center text-[8px]">{it.quantity}</td>
                   <td className="p-1 border border-slate-300 text-[8px]">{it.description}</td>

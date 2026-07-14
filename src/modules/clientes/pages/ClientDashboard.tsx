@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect, useMemo } from 'react';
+﻿import React, { useState, useEffect, useMemo, useId } from 'react';
 import { Document } from '../../../types/types';
 import { DocumentTextIcon, ArrowRightOnRectangleIcon, CheckCircleIcon, CreditCardIcon, ClockIcon, DocumentIcon, CodeBracketIcon, LockClosedIcon, QuestionMarkCircleIcon } from '@heroicons/react/24/outline';
 
@@ -7,6 +7,7 @@ const API_URL = import.meta.env.VITE_BACKEND_URL || '';
 const ClientDashboard = () => {
   const [documents, setDocuments] = useState<Document[]>([]);
   const [documentsByBusiness, setDocumentsByBusiness] = useState<any[]>([]);
+  const fieldId = useId();
   const [loading, setLoading] = useState(true);
   const [user, setUser] = useState<any>(null);
   const [userType, setUserType] = useState<'BUSINESS' | 'CLIENT' | null>(null);
@@ -167,12 +168,12 @@ const ClientDashboard = () => {
                 <h2 className="text-[#0d121b] dark:text-white text-lg font-bold leading-tight tracking-tight">FacturaPortal</h2>
               </div>
               <div className="hidden md:flex items-center gap-6">
-                <button 
+                <button type="button" 
                   className={`text-sm font-medium leading-normal transition-colors ${activeTab === 'dashboard' ? 'text-[#0ea5e9] font-semibold border-b-2 border-[#0ea5e9] pb-1' : 'text-[#4c669a] dark:text-slate-400 hover:text-[#0ea5e9]'}`} 
                   onClick={() => setActiveTab('dashboard')}
                 >Dashboard</button>
                 {user?.type !== 'BUSINESS' && (
-                  <button 
+                  <button type="button" 
                     className={`text-sm font-medium leading-normal transition-colors ${activeTab === 'password' ? 'text-[#0ea5e9] font-semibold border-b-2 border-[#0ea5e9] pb-1' : 'text-[#4c669a] dark:text-slate-400 hover:text-[#0ea5e9]'}`} 
                     onClick={() => setActiveTab('password')}
                   >Cambiar Contraseña</button>
@@ -192,7 +193,7 @@ const ClientDashboard = () => {
                 <div className="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-10 border-2 border-[#0ea5e9]/20 flex items-center justify-center bg-slate-100 text-[#0ea5e9] font-bold">
                     {user?.type === 'BUSINESS' ? (user?.name?.charAt(0) || 'E') : (user?.name?.charAt(0) || 'C')}
                 </div>
-                <button onClick={handleLogout} className="ml-2 text-slate-400 hover:text-red-500" title="Cerrar Sesión">
+                <button type="button" onClick={handleLogout} className="ml-2 text-slate-400 hover:text-red-500" title="Cerrar Sesión">
                     <ArrowRightOnRectangleIcon className="w-5 h-5" />
                 </button>
               </div>
@@ -283,10 +284,10 @@ const ClientDashboard = () => {
                             </td>
                             <td className="px-4 py-5 text-[#0d121b] dark:text-white text-sm font-semibold">${doc.total?.toFixed(2) || '0.00'}</td>
                             <td className="px-4 py-5 text-right space-x-2">
-                              <button className="inline-flex items-center justify-center p-2 rounded-lg bg-[#0ea5e9]/10 text-[#0ea5e9] hover:bg-[#0ea5e9] hover:text-white transition-all" title="Descargar PDF">
+                              <button type="button" className="inline-flex items-center justify-center p-2 rounded-lg bg-[#0ea5e9]/10 text-[#0ea5e9] hover:bg-[#0ea5e9] hover:text-white transition-all" title="Descargar PDF">
                                 <DocumentIcon className="w-5 h-5" />
                               </button>
-                              <button className="inline-flex items-center justify-center p-2 rounded-lg bg-[#0ea5e9]/10 text-[#0ea5e9] hover:bg-[#0ea5e9] hover:text-white transition-all" title="Descargar XML">
+                              <button type="button" className="inline-flex items-center justify-center p-2 rounded-lg bg-[#0ea5e9]/10 text-[#0ea5e9] hover:bg-[#0ea5e9] hover:text-white transition-all" title="Descargar XML">
                                 <CodeBracketIcon className="w-5 h-5" />
                               </button>
                             </td>
@@ -326,10 +327,10 @@ const ClientDashboard = () => {
                             {doc.business?.name || 'N/A'} - {new Date(doc.issueDate).toLocaleDateString()}
                           </span>
                           <div className="flex gap-2">
-                            <button className="inline-flex items-center justify-center p-2 rounded-lg bg-[#0ea5e9]/10 text-[#0ea5e9] hover:bg-[#0ea5e9] hover:text-white transition-all" title="Descargar PDF">
+                            <button type="button" className="inline-flex items-center justify-center p-2 rounded-lg bg-[#0ea5e9]/10 text-[#0ea5e9] hover:bg-[#0ea5e9] hover:text-white transition-all" title="Descargar PDF">
                               <DocumentIcon className="w-5 h-5" />
                             </button>
-                            <button className="inline-flex items-center justify-center p-2 rounded-lg bg-[#0ea5e9]/10 text-[#0ea5e9] hover:bg-[#0ea5e9] hover:text-white transition-all" title="Descargar XML">
+                            <button type="button" className="inline-flex items-center justify-center p-2 rounded-lg bg-[#0ea5e9]/10 text-[#0ea5e9] hover:bg-[#0ea5e9] hover:text-white transition-all" title="Descargar XML">
                               <CodeBracketIcon className="w-5 h-5" />
                             </button>
                           </div>
@@ -361,10 +362,11 @@ const ClientDashboard = () => {
 
                 <form className="flex flex-col gap-5" onSubmit={handleChangePassword}>
                   <div className="flex flex-col gap-1.5">
-                    <label className="text-sm font-semibold text-[#4c669a] dark:text-slate-400">Nueva Contraseña</label>
-                    <input 
-                        className="rounded-lg border-[#cfd7e7] dark:border-slate-700 dark:bg-slate-800 dark:text-white focus:border-[#0ea5e9] focus:ring-[#0ea5e9] text-sm w-full p-2.5 border" 
-                        placeholder="mínimo 6 caracteres" 
+                    <label htmlFor={`${fieldId}-newPassword`} className="text-sm font-semibold text-[#4c669a] dark:text-slate-400">Nueva Contraseña</label>
+                    <input
+                        id={`${fieldId}-newPassword`}
+                        className="rounded-lg border-[#cfd7e7] dark:border-slate-700 dark:bg-slate-800 dark:text-white focus:border-[#0ea5e9] focus:ring-[#0ea5e9] text-sm w-full p-2.5 border"
+                        placeholder="mínimo 6 caracteres"
                         type="password"
                         value={newPassword}
                         onChange={(e) => setNewPassword(e.target.value)}
@@ -372,10 +374,11 @@ const ClientDashboard = () => {
                     />
                   </div>
                   <div className="flex flex-col gap-1.5">
-                    <label className="text-sm font-semibold text-[#4c669a] dark:text-slate-400">Confirmar Nueva Contraseña</label>
-                    <input 
-                        className="rounded-lg border-[#cfd7e7] dark:border-slate-700 dark:bg-slate-800 dark:text-white focus:border-[#0ea5e9] focus:ring-[#0ea5e9] text-sm w-full p-2.5 border" 
-                        placeholder="Repita la contraseña" 
+                    <label htmlFor={`${fieldId}-confirmPassword`} className="text-sm font-semibold text-[#4c669a] dark:text-slate-400">Confirmar Nueva Contraseña</label>
+                    <input
+                        id={`${fieldId}-confirmPassword`}
+                        className="rounded-lg border-[#cfd7e7] dark:border-slate-700 dark:bg-slate-800 dark:text-white focus:border-[#0ea5e9] focus:ring-[#0ea5e9] text-sm w-full p-2.5 border"
+                        placeholder="Repita la contraseña"
                         type="password"
                         value={confirmPassword}
                         onChange={(e) => setConfirmPassword(e.target.value)}
@@ -406,7 +409,7 @@ const ClientDashboard = () => {
                     <p className="text-xs text-[#4c669a] dark:text-slate-400 leading-relaxed mb-3">
                       Si tienes problemas para visualizar tus facturas, contacta a nuestro soporte técnico.
                     </p>
-                    <button className="text-xs font-bold text-[#0ea5e9] underline">Contactar Soporte</button>
+                    <button type="button" className="text-xs font-bold text-[#0ea5e9] underline">Contactar Soporte</button>
                   </div>
                 </div>
               </div>

@@ -5,13 +5,26 @@ const jwtMiddleware = require('../../middleware/jwt.middleware');
 const roleMiddleware = require('../../middleware/role.middleware');
 const { ensureSettings } = require('./settings.service');
 
-ensureSettings();
+// Inicializar AppSettings de forma diferida (no en top-level para evitar
+// que un fallo de Prisma en el arranque crashee todo el servidor)
+let settingsInitialized = false;
+const initSettings = async (req, res, next) => {
+  if (!settingsInitialized) {
+    try {
+      await ensureSettings();
+      settingsInitialized = true;
+    } catch (err) {
+      console.error('[Settings] No se pudo inicializar AppSettings:', err.message);
+    }
+  }
+  next();
+};
 
-router.get('/api/admin/settings', settingsController.getSettings);
+router.get('/api/admin/settings', initSettings, settingsController.getSettings);
 router.put('/api/admin/settings', jwtMiddleware, roleMiddleware(['SUPERADMIN']), settingsController.updateSettings);
-router.get('/api/settings/landing-logo', settingsController.getLandingLogo);
+router.get('/api/settings/landing-logo', initSettings, settingsController.getLandingLogo);
 router.put('/api/settings/landing-logo', jwtMiddleware, roleMiddleware(['SUPERADMIN']), settingsController.saveLandingLogo);
-router.get('/api/landing-content', settingsController.getLandingContent);
+router.get('/api/landing-content', initSettings, settingsController.getLandingContent);
 router.put('/api/landing-content', jwtMiddleware, roleMiddleware(['SUPERADMIN']), settingsController.updateLandingContent);
 
 module.exports = router;

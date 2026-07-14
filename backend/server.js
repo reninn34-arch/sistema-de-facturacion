@@ -41,7 +41,6 @@ app.use(morgan('combined'));
 const allowedOrigins = [
   'http://localhost:3000',
   'http://localhost:5173',
-  'https://sistemasaas.up.railway.app',
   process.env.FRONTEND_URL
 ].filter(Boolean);
 
@@ -81,6 +80,30 @@ app.use(cors(corsOptions));
 // Body parser
 app.use(bodyParser.json({ limit: '10mb' }));
 app.use(bodyParser.urlencoded({ extended: true, limit: '10mb' }));
+
+// Cookie parser mínimo (sin dependencia externa).
+// Los tokens de sesión viajan en cookies HttpOnly para que ningún script
+// del navegador (XSS) pueda leerlos — ver jwt.middleware.js.
+app.use((req, _res, next) => {
+  req.cookies = {};
+  const header = req.headers.cookie;
+  if (header) {
+    for (const part of header.split(';')) {
+      const idx = part.indexOf('=');
+      if (idx > -1) {
+        const key = part.slice(0, idx).trim();
+        if (!(key in req.cookies)) {
+          try {
+            req.cookies[key] = decodeURIComponent(part.slice(idx + 1).trim());
+          } catch {
+            req.cookies[key] = part.slice(idx + 1).trim();
+          }
+        }
+      }
+    }
+  }
+  next();
+});
 
 // Rate limiting
 const limiter = rateLimit({
@@ -166,33 +189,59 @@ app.use('*', (req, res) => {
 // [NUEVO] Middleware de manejo de errores centralizado (Debe ser el último app.use)
 app.use(errorHandler);
 
-// Iniciar servidor
-app.listen(PORT, () => {
-  console.log('');
-  console.log('═══════════════════════════════════════════════════');
-  console.log('🇪🇨  PROXY SRI ECUADOR - SERVIDOR INICIADO  🇪🇨');
-  console.log('═══════════════════════════════════════════════════');
-  console.log('');
-  console.log(`✅ Servidor ejecutándose en: http://localhost:${PORT}`);
-  console.log(`🌍 Entorno: ${process.env.NODE_ENV || 'development'}`);
-  console.log(`📡 Frontend URL: ${process.env.FRONTEND_URL || 'http://localhost:3000'}`);
-  console.log('');
-  console.log('📋 Endpoints disponibles:');
-  console.log(`   POST http://localhost:${PORT}/api/sri/sign-xml`);
-  console.log(`   POST http://localhost:${PORT}/api/sri/recepcion`);
-  console.log(`   POST http://localhost:${PORT}/api/sri/autorizacion`);
-  console.log(`   POST http://localhost:${PORT}/api/login`);
-  console.log(`   POST http://localhost:${PORT}/api/auth/client/login`);
-  console.log(`   POST http://localhost:${PORT}/api/forgot-password`);
-  console.log(`   POST http://localhost:${PORT}/api/notifications/send-email`);
-  console.log(`   POST http://localhost:${PORT}/api/notifications/send-sms`);
-  console.log(`   POST http://localhost:${PORT}/api/notifications/send-whatsapp`);
-  console.log(`   GET  http://localhost:${PORT}/health`);
-  console.log(`   GET  http://localhost:${PORT}/api/info`);
-  console.log('');
-  console.log('═══════════════════════════════════════════════════');
-  console.log('');
-});
+const prisma = require('./prisma/client');
+
+// Iniciar servidor verificando la base de datos primero
+async function startServer() {
+  try {
+    // Intentar conectar a la base de datos
+    await prisma.$connect();
+    logger.info('🔌 Conexión exitosa a la base de datos PostgreSQL.');
+  } catch (error) {
+    console.error('');
+    console.error('❌ ═══════════════════════════════════════════════════ ❌');
+    console.error('  ERROR DE CONEXIÓN A LA BASE DE DATOS');
+    console.error('  No se pudo establecer conexión con la base de datos.');
+    console.error('  Por favor, asegúrate de que Docker esté encendido y que');
+    console.error('  el contenedor de PostgreSQL (ecuafact_db) esté en ejecución.');
+    console.error('❌ ═══════════════════════════════════════════════════ ❌');
+    console.error('');
+    process.exit(1);
+  }
+
+  if (!process.env.VERCEL) {
+    app.listen(PORT, () => {
+      console.log('');
+      console.log('═══════════════════════════════════════════════════');
+      console.log('🇪🇨  PROXY SRI ECUADOR - SERVIDOR INICIADO  🇪🇨');
+      console.log('═══════════════════════════════════════════════════');
+      console.log('');
+      console.log(`✅ Servidor ejecutándose en: http://localhost:${PORT}`);
+      console.log(`🌍 Entorno: ${process.env.NODE_ENV || 'development'}`);
+      console.log(`📡 Frontend URL: ${process.env.FRONTEND_URL || 'http://localhost:3000'}`);
+      console.log('');
+      console.log('📋 Endpoints disponibles:');
+      console.log(`   POST http://localhost:${PORT}/api/sri/sign-xml`);
+      console.log(`   POST http://localhost:${PORT}/api/sri/recepcion`);
+      console.log(`   POST http://localhost:${PORT}/api/sri/autorizacion`);
+      console.log(`   POST http://localhost:${PORT}/api/login`);
+      console.log(`   POST http://localhost:${PORT}/api/auth/client/login`);
+      console.log(`   POST http://localhost:${PORT}/api/forgot-password`);
+      console.log(`   POST http://localhost:${PORT}/api/notifications/send-email`);
+      console.log(`   POST http://localhost:${PORT}/api/notifications/send-sms`);
+      console.log(`   POST http://localhost:${PORT}/api/notifications/send-whatsapp`);
+      console.log(`   GET  http://localhost:${PORT}/health`);
+      console.log(`   GET  http://localhost:${PORT}/api/info`);
+      console.log('');
+      console.log('═══════════════════════════════════════════════════');
+      console.log('');
+    });
+  } else {
+    logger.info('🚀 Backend corriendo en modo Serverless en Vercel');
+  }
+}
+
+startServer();
 
 // Manejo de cierre graceful
 process.on('SIGTERM', () => {
@@ -204,4 +253,6 @@ process.on('SIGINT', () => {
   logger.info('👋 Cerrando servidor...');
   process.exit(0);
 });
+
+module.exports = app;
 

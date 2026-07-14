@@ -1,4 +1,4 @@
-﻿import React, { useState, useMemo } from 'react';
+﻿import React, { useState, useMemo, useId } from 'react';
 import { Client } from '../../../types/types';
 import { validateEcuadorianId, getEntityAvatarColor } from '../../../utils/validation';
 import CsvImportModal from '../../../components/ui/CsvImportModal';
@@ -29,6 +29,7 @@ interface ClientManagerProps {
 const API_URL = import.meta.env.VITE_BACKEND_URL || '';
 
 const ClientManager: React.FC<ClientManagerProps> = ({ clients, setClients, onNotify, isDemoMode, currentUser }) => {
+  const fieldId = useId();
   const [showModal, setShowModal] = useState(false);
   const [editingClient, setEditingClient] = useState<Client | null>(null);
   const [formData, setFormData] = useState<Partial<Client>>({ type: 'CLIENTE' });
@@ -294,8 +295,8 @@ const ClientManager: React.FC<ClientManagerProps> = ({ clients, setClients, onNo
           { label: 'Entidades Totales', value: stats.total, icon: <IdentificationIcon className="w-7 h-7" />, color: 'slate' },
           { label: 'Clientes Activos', value: stats.clients, icon: <ShoppingCartIcon className="w-7 h-7" />, color: 'blue' },
           { label: 'Proveedores', value: stats.suppliers, icon: <TruckIcon className="w-7 h-7" />, color: 'emerald' },
-        ].map((s, i) => (
-          <div key={i} className="bg-white dark:bg-slate-800 p-8 rounded-[2.5rem] shadow-sm border border-slate-100 dark:border-slate-700 flex items-center gap-6">
+        ].map((s) => (
+          <div key={s.label} className="bg-white dark:bg-slate-800 p-8 rounded-[2.5rem] shadow-sm border border-slate-100 dark:border-slate-700 flex items-center gap-6">
             <div className={`w-14 h-14 rounded-2xl flex items-center justify-center text-2xl bg-${s.color}-50 dark:bg-${s.color}-900/30 text-${s.color}-600 dark:text-${s.color}-400`}>
               {s.icon}
             </div>
@@ -322,7 +323,7 @@ const ClientManager: React.FC<ClientManagerProps> = ({ clients, setClients, onNo
           </div>
           <div className="flex bg-slate-50 dark:bg-slate-700 p-1 rounded-2xl">
             {(['TODOS', 'CLIENTE', 'PROVEEDOR'] as const).map(t => (
-              <button
+              <button type="button"
                 key={t}
                 onClick={() => setFilterType(t)}
                 className={`px-4 sm:px-6 py-2.5 sm:py-3 text-[10px] font-black uppercase rounded-xl transition-all min-h-[44px] ${filterType === t ? 'bg-white dark:bg-slate-600 shadow-sm text-sky-500 dark:text-sky-400' : 'text-slate-400 dark:text-slate-400'}`}
@@ -332,13 +333,13 @@ const ClientManager: React.FC<ClientManagerProps> = ({ clients, setClients, onNo
             ))}
           </div>
         </div>
-        <button
+        <button type="button"
           onClick={() => handleOpenModal()}
           className="w-full lg:w-auto bg-sky-500 dark:bg-sky-500 text-white px-6 sm:px-10 py-4 sm:py-5 rounded-[1.5rem] font-black text-[10px] uppercase tracking-widest hover:scale-105 transition-all shadow-xl shadow-sky-100 dark:shadow-slate-900 min-h-[52px]"
         >
           + Agregar Entidad
         </button>
-        <button
+        <button type="button"
           onClick={() => setShowImportModal(true)}
           className="w-full lg:w-auto bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 px-6 sm:px-8 py-4 sm:py-5 rounded-[1.5rem] font-black text-[10px] uppercase tracking-widest hover:scale-105 transition-all flex items-center gap-2 min-h-[52px]"
         >
@@ -391,21 +392,21 @@ const ClientManager: React.FC<ClientManagerProps> = ({ clients, setClients, onNo
             <div className="bg-slate-50/50 dark:bg-slate-700/50 p-6 flex justify-between items-center border-t border-slate-50 dark:border-slate-600">
               <div className="flex gap-2">
                 {client.phone && (
-                  <button
+                  <button type="button"
                     onClick={() => window.open(`https://wa.me/593${client.phone.replace(/^0/, '')}`, '_blank')}
                     className="w-10 h-10 bg-white dark:bg-slate-600 border border-slate-200 dark:border-slate-500 rounded-xl flex items-center justify-center hover:bg-emerald-500 hover:text-white transition-all shadow-sm min-w-[40px] min-h-[40px]"
                     title="WhatsApp"
                   ><ChatBubbleLeftRightIcon className="w-4 h-4" /></button>
                 )}
                 {client.email && (
-                  <button
+                  <button type="button"
                     onClick={() => window.location.href = `mailto:${client.email}`}
                     className="w-10 h-10 bg-white dark:bg-slate-600 border border-slate-200 dark:border-slate-500 rounded-xl flex items-center justify-center hover:bg-sky-500 hover:text-white transition-all shadow-sm min-w-[40px] min-h-[40px]"
                     title="Email"
                   ><EnvelopeIcon className="w-4 h-4" /></button>
                 )}
                 {client.address && (
-                  <button
+                  <button type="button"
                     onClick={() => window.open(`https://www.google.com/maps/search/${encodeURIComponent(client.address)}`, '_blank')}
                     className="w-10 h-10 bg-white dark:bg-slate-600 border border-slate-200 dark:border-slate-500 rounded-xl flex items-center justify-center hover:bg-rose-500 hover:text-white transition-all shadow-sm min-w-[40px] min-h-[40px]"
                     title="Mapa"
@@ -413,9 +414,9 @@ const ClientManager: React.FC<ClientManagerProps> = ({ clients, setClients, onNo
                 )}
               </div>
               <div className="flex gap-4">
-                <button onClick={() => handleOpenModal(client)} className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest hover:text-sky-500 dark:hover:text-sky-400 transition-colors">Editar</button>
-                <button onClick={() => { setResetPasswordClient(client); setShowResetModal(true); }} className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest hover:text-amber-500 transition-colors"><KeyIcon className="w-4 h-4 inline" /> Reset</button>
-                <button onClick={() => handleDelete(client.id, client.ruc)} className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest hover:text-rose-500 transition-colors">Eliminar</button>
+                <button type="button" onClick={() => handleOpenModal(client)} className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest hover:text-sky-500 dark:hover:text-sky-400 transition-colors">Editar</button>
+                <button type="button" onClick={() => { setResetPasswordClient(client); setShowResetModal(true); }} className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest hover:text-amber-500 transition-colors"><KeyIcon className="w-4 h-4 inline" /> Reset</button>
+                <button type="button" onClick={() => handleDelete(client.id, client.ruc)} className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest hover:text-rose-500 transition-colors">Eliminar</button>
               </div>
             </div>
           </div>
@@ -435,8 +436,9 @@ const ClientManager: React.FC<ClientManagerProps> = ({ clients, setClients, onNo
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-2">
-                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">RUC / Cédula</label>
+                  <label htmlFor={`${fieldId}-ruc`} className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">RUC / Cédula</label>
                   <input
+                    id={`${fieldId}-ruc`}
                     placeholder="Ej: 1722334455001"
                     value={formData.ruc || ''}
                     className="w-full p-3 sm:p-4 bg-slate-50 rounded-2xl font-bold outline-none border-2 border-transparent focus:border-sky-500 transition-all min-h-[48px] text-sm sm:text-base"
@@ -444,8 +446,9 @@ const ClientManager: React.FC<ClientManagerProps> = ({ clients, setClients, onNo
                   />
                 </div>
                 <div className="space-y-2">
-                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Tipo de Entidad</label>
+                  <label htmlFor={`${fieldId}-type`} className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Tipo de Entidad</label>
                   <select
+                    id={`${fieldId}-type`}
                     className="w-full p-3 sm:p-4 bg-slate-50 rounded-2xl font-bold outline-none border-2 border-transparent focus:border-sky-500 transition-all appearance-none min-h-[48px] text-sm sm:text-base"
                     value={formData.type}
                     onChange={e => setFormData({ ...formData, type: e.target.value as any })}
@@ -456,8 +459,9 @@ const ClientManager: React.FC<ClientManagerProps> = ({ clients, setClients, onNo
                   </select>
                 </div>
                 <div className="md:col-span-2 space-y-2">
-                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Razón Social / Nombre Completo</label>
+                  <label htmlFor={`${fieldId}-name`} className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Razón Social / Nombre Completo</label>
                   <input
+                    id={`${fieldId}-name`}
                     placeholder="Ej: Juan Pérez o Empresa S.A."
                     value={formData.name || ''}
                     className="w-full p-3 sm:p-4 bg-slate-50 rounded-2xl font-bold outline-none border-2 border-transparent focus:border-sky-500 transition-all min-h-[48px] text-sm sm:text-base"
@@ -465,8 +469,9 @@ const ClientManager: React.FC<ClientManagerProps> = ({ clients, setClients, onNo
                   />
                 </div>
                 <div className="space-y-2">
-                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Correo Electrónico</label>
+                  <label htmlFor={`${fieldId}-email`} className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Correo Electrónico</label>
                   <input
+                    id={`${fieldId}-email`}
                     placeholder="email@ejemplo.com"
                     value={formData.email || ''}
                     className="w-full p-3 sm:p-4 bg-slate-50 rounded-2xl font-bold outline-none border-2 border-transparent focus:border-sky-500 transition-all min-h-[48px] text-sm sm:text-base"
@@ -474,8 +479,9 @@ const ClientManager: React.FC<ClientManagerProps> = ({ clients, setClients, onNo
                   />
                 </div>
                 <div className="space-y-2">
-                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Teléfono / WhatsApp</label>
+                  <label htmlFor={`${fieldId}-phone`} className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Teléfono / WhatsApp</label>
                   <input
+                    id={`${fieldId}-phone`}
                     placeholder="Ej: 0998877665"
                     value={formData.phone || ''}
                     className="w-full p-3 sm:p-4 bg-slate-50 rounded-2xl font-bold outline-none border-2 border-transparent focus:border-sky-500 transition-all min-h-[48px] text-sm sm:text-base"
@@ -483,8 +489,9 @@ const ClientManager: React.FC<ClientManagerProps> = ({ clients, setClients, onNo
                   />
                 </div>
                 <div className="md:col-span-2 space-y-2">
-                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Dirección Completa</label>
+                  <label htmlFor={`${fieldId}-address`} className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Dirección Completa</label>
                   <input
+                    id={`${fieldId}-address`}
                     placeholder="Ej: Av. Amazonas y República, Quito"
                     value={formData.address || ''}
                     className="w-full p-3 sm:p-4 bg-slate-50 rounded-2xl font-bold outline-none border-2 border-transparent focus:border-sky-500 transition-all min-h-[48px] text-sm sm:text-base"
@@ -494,8 +501,8 @@ const ClientManager: React.FC<ClientManagerProps> = ({ clients, setClients, onNo
               </div>
 
               <div className="flex gap-4 pt-6">
-                <button onClick={() => setShowModal(false)} className="flex-1 py-4 sm:py-5 font-black text-slate-400 uppercase text-[10px] tracking-widest hover:text-slate-600 transition-colors min-h-[48px]">Cancelar</button>
-                <button onClick={handleSave} className="flex-[2] py-4 sm:py-5 font-black bg-sky-500 text-white rounded-[1.5rem] shadow-xl shadow-indigo-100 uppercase text-[10px] tracking-widest hover:scale-[1.02] active:scale-95 transition-all min-h-[52px]">
+                <button type="button" onClick={() => setShowModal(false)} className="flex-1 py-4 sm:py-5 font-black text-slate-400 uppercase text-[10px] tracking-widest hover:text-slate-600 transition-colors min-h-[48px]">Cancelar</button>
+                <button type="submit" onClick={handleSave} className="flex-[2] py-4 sm:py-5 font-black bg-sky-500 text-white rounded-[1.5rem] shadow-xl shadow-indigo-100 uppercase text-[10px] tracking-widest hover:scale-[1.02] active:scale-95 transition-all min-h-[52px]">
                   {editingClient ? 'Guardar Cambios' : 'Registrar Entidad'}
                 </button>
               </div>
@@ -513,7 +520,7 @@ const ClientManager: React.FC<ClientManagerProps> = ({ clients, setClients, onNo
                 <h4 className="text-2xl font-black text-slate-900 dark:text-white tracking-tighter">
                   <KeyIcon className="w-5 h-5 inline" /> Resetear Contraseña
                 </h4>
-                <button onClick={() => { setShowResetModal(false); setResetPasswordClient(null); setNewPassword(''); }} className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"><XMarkIcon className="w-5 h-5" /></button>
+                <button type="button" onClick={() => { setShowResetModal(false); setResetPasswordClient(null); setNewPassword(''); }} className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"><XMarkIcon className="w-5 h-5" /></button>
               </div>
               
               <p className="text-sm text-slate-500 dark:text-slate-400">
@@ -521,8 +528,9 @@ const ClientManager: React.FC<ClientManagerProps> = ({ clients, setClients, onNo
               </p>
 
               <div className="space-y-2">
-                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Nueva Contraseña</label>
+                <label htmlFor={`${fieldId}-newPassword`} className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Nueva Contraseña</label>
                 <input
+                  id={`${fieldId}-newPassword`}
                   type="password"
                   placeholder="Ingrese nueva contraseña"
                   value={newPassword}
@@ -532,13 +540,13 @@ const ClientManager: React.FC<ClientManagerProps> = ({ clients, setClients, onNo
               </div>
 
               <div className="flex gap-4 pt-4">
-                <button 
+                <button type="button" 
                   onClick={() => { setShowResetModal(false); setResetPasswordClient(null); setNewPassword(''); }} 
                   className="flex-1 py-4 font-black text-slate-400 uppercase text-[10px] tracking-widest hover:text-slate-600 transition-colors"
                 >
                   Cancelar
                 </button>
-                <button 
+                <button type="submit" 
                   onClick={handleResetPassword} 
                   className="flex-[2] py-4 font-black bg-amber-500 text-white rounded-[1.5rem] shadow-xl shadow-amber-100 uppercase text-[10px] tracking-widest hover:scale-[1.02] active:scale-95 transition-all"
                 >

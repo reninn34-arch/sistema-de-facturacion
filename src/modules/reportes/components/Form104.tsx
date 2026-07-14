@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useId } from 'react';
 import { BanknotesIcon, ArrowDownTrayIcon, ExclamationTriangleIcon } from '@heroicons/react/24/outline';
 import { Document, BusinessInfo, Form104Data } from '../../../types/types';
 
@@ -9,6 +9,7 @@ interface Form104Props {
 }
 
 export default function Form104({ documents, business, onNotify }: Form104Props) {
+  const fieldId = useId();
   const [month, setMonth] = useState('');
   const [year, setYear] = useState(new Date().getFullYear().toString());
 
@@ -111,8 +112,9 @@ IVA a Pagar / Crédito Tributario: $${form104Data.ivaToPayOrCredit.toFixed(2)}
 
         <div className="grid grid-cols-2 gap-4 mb-6">
           <div className="space-y-2">
-            <label className="text-xs font-bold text-slate-600 dark:text-slate-400 uppercase">Mes</label>
+            <label htmlFor={`${fieldId}-month`} className="text-xs font-bold text-slate-600 dark:text-slate-400 uppercase">Mes</label>
             <select
+              id={`${fieldId}-month`}
               value={month}
               onChange={e => setMonth(e.target.value)}
               className="w-full p-4 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-xl font-bold text-sm text-slate-800 dark:text-slate-200"
@@ -133,8 +135,9 @@ IVA a Pagar / Crédito Tributario: $${form104Data.ivaToPayOrCredit.toFixed(2)}
             </select>
           </div>
           <div className="space-y-2">
-            <label className="text-xs font-bold text-slate-600 dark:text-slate-400 uppercase">Año</label>
+            <label htmlFor={`${fieldId}-year`} className="text-xs font-bold text-slate-600 dark:text-slate-400 uppercase">Año</label>
             <input
+              id={`${fieldId}-year`}
               type="number"
               value={year}
               onChange={e => setYear(e.target.value)}
@@ -186,7 +189,7 @@ IVA a Pagar / Crédito Tributario: $${form104Data.ivaToPayOrCredit.toFixed(2)}
           </div>
         </div>
 
-        <button
+        <button type="button"
           onClick={exportReport}
           disabled={!month || !year}
           className="w-full mt-6 py-4 bg-sky-500 hover:bg-sky-600 text-white rounded-2xl font-black uppercase text-sm tracking-wide shadow-lg shadow-sky-500/20 disabled:opacity-50 disabled:cursor-not-allowed"

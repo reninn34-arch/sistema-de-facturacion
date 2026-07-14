@@ -1,5 +1,5 @@
 ﻿
-import React, { useState } from 'react';
+import React, { useState, useId } from 'react';
 import { WebOrder, Product, Client, Document, DocumentType, SriStatus, PaymentStatus, BusinessInfo, InvoiceItem } from '../../../types/types';
 import { generateAccessKey } from '../../../utils/sri';
 import { ShoppingCartIcon, CreditCardIcon, BuildingLibraryIcon, ShieldCheckIcon, CheckCircleIcon, ClockIcon, PaperAirplaneIcon, XCircleIcon } from '@heroicons/react/24/outline';
@@ -14,6 +14,7 @@ interface IntegrationsProps {
 }
 
 const Integrations: React.FC<IntegrationsProps> = ({ products, clients, businessInfo, onOrderAuthorized, onNotify, onUpdateProducts }) => {
+  const fieldId = useId();
   const [storeUrl, setStoreUrl] = useState(businessInfo.website || 'https://tu-tienda.com');
   const [storeApiKey, setStoreApiKey] = useState('ck_live_xxxxxxxxxxxxxxxx');
   const [isConfigured, setIsConfigured] = useState(false);
@@ -23,10 +24,11 @@ const Integrations: React.FC<IntegrationsProps> = ({ products, clients, business
   
   const [isSimulating, setIsSimulating] = useState(false);
   const [isSyncing, setIsSyncing] = useState(false);
-  const [syncLogs, setSyncLogs] = useState<{msg: string, time: string, type: 'info' | 'success' | 'warn' | 'error'}[]>([]);
+  const [syncLogs, setSyncLogs] = useState<{id: string, msg: string, time: string, type: 'info' | 'success' | 'warn' | 'error'}[]>([]);
 
   const addLog = (msg: string, type: 'info' | 'success' | 'warn' | 'error' = 'info') => {
-    setSyncLogs(prev => [{ msg, time: new Date().toLocaleTimeString(), type }, ...prev].slice(0, 8));
+    // id estable por entrada: la lista se reordena (prepend + recorte a 8)
+    setSyncLogs(prev => [{ id: crypto.randomUUID(), msg, time: new Date().toLocaleTimeString(), type }, ...prev].slice(0, 8));
   };
 
   const saveConfiguration = () => {
@@ -200,7 +202,7 @@ const Integrations: React.FC<IntegrationsProps> = ({ products, clients, business
                 className="w-full p-4 bg-slate-50 rounded-2xl font-bold text-xs border border-slate-100 outline-none focus:border-sky-500"
                 placeholder="API Secret Key"
               />
-              <button 
+              <button type="button" 
                 onClick={saveConfiguration}
                 className="w-full py-4 bg-sky-500 text-white rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-sky-600 transition-all"
               >
@@ -208,7 +210,7 @@ const Integrations: React.FC<IntegrationsProps> = ({ products, clients, business
               </button>
             </div>
             <div className="pt-4 border-t border-slate-50">
-               <button 
+               <button type="button" 
                 onClick={syncInventory}
                 disabled={isSyncing || !isConfigured}
                 className="w-full py-4 bg-sky-500 text-white rounded-2xl font-black text-[10px] uppercase tracking-widest shadow-lg shadow-indigo-100 disabled:opacity-30"
@@ -222,12 +224,12 @@ const Integrations: React.FC<IntegrationsProps> = ({ products, clients, business
              <h4 className="font-black text-sky-400 uppercase tracking-widest text-[10px] mb-6">Actividad de Integración</h4>
              <div className="flex-1 space-y-3 font-mono text-[9px] overflow-y-auto max-h-[250px]">
                 {syncLogs.length === 0 ? <p className="text-slate-600 italic">Esperando eventos...</p> : 
-                  syncLogs.map((log, i) => (
-                    <div key={i}><span className="text-slate-500">[{log.time}]</span> <span className={log.type === 'success' ? 'text-emerald-400' : log.type === 'error' ? 'text-rose-400' : 'text-blue-300'}>{log.msg}</span></div>
+                  syncLogs.map((log) => (
+                    <div key={log.id}><span className="text-slate-500">[{log.time}]</span> <span className={log.type === 'success' ? 'text-emerald-400' : log.type === 'error' ? 'text-rose-400' : 'text-blue-300'}>{log.msg}</span></div>
                   ))
                 }
              </div>
-             <button 
+             <button type="button" 
                 disabled={isSimulating || !isConfigured}
                 onClick={simulateWebhook}
                 className="mt-6 py-4 bg-white/10 hover:bg-white/20 text-white rounded-2xl font-black text-[9px] uppercase tracking-widest disabled:opacity-10"
@@ -296,7 +298,7 @@ const Integrations: React.FC<IntegrationsProps> = ({ products, clients, business
                      </div>
 
                      <div className="flex flex-col justify-center gap-3 md:w-56">
-                       <button 
+                       <button type="button" 
                          onClick={() => setEditingOrder({...order})}
                          className="w-full py-4 bg-slate-50 text-slate-600 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-slate-100 transition-all flex items-center justify-center gap-2"
                        >
@@ -304,7 +306,7 @@ const Integrations: React.FC<IntegrationsProps> = ({ products, clients, business
                        </button>
 
                        {!order.paymentConfirmed && order.paymentMethod === 'TRANSFER' && (
-                         <button 
+                         <button type="submit" 
                            onClick={() => confirmTransferManual(order.id)}
                            className="w-full py-4 bg-emerald-600 text-white rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-emerald-700 transition-all shadow-lg"
                          >
@@ -312,7 +314,7 @@ const Integrations: React.FC<IntegrationsProps> = ({ products, clients, business
                          </button>
                        )}
                        
-                       <button 
+                       <button type="submit" 
                          onClick={() => processOrderToSRI(order)}
                          disabled={!order.paymentConfirmed}
                          className={`w-full py-5 rounded-2xl font-black text-[10px] uppercase tracking-widest transition-all ${order.paymentConfirmed ? 'bg-slate-900 text-white shadow-xl hover:scale-105' : 'bg-slate-100 text-slate-400'}`}
@@ -341,31 +343,34 @@ const Integrations: React.FC<IntegrationsProps> = ({ products, clients, business
                  <h2 className="text-2xl font-black text-slate-900 tracking-tighter uppercase">Corregir Datos del Pedido</h2>
                  <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">Rastreo de pago: {editingOrder.paymentMethod === 'CARD' ? `TARJETA (${editingOrder.transactionId})` : 'TRANSFERENCIA BANCARIA'}</p>
                </div>
-               <button onClick={() => setEditingOrder(null)} className="w-12 h-12 rounded-full bg-white flex items-center justify-center shadow-sm text-slate-400 hover:text-rose-500 transition-all">✕</button>
+               <button type="button" onClick={() => setEditingOrder(null)} className="w-12 h-12 rounded-full bg-white flex items-center justify-center shadow-sm text-slate-400 hover:text-rose-500 transition-all">✕</button>
             </div>
             
             <div className="flex-1 overflow-y-auto p-10 space-y-8">
                {/* Sección Cliente */}
                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                  <div className="space-y-2">
-                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Razón Social</label>
-                    <input 
+                    <label htmlFor={`${fieldId}-customerName`} className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Razón Social</label>
+                    <input
+                      id={`${fieldId}-customerName`}
                       className="w-full p-4 bg-slate-50 rounded-2xl font-bold text-sm outline-none border-2 border-transparent focus:border-sky-500"
                       value={editingOrder.customerName}
                       onChange={e => setEditingOrder({...editingOrder, customerName: e.target.value})}
                     />
                  </div>
                  <div className="space-y-2">
-                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">RUC / Cédula</label>
-                    <input 
+                    <label htmlFor={`${fieldId}-customerRuc`} className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">RUC / Cédula</label>
+                    <input
+                      id={`${fieldId}-customerRuc`}
                       className="w-full p-4 bg-slate-50 rounded-2xl font-bold text-sm outline-none border-2 border-transparent focus:border-sky-500"
                       value={editingOrder.customerRuc}
                       onChange={e => setEditingOrder({...editingOrder, customerRuc: e.target.value})}
                     />
                  </div>
                  <div className="space-y-2">
-                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Email Cliente</label>
-                    <input 
+                    <label htmlFor={`${fieldId}-customerEmail`} className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Email Cliente</label>
+                    <input
+                      id={`${fieldId}-customerEmail`}
                       className="w-full p-4 bg-slate-50 rounded-2xl font-bold text-sm outline-none border-2 border-transparent focus:border-sky-500"
                       value={editingOrder.customerEmail}
                       onChange={e => setEditingOrder({...editingOrder, customerEmail: e.target.value})}
@@ -377,7 +382,7 @@ const Integrations: React.FC<IntegrationsProps> = ({ products, clients, business
                <div className="space-y-4">
                  <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest border-b pb-2">Desglose de Productos y Descuentos</p>
                  {editingOrder.items.map((item, idx) => (
-                   <div key={idx} className="grid grid-cols-1 md:grid-cols-4 gap-4 bg-slate-50/50 p-6 rounded-[2rem] border border-slate-100">
+                   <div key={item.productId} className="grid grid-cols-1 md:grid-cols-4 gap-4 bg-slate-50/50 p-6 rounded-[2rem] border border-slate-100">
                       <div className="md:col-span-1">
                         <p className="text-[9px] font-black text-slate-400 uppercase mb-1">Producto</p>
                         <p className="font-bold text-sm text-slate-800">{item.description}</p>
@@ -440,8 +445,8 @@ const Integrations: React.FC<IntegrationsProps> = ({ products, clients, business
                   </div>
                </div>
                <div className="flex gap-4">
-                  <button onClick={() => setEditingOrder(null)} className="px-8 py-4 font-black text-[10px] uppercase text-slate-400 hover:text-white transition-colors">Cancelar</button>
-                  <button 
+                  <button type="button" onClick={() => setEditingOrder(null)} className="px-8 py-4 font-black text-[10px] uppercase text-slate-400 hover:text-white transition-colors">Cancelar</button>
+                  <button type="submit" 
                     onClick={saveEditedOrder}
                     className="px-10 py-4 bg-sky-500 text-white rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-sky-500 transition-all shadow-xl shadow-indigo-900/40"
                   >

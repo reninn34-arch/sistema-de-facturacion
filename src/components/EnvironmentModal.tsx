@@ -17,7 +17,9 @@ const EnvironmentModal: React.FC<EnvironmentModalProps> = ({ isOpen, onClose, on
         {/* Header */}
         <div className="relative pt-8 pb-4 px-8 text-center flex flex-col items-center justify-center">
           <button 
+            type="button"
             onClick={onClose}
+            aria-label="Cerrar advertencia de producción"
             className="absolute top-4 right-4 p-2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 transition-colors"
           >
             <XMarkIcon className="w-6 h-6" />
@@ -67,9 +69,9 @@ const EnvironmentModal: React.FC<EnvironmentModalProps> = ({ isOpen, onClose, on
           </div>
         </div>
 
-        {/* Footer Actions */}
         <div className="p-8 bg-slate-50 dark:bg-slate-800/50 border-t border-slate-200 dark:border-slate-700/50 flex flex-col md:flex-row gap-4 justify-center items-center">
           <button
+            type="button"
             onClick={onConfirm}
             disabled={loading}
             className="w-full md:w-auto px-8 py-4 bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 text-slate-700 dark:text-white rounded-full font-bold transition-all disabled:opacity-50"
@@ -78,6 +80,7 @@ const EnvironmentModal: React.FC<EnvironmentModalProps> = ({ isOpen, onClose, on
           </button>
           
           <button
+            type="button"
             onClick={onClose}
             disabled={loading}
             className="w-full md:w-auto px-12 py-4 bg-[#0d4f3b] hover:bg-[#0a3d2e] text-white rounded-full font-bold transition-all disabled:opacity-50"

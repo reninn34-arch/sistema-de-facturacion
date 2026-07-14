@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useId } from 'react';
 import { DocumentTextIcon, ArrowLeftIcon, PhoneIcon, EnvelopeIcon, ClockIcon, MapPinIcon, CheckCircleIcon } from '@heroicons/react/24/outline';
 import CookieBanner from '../../../components/CookieBanner';
 
@@ -19,10 +19,16 @@ const defaultContact: ContactInfo = {
 };
 
 const ContactoPage: React.FC = () => {
+  const fieldId = useId();
   const [contact, setContact] = useState<ContactInfo>(defaultContact);
   const [formData, setFormData] = useState({ name: '', email: '', message: '' });
   const [submitted, setSubmitted] = useState(false);
   const [landingLogo, setLandingLogo] = useState<string | null | false>(null);
+
+  // Página pública solo con tema claro: limpiar la clase "dark" residual.
+  useEffect(() => {
+    document.documentElement.classList.remove('dark');
+  }, []);
 
   useEffect(() => {
     const img = new Image();
@@ -173,8 +179,9 @@ const ContactoPage: React.FC = () => {
               ) : (
                 <form onSubmit={handleSubmit} className="space-y-5">
                   <div>
-                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Nombre</label>
+                    <label htmlFor={`${fieldId}-name`} className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Nombre</label>
                     <input
+                      id={`${fieldId}-name`}
                       type="text"
                       required
                       value={formData.name}
@@ -184,8 +191,9 @@ const ContactoPage: React.FC = () => {
                     />
                   </div>
                   <div>
-                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Email</label>
+                    <label htmlFor={`${fieldId}-email`} className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Email</label>
                     <input
+                      id={`${fieldId}-email`}
                       type="email"
                       required
                       value={formData.email}
@@ -195,8 +203,9 @@ const ContactoPage: React.FC = () => {
                     />
                   </div>
                   <div>
-                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Mensaje</label>
+                    <label htmlFor={`${fieldId}-message`} className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Mensaje</label>
                     <textarea
+                      id={`${fieldId}-message`}
                       required
                       rows={5}
                       value={formData.message}

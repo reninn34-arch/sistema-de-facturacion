@@ -1,20 +1,260 @@
 const { GoogleGenerativeAI } = require("@google/generative-ai");
 
+// Dynamic import of fetch to avoid issues on different Node versions
+const getFetch = () => {
+  return globalThis.fetch || require('node-fetch');
+};
+
+const PROVIDERS = {
+  GOOGLE: 'google',
+  DEEPSEEK: 'deepseek',
+  OPENCODE: 'opencode',
+  GROQ: 'groq'
+};
+
+const DEFAULT_MODELS = {
+  [PROVIDERS.GOOGLE]: 'gemini-1.5-pro',
+  [PROVIDERS.DEEPSEEK]: 'deepseek-chat',
+  [PROVIDERS.OPENCODE]: 'kimi-k2.5',
+  [PROVIDERS.GROQ]: 'llama-3.3-70b-versatile'
+};
+
+const getProviderConfig = (provider) => {
+  const p = provider ? provider.toLowerCase() : '';
+  
+  if (p === PROVIDERS.DEEPSEEK) {
+    return {
+      id: PROVIDERS.DEEPSEEK,
+      name: 'DeepSeek',
+      apiKey: process.env.DEEPSEEK_API_KEY,
+      baseURL: process.env.DEEPSEEK_BASE_URL || 'https://api.deepseek.com/v1',
+      defaultModel: DEFAULT_MODELS[PROVIDERS.DEEPSEEK]
+    };
+  }
+  
+  if (p === PROVIDERS.OPENCODE) {
+    return {
+      id: PROVIDERS.OPENCODE,
+      name: 'OpenCode (Zen)',
+      apiKey: process.env.OPENCODE_GO_API_KEY,
+      baseURL: process.env.OPENCODE_GO_BASE_URL || 'https://opencode.ai/zen/go/v1',
+      defaultModel: DEFAULT_MODELS[PROVIDERS.OPENCODE]
+    };
+  }
+  
+  if (p === PROVIDERS.GROQ) {
+    return {
+      id: PROVIDERS.GROQ,
+      name: 'Groq (Llama)',
+      apiKey: process.env.GROQ_API_KEY,
+      baseURL: process.env.GROQ_BASE_URL || 'https://api.groq.com/openai/v1',
+      defaultModel: DEFAULT_MODELS[PROVIDERS.GROQ]
+    };
+  }
+
+  // Fallback / Google
+  return {
+    id: PROVIDERS.GOOGLE,
+    name: 'Gemini AI',
+    apiKey: process.env.GEMINI_API_KEY,
+    defaultModel: DEFAULT_MODELS[PROVIDERS.GOOGLE]
+  };
+};
+
 class AiService {
   constructor(repository) {
     this.repository = repository;
   }
 
-  async chat(message, context) {
-    const apiKey = process.env.GEMINI_API_KEY || 'AIzaSyASFiaKmJ_5vOy8sPYhhzl86ag4GexX7rM';
-
-    if (!apiKey) {
-      console.warn('⚠️ GEMINI_API_KEY no configurada');
-      return {
-        reply: "El servicio de IA no está configurado correctamente en el servidor. Por favor configura la variable GEMINI_API_KEY."
-      };
+  getAvailableProviders() {
+    const list = [];
+    
+    // Si hay clave de DeepSeek
+    if (process.env.DEEPSEEK_API_KEY) {
+      list.push({
+        id: PROVIDERS.DEEPSEEK,
+        name: 'DeepSeek',
+        active: process.env.AI_DEFAULT_PROVIDER === PROVIDERS.DEEPSEEK
+      });
+    }
+    
+    // Si hay clave de OpenCode
+    if (process.env.OPENCODE_GO_API_KEY) {
+      list.push({
+        id: PROVIDERS.OPENCODE,
+        name: 'OpenCode (Zen)',
+        active: process.env.AI_DEFAULT_PROVIDER === PROVIDERS.OPENCODE
+      });
     }
 
+    // Si hay clave de Groq
+    if (process.env.GROQ_API_KEY) {
+      list.push({
+        id: PROVIDERS.GROQ,
+        name: 'Groq (Llama)',
+        active: process.env.AI_DEFAULT_PROVIDER === PROVIDERS.GROQ
+      });
+    }
+
+    // Si hay clave de Gemini (opcional ahora)
+    if (process.env.GEMINI_API_KEY) {
+      list.push({
+        id: PROVIDERS.GOOGLE,
+        name: 'Gemini AI',
+        active: process.env.AI_DEFAULT_PROVIDER === PROVIDERS.GOOGLE || !process.env.AI_DEFAULT_PROVIDER
+      });
+    }
+
+    // Si no hay ninguno configurado con clave real, pero el backend tiene cargado Gemini como fallback por defecto
+    if (list.length === 0) {
+      list.push({
+        id: PROVIDERS.DEEPSEEK,
+        name: 'DeepSeek (Sin configurar)',
+        active: true
+      });
+    } else {
+      // Asegurar que al menos uno esté marcado como activo
+      const hasActive = list.some(p => p.active);
+      if (!hasActive && list.length > 0) {
+        list[0].active = true;
+      }
+    }
+
+    return list;
+  }
+
+  /**
+   * Genera una petición a APIs compatibles con el estándar de OpenAI
+   */
+  async callOpenAiCompatibleApi(config, model, systemPrompt, userMessage, temperature = 0.7) {
+    const fetch = getFetch();
+    const targetModel = model || config.defaultModel;
+    
+    if (!config.apiKey) {
+      throw new Error(`Clave API para ${config.name} no configurada.`);
+    }
+
+    const messages = [];
+    if (systemPrompt) {
+      messages.push({ role: 'system', content: systemPrompt });
+    }
+    messages.push({ role: 'user', content: userMessage || 'Hola' });
+
+    const url = `${config.baseURL.replace(/\/$/, '')}/chat/completions`;
+    console.log(`[AI Service] Enviando petición a ${config.name} (${url}) usando modelo ${targetModel}`);
+
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${config.apiKey}`
+      },
+      body: JSON.stringify({
+        model: targetModel,
+        messages,
+        temperature
+      })
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(`Error en API de ${config.name}: [Código ${response.status}] ${errorText}`);
+    }
+
+    const result = await response.json();
+    if (result.choices && result.choices[0] && result.choices[0].message) {
+      return result.choices[0].message.content;
+    }
+
+    throw new Error(`Respuesta inválida de ${config.name}`);
+  }
+
+  /**
+   * Genera una petición a Google Gemini
+   */
+  async callGoogleGemini(config, model, systemPrompt, userMessage) {
+    if (!config.apiKey) {
+      throw new Error("Clave API de Gemini no configurada.");
+    }
+    
+    const targetModel = model || config.defaultModel;
+    console.log(`[AI Service] Enviando petición a Gemini usando modelo ${targetModel}`);
+    
+    const genAI = new GoogleGenerativeAI(config.apiKey);
+    const modelInstance = genAI.getGenerativeModel({ model: targetModel });
+    
+    const prompt = systemPrompt 
+      ? `${systemPrompt}\n\nPregunta/Instrucción: ${userMessage}` 
+      : userMessage;
+
+    const result = await modelInstance.generateContent(prompt);
+    const response = await result.response;
+    return response.text();
+  }
+
+  /**
+   * Genera una respuesta de chat usando el proveedor y modelo seleccionados
+   */
+  async generateChat({ provider, model, systemPrompt, userMessage, temperature = 0.7 }) {
+    let activeProvider = provider || process.env.AI_DEFAULT_PROVIDER || PROVIDERS.DEEPSEEK;
+    let config = getProviderConfig(activeProvider);
+    
+    if (!config.apiKey) {
+      const available = this.getAvailableProviders();
+      const firstConfigured = available.find(p => !p.name.includes('Sin configurar'));
+      if (firstConfigured) {
+        activeProvider = firstConfigured.id;
+        config = getProviderConfig(activeProvider);
+      }
+    }
+
+    const targetModel = model || config.defaultModel;
+
+    try {
+      let reply = '';
+      if (config.id === PROVIDERS.GOOGLE) {
+        reply = await this.callGoogleGemini(config, targetModel, systemPrompt, userMessage);
+      } else {
+        reply = await this.callOpenAiCompatibleApi(config, targetModel, systemPrompt, userMessage, temperature);
+      }
+      return {
+        reply,
+        provider: config.id,
+        model: targetModel
+      };
+    } catch (error) {
+      console.error(`[AI Service] Error con proveedor ${config.name}:`, error.message);
+      
+      const backupProviders = this.getAvailableProviders().filter(p => p.id !== config.id && !p.name.includes('Sin configurar'));
+      if (backupProviders.length > 0) {
+        const fallbackProvider = backupProviders[0].id;
+        const fallbackConfig = getProviderConfig(fallbackProvider);
+        console.log(`[AI Service] Intentando fallback con proveedor ${fallbackConfig.name}...`);
+        
+        try {
+          let reply = '';
+          if (fallbackConfig.id === PROVIDERS.GOOGLE) {
+            reply = await this.callGoogleGemini(fallbackConfig, null, systemPrompt, userMessage);
+          } else {
+            reply = await this.callOpenAiCompatibleApi(fallbackConfig, null, systemPrompt, userMessage, temperature);
+          }
+          return {
+            reply,
+            provider: fallbackConfig.id,
+            model: fallbackConfig.defaultModel,
+            fallbackUsed: true
+          };
+        } catch (fallbackError) {
+          console.error(`[AI Service] Fallback a ${fallbackConfig.name} también falló:`, fallbackError.message);
+        }
+      }
+      
+      throw error;
+    }
+  }
+
+  async chat(message, context, options = {}) {
+    const { provider, model } = options;
     const systemPrompt = `Eres Ecuafact AI, un asistente experto en facturación electrónica del SRI (Ecuador).
     
     CONTEXTO DEL NEGOCIO:
@@ -26,26 +266,25 @@ class AiService {
     Ayudar con dudas sobre impuestos (IVA 15%), retenciones, fechas de vencimiento y uso del sistema.
     Responde de forma breve, amigable y profesional. Si no sabes algo, sugiere consultar a un contador.`;
 
-    const genAI = new GoogleGenerativeAI(apiKey);
-    const model = genAI.getGenerativeModel({ model: "gemini-1.5-pro" });
-
-    const prompt = `${systemPrompt}\n\nPregunta del usuario: ${message}`;
-    const result = await model.generateContent(prompt);
-    const response = await result.response;
-    const reply = response.text();
-
-    return { reply };
+    try {
+      const result = await this.generateChat({
+        provider,
+        model,
+        systemPrompt,
+        userMessage: message
+      });
+      return result;
+    } catch (error) {
+      console.error('❌ Error AI chat:', error.message);
+      return { 
+        reply: `Error de IA: ${error.message}. (Verifica la configuración del proveedor en el servidor)`,
+        provider: provider || 'unknown',
+        model: model || 'unknown'
+      };
+    }
   }
 
   async insights(salesData) {
-    const apiKey = process.env.GEMINI_API_KEY || 'AIzaSyASFiaKmJ_5vOy8sPYhhzl86ag4GexX7rM';
-
-    if (!apiKey) {
-      return {
-        insights: "El servicio de IA no está configurado en el servidor (falta GEMINI_API_KEY)."
-      };
-    }
-
     const systemPrompt = `Eres un asesor financiero experto para negocios en Ecuador. Analiza los siguientes datos y genera 3 recomendaciones cortas y accionables en formato de lista de viñetas (markdown). Sé directo y profesional.
     
     DATOS:
@@ -58,14 +297,22 @@ class AiService {
     - **Incentivar Ventas:** El ticket promedio es de . Considera crear combos o promociones para aumentarlo.
     - **Revisión Fiscal:** Has emitido Z facturas. Asegúrate de tener todo listo para tu próxima declaración del IVA.`;
 
-    const genAI = new GoogleGenerativeAI(apiKey);
-    const model = genAI.getGenerativeModel({ model: "gemini-1.5-pro" });
-
-    const result = await model.generateContent(systemPrompt);
-    const response = await result.response;
-    const insights = response.text();
-
-    return { insights };
+    try {
+      const result = await this.generateChat({
+        systemPrompt,
+        userMessage: "Genera las recomendaciones de negocio ahora."
+      });
+      return { 
+        insights: result.reply,
+        provider: result.provider,
+        model: result.model
+      };
+    } catch (error) {
+      console.error('❌ Error AI Insights:', error.message);
+      return { 
+        insights: `Error al generar recomendaciones de negocio: ${error.message}.`
+      };
+    }
   }
 
   async audit(userId, role, businessId) {

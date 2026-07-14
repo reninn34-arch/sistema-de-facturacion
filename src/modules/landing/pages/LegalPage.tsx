@@ -129,6 +129,11 @@ const LegalPage: React.FC = () => {
   const [activeTab, setActiveTab] = useState<TabKey>('terms');
   const [landingLogo, setLandingLogo] = useState<string | null | false>(null);
 
+  // Página pública solo con tema claro: limpiar la clase "dark" residual.
+  useEffect(() => {
+    document.documentElement.classList.remove('dark');
+  }, []);
+
   useEffect(() => {
     const img = new Image();
     img.onload = () => setLandingLogo('/api/settings/landing-logo');
@@ -209,7 +214,7 @@ const LegalPage: React.FC = () => {
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex gap-0 overflow-x-auto">
             {tabs.map(tab => (
-              <button
+              <button type="button"
                 key={tab.key}
                 onClick={() => setActiveTab(tab.key)}
                 className={`relative px-5 py-4 text-sm font-bold transition-colors whitespace-nowrap ${

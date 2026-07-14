@@ -213,6 +213,9 @@ export const buildCreditNoteXml = (
   const tipoIdComprador = doc.entityPhone?.length === 13 ? '04' :
     doc.entityPhone?.length === 10 ? '05' : '07';
 
+  // Secuencial del comprobante (también se usa en el XML)
+  const secuencial = doc.number.split('-')[2].padStart(9, '0');
+
   // Generar clave de acceso (49 dígitos) - usar la del documento si existe
   let claveAcceso: string;
   if (doc.accessKey && doc.accessKey.length === 49) {
@@ -224,7 +227,6 @@ export const buildCreditNoteXml = (
     const ruc = business.ruc;
     const tipoAmbiente = ambiente;
     const serie = business.establishmentCode + business.emissionPointCode;
-    const secuencial = doc.number.split('-')[2].padStart(9, '0');
     const codigoNumerico = Math.floor(Math.random() * 100000000).toString().padStart(8, '0');
     const tipoEmision = '1';
     const claveBase = fecha + tipoComprobante + ruc + tipoAmbiente + serie + secuencial + codigoNumerico + tipoEmision;

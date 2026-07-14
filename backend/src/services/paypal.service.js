@@ -40,6 +40,21 @@ async function getAccessToken() {
  * @returns {Object} - Los detalles de la orden validada
  */
 async function validatePayment(orderId) {
+  // En modo desarrollo, permitir simular pagos usando IDs con prefijo 'mock_'
+  if (process.env.NODE_ENV !== 'production' && orderId && orderId.startsWith('mock_')) {
+    const mockAmount = orderId.split('_')[1] || '35.00';
+    console.log(`[DEBUG validatePayment] Simulación de pago aprobada para ID: ${orderId}, Monto: ${mockAmount}`);
+    return {
+      valid: true,
+      orderId: orderId,
+      status: 'COMPLETED',
+      amount: mockAmount,
+      currency: 'USD',
+      captureId: 'mock_capture_' + Math.random().toString(36).substr(2, 9),
+      email: 'mock_buyer@azul.com'
+    };
+  }
+
   try {
     const accessToken = await getAccessToken();
     

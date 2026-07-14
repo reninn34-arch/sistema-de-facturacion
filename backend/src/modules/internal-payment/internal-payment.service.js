@@ -74,36 +74,36 @@ const InternalPaymentService = {
     else if (plan === 'SEMIANNUAL') planCode = 'PRO';
     else if (plan === 'YEARLY') planCode = 'ENTERPRISE';
 
-    const updatedBusiness = await prisma.business.update({
-      where: { id: businessId },
-      data: {
-        plan: planCode,
-        subscriptionStatus: 'ACTIVE',
-        isActive: true,
-        subscriptionEnd: newEndDate,
-        subscriptionStart: now
-      }
-    });
-
-    const subscription = await prisma.subscription.create({
-      data: {
-        businessId: businessId,
-        plan: planCode,
-        status: 'ACTIVE',
-        startDate: now,
-        endDate: newEndDate,
-        paymentMethod: paymentMethod,
-        amount: amount,
-        currency: 'USD',
-        invoiceNumber: `INV-${Date.now()}`,
-        notes: `Pago interno - Plan ${plan} - ${paymentMethod === 'CARD' ? 'Tarjeta' : paymentMethod === 'PAYPAL' ? 'PayPal' : 'Transferencia'}`
-      }
-    });
-
-    const lastDocument = await prisma.document.findFirst({
-      where: { businessId: businessId, type: 'INVOICE' },
-      orderBy: { createdAt: 'desc' }
-    });
+    const [updatedBusiness, subscription, lastDocument] = await Promise.all([
+      prisma.business.update({
+        where: { id: businessId },
+        data: {
+          plan: planCode,
+          subscriptionStatus: 'ACTIVE',
+          isActive: true,
+          subscriptionEnd: newEndDate,
+          subscriptionStart: now
+        }
+      }),
+      prisma.subscription.create({
+        data: {
+          businessId: businessId,
+          plan: planCode,
+          status: 'ACTIVE',
+          startDate: now,
+          endDate: newEndDate,
+          paymentMethod: paymentMethod,
+          amount: amount,
+          currency: 'USD',
+          invoiceNumber: `INV-${Date.now()}`,
+          notes: `Pago interno - Plan ${plan} - ${paymentMethod === 'CARD' ? 'Tarjeta' : paymentMethod === 'PAYPAL' ? 'PayPal' : 'Transferencia'}`
+        }
+      }),
+      prisma.document.findFirst({
+        where: { businessId: businessId, type: 'INVOICE' },
+        orderBy: { createdAt: 'desc' }
+      })
+    ]);
     let nextNumber = 1;
     if (lastDocument && lastDocument.number) {
       const parts = lastDocument.number.split('-');

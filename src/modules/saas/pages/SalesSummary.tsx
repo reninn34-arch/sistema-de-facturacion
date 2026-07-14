@@ -42,7 +42,7 @@ const SalesSummary: React.FC<SalesSummaryProps> = ({ documents }) => {
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {summary.map((item, index) => (
-          <div key={index} className="p-4 rounded-xl bg-slate-50 dark:bg-slate-900/50 border border-slate-100 dark:border-slate-700 relative overflow-hidden group hover:shadow-md transition-all">
+          <div key={item.name} className="p-4 rounded-xl bg-slate-50 dark:bg-slate-900/50 border border-slate-100 dark:border-slate-700 relative overflow-hidden group hover:shadow-md transition-all">
             <div className="relative z-10">
               <div className="flex justify-between items-start mb-2">
                 <div className="font-bold text-slate-700 truncate pr-2" title={item.name}>

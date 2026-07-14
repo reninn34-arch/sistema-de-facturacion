@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useId } from 'react';
 import {
   EnvelopeIcon,
   LockClosedIcon,
@@ -18,7 +18,66 @@ interface LoginProps {
     onLoginSuccess: () => void;
 }
 
+const BrandPanel = ({ landingLogo }: { landingLogo: string | null | false }) => (
+    <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-[#0369A1] via-[#0369A1] to-[#0EA5E9] text-white relative overflow-hidden flex-col justify-between p-12 xl:p-16">
+        <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiNmZmYiIGZpbGwtb3BhY2l0eT0iMC4wNCI+PGNpcmNsZSBjeD0iMzAiIGN5PSIzMCIgcj0iMiIvPjwvZz48L2c+PC9zdmc+')] opacity-50" />
+        <div className="absolute -top-40 -right-40 w-96 h-96 bg-[#0EA5E9]/30 rounded-full blur-3xl" />
+        <div className="absolute -bottom-20 -left-20 w-80 h-80 bg-[#0369A1]/50 rounded-full blur-3xl" />
+
+        <div className="relative z-10">
+            <div className="flex items-center gap-2.5 mb-8">
+                {landingLogo ? (
+                  <img src={landingLogo} className="h-14 w-auto max-w-[220px] object-contain brightness-0 invert" alt="Logo" />
+                ) : null}
+            </div>
+
+            <h2 className="text-3xl xl:text-4xl font-extrabold leading-tight tracking-tight mb-4">
+                El sistema de facturación<br />líder en Ecuador
+            </h2>
+            <p className="text-white/70 text-lg font-medium leading-relaxed max-w-md">
+                Accede a tu panel de administración para gestionar facturas, inventario, recetas y reportes tributarios.
+            </p>
+        </div>
+
+        <div className="relative z-10 space-y-8">
+            <div className="grid grid-cols-3 gap-6">
+                <div>
+                    <p className="text-3xl xl:text-4xl font-extrabold">+450</p>
+                    <p className="text-xs text-white/60 font-semibold mt-1 uppercase tracking-wider">Negocios</p>
+                </div>
+                <div>
+                    <p className="text-3xl xl:text-4xl font-extrabold">+50K</p>
+                    <p className="text-xs text-white/60 font-semibold mt-1 uppercase tracking-wider">Facturas</p>
+                </div>
+                <div>
+                    <div className="flex items-center gap-1">
+                        <span className="text-3xl xl:text-4xl font-extrabold">4.9</span>
+                        <StarIcon className="w-5 h-5 text-amber-400 fill-amber-400" />
+                    </div>
+                    <p className="text-xs text-white/60 font-semibold mt-1 uppercase tracking-wider">Rating</p>
+                </div>
+            </div>
+
+            <div className="flex items-center gap-6 text-xs text-white/50">
+                <div className="flex items-center gap-1.5">
+                    <ShieldCheckIcon className="w-4 h-4 text-[#10B981]" />
+                    <span>Datos Encriptados</span>
+                </div>
+                <div className="flex items-center gap-1.5">
+                    <CheckCircleIcon className="w-4 h-4 text-[#10B981]" />
+                    <span>Autorizado SRI</span>
+                </div>
+                <div className="flex items-center gap-1.5">
+                    <ShieldCheckIcon className="w-4 h-4 text-[#10B981]" />
+                    <span>SSL 256-bit</span>
+                </div>
+            </div>
+        </div>
+    </div>
+);
+
 const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
+  const fieldId = useId();
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [showPassword, setShowPassword] = useState(false);
@@ -38,14 +97,9 @@ const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
 
     useEffect(() => {
         const tempEmail = sessionStorage.getItem('tempLoginEmail');
-        const tempPassword = sessionStorage.getItem('tempLoginPassword');
         if (tempEmail) {
             setEmail(tempEmail);
             sessionStorage.removeItem('tempLoginEmail');
-        }
-        if (tempPassword) {
-            setPassword(tempPassword);
-            sessionStorage.removeItem('tempLoginPassword');
         }
     }, []);
 
@@ -94,7 +148,7 @@ const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
                 throw new Error('Respuesta del servidor inválida: no se recibio token');
             }
 
-            localStorage.setItem('adminToken', data.token);
+            localStorage.setItem('adminToken', 'cookie_authenticated');
             if (data.user) {
                 localStorage.setItem('adminUser', JSON.stringify(data.user));
             }
@@ -118,7 +172,7 @@ const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
                 localStorage.setItem('sessionId', data.sessionId);
             }
             if (data.refreshToken) {
-                localStorage.setItem('refreshToken', data.refreshToken);
+                localStorage.setItem('refreshToken', 'cookie_authenticated');
             }
 
             onLoginSuccess();
@@ -134,68 +188,12 @@ const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
         }
     };
 
-    const BrandPanel = () => (
-        <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-[#0369A1] via-[#0369A1] to-[#0EA5E9] text-white relative overflow-hidden flex-col justify-between p-12 xl:p-16">
-            <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiNmZmYiIGZpbGwtb3BhY2l0eT0iMC4wNCI+PGNpcmNsZSBjeD0iMzAiIGN5PSIzMCIgcj0iMiIvPjwvZz48L2c+PC9zdmc+')] opacity-50" />
-            <div className="absolute -top-40 -right-40 w-96 h-96 bg-[#0EA5E9]/30 rounded-full blur-3xl" />
-            <div className="absolute -bottom-20 -left-20 w-80 h-80 bg-[#0369A1]/50 rounded-full blur-3xl" />
 
-            <div className="relative z-10">
-                <div className="flex items-center gap-2.5 mb-8">
-                    {landingLogo ? (
-                      <img src={landingLogo} className="h-14 w-auto max-w-[220px] object-contain brightness-0 invert" alt="Logo" />
-                    ) : null}
-                </div>
-
-                <h2 className="text-3xl xl:text-4xl font-extrabold leading-tight tracking-tight mb-4">
-                    El sistema de facturación<br />líder en Ecuador
-                </h2>
-                <p className="text-white/70 text-lg font-medium leading-relaxed max-w-md">
-                    Accede a tu panel de administración para gestionar facturas, inventario, recetas y reportes tributarios.
-                </p>
-            </div>
-
-            <div className="relative z-10 space-y-8">
-                <div className="grid grid-cols-3 gap-6">
-                    <div>
-                        <p className="text-3xl xl:text-4xl font-extrabold">+450</p>
-                        <p className="text-xs text-white/60 font-semibold mt-1 uppercase tracking-wider">Negocios</p>
-                    </div>
-                    <div>
-                        <p className="text-3xl xl:text-4xl font-extrabold">+50K</p>
-                        <p className="text-xs text-white/60 font-semibold mt-1 uppercase tracking-wider">Facturas</p>
-                    </div>
-                    <div>
-                        <div className="flex items-center gap-1">
-                            <span className="text-3xl xl:text-4xl font-extrabold">4.9</span>
-                            <StarIcon className="w-5 h-5 text-amber-400 fill-amber-400" />
-                        </div>
-                        <p className="text-xs text-white/60 font-semibold mt-1 uppercase tracking-wider">Rating</p>
-                    </div>
-                </div>
-
-                <div className="flex items-center gap-6 text-xs text-white/50">
-                    <div className="flex items-center gap-1.5">
-                        <ShieldCheckIcon className="w-4 h-4 text-[#10B981]" />
-                        <span>Datos Encriptados</span>
-                    </div>
-                    <div className="flex items-center gap-1.5">
-                        <CheckCircleIcon className="w-4 h-4 text-[#10B981]" />
-                        <span>Autorizado SRI</span>
-                    </div>
-                    <div className="flex items-center gap-1.5">
-                        <ShieldCheckIcon className="w-4 h-4 text-[#10B981]" />
-                        <span>SSL 256-bit</span>
-                    </div>
-                </div>
-            </div>
-        </div>
-    );
 
     if (view === 'forgot') {
         return (
             <div className="h-screen w-full flex bg-white" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
-                <BrandPanel />
+                <BrandPanel landingLogo={landingLogo} />
 
                 <div className="flex-1 flex items-center justify-center px-6 py-12 bg-white">
                     <div className="w-full max-w-md animate-fade-in">
@@ -230,12 +228,13 @@ const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
 
                             <form onSubmit={handleForgotPassword} className="space-y-6">
                                 <div>
-                                    <label className="block text-sm font-bold text-slate-700 mb-1.5">Correo Electrónico</label>
+                                    <label htmlFor={`${fieldId}-resetEmail`} className="block text-sm font-bold text-slate-700 mb-1.5">Correo Electrónico</label>
                                     <div className="relative">
                                         <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
                                             <EnvelopeIcon className="w-5 h-5" />
                                         </div>
                                         <input
+                                            id={`${fieldId}-resetEmail`}
                                             type="email"
                                             required
                                             value={resetEmail}
@@ -255,7 +254,7 @@ const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
                             </form>
 
                             <div className="mt-6 text-center">
-                                <button onClick={() => setView('login')} className="inline-flex items-center gap-1.5 text-sm font-bold text-[#0EA5E9] hover:text-[#0369A1]">
+                                <button type="button" onClick={() => setView('login')} className="inline-flex items-center gap-1.5 text-sm font-bold text-[#0EA5E9] hover:text-[#0369A1]">
                                     <ArrowLeftIcon className="w-4 h-4" />
                                     Volver al Inicio de Sesión
                                 </button>
@@ -273,7 +272,7 @@ const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
 
     return (
         <div className="h-screen w-full flex bg-white" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
-            <BrandPanel />
+            <BrandPanel landingLogo={landingLogo} />
 
             <div className="flex-1 flex items-center justify-center px-6 py-12 bg-white">
                 <div className="w-full max-w-md animate-fade-in">

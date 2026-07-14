@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useId } from 'react';
 import { ClockIcon, CheckIcon, CpuChipIcon, StarIcon, PauseCircleIcon, PlayCircleIcon, TrashIcon, MegaphoneIcon, Cog6ToothIcon } from '@heroicons/react/24/outline';
 
 // Interfaces para los planes de suscripción
@@ -127,6 +127,7 @@ const API_URL = import.meta.env.VITE_BACKEND_URL || '';
 
 const SubscriptionPlansManager: React.FC<SubscriptionPlansManagerProps> = ({ onNotify }) => {
   const [plans, setPlans] = useState<SubscriptionPlan[]>(defaultPlans);
+  const fieldId = useId();
   const [loading, setLoading] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const [editingPlan, setEditingPlan] = useState<SubscriptionPlan | null>(null);
@@ -361,14 +362,14 @@ const SubscriptionPlansManager: React.FC<SubscriptionPlansManagerProps> = ({ onN
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-sky-50 dark:from-slate-900 dark:to-slate-800 p-4 md:p-8">
       <div className="max-w-6xl mx-auto">
         {/* Header */}
-        <div className="flex justify-between items-center mb-8">
+        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-8">
           <div>
-            <h1 className="text-3xl font-black text-slate-800 dark:text-white">Gestión de Planes</h1>
-            <p className="text-slate-500 dark:text-slate-400 mt-1">Administra los planes de suscripción del SaaS</p>
+            <h1 className="text-2xl md:text-3xl font-black text-slate-800 dark:text-white">Gestión de Planes</h1>
+            <p className="text-sm md:text-base text-slate-500 dark:text-slate-400 mt-1">Administra los planes de suscripción del SaaS</p>
           </div>
-          <button
+          <button type="button"
             onClick={() => handleOpenModal()}
-            className="px-6 py-3 bg-sky-500 text-white font-bold rounded-xl hover:bg-sky-600 transition-colors shadow-lg"
+            className="px-6 py-3 bg-sky-500 text-white font-bold rounded-xl hover:bg-sky-600 transition-colors shadow-lg self-start sm:self-auto flex-shrink-0"
           >
             + Nuevo Plan
           </button>
@@ -391,13 +392,13 @@ const SubscriptionPlansManager: React.FC<SubscriptionPlansManagerProps> = ({ onN
               >
                 {/* Header del Plan */}
                 <div className={`p-6 ${plan.isActive ? 'bg-gradient-to-r from-sky-700 to-sky-700' : 'bg-red-400'}`}>
-                  <div className="flex justify-between items-start">
-                    <div>
-                      <h3 className="text-xl font-black text-white">{plan.name}</h3>
+                  <div className="flex justify-between items-start gap-3">
+                    <div className="min-w-0">
+                      <h3 className="text-lg md:text-xl font-black text-white truncate" title={plan.name}>{plan.name}</h3>
                       <span className="text-sky-100 text-sm font-mono">{plan.code}</span>
                     </div>
-                    <div className="text-right">
-                      <p className="text-3xl font-black text-white">${plan.price.toFixed(2)}</p>
+                    <div className="text-right flex-shrink-0">
+                      <p className="text-2xl md:text-3xl font-black text-white">${plan.price.toFixed(2)}</p>
                       <p className="text-sky-100 text-sm">/{plan.period}</p>
                     </div>
                   </div>
@@ -409,8 +410,8 @@ const SubscriptionPlansManager: React.FC<SubscriptionPlansManagerProps> = ({ onN
                   
                   {/* Características */}
                   <div className="space-y-2 mb-4">
-                    {plan.features.slice(0, 4).map((feature, idx) => (
-                      <div key={idx} className="flex items-center gap-2 text-sm">
+                    {plan.features.slice(0, 4).map((feature) => (
+                      <div key={feature} className="flex items-center gap-2 text-sm">
                         <CheckIcon className="w-4 h-4 text-green-500" />
                         <span className="text-slate-600 dark:text-slate-300">{feature}</span>
                       </div>
@@ -446,7 +447,7 @@ const SubscriptionPlansManager: React.FC<SubscriptionPlansManagerProps> = ({ onN
                   </div>
 
                   {/* Badges de características especiales */}
-                  <div className="flex gap-2 mb-4">
+                  <div className="flex flex-wrap gap-2 mb-4">
                     {plan.hasAIAssistant && (
                       <span className="px-2 py-1 bg-purple-100 dark:bg-purple-900/50 text-purple-600 dark:text-purple-400 text-xs font-bold rounded-full">
                         <CpuChipIcon className="w-3 h-3 inline" /> IA
@@ -466,20 +467,20 @@ const SubscriptionPlansManager: React.FC<SubscriptionPlansManagerProps> = ({ onN
 
                   {/* Acciones */}
                   <div className="flex gap-2 pt-4 border-t border-slate-100 dark:border-slate-700">
-                    <button
+                    <button type="button"
                       onClick={() => handleOpenModal(plan)}
                       className="flex-1 py-2 bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-200 font-medium rounded-lg hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors"
                     >
                       Editar
                     </button>
-                    <button
+                    <button type="button"
                       onClick={() => handleToggleActive(plan)}
                       className={`flex-1 py-2 text-xs font-bold rounded-lg transition-colors ${plan.isActive ? 'bg-amber-100 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400 hover:bg-amber-200 dark:hover:bg-amber-900/50' : 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-200 dark:hover:bg-emerald-900/50'}`}
                       title={plan.isActive ? 'Desactivar plan' : 'Activar plan'}
                     >
                       {plan.isActive ? <PauseCircleIcon className="w-4 h-4" /> : <PlayCircleIcon className="w-4 h-4" />}
                     </button>
-                    <button
+                    <button type="button"
                       onClick={() => handleDelete(plan.id, plan.name)}
                       className="px-3 py-2 bg-red-50 dark:bg-red-900/30 text-red-600 dark:text-red-400 rounded-lg hover:bg-red-100 dark:hover:bg-red-900/50 transition-colors"
                     >
@@ -506,8 +507,9 @@ const SubscriptionPlansManager: React.FC<SubscriptionPlansManagerProps> = ({ onN
                 {/* Código y Nombre */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-bold text-slate-600 dark:text-slate-300 mb-1">Código *</label>
+                    <label htmlFor={`${fieldId}-code`} className="block text-sm font-bold text-slate-600 dark:text-slate-300 mb-1">Código *</label>
                     <input
+                      id={`${fieldId}-code`}
                       type="text"
                       value={formData.code || ''}
                       onChange={e => setFormData({ ...formData, code: e.target.value.toUpperCase() })}
@@ -516,8 +518,9 @@ const SubscriptionPlansManager: React.FC<SubscriptionPlansManagerProps> = ({ onN
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-bold text-slate-600 dark:text-slate-300 mb-1">Nombre *</label>
+                    <label htmlFor={`${fieldId}-name`} className="block text-sm font-bold text-slate-600 dark:text-slate-300 mb-1">Nombre *</label>
                     <input
+                      id={`${fieldId}-name`}
                       type="text"
                       value={formData.name || ''}
                       onChange={e => setFormData({ ...formData, name: e.target.value })}
@@ -529,8 +532,9 @@ const SubscriptionPlansManager: React.FC<SubscriptionPlansManagerProps> = ({ onN
 
                 {/* Descripción */}
                 <div>
-                  <label className="block text-sm font-bold text-slate-600 dark:text-slate-300 mb-1">Descripción</label>
+                  <label htmlFor={`${fieldId}-description`} className="block text-sm font-bold text-slate-600 dark:text-slate-300 mb-1">Descripción</label>
                   <textarea
+                    id={`${fieldId}-description`}
                     value={formData.description || ''}
                     onChange={e => setFormData({ ...formData, description: e.target.value })}
                     className="w-full p-3 border-2 border-slate-200 dark:border-slate-600 rounded-lg font-medium focus:border-sky-500 focus:outline-none bg-white dark:bg-slate-700 text-slate-800 dark:text-white"
@@ -542,8 +546,9 @@ const SubscriptionPlansManager: React.FC<SubscriptionPlansManagerProps> = ({ onN
                 {/* Precio y Período */}
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <div>
-                    <label className="block text-sm font-bold text-slate-600 dark:text-slate-300 mb-1">Precio ($) *</label>
+                    <label htmlFor={`${fieldId}-price`} className="block text-sm font-bold text-slate-600 dark:text-slate-300 mb-1">Precio ($) *</label>
                     <input
+                      id={`${fieldId}-price`}
                       type="number"
                       value={formData.price || 0}
                       onChange={e => setFormData({ ...formData, price: parseFloat(e.target.value) })}
@@ -553,8 +558,9 @@ const SubscriptionPlansManager: React.FC<SubscriptionPlansManagerProps> = ({ onN
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-bold text-slate-600 dark:text-slate-300 mb-1">Período</label>
+                    <label htmlFor={`${fieldId}-period`} className="block text-sm font-bold text-slate-600 dark:text-slate-300 mb-1">Período</label>
                     <select
+                      id={`${fieldId}-period`}
                       value={formData.period || 'mensual'}
                       onChange={e => setFormData({ ...formData, period: e.target.value as any })}
                       className="w-full p-3 border-2 border-slate-200 dark:border-slate-600 rounded-lg font-medium focus:border-sky-500 focus:outline-none bg-white dark:bg-slate-700 text-slate-800 dark:text-white"
@@ -566,8 +572,9 @@ const SubscriptionPlansManager: React.FC<SubscriptionPlansManagerProps> = ({ onN
                     </select>
                   </div>
                   <div>
-                    <label className="block text-sm font-bold text-slate-600 dark:text-slate-300 mb-1">Duración (días)</label>
+                    <label htmlFor={`${fieldId}-duration`} className="block text-sm font-bold text-slate-600 dark:text-slate-300 mb-1">Duración (días)</label>
                     <input
+                      id={`${fieldId}-duration`}
                       type="number"
                       value={formData.durationDays || 30}
                       onChange={e => setFormData({ ...formData, durationDays: parseInt(e.target.value) })}
@@ -580,8 +587,9 @@ const SubscriptionPlansManager: React.FC<SubscriptionPlansManagerProps> = ({ onN
                 {/* Límites */}
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <div>
-                    <label className="block text-sm font-bold text-slate-600 dark:text-slate-300 mb-1">Máx. Empresas</label>
+                    <label htmlFor={`${fieldId}-maxBusinesses`} className="block text-sm font-bold text-slate-600 dark:text-slate-300 mb-1">Máx. Empresas</label>
                     <input
+                      id={`${fieldId}-maxBusinesses`}
                       type="number"
                       value={formData.maxBusinesses || 1}
                       onChange={e => setFormData({ ...formData, maxBusinesses: parseInt(e.target.value) })}
@@ -591,8 +599,9 @@ const SubscriptionPlansManager: React.FC<SubscriptionPlansManagerProps> = ({ onN
                     <p className="text-xs text-slate-400 dark:text-slate-500 mt-1">Usa -1 para ilimitadas</p>
                   </div>
                   <div>
-                    <label className="block text-sm font-bold text-slate-600 dark:text-slate-300 mb-1">Máx. Facturas/mes</label>
+                    <label htmlFor={`${fieldId}-maxInvoices`} className="block text-sm font-bold text-slate-600 dark:text-slate-300 mb-1">Máx. Facturas/mes</label>
                     <input
+                      id={`${fieldId}-maxInvoices`}
                       type="number"
                       value={formData.maxInvoicesPerMonth || 10}
                       onChange={e => setFormData({ ...formData, maxInvoicesPerMonth: parseInt(e.target.value) })}
@@ -602,8 +611,9 @@ const SubscriptionPlansManager: React.FC<SubscriptionPlansManagerProps> = ({ onN
                     <p className="text-xs text-slate-400 dark:text-slate-500 mt-1">Usa -1 para ilimitadas</p>
                   </div>
                   <div>
-                    <label className="block text-sm font-bold text-slate-600 dark:text-slate-300 mb-1">Máx. Usuarios</label>
+                    <label htmlFor={`${fieldId}-maxUsers`} className="block text-sm font-bold text-slate-600 dark:text-slate-300 mb-1">Máx. Usuarios</label>
                     <input
+                      id={`${fieldId}-maxUsers`}
                       type="number"
                       value={formData.maxUsers || 1}
                       onChange={e => setFormData({ ...formData, maxUsers: parseInt(e.target.value) })}
@@ -616,10 +626,11 @@ const SubscriptionPlansManager: React.FC<SubscriptionPlansManagerProps> = ({ onN
 
                 {/* Características */}
                 <div>
-                  <label className="block text-sm font-bold text-slate-600 dark:text-slate-300 mb-1">
+                  <label htmlFor={`${fieldId}-features`} className="block text-sm font-bold text-slate-600 dark:text-slate-300 mb-1">
                     Características (una por línea)
                   </label>
                   <textarea
+                    id={`${fieldId}-features`}
                     value={featuresText}
                     onChange={e => setFeaturesText(e.target.value)}
                     className="w-full p-3 border-2 border-slate-200 dark:border-slate-600 rounded-lg font-mono text-sm focus:border-sky-500 focus:outline-none bg-white dark:bg-slate-700 text-slate-800 dark:text-white"
@@ -649,8 +660,9 @@ const SubscriptionPlansManager: React.FC<SubscriptionPlansManagerProps> = ({ onN
                     <div className="space-y-3 pt-2 border-t border-slate-100 dark:border-slate-700">
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                         <div>
-                          <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1 uppercase tracking-wide">Número WhatsApp (sin + ni espacios)</label>
+                          <label htmlFor={`${fieldId}-wa-number`} className="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1 uppercase tracking-wide">Número WhatsApp (sin + ni espacios)</label>
                           <input
+                            id={`${fieldId}-wa-number`}
                             type="text"
                             value={formData.ctaWhatsapp?.number || ''}
                             onChange={e => setFormData({ ...formData, ctaWhatsapp: { ...formData.ctaWhatsapp!, number: e.target.value } })}
@@ -660,8 +672,9 @@ const SubscriptionPlansManager: React.FC<SubscriptionPlansManagerProps> = ({ onN
                           <p className="text-[10px] text-slate-400 mt-0.5">Ecuador: 593 + número sin 0 inicial</p>
                         </div>
                         <div>
-                          <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1 uppercase tracking-wide">Texto del botón</label>
+                          <label htmlFor={`${fieldId}-wa-buttonLabel`} className="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1 uppercase tracking-wide">Texto del botón</label>
                           <input
+                            id={`${fieldId}-wa-buttonLabel`}
                             type="text"
                             value={formData.ctaWhatsapp?.buttonLabel || ''}
                             onChange={e => setFormData({ ...formData, ctaWhatsapp: { ...formData.ctaWhatsapp!, buttonLabel: e.target.value } })}
@@ -670,8 +683,9 @@ const SubscriptionPlansManager: React.FC<SubscriptionPlansManagerProps> = ({ onN
                           />
                         </div>
                         <div>
-                          <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1 uppercase tracking-wide">Etiqueta de precio</label>
+                          <label htmlFor={`${fieldId}-wa-priceLabel`} className="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1 uppercase tracking-wide">Etiqueta de precio</label>
                           <input
+                            id={`${fieldId}-wa-priceLabel`}
                             type="text"
                             value={formData.ctaWhatsapp?.priceLabel || ''}
                             onChange={e => setFormData({ ...formData, ctaWhatsapp: { ...formData.ctaWhatsapp!, priceLabel: e.target.value } })}
@@ -680,8 +694,9 @@ const SubscriptionPlansManager: React.FC<SubscriptionPlansManagerProps> = ({ onN
                           />
                         </div>
                         <div>
-                          <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1 uppercase tracking-wide">Mensaje pre-cargado</label>
+                          <label htmlFor={`${fieldId}-wa-message`} className="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1 uppercase tracking-wide">Mensaje pre-cargado</label>
                           <input
+                            id={`${fieldId}-wa-message`}
                             type="text"
                             value={formData.ctaWhatsapp?.message || ''}
                             onChange={e => setFormData({ ...formData, ctaWhatsapp: { ...formData.ctaWhatsapp!, message: e.target.value } })}
@@ -750,13 +765,13 @@ const SubscriptionPlansManager: React.FC<SubscriptionPlansManagerProps> = ({ onN
 
               {/* Footer del Modal */}
               <div className="p-6 border-t border-slate-200 dark:border-slate-700 flex gap-4">
-                <button
+                <button type="button"
                   onClick={() => setShowModal(false)}
                   className="flex-1 py-3 bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-200 font-bold rounded-xl hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors"
                 >
                   Cancelar
                 </button>
-                <button
+                <button type="submit"
                   onClick={handleSave}
                   className="flex-[2] py-3 bg-sky-500 text-white font-bold rounded-xl hover:bg-sky-600 transition-colors"
                 >
@@ -783,13 +798,13 @@ const SubscriptionPlansManager: React.FC<SubscriptionPlansManagerProps> = ({ onN
                 ¿Estás seguro de eliminar el plan <span className="font-semibold text-red-600">{confirmModal.planName}</span>? Esta acción no se puede deshacer.
               </p>
               <div className="flex gap-3">
-                <button
+                <button type="submit"
                   onClick={() => setConfirmModal({show: false, planId: null, planName: ''})}
                   className="flex-1 py-3 bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-200 font-bold rounded-xl hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors"
                 >
                   Cancelar
                 </button>
-                <button
+                <button type="button"
                   onClick={confirmDelete}
                   className="flex-1 py-3 bg-red-600 text-white font-bold rounded-xl hover:bg-red-700 transition-colors"
                 >

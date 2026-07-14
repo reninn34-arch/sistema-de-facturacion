@@ -3,6 +3,7 @@ const router = express.Router();
 const authController = require('./auth.controller');
 const verifyToken = require('../../middleware/jwt.middleware');
 router.post('/api/login', authController.login);
+router.post('/api/logout', authController.logout);
 router.post('/api/refresh-token', authController.refreshToken);
 router.post('/api/register', authController.register);
 router.post('/api/verify-email', authController.verifyEmail);
@@ -16,5 +17,8 @@ router.post('/api/auth/client/forgot-password', authController.clientForgotPassw
 router.post('/api/auth/client/reset-password', authController.clientResetPassword);
 router.post('/api/auth/client/change-password', verifyToken, authController.changeClientPassword);
 router.get('/api/client/documents', verifyToken, authController.getClientDocuments);
+router.get('/api/auth/verify', verifyToken, (req, res) => {
+  res.json({ success: true, user: req.user });
+});
 
 module.exports = router;
