@@ -520,7 +520,7 @@ const ClientManager: React.FC<ClientManagerProps> = ({ clients, setClients, onNo
                 <h4 className="text-2xl font-black text-slate-900 dark:text-white tracking-tighter">
                   <KeyIcon className="w-5 h-5 inline" /> Resetear Contraseña
                 </h4>
-                <button type="button" onClick={() => { setShowResetModal(false); setResetPasswordClient(null); setNewPassword(''); }} className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"><XMarkIcon className="w-5 h-5" /></button>
+                <button type="button" aria-label="Cerrar" onClick={() => { setShowResetModal(false); setResetPasswordClient(null); setNewPassword(''); }} className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"><XMarkIcon className="w-5 h-5" /></button>
               </div>
               
               <p className="text-sm text-slate-500 dark:text-slate-400">

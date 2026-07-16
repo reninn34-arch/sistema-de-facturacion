@@ -113,6 +113,7 @@ const ClientLogin = () => {
                     />
                     <button
                       type="button"
+                      aria-label={showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}
                       onClick={() => setShowPassword(!showPassword)}
                       className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300"
                     >
@@ -161,7 +162,7 @@ const ClientLogin = () => {
       </main>
 
       <footer className="p-6 text-center text-slate-400 dark:text-slate-600 text-xs border-t border-slate-200 dark:border-slate-800">
-        <p>&copy; 2024 Portal de Facturación. Todos los derechos reservados. Sistema de Facturación Autorizado.</p>
+        <p>&copy; {new Date().getFullYear()} Portal de Facturación. Todos los derechos reservados. Sistema de Facturación Autorizado.</p>
       </footer>
     </div>
   );

@@ -162,6 +162,7 @@ const NotificationSettingsComponent: React.FC<NotificationSettingsProps> = ({ se
 
                 <div className="space-y-4">
                   <select
+                    aria-label="Proveedor de email"
                     value={localSettings.emailProvider || 'smtp'}
                     onChange={e => setLocalSettings({ ...localSettings, emailProvider: e.target.value as any })}
                     className="w-full p-3 bg-slate-50 border rounded-xl font-bold"
@@ -370,6 +371,7 @@ const NotificationSettingsComponent: React.FC<NotificationSettingsProps> = ({ se
 
                 <div className="space-y-4">
                   <select
+                    aria-label="Proveedor de WhatsApp"
                     value={localSettings.whatsappProvider || 'twilio'}
                     onChange={e => setLocalSettings({ ...localSettings, whatsappProvider: e.target.value as any })}
                     className="w-full p-3 bg-slate-50 border rounded-xl font-bold"

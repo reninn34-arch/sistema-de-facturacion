@@ -389,8 +389,9 @@ const Integrations: React.FC<IntegrationsProps> = ({ products, clients, business
                       </div>
                       <div>
                         <p className="text-[9px] font-black text-slate-400 uppercase mb-1">Cantidad</p>
-                        <input 
+                        <input
                           type="number"
+                          aria-label="Cantidad"
                           className="w-full p-3 bg-white rounded-xl font-black text-sm border border-slate-200"
                           value={item.quantity}
                           onChange={e => {
@@ -402,8 +403,9 @@ const Integrations: React.FC<IntegrationsProps> = ({ products, clients, business
                       </div>
                       <div>
                         <p className="text-[9px] font-black text-slate-400 uppercase mb-1">Precio Unit.</p>
-                        <input 
+                        <input
                           type="number"
+                          aria-label="Precio unitario"
                           className="w-full p-3 bg-white rounded-xl font-black text-sm border border-slate-200"
                           value={item.unitPrice}
                           onChange={e => {
@@ -415,8 +417,9 @@ const Integrations: React.FC<IntegrationsProps> = ({ products, clients, business
                       </div>
                       <div>
                         <p className="text-[9px] font-black text-rose-500 uppercase mb-1">Descuento ($)</p>
-                        <input 
+                        <input
                           type="number"
+                          aria-label="Descuento"
                           className="w-full p-3 bg-rose-50 rounded-xl font-black text-sm border border-rose-100 text-rose-600"
                           value={item.discount || 0}
                           onChange={e => {

@@ -132,6 +132,7 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ businessInfo }) => {
         {providers.length > 1 && (
           <div className="relative">
             <select
+              aria-label="Proveedor de IA"
               value={selectedProvider}
               onChange={(e) => setSelectedProvider(e.target.value)}
               className="bg-slate-800 text-white text-xs font-bold rounded-xl px-4 py-2 border border-slate-700 outline-none cursor-pointer hover:bg-slate-700 transition-all focus:border-sky-500"

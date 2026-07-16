@@ -685,6 +685,7 @@ export default function SaasCreditNote({ businesses, documents, onNotify }: Saas
                             </td>
                             <td className="p-3 text-center">
                               <select
+                                aria-label="IVA"
                                 value={item.taxRate || 0}
                                 onChange={(e) => {
                                   const newItems = [...items];
@@ -701,6 +702,7 @@ export default function SaasCreditNote({ businesses, documents, onNotify }: Saas
                             <td className="p-3 text-center">
                               <input
                                 type="number"
+                                aria-label="Cantidad a devolver"
                                 min="0"
                                 max={selectedInvoice?.items?.[index]?.quantity || item.quantity || 999}
                                 value={item.quantity}
@@ -711,6 +713,7 @@ export default function SaasCreditNote({ businesses, documents, onNotify }: Saas
                             <td className="p-3 text-right">
                               <input
                                 type="number"
+                                aria-label="Precio unitario"
                                 step="0.01"
                                 min="0"
                                 value={item.unitPrice}

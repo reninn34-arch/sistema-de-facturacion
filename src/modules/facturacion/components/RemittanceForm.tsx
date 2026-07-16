@@ -278,6 +278,7 @@ export default function RemittanceForm({ business, clients, products, onSubmit }
                       <h4 className="font-medium text-gray-700 dark:text-slate-300">Destinatario {index + 1}</h4>
                       <button
                         type="button"
+                        aria-label="Eliminar destinatario"
                         onClick={() => removeRecipient(index)}
                         className="text-red-655 hover:text-red-800 text-lg"
                       >
@@ -411,6 +412,7 @@ export default function RemittanceForm({ business, clients, products, onSubmit }
                       <h4 className="font-medium text-gray-700 dark:text-slate-300">Producto {index + 1}</h4>
                       <button
                         type="button"
+                        aria-label="Eliminar producto"
                         onClick={() => removeItem(index)}
                         className="text-red-655 hover:text-red-800 text-lg"
                       >

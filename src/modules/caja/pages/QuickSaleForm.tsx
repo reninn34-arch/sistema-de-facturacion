@@ -397,7 +397,7 @@ const QuickSaleForm: React.FC<QuickSaleFormProps> = ({ products, clients = [], s
                 autoComplete="off"
               />
               {searchTerm && (
-                <button type="button" onClick={() => { setSearchTerm(''); setShowSearchResults(false); }} className="absolute right-4 top-1/2 -translate-y-1/2">
+                <button type="button" aria-label="Limpiar búsqueda" onClick={() => { setSearchTerm(''); setShowSearchResults(false); }} className="absolute right-4 top-1/2 -translate-y-1/2">
                   <XMarkIcon className="w-4 h-4 text-slate-400" />
                 </button>
               )}
@@ -499,7 +499,7 @@ const QuickSaleForm: React.FC<QuickSaleFormProps> = ({ products, clients = [], s
                     <p className="text-[10px] font-black text-sky-500 dark:text-sky-400 truncate">{selectedClient.name}</p>
                     <p className="text-[9px] text-sky-500/70 font-bold">{selectedClient.ruc}</p>
                   </div>
-                  <button type="button" onClick={() => setSelectedClient(null)} className="ml-2 text-sky-400 hover:text-sky-600">
+                  <button type="button" aria-label="Quitar cliente" onClick={() => setSelectedClient(null)} className="ml-2 text-sky-400 hover:text-sky-600">
                     <XMarkIcon className="w-4 h-4" />
                   </button>
                 </div>
@@ -561,16 +561,16 @@ const QuickSaleForm: React.FC<QuickSaleFormProps> = ({ products, clients = [], s
                     <p className="text-[9px] text-slate-400 font-bold">${item.unitPrice.toFixed(2)} c/u · IVA {item.taxRate}%</p>
                   </div>
                   <div className="flex items-center gap-1">
-                    <button type="submit" onClick={() => updateQuantity(item.productId, -1)} className="w-7 h-7 rounded-lg bg-slate-200 dark:bg-slate-600 flex items-center justify-center hover:bg-slate-300 dark:hover:bg-slate-500">
+                    <button type="submit" aria-label="Disminuir cantidad" onClick={() => updateQuantity(item.productId, -1)} className="w-7 h-7 rounded-lg bg-slate-200 dark:bg-slate-600 flex items-center justify-center hover:bg-slate-300 dark:hover:bg-slate-500">
                       <MinusIcon className="w-3 h-3 text-slate-600 dark:text-slate-300" />
                     </button>
                     <span className="w-8 text-center font-black text-sm">{item.quantity}</span>
-                    <button type="submit" onClick={() => updateQuantity(item.productId, 1)} className="w-7 h-7 rounded-lg bg-sky-100 dark:bg-sky-500/20 flex items-center justify-center hover:bg-sky-200">
+                    <button type="submit" aria-label="Aumentar cantidad" onClick={() => updateQuantity(item.productId, 1)} className="w-7 h-7 rounded-lg bg-sky-100 dark:bg-sky-500/20 flex items-center justify-center hover:bg-sky-200">
                       <PlusIcon className="w-3 h-3 text-sky-500 dark:text-sky-400" />
                     </button>
                   </div>
                   <p className="font-black text-sm w-16 text-right">${item.total.toFixed(2)}</p>
-                  <button type="button" onClick={() => removeItem(item.productId)} className="text-slate-300 hover:text-red-500">
+                  <button type="button" aria-label="Quitar producto" onClick={() => removeItem(item.productId)} className="text-slate-300 hover:text-red-500">
                     <XMarkIcon className="w-4 h-4" />
                   </button>
                 </div>
@@ -695,7 +695,7 @@ const QuickSaleForm: React.FC<QuickSaleFormProps> = ({ products, clients = [], s
           <div className="bg-white dark:bg-slate-800 rounded-3xl shadow-2xl w-full max-w-md overflow-hidden animate-in zoom-in-95 duration-200">
             <div className="p-6 border-b border-slate-100 dark:border-slate-700 flex justify-between items-center">
               <h3 className="text-lg font-black text-slate-800 dark:text-white uppercase">Nuevo Cliente</h3>
-              <button type="button" onClick={() => setShowClientModal(false)} className="p-2 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-full transition-colors">
+              <button type="button" aria-label="Cerrar" onClick={() => setShowClientModal(false)} className="p-2 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-full transition-colors">
                 <XMarkIcon className="w-5 h-5 text-slate-400" />
               </button>
             </div>

@@ -160,6 +160,7 @@ const SecurityPoints: React.FC<SecurityPointsProps> = ({ businessInfo, isDemoMod
           <div className="flex items-center gap-3">
             <code className="flex-1 bg-slate-50 p-4 rounded-2xl text-sm font-mono text-slate-600 border border-slate-200 select-all">{referralLink}</code>
             <button type="button"
+              aria-label="Copiar enlace de referido"
               onClick={copyLink}
               className={`p-4 rounded-2xl font-black text-xs uppercase transition-all ${copied ? 'bg-emerald-500 text-white' : 'bg-sky-500 text-white hover:bg-sky-600'}`}
             >

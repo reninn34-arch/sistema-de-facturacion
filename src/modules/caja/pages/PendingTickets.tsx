@@ -352,6 +352,7 @@ const PendingTickets: React.FC<PendingTicketsProps> = ({
         {selectedIds.size > 0 && (
           <div className="flex items-center gap-3">
             <select
+              aria-label="Modo de emisión"
               value={emissionMode}
               onChange={e => setEmissionMode(e.target.value as 'individual' | 'grouped')}
               className="p-3 rounded-2xl font-bold text-xs bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 outline-none"
@@ -412,6 +413,7 @@ const PendingTickets: React.FC<PendingTicketsProps> = ({
                 <th className="text-left p-4 w-12">
                   <input
                     type="checkbox"
+                    aria-label="Seleccionar todos los tickets"
                     checked={selectedIds.size === pendingTickets.length && pendingTickets.length > 0}
                     onChange={toggleAll}
                     className="w-4 h-4 rounded accent-amber-600"
@@ -438,6 +440,7 @@ const PendingTickets: React.FC<PendingTicketsProps> = ({
                   <td className="p-4">
                     <input
                       type="checkbox"
+                      aria-label="Seleccionar ticket"
                       checked={selectedIds.has(ticket.id)}
                       onChange={() => toggleSelect(ticket.id)}
                       className="w-4 h-4 rounded accent-amber-600"

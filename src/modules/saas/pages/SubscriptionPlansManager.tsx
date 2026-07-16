@@ -481,6 +481,7 @@ const SubscriptionPlansManager: React.FC<SubscriptionPlansManagerProps> = ({ onN
                       {plan.isActive ? <PauseCircleIcon className="w-4 h-4" /> : <PlayCircleIcon className="w-4 h-4" />}
                     </button>
                     <button type="button"
+                      aria-label="Eliminar plan"
                       onClick={() => handleDelete(plan.id, plan.name)}
                       className="px-3 py-2 bg-red-50 dark:bg-red-900/30 text-red-600 dark:text-red-400 rounded-lg hover:bg-red-100 dark:hover:bg-red-900/50 transition-colors"
                     >
@@ -647,6 +648,7 @@ const SubscriptionPlansManager: React.FC<SubscriptionPlansManagerProps> = ({ onN
                       <p className="text-xs text-slate-400 dark:text-slate-500 mt-0.5">Redirigir a WhatsApp en lugar del flujo normal de pago</p>
                     </div>
                     <select
+                      aria-label="Tipo de botón en la landing"
                       value={formData.ctaType || 'NORMAL'}
                       onChange={e => setFormData({ ...formData, ctaType: e.target.value as any })}
                       className="p-2 border-2 border-slate-200 dark:border-slate-600 rounded-lg text-sm font-bold focus:border-sky-500 focus:outline-none bg-white dark:bg-slate-700 text-slate-800 dark:text-white"

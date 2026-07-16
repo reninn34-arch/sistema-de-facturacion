@@ -1246,8 +1246,9 @@ const InvoiceForm: React.FC<InvoiceFormProps> = ({ clients, setClients, isDemoMo
                   {discountType === 'TOTAL' && (
                     <div className="flex items-center gap-2 md:ml-auto">
                       <span className={`text-[10px] font-black uppercase tracking-widest ${isDarkMode ? 'text-slate-500' : 'text-slate-400'}`}>Monto ($):</span>
-                      <input 
+                      <input
                         type="number"
+                        aria-label="Monto de descuento"
                         min="0"
                         step="0.01"
                         className={`w-24 p-2 rounded-xl font-bold outline-none border-2 border-transparent focus:border-sky-500 transition-all text-sm ${isDarkMode ? 'bg-slate-700 text-white border-slate-600' : 'bg-slate-50 text-slate-800'}`}
@@ -1475,6 +1476,7 @@ const InvoiceForm: React.FC<InvoiceFormProps> = ({ clients, setClients, isDemoMo
                         <td className="py-4 text-center">
                           <input
                             type="number"
+                            aria-label="Cantidad"
                             min="1"
                             value={item.quantity}
                             className="w-16 sm:w-20 p-2 text-center font-black bg-slate-100 rounded-xl border-2 border-transparent focus:border-sky-500 focus:outline-none min-h-[40px]"
@@ -1484,6 +1486,7 @@ const InvoiceForm: React.FC<InvoiceFormProps> = ({ clients, setClients, isDemoMo
                         <td className="py-4 text-right">
                           <input
                             type="number"
+                            aria-label="Precio unitario"
                             min="0"
                             step="0.01"
                             value={item.unitPrice}

@@ -197,7 +197,7 @@ const PointsAdmin: React.FC = () => {
                 <h4 className="text-lg font-black text-slate-800">Programa de Puntos</h4>
                 <p className="text-xs text-slate-400">Activar o desactivar el programa completo</p>
               </div>
-              <button type="button" onClick={() => setConfig({ ...config, enabled: !config.enabled })}
+              <button type="button" role="switch" aria-checked={config.enabled} aria-label="Activar programa de puntos" onClick={() => setConfig({ ...config, enabled: !config.enabled })}
                 className={`w-14 h-7 rounded-full transition-all relative ${config.enabled ? 'bg-emerald-500' : 'bg-slate-300'}`}>
                 <div className={`w-5 h-5 bg-white rounded-full absolute top-1 transition-all ${config.enabled ? 'right-1' : 'left-1'}`} />
               </button>
@@ -264,7 +264,7 @@ const PointsAdmin: React.FC = () => {
               <div className="bg-white rounded-[2.5rem] p-8 w-full max-w-md shadow-2xl">
                 <div className="flex justify-between items-center mb-6">
                   <h4 className="font-black text-slate-800">Ajustar Puntos: {adjustBusiness.name}</h4>
-                  <button type="button" onClick={() => setAdjustBusiness(null)} className="text-slate-400 hover:text-slate-600"><XMarkIcon className="w-5 h-5" /></button>
+                  <button type="button" aria-label="Cerrar" onClick={() => setAdjustBusiness(null)} className="text-slate-400 hover:text-slate-600"><XMarkIcon className="w-5 h-5" /></button>
                 </div>
                 <div className="space-y-4">
                   <div><label htmlFor={`${fieldId}-adjustAmount`} className="text-[10px] font-black text-slate-400 uppercase">Cantidad (+ suma, - resta)</label>
@@ -362,9 +362,9 @@ const PointsAdmin: React.FC = () => {
                     <td className="py-3 text-center font-black text-amber-500">{p.points}</td>
                     <td className="py-3 text-center"><span className={`px-2 py-1 rounded-lg text-[9px] font-black uppercase ${p.isActive ? 'bg-emerald-100 text-emerald-600' : 'bg-slate-100 text-slate-400'}`}>{p.isActive ? 'Si' : 'No'}</span></td>
                     <td className="py-3 px-6 text-right flex justify-end gap-2">
-                      <button type="button" onClick={() => { setEditingPrize(p); setPrizeForm({ name: p.name, description: p.description || '', points: p.points, icon: p.icon }); }}
+                      <button type="button" aria-label="Editar premio" onClick={() => { setEditingPrize(p); setPrizeForm({ name: p.name, description: p.description || '', points: p.points, icon: p.icon }); }}
                         className="px-3 py-1.5 bg-sky-50 text-sky-500 rounded-lg text-[9px] font-black uppercase hover:bg-sky-100"><PencilIcon className="w-3 h-3" /></button>
-                      <button type="button" onClick={() => deletePrize(p.id)}
+                      <button type="button" aria-label="Eliminar premio" onClick={() => deletePrize(p.id)}
                         className="px-3 py-1.5 bg-rose-50 text-rose-500 rounded-lg text-[9px] font-black uppercase hover:bg-rose-100"><TrashIcon className="w-3 h-3" /></button>
                     </td>
                   </tr>

@@ -191,10 +191,10 @@ export default function RecipeManager({ products, onNotify }: RecipeManagerProps
                       <td className="p-4 text-center text-slate-500 font-semibold">{recipe.ingredients?.length || 0}</td>
                       <td className="p-4 text-right">
                         <div className="flex items-center gap-1 justify-end">
-                          <button type="button" onClick={() => openEditForm(recipe)} className="p-2 text-slate-400 hover:text-sky-500 hover:bg-sky-50 rounded-lg transition-all">
+                          <button type="button" aria-label="Editar receta" onClick={() => openEditForm(recipe)} className="p-2 text-slate-400 hover:text-sky-500 hover:bg-sky-50 rounded-lg transition-all">
                             <PencilIcon className="w-4 h-4" />
                           </button>
-                          <button type="button" onClick={() => handleDelete(recipe.id)} className="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all">
+                          <button type="button" aria-label="Eliminar receta" onClick={() => handleDelete(recipe.id)} className="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all">
                             <TrashIcon className="w-4 h-4" />
                           </button>
                         </div>
@@ -218,7 +218,7 @@ export default function RecipeManager({ products, onNotify }: RecipeManagerProps
                   <h3 className="text-xl font-black text-slate-800">
                     {editingRecipe ? 'Editar Receta' : 'Nueva Receta'}
                   </h3>
-                  <button type="button" onClick={() => setShowForm(false)} className="p-2 text-slate-400 hover:text-slate-600 rounded-xl hover:bg-slate-100">
+                  <button type="button" aria-label="Cerrar" onClick={() => setShowForm(false)} className="p-2 text-slate-400 hover:text-slate-600 rounded-xl hover:bg-slate-100">
                     <XMarkIcon className="w-5 h-5" />
                   </button>
                 </div>
@@ -331,6 +331,7 @@ export default function RecipeManager({ products, onNotify }: RecipeManagerProps
                           <div className="grid grid-cols-1 sm:grid-cols-4 gap-3">
                             <div className="sm:col-span-2">
                               <select
+                                aria-label="Ingrediente"
                                 value={ing.productId}
                                 onChange={(e) => updateIngredient(idx, 'productId', e.target.value)}
                                 className="w-full p-3 bg-white border border-slate-200 rounded-xl font-bold text-sm focus:outline-none focus:ring-2 focus:ring-amber-500/30"
@@ -366,6 +367,7 @@ export default function RecipeManager({ products, onNotify }: RecipeManagerProps
                             </div>
                             <div>
                               <select
+                                aria-label="Unidad de medida"
                                 value={ing.unitOfMeasure}
                                 onChange={(e) => updateIngredient(idx, 'unitOfMeasure', e.target.value)}
                                 className="w-full p-3 bg-white border border-slate-200 rounded-xl font-bold text-sm focus:outline-none focus:ring-2 focus:ring-amber-500/30"

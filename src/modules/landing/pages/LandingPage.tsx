@@ -368,18 +368,24 @@ const LandingPage: React.FC = () => {
         }`}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16 lg:h-[72px]">
+            {/* Logo (left) */}
             <div className="flex items-center gap-2.5">
               {landingLogo && (
                 <img src={landingLogo} className={`h-13 lg:h-16 w-auto max-w-[220px] object-contain object-left transition-all duration-300 ${scrolled ? '' : 'brightness-0 invert lg:brightness-100 lg:invert-0'}`} alt="Logo" />
               )}
             </div>
 
+            {/* Menu Links (middle) */}
             <div className="hidden lg:flex items-center gap-8">
               <a href="#features" className="text-sm font-semibold text-slate-600 hover:text-[#0EA5E9] transition-colors">Funcionalidades</a>
               <a href="#why" className="text-sm font-semibold text-slate-600 hover:text-[#0EA5E9] transition-colors">Por qué Azul</a>
               <a href="#business-types" className="text-sm font-semibold text-slate-600 hover:text-[#0EA5E9] transition-colors">Negocios</a>
               <a href="#pricing" className="text-sm font-semibold text-slate-600 hover:text-[#0EA5E9] transition-colors">Planes</a>
               <a href="#testimonials" className="text-sm font-semibold text-slate-600 hover:text-[#0EA5E9] transition-colors">Testimonios</a>
+            </div>
+
+            {/* CTA Buttons (right) */}
+            <div className="hidden lg:flex items-center gap-4">
               <a
                 href="/login"
                 className="text-sm font-bold text-slate-700 hover:text-[#0EA5E9] transition-colors px-3 py-2"
@@ -388,13 +394,14 @@ const LandingPage: React.FC = () => {
               </a>
               <a
                 href="/suscripcion"
-                className="text-sm font-bold bg-[#0EA5E9] text-white px-6 py-2.5 rounded-xl hover:bg-[#0369A1] transition-all shadow-lg shadow-[#0EA5E9]/25 hover:shadow-[#0EA5E9]/40 hover:-translate-y-0.5"
+                className="text-sm font-bold bg-[#0EA5E9] text-white px-5 py-2.5 rounded-xl hover:bg-[#0369A1] transition-all shadow-lg shadow-[#0EA5E9]/25 hover:shadow-[#0EA5E9]/40 hover:-translate-y-0.5"
               >
                 Comenzar Gratis
               </a>
             </div>
 
             <button type="button"
+              aria-label={mobileMenuOpen ? 'Cerrar menú' : 'Abrir menú'}
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               className={`lg:hidden p-2 rounded-xl transition-all duration-300 ${scrolled
                   ? 'text-slate-800 hover:bg-slate-100'
@@ -413,6 +420,7 @@ const LandingPage: React.FC = () => {
               <a href="#why" className="block py-3 px-4 text-sm font-semibold text-slate-700 hover:bg-slate-50 rounded-xl" onClick={() => setMobileMenuOpen(false)}>Por qué Azul</a>
               <a href="#business-types" className="block py-3 px-4 text-sm font-semibold text-slate-700 hover:bg-slate-50 rounded-xl" onClick={() => setMobileMenuOpen(false)}>Negocios</a>
               <a href="#pricing" className="block py-3 px-4 text-sm font-semibold text-slate-700 hover:bg-slate-50 rounded-xl" onClick={() => setMobileMenuOpen(false)}>Planes</a>
+              <a href="#testimonials" className="block py-3 px-4 text-sm font-semibold text-slate-700 hover:bg-slate-50 rounded-xl" onClick={() => setMobileMenuOpen(false)}>Testimonios</a>
               <a href="/login" className="block py-3 px-4 text-sm font-bold text-slate-700 hover:bg-slate-50 rounded-xl">Iniciar Sesión</a>
               <a href="/suscripcion" className="block py-3 px-4 text-sm font-bold bg-[#0EA5E9] text-white text-center rounded-xl">Comenzar Gratis</a>
             </div>
@@ -562,7 +570,7 @@ const LandingPage: React.FC = () => {
               return (
                 <div key={stat.label} className={`transition-all duration-700 ${statsVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`} style={{ transitionDelay: `${idx * 150}ms` }}>
                   <p className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-[#0EA5E9] tracking-tight">
-                    {statValues[idx]}<span className="text-2xl sm:text-3xl lg:text-4xl font-bold text-[#0369A1]">{stat.suffix || ''}</span>
+                    {statValues[idx]}<span className="text-xl sm:text-2xl lg:text-3xl font-semibold text-slate-400 ml-0.5">{stat.suffix || ''}</span>
                   </p>
                   <p className="text-sm font-semibold text-slate-500 mt-2">{stat.label}</p>
                 </div>

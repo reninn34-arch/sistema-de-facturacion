@@ -723,61 +723,61 @@ const SaasAdmin: React.FC<SaasAdminProps> = ({ onNotify }) => {
                   <div className="size-8 flex items-center justify-center bg-sky-500 rounded-lg text-white">
                     <ShieldCheckIcon className="w-5 h-5" />
                   </div>
-                  <h2 className="text-[#0d121b] dark:text-white text-base md:text-lg font-bold leading-tight">Panel SaaS</h2>
+                  <h2 className="text-[#0d121b] dark:text-white text-base md:text-lg font-bold leading-tight flex-shrink-0">Panel SaaS</h2>
                 </div>
                 {/* Tabs */}
-                <div className="hidden md:flex gap-1">
+                <div className="hidden md:flex items-center gap-1 min-w-0 overflow-x-auto" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
                   <button type="button" 
-                    className={`px-3 py-1.5 text-sm font-medium transition-colors rounded-lg ${activeTab === 'businesses' ? 'bg-sky-50 dark:bg-sky-500/20 text-sky-500 dark:text-sky-300' : 'text-[#4c669a] dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'}`}
+                    className={`flex-shrink-0 whitespace-nowrap px-2.5 py-1.5 text-xs lg:text-sm font-medium transition-colors rounded-lg ${activeTab === 'businesses' ? 'bg-sky-50 dark:bg-sky-500/20 text-sky-500 dark:text-sky-300' : 'text-[#4c669a] dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'}`}
                     onClick={() => setActiveTab('businesses')}
                   >
                     Empresas
                   </button>
                   <button type="button" 
-                    className={`px-3 py-1.5 text-sm font-medium transition-colors rounded-lg ${activeTab === 'superadmins' ? 'bg-sky-50 dark:bg-sky-500/20 text-sky-500 dark:text-sky-300' : 'text-[#4c669a] dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'}`}
+                    className={`flex-shrink-0 whitespace-nowrap px-2.5 py-1.5 text-xs lg:text-sm font-medium transition-colors rounded-lg ${activeTab === 'superadmins' ? 'bg-sky-50 dark:bg-sky-500/20 text-sky-500 dark:text-sky-300' : 'text-[#4c669a] dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'}`}
                     onClick={() => setActiveTab('superadmins')}
                   >
                     Superadmins
                   </button>
                   <button type="button" 
-                    className={`px-3 py-1.5 text-sm font-medium transition-colors rounded-lg ${activeTab === 'users' ? 'bg-sky-50 dark:bg-sky-500/20 text-sky-500 dark:text-sky-300' : 'text-[#4c669a] dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'}`}
+                    className={`flex-shrink-0 whitespace-nowrap px-2.5 py-1.5 text-xs lg:text-sm font-medium transition-colors rounded-lg ${activeTab === 'users' ? 'bg-sky-50 dark:bg-sky-500/20 text-sky-500 dark:text-sky-300' : 'text-[#4c669a] dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'}`}
                     onClick={() => setActiveTab('users')}
                   >
                     Usuarios
                   </button>
                   <button type="button" 
-                    className={`px-3 py-1.5 text-sm font-medium transition-colors rounded-lg ${activeTab === 'subscription-payments' ? 'bg-sky-50 dark:bg-sky-500/20 text-sky-500 dark:text-sky-300' : 'text-[#4c669a] dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'}`}
+                    className={`flex-shrink-0 whitespace-nowrap px-2.5 py-1.5 text-xs lg:text-sm font-medium transition-colors rounded-lg ${activeTab === 'subscription-payments' ? 'bg-sky-50 dark:bg-sky-500/20 text-sky-500 dark:text-sky-300' : 'text-[#4c669a] dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'}`}
                     onClick={() => setActiveTab('subscription-payments')}
                   >
                     Pagos
                   </button>
                   <button type="button" 
-                    className={`px-3 py-1.5 text-sm font-medium transition-colors rounded-lg inline-flex items-center gap-1.5 ${activeTab === 'expiring' ? 'bg-amber-100 dark:bg-amber-500/20 text-amber-700 dark:text-amber-400' : 'text-[#4c669a] dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'}`}
+                    className={`flex-shrink-0 whitespace-nowrap px-2.5 py-1.5 text-xs lg:text-sm font-medium transition-colors rounded-lg inline-flex items-center gap-1.5 ${activeTab === 'expiring' ? 'bg-amber-100 dark:bg-amber-500/20 text-amber-700 dark:text-amber-400' : 'text-[#4c669a] dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'}`}
                     onClick={() => setActiveTab('expiring')}
                   >
                     Por Vencer
                     {expiringRiskCount > 0 && (
-                      <span className="bg-red-500 text-white text-[10px] font-black px-1.5 py-0.5 rounded-full min-w-[18px] text-center">
+                      <span className="bg-red-500 text-white text-[10px] font-black px-1.5 py-0.5 rounded-full min-w-[18px] text-center flex-shrink-0">
                         {expiringRiskCount}
                       </span>
                     )}
                   </button>
                 </div>
               </div>
-              <div className="flex items-center gap-2 flex-shrink-0">
+              <div className="flex items-center gap-1.5 flex-shrink-0">
                 <button type="button"
                   onClick={() => setShowBusinessModal(true)}
-                  className="flex items-center gap-1 md:gap-2 px-2 md:px-4 py-2 bg-[#0ea5e9] text-white text-xs md:text-sm font-medium rounded-lg hover:opacity-90 transition-opacity"
+                  className="flex items-center gap-1.5 px-2.5 py-1.5 bg-[#0ea5e9] text-white text-xs lg:text-sm font-medium rounded-lg hover:opacity-90 transition-opacity"
                 >
-                  <BuildingOffice2Icon className="w-[18px] h-[18px] md:w-5 md:h-5" />
-                  <span className="hidden lg:inline">Nueva Empresa</span>
+                  <BuildingOffice2Icon className="w-4 h-4 lg:w-4.5 lg:h-4.5" />
+                  <span className="hidden md:inline">Nueva Empresa</span>
                 </button>
                 <button type="button" 
                   onClick={() => setShowUserModal(true)}
-                  className="flex items-center gap-1 md:gap-2 px-2 md:px-4 py-2 bg-slate-100 dark:bg-slate-800 text-[#0d121b] dark:text-white text-xs md:text-sm font-medium rounded-lg hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
+                  className="flex items-center gap-1.5 px-2.5 py-1.5 bg-slate-100 dark:bg-slate-800 text-[#0d121b] dark:text-white text-xs lg:text-sm font-medium rounded-lg hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
                 >
-                  <UserPlusIcon className="w-[18px] h-[18px] md:w-5 md:h-5" />
-                  <span className="hidden lg:inline">Nuevo Admin</span>
+                  <UserPlusIcon className="w-4 h-4 lg:w-4.5 lg:h-4.5" />
+                  <span className="hidden md:inline">Nuevo Admin</span>
                 </button>
               </div>
             </div>
@@ -969,7 +969,7 @@ const SaasAdmin: React.FC<SaasAdminProps> = ({ onNotify }) => {
                           <span className="text-xs text-[#4c669a] dark:text-slate-400">
                             {b.plan || 'Básico'} • {b.subscriptionEnd ? new Date(b.subscriptionEnd).toLocaleDateString() : 'Sin fecha'}
                           </span>
-                          <button type="button" onClick={() => setSelectedBusiness(b)} className="p-1 rounded bg-[#0ea5e9]/10 text-[#0ea5e9]">
+                          <button type="button" aria-label="Ver empresa" onClick={() => setSelectedBusiness(b)} className="p-1 rounded bg-[#0ea5e9]/10 text-[#0ea5e9]">
                             <EyeIcon className="w-4 h-4" />
                           </button>
                         </div>
@@ -1164,7 +1164,7 @@ const SaasAdmin: React.FC<SaasAdminProps> = ({ onNotify }) => {
                                   </span>
                                 </td>
                                 <td className="px-4 py-3 text-right">
-                                  <button type="button" 
+                                  <button type="button" aria-label="Ver usuario"
                                     onClick={() => setSelectedUser(user)}
                                     className="p-1.5 rounded-lg bg-[#0ea5e9]/10 text-[#0ea5e9] hover:bg-[#0ea5e9] hover:text-white transition-all"
                                   >
@@ -1197,7 +1197,7 @@ const SaasAdmin: React.FC<SaasAdminProps> = ({ onNotify }) => {
                             </span>
                           </div>
                           <div className="flex justify-end">
-                            <button type="button" onClick={() => setSelectedUser(user)} className="p-1 rounded bg-[#0ea5e9]/10 text-[#0ea5e9]">
+                            <button type="button" aria-label="Ver usuario" onClick={() => setSelectedUser(user)} className="p-1 rounded bg-[#0ea5e9]/10 text-[#0ea5e9]">
                               <EyeIcon className="w-4 h-4" />
                             </button>
                           </div>
@@ -1212,7 +1212,7 @@ const SaasAdmin: React.FC<SaasAdminProps> = ({ onNotify }) => {
                 <div className="mt-6">
                   <div className="flex items-center justify-between mb-4">
                     <h2 className="text-[#0d121b] dark:text-white text-lg md:text-xl font-bold">Detalles del Superadmin</h2>
-                    <button type="button" onClick={() => setSelectedUser(null)} className="text-[#4c669a] hover:text-[#0ea5e9]">
+                    <button type="button" aria-label="Cerrar" onClick={() => setSelectedUser(null)} className="text-[#4c669a] hover:text-[#0ea5e9]">
                       <XMarkIcon className="w-5 h-5" />
                     </button>
                   </div>
@@ -1330,7 +1330,7 @@ const SaasAdmin: React.FC<SaasAdminProps> = ({ onNotify }) => {
                                 </span>
                               </td>
                               <td className="px-4 py-3 text-right">
-                                <button type="button" 
+                                <button type="button" aria-label="Ver usuario"
                                   onClick={() => setSelectedUser(user)}
                                   className="p-1.5 rounded-lg bg-[#0ea5e9]/10 text-[#0ea5e9] hover:bg-[#0ea5e9] hover:text-white transition-all"
                                 >
@@ -1369,7 +1369,7 @@ const SaasAdmin: React.FC<SaasAdminProps> = ({ onNotify }) => {
                           </div>
                           <div className="flex justify-between items-center">
                             <span className="text-xs text-[#4c669a] dark:text-slate-400">{user.role}</span>
-                            <button type="button" onClick={() => setSelectedUser(user)} className="p-1 rounded bg-[#0ea5e9]/10 text-[#0ea5e9]">
+                            <button type="button" aria-label="Ver usuario" onClick={() => setSelectedUser(user)} className="p-1 rounded bg-[#0ea5e9]/10 text-[#0ea5e9]">
                               <EyeIcon className="w-4 h-4" />
                             </button>
                           </div>
@@ -1385,7 +1385,7 @@ const SaasAdmin: React.FC<SaasAdminProps> = ({ onNotify }) => {
                 <div className="mt-6">
                   <div className="flex items-center justify-between mb-4">
                     <h2 className="text-[#0d121b] dark:text-white text-lg md:text-xl font-bold">Detalles del Usuario</h2>
-                    <button type="button" onClick={() => setSelectedUser(null)} className="text-[#4c669a] hover:text-[#0ea5e9]">
+                    <button type="button" aria-label="Cerrar" onClick={() => setSelectedUser(null)} className="text-[#4c669a] hover:text-[#0ea5e9]">
                       <XMarkIcon className="w-5 h-5" />
                     </button>
                   </div>
@@ -1589,6 +1589,7 @@ const SaasAdmin: React.FC<SaasAdminProps> = ({ onNotify }) => {
                         </div>
                         <div className="mt-3 flex justify-end">
                           <button type="button"
+                            aria-label="Eliminar pago"
                             onClick={() => { setPaymentToDelete(payment); setShowDeletePaymentModal(true); }}
                             className="p-2 text-red-600 hover:bg-red-100 dark:hover:bg-red-900/30 rounded-lg transition-colors"
                           >
@@ -1608,7 +1609,7 @@ const SaasAdmin: React.FC<SaasAdminProps> = ({ onNotify }) => {
             <div className="mt-6">
               <div className="flex items-center justify-between mb-4">
                 <h2 className="text-[#0d121b] dark:text-white text-lg md:text-xl font-bold">Detalles de {selectedBusiness.name}</h2>
-                <button type="button" onClick={() => setSelectedBusiness(null)} className="text-[#4c669a] hover:text-[#0ea5e9]">
+                <button type="button" aria-label="Cerrar" onClick={() => setSelectedBusiness(null)} className="text-[#4c669a] hover:text-[#0ea5e9]">
                   <XMarkIcon className="w-5 h-5" />
                 </button>
               </div>
@@ -1748,7 +1749,7 @@ const SaasAdmin: React.FC<SaasAdminProps> = ({ onNotify }) => {
         {/* Footer */}
         <footer className="max-w-7xl mx-auto px-4 py-6">
           <div className="border-t border-[#cfd7e7] dark:border-slate-800 pt-4 flex flex-col sm:flex-row justify-between items-center gap-2">
-            <p className="text-xs text-[#4c669a] dark:text-slate-500">© 2024 Panel SaaS Admin</p>
+            <p className="text-xs text-[#4c669a] dark:text-slate-500">© {new Date().getFullYear()} Panel SaaS Admin</p>
             <div className="flex gap-4">
               <a className="text-xs text-[#4c669a] dark:text-slate-500 hover:text-[#0ea5e9]" href="#">Términos</a>
               <a className="text-xs text-[#4c669a] dark:text-slate-500 hover:text-[#0ea5e9]" href="#">Privacidad</a>
@@ -1783,7 +1784,7 @@ const SaasAdmin: React.FC<SaasAdminProps> = ({ onNotify }) => {
                               value={userFormData.password}
                               onChange={e => setUserFormData({...userFormData, password: e.target.value})}
                           />
-                          <button type="button" className="absolute right-2 top-8 text-slate-400" onClick={() => setShowPassword(!showPassword)}>
+                          <button type="button" aria-label={showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'} className="absolute right-2 top-8 text-slate-400" onClick={() => setShowPassword(!showPassword)}>
                               {showPassword ? <EyeSlashIcon className="w-[18px] h-[18px]" /> : <EyeIcon className="w-[18px] h-[18px]" />}
                           </button>
                       </div>
@@ -1797,7 +1798,7 @@ const SaasAdmin: React.FC<SaasAdminProps> = ({ onNotify }) => {
                               value={userFormData.confirmPassword}
                               onChange={e => setUserFormData({...userFormData, confirmPassword: e.target.value})}
                           />
-                          <button type="button" className="absolute right-2 top-8 text-slate-400 hover:text-slate-600" onClick={() => setShowPassword(!showPassword)}>
+                          <button type="button" aria-label={showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'} className="absolute right-2 top-8 text-slate-400 hover:text-slate-600" onClick={() => setShowPassword(!showPassword)}>
                               {showPassword ? <EyeSlashIcon className="w-[18px] h-[18px]" /> : <EyeIcon className="w-[18px] h-[18px]" />}
                           </button>
                       </div>
@@ -1837,7 +1838,7 @@ const SaasAdmin: React.FC<SaasAdminProps> = ({ onNotify }) => {
                           <label htmlFor={`${fieldId}-biz-password`} className="text-xs font-semibold text-[#4c669a] dark:text-slate-400">Password Admin</label>
                           <input id={`${fieldId}-biz-password`} type={showPassword ? "text" : "password"} required className="mt-1 w-full p-2.5 pr-10 border border-[#cfd7e7] dark:border-slate-700 dark:bg-slate-800 dark:text-white rounded-lg text-sm focus:border-[#0ea5e9] outline-none"
                               value={businessFormData.password} onChange={e => setBusinessFormData({...businessFormData, password: e.target.value})} />
-                          <button type="button" className="absolute right-2 top-8 text-slate-400 hover:text-slate-600" onClick={() => setShowPassword(!showPassword)}>
+                          <button type="button" aria-label={showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'} className="absolute right-2 top-8 text-slate-400 hover:text-slate-600" onClick={() => setShowPassword(!showPassword)}>
                               {showPassword ? <EyeSlashIcon className="w-[18px] h-[18px]" /> : <EyeIcon className="w-[18px] h-[18px]" />}
                           </button>
                       </div>
@@ -1991,7 +1992,7 @@ const SaasAdmin: React.FC<SaasAdminProps> = ({ onNotify }) => {
                           <label htmlFor={`${fieldId}-newuser-password`} className="text-xs font-semibold text-[#4c669a] dark:text-slate-400">Password</label>
                           <input id={`${fieldId}-newuser-password`} type={showPassword ? "text" : "password"} required className="mt-1 w-full p-2.5 pr-10 border border-[#cfd7e7] dark:border-slate-700 dark:bg-slate-800 dark:text-white rounded-lg text-sm focus:border-[#0ea5e9] outline-none"
                               value={newUserFormData.password} onChange={e => setNewUserFormData({...newUserFormData, password: e.target.value})} />
-                          <button type="button" className="absolute right-2 top-8 text-slate-400 hover:text-slate-600" onClick={() => setShowPassword(!showPassword)}>
+                          <button type="button" aria-label={showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'} className="absolute right-2 top-8 text-slate-400 hover:text-slate-600" onClick={() => setShowPassword(!showPassword)}>
                               {showPassword ? <EyeSlashIcon className="w-[18px] h-[18px]" /> : <EyeIcon className="w-[18px] h-[18px]" />}
                           </button>
                       </div>
@@ -2040,7 +2041,7 @@ const SaasAdmin: React.FC<SaasAdminProps> = ({ onNotify }) => {
                           <label htmlFor={`${fieldId}-resetUser-pw`} className="text-xs font-semibold text-[#4c669a] dark:text-slate-400">Nueva Password</label>
                           <input id={`${fieldId}-resetUser-pw`} type={showPassword ? "text" : "password"} required className="mt-1 w-full p-2.5 pr-10 border border-[#cfd7e7] dark:border-slate-700 dark:bg-slate-800 dark:text-white rounded-lg text-sm focus:border-[#0ea5e9] outline-none"
                               value={tempPassword} onChange={e => setTempPassword(e.target.value)} placeholder="Nueva password" />
-                          <button type="button" className="absolute right-2 top-8 text-slate-400 hover:text-slate-600" onClick={() => setShowPassword(!showPassword)}>
+                          <button type="button" aria-label={showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'} className="absolute right-2 top-8 text-slate-400 hover:text-slate-600" onClick={() => setShowPassword(!showPassword)}>
                               {showPassword ? <EyeSlashIcon className="w-[18px] h-[18px]" /> : <EyeIcon className="w-[18px] h-[18px]" />}
                           </button>
                       </div>
@@ -2064,7 +2065,7 @@ const SaasAdmin: React.FC<SaasAdminProps> = ({ onNotify }) => {
                           <label htmlFor={`${fieldId}-resetAdmin-pw`} className="text-xs font-semibold text-[#4c669a] dark:text-slate-400">Nueva Password</label>
                           <input id={`${fieldId}-resetAdmin-pw`} type={showPassword ? "text" : "password"} required className="mt-1 w-full p-2.5 pr-10 border border-[#cfd7e7] dark:border-slate-700 dark:bg-slate-800 dark:text-white rounded-lg text-sm focus:border-[#0ea5e9] outline-none"
                               value={adminPassword} onChange={e => setAdminPassword(e.target.value)} placeholder="Nueva password" />
-                          <button type="button" className="absolute right-2 top-8 text-slate-400 hover:text-slate-600" onClick={() => setShowPassword(!showPassword)}>
+                          <button type="button" aria-label={showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'} className="absolute right-2 top-8 text-slate-400 hover:text-slate-600" onClick={() => setShowPassword(!showPassword)}>
                               {showPassword ? <EyeSlashIcon className="w-[18px] h-[18px]" /> : <EyeIcon className="w-[18px] h-[18px]" />}
                           </button>
                       </div>

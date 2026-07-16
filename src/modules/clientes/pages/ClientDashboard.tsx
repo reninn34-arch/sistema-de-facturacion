@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect, useMemo, useId } from 'react';
+import React, { useState, useEffect, useMemo, useId } from 'react';
 import { Document } from '../../../types/types';
 import { DocumentTextIcon, ArrowRightOnRectangleIcon, CheckCircleIcon, CreditCardIcon, ClockIcon, DocumentIcon, CodeBracketIcon, LockClosedIcon, QuestionMarkCircleIcon } from '@heroicons/react/24/outline';
 
@@ -420,7 +420,7 @@ const ClientDashboard = () => {
         {/* Footer (Mini) */}
         <footer className="max-w-[1280px] mx-auto px-4 md:px-10 lg:px-40 py-10">
           <div className="border-t border-[#cfd7e7] dark:border-slate-800 pt-6 flex flex-col md:flex-row justify-between items-center gap-4">
-            <p className="text-xs text-[#4c669a] dark:text-slate-500">Â© 2024 FacturaPortal. Todos los derechos reservados.</p>
+            <p className="text-xs text-[#4c669a] dark:text-slate-500">© {new Date().getFullYear()} FacturaPortal. Todos los derechos reservados.</p>
             <div className="flex gap-6">
               <a className="text-xs text-[#4c669a] dark:text-slate-500 hover:text-[#0ea5e9]" href="#">Términos</a>
               <a className="text-xs text-[#4c669a] dark:text-slate-500 hover:text-[#0ea5e9]" href="#">Privacidad</a>

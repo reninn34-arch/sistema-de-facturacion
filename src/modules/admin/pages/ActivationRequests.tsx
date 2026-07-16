@@ -375,7 +375,7 @@ const ActivationRequests: React.FC<ActivationRequestsProps> = ({ onNotify }) => 
         <aside className="w-full lg:w-[400px] border-l border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 flex flex-col h-full overflow-y-auto shrink-0">
           <div className="p-6 flex items-center justify-between border-b border-slate-100 dark:border-slate-800">
             <h2 className="text-lg font-bold text-slate-900 dark:text-slate-100">Detalles de Solicitud</h2>
-            <button type="button" 
+            <button type="button" aria-label="Cerrar"
               onClick={() => setSelectedRequest(null)}
               className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
             >
@@ -545,7 +545,7 @@ const ActivationRequests: React.FC<ActivationRequestsProps> = ({ onNotify }) => 
                   <p className="text-sm text-slate-500 dark:text-slate-400">Ingrese el motivo del rechazo</p>
                 </div>
               </div>
-              <button type="button" 
+              <button type="button" aria-label="Cerrar"
                 onClick={() => setShowRejectModal(false)}
                 disabled={actionLoading}
                 className="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors disabled:opacity-50"
@@ -632,7 +632,7 @@ const ActivationRequests: React.FC<ActivationRequestsProps> = ({ onNotify }) => 
                   <p className="text-sm text-slate-500 dark:text-slate-400">Imagen del comprobante adjuntado</p>
                 </div>
               </div>
-              <button type="button" 
+              <button type="button" aria-label="Cerrar"
                 onClick={() => setPaymentProofImage(null)}
                 className="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
               >

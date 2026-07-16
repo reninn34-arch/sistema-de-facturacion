@@ -291,6 +291,7 @@ export default function SettlementForm({ business, clients, products, onSubmit }
                       <h4 className="font-medium text-gray-700 dark:text-slate-300">Ítem {index + 1}</h4>
                       <button
                         type="button"
+                        aria-label="Eliminar ítem"
                         onClick={() => removeItem(index)}
                         className="text-red-655 hover:text-red-800 text-lg"
                       >

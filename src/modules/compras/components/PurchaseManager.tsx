@@ -235,7 +235,7 @@ const PurchaseManager: React.FC<PurchaseManagerProps> = ({ clients, businessInfo
                       <td className="py-4 text-right text-sm font-bold text-sky-500">${ivaCompra.toFixed(2)}</td>
                       <td className="py-4 text-right text-sm font-black text-slate-800">${(doc.total || 0).toFixed(2)}</td>
                       <td className="py-4 px-6 text-right">
-                        <button type="submit"
+                        <button type="submit" aria-label="Eliminar comprobante"
                           onClick={() => {
                             if (confirm('Eliminar este comprobante?')) {
                               onPurchaseDeleted(doc.id);
@@ -357,9 +357,9 @@ const PurchaseManager: React.FC<PurchaseManagerProps> = ({ clients, businessInfo
                           className="flex-1 p-2 bg-white rounded-lg text-sm font-bold outline-none focus:ring-1 focus:ring-sky-500"
                           placeholder="Descripcion"
                         />
-                        <input type="number" value={item.quantity} onChange={e => updateItem(idx, 'quantity', Math.max(1, parseInt(e.target.value) || 1))} className="w-16 p-2 bg-white rounded-lg text-center text-sm font-bold" min="1" />
+                        <input type="number" aria-label="Cantidad" value={item.quantity} onChange={e => updateItem(idx, 'quantity', Math.max(1, parseInt(e.target.value) || 1))} className="w-16 p-2 bg-white rounded-lg text-center text-sm font-bold" min="1" />
                         <input type="number" step="0.01" value={item.unitPrice} onChange={e => updateItem(idx, 'unitPrice', Math.max(0, parseFloat(e.target.value) || 0))} className="w-24 p-2 bg-white rounded-lg text-right text-sm font-bold" placeholder="0.00" />
-                        <select value={item.taxRate} onChange={e => updateItem(idx, 'taxRate', parseInt(e.target.value))} className="w-20 p-2 bg-white rounded-lg text-xs font-bold">
+                        <select aria-label="IVA" value={item.taxRate} onChange={e => updateItem(idx, 'taxRate', parseInt(e.target.value))} className="w-20 p-2 bg-white rounded-lg text-xs font-bold">
                           <option value={15}>IVA 15%</option>
                           <option value={0}>IVA 0%</option>
                         </select>

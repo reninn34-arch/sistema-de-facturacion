@@ -624,6 +624,7 @@ const SubscriptionPage: React.FC = () => {
                       />
                       <button
                         type="button"
+                        aria-label={showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}
                         onClick={() => setShowPassword(!showPassword)}
                         className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
                       >
@@ -753,7 +754,8 @@ const SubscriptionPage: React.FC = () => {
                             disabled={!isFormValid}
                             createOrder={(data, actions) => {
                               const currentPlan = plans.find(p => p.code === selectedPlan);
-                              const price = currentPlan ? currentPlan.price.toFixed(2) : '0.00';
+                              // Cobrar el precio CON IVA, igual al mostrado en la tarjeta del plan
+                              const price = currentPlan ? (currentPlan.priceWithTax ?? currentPlan.price).toFixed(2) : '0.00';
                               return actions.order.create({
                                 intent: "CAPTURE",
                                 payer: { address: { country_code: "EC" } },
@@ -788,27 +790,6 @@ const SubscriptionPage: React.FC = () => {
                             }}
                           />
                         </PayPalScriptProvider>
-                        {import.meta.env.DEV && (
-                          <button
-                            type="button"
-                            disabled={!isFormValid}
-                            onClick={async () => {
-                              try {
-                                const cp = plans.find(p => p.code === selectedPlan);
-                                const price = cp ? cp.price : 0;
-                                const mockOrderId = `mock_${price.toFixed(2)}`;
-                                console.log('Simulating public PayPal registration with ID:', mockOrderId);
-                                await handleRegister(mockOrderId);
-                              } catch (err: any) {
-                                console.error('Mock registration payment error:', err);
-                                showNotify('Error en simulación de registro: ' + err.message, 'error');
-                              }
-                            }}
-                            className={`mt-2 w-full py-2 bg-amber-500 hover:bg-amber-600 text-white font-bold rounded-xl text-xs transition-colors ${!isFormValid ? 'opacity-50 cursor-not-allowed' : ''}`}
-                          >
-                            ⚡ Simular Registro con PayPal (Desarrollo)
-                          </button>
-                        )}
                       </>
                     )}
                   </div>
@@ -897,12 +878,22 @@ const SubscriptionPage: React.FC = () => {
                     <span className="text-slate-500 font-medium">Tipo de Negocio</span>
                     <span className="font-semibold text-slate-900">{BUSINESS_TYPES[selectedBusinessType]?.label || 'General'}</span>
                   </div>
-                  <div className="flex justify-between mb-4 text-sm">
-                    <span className="text-slate-500 font-medium">Precio</span>
+                  <div className="flex justify-between mb-2 text-sm">
+                    <span className="text-slate-500 font-medium">Subtotal</span>
                     <span className="font-semibold text-slate-900">
                       ${(() => {
                         const cp = plans.find(p => p.code === selectedPlan);
                         return cp ? cp.price.toFixed(2) : '0.00';
+                      })()}
+                    </span>
+                  </div>
+                  <div className="flex justify-between mb-4 text-sm">
+                    <span className="text-slate-500 font-medium">IVA 15%</span>
+                    <span className="font-semibold text-slate-900">
+                      ${(() => {
+                        const cp = plans.find(p => p.code === selectedPlan);
+                        if (!cp) return '0.00';
+                        return ((cp.priceWithTax ?? cp.price) - cp.price).toFixed(2);
                       })()}
                     </span>
                   </div>
@@ -912,7 +903,7 @@ const SubscriptionPage: React.FC = () => {
                     <span>
                       ${(() => {
                         const cp = plans.find(p => p.code === selectedPlan);
-                        return cp ? cp.price.toFixed(2) : '0.00';
+                        return cp ? (cp.priceWithTax ?? cp.price).toFixed(2) : '0.00';
                       })()}
                     </span>
                   </div>

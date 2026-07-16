@@ -369,56 +369,56 @@ const Layout: React.FC<LayoutProps> = ({
         z-[1000] transform transition-all duration-300 ease-in-out
         ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
       `}>
-        <div className="p-4 sm:p-6 border-b border-slate-200 dark:border-slate-700/50 flex justify-between items-center">
+        <div className="p-3 sm:p-4 border-b border-slate-200 dark:border-slate-700/50 flex justify-between items-center">
           <div className="min-w-0 flex-1">
-            <div className="py-2">
+            <div className="py-1">
               {landingLogo ? (
-                <img src={landingLogo} className="h-16 w-auto max-w-full object-contain object-left dark:brightness-0 dark:invert" alt="Logo" />
+                <img src={landingLogo} className="h-12 w-auto max-w-full object-contain object-left dark:brightness-0 dark:invert" alt="Logo" />
               ) : landingLogo === false && emp?.logo ? (
-                <img src={emp.logo} className="h-16 w-auto max-w-full object-contain object-left" alt="Logo" />
+                <img src={emp.logo} className="h-12 w-auto max-w-full object-contain object-left" alt="Logo" />
               ) : null}
-              <p className="text-[9px] text-slate-400 dark:text-slate-500 mt-1.5 uppercase font-bold tracking-widest">Enterprise Edition</p>
+              <p className="text-[9px] text-slate-400 dark:text-slate-500 mt-0.5 uppercase font-bold tracking-widest">Enterprise Edition</p>
             </div>
           </div>
-          <button type="button" onClick={() => setIsSidebarOpen(false)}
-            className="lg:hidden text-slate-400 hover:text-slate-700 dark:hover:text-white p-2 min-w-[44px] min-h-[44px] flex items-center justify-center">
+          <button type="button" aria-label="Cerrar menú" onClick={() => setIsSidebarOpen(false)}
+            className="lg:hidden text-slate-400 hover:text-slate-700 dark:hover:text-white p-2 min-w-[40px] min-h-[40px] flex items-center justify-center">
             <XMarkIcon className="w-5 h-5" />
           </button>
         </div>
 
         {!isSuperAdmin && (
-          <div className="px-4 mt-4">
+          <div className="px-3 mt-2">
             {emp?.isProduction ? (
-              <div className="w-full flex items-center justify-center gap-2 bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400 py-3 rounded-xl border border-emerald-200 dark:border-emerald-800/50">
-                <ShieldExclamationIcon className="w-5 h-5" />
-                <span className="font-black text-xs uppercase tracking-widest">Ambiente Producción</span>
+              <div className="w-full flex items-center justify-center gap-2 bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400 py-2 rounded-lg border border-emerald-200 dark:border-emerald-800/50">
+                <ShieldExclamationIcon className="w-4 h-4" />
+                <span className="font-black text-[10px] uppercase tracking-widest">Ambiente Producción</span>
               </div>
             ) : (
               <button type="button" onClick={() => setIsEnvModalOpen(true)}
-                className="w-full flex items-center justify-between bg-red-500 hover:bg-red-600 text-white py-3 px-4 rounded-xl shadow-lg shadow-red-500/20 transition-colors group">
+                className="w-full flex items-center justify-between bg-red-500 hover:bg-red-600 text-white py-2 px-3 rounded-lg shadow-lg shadow-red-500/20 transition-colors group">
                 <div className="flex items-center gap-2">
-                  <ExclamationTriangleIcon className="w-5 h-5 animate-pulse" />
-                  <span className="font-black text-xs uppercase tracking-widest">Ambiente Pruebas</span>
+                  <ExclamationTriangleIcon className="w-4 h-4 animate-pulse" />
+                  <span className="font-black text-[10px] uppercase tracking-widest">Ambiente Pruebas</span>
                 </div>
-                <ChevronDownIcon className="w-4 h-4 opacity-50 group-hover:opacity-100 transition-opacity" />
+                <ChevronDownIcon className="w-3.5 h-3.5 opacity-50 group-hover:opacity-100 transition-opacity" />
               </button>
             )}
           </div>
         )}
 
-        <nav className="flex-1 p-2 sm:p-4 mt-2 space-y-1 overflow-y-auto">
+        <nav className="flex-1 p-1.5 sm:p-2 mt-1 space-y-0.5 overflow-y-auto">
           {/* Standalone Dashboard for non-SUPERADMIN */}
           {showStandaloneDashboard && (
             <button type="button"
               onClick={() => handleTabClick('dashboard')}
-              className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl transition-all duration-200 min-h-[48px] text-left border-l-4 group mb-3 ${
+              className={`w-full flex items-center space-x-3 px-3 py-1.5 rounded-lg transition-all duration-200 min-h-[36px] text-left border-l-4 group mb-1.5 ${
                 activeTab === 'dashboard'
                   ? 'bg-sky-50 border-sky-500 text-sky-700 font-bold'
                   : 'border-transparent text-slate-500 dark:text-slate-400 hover:bg-sky-50/50 hover:text-sky-600 hover:translate-x-1 dark:hover:bg-sky-500/10 font-semibold'
               }`}
             >
-              <span className="flex-shrink-0"><ChartBarIcon className="w-6 h-6" /></span>
-              <span className="text-sm font-medium flex-1">Dashboard</span>
+              <span className="flex-shrink-0"><ChartBarIcon className="w-5 h-5" /></span>
+              <span className="text-xs font-medium flex-1">Dashboard</span>
             </button>
           )}
 
@@ -430,40 +430,40 @@ const Layout: React.FC<LayoutProps> = ({
             const groupBadge = group.id === 'superadmin' ? pendingActivations : 0;
 
             return (
-              <div key={group.id} className="mb-1">
+              <div key={group.id} className="mb-0.5">
                 <button type="button"
                   onClick={(e) => { e.preventDefault(); e.stopPropagation(); toggleGroup(group.id); }}
-                  className={`w-full flex items-center gap-2 px-3 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all cursor-pointer select-none ${
+                  className={`w-full flex items-center gap-2 px-2.5 py-1.5 rounded-lg text-[9px] font-black uppercase tracking-widest transition-all cursor-pointer select-none ${
                     hasActiveTab ? 'text-sky-600 dark:text-sky-400' : 'text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300'
                   }`}
                 >
                   <span className="flex-shrink-0">{groupIcons[group.id]}</span>
                   <span className="flex-1 text-left">{group.label}</span>
                   {groupBadge > 0 && isCollapsed && (
-                    <span className="bg-red-500 text-white text-[9px] font-black px-1.5 py-0.5 rounded-full min-w-[18px] text-center">{groupBadge}</span>
+                    <span className="bg-red-500 text-white text-[8px] font-black px-1.5 py-0.5 rounded-full min-w-[16px] text-center">{groupBadge}</span>
                   )}
-                  <ChevronDownIcon className={`w-3.5 h-3.5 flex-shrink-0 transition-transform duration-200 ${!isCollapsed ? 'rotate-180' : ''}`} />
+                  <ChevronDownIcon className={`w-3 h-3 flex-shrink-0 transition-transform duration-200 ${!isCollapsed ? 'rotate-180' : ''}`} />
                 </button>
 
                 <div className={`overflow-hidden transition-all duration-300 ease-in-out ${isCollapsed ? 'max-h-0 opacity-0 pointer-events-none' : 'max-h-[2000px] opacity-100'}`}>
-                  <div className="space-y-0.5 mt-1">
+                  <div className="space-y-0.5 mt-0.5">
                       {visibleItems.map(item => (
                         item.id.startsWith('_div_') ? (
-                          <div key={item.id} className="px-4 py-1.5 text-[9px] font-black text-slate-300 dark:text-slate-600 uppercase tracking-[0.2em] select-none pointer-events-none">{item.label.replace(/─/g, '')}</div>
+                          <div key={item.id} className="px-3 py-1 text-[8px] font-black text-slate-300 dark:text-slate-600 uppercase tracking-[0.2em] select-none pointer-events-none">{item.label.replace(/─/g, '')}</div>
                         ) : (
                         <button type="button"
                           key={item.id}
                           onClick={() => handleTabClick(item.id)}
-                        className={`w-full flex items-center space-x-3 px-4 py-2.5 rounded-xl transition-all duration-200 min-h-[44px] text-left border-l-4 group ${
+                        className={`w-full flex items-center space-x-2.5 px-3 py-1.5 rounded-lg transition-all duration-200 min-h-[34px] text-left border-l-4 group ${
                           activeTab === item.id
                             ? 'bg-sky-50 border-sky-500 text-sky-700 font-bold'
                             : 'border-transparent text-slate-500 dark:text-slate-400 hover:bg-sky-50/50 hover:text-sky-600 hover:translate-x-1 dark:hover:bg-sky-500/10 font-semibold'
                         }`}
                       >
                         <span className="flex-shrink-0 scale-90">{iconMap[item.label] || <CubeIcon className="w-5 h-5" />}</span>
-                        <span className="text-xs font-medium flex-1">{item.label}</span>
+                        <span className="text-[11px] font-medium flex-1">{item.label}</span>
                         {item.id === 'activation-requests' && pendingActivations > 0 && (
-                          <span className="bg-red-500 text-white text-[10px] font-black px-1.5 py-0.5 rounded-full min-w-[18px] text-center">
+                          <span className="bg-red-500 text-white text-[9px] font-black px-1.5 py-0.5 rounded-full min-w-[16px] text-center">
                             {pendingActivations}
                           </span>
                         )}
@@ -479,16 +479,16 @@ const Layout: React.FC<LayoutProps> = ({
           {/* Cerrar Sesión */}
           <button type="button"
             onClick={() => handleTabClick('logout_btn')}
-            className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl transition-all duration-200 min-h-[48px] text-left border-l-4 mt-4 border-transparent text-red-500 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-500/20 hover:text-red-600 dark:hover:text-red-300 font-bold`}
+            className={`w-full flex items-center space-x-3 px-3 py-1.5 rounded-lg transition-all duration-200 min-h-[36px] text-left border-l-4 mt-2 border-transparent text-red-500 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-500/20 hover:text-red-600 dark:hover:text-red-300 font-bold`}
           >
-            <span className="flex-shrink-0"><ArrowRightOnRectangleIcon className="w-6 h-6" /></span>
-            <span className="text-sm font-medium flex-1">Cerrar Sesión</span>
+            <span className="flex-shrink-0"><ArrowRightOnRectangleIcon className="w-5 h-5" /></span>
+            <span className="text-xs font-medium flex-1">Cerrar Sesión</span>
           </button>
         </nav>
 
-        <div className="p-4 border-t border-slate-200 dark:border-slate-700/50">
-          <div className="flex items-center space-x-3 bg-slate-100 dark:bg-slate-900/50 p-3 rounded-xl transition-colors">
-            <div className="w-9 h-9 rounded-lg bg-sky-500 flex items-center justify-center font-bold text-white shadow-lg shadow-sky-500/20 overflow-hidden">
+        <div className="p-2.5 border-t border-slate-200 dark:border-slate-700/50">
+          <div className="flex items-center space-x-2.5 bg-slate-100 dark:bg-slate-900/50 p-2 rounded-lg transition-colors">
+            <div className="w-8 h-8 rounded-lg bg-sky-500 flex items-center justify-center font-bold text-white shadow-lg shadow-sky-500/20 overflow-hidden">
               {emp?.logo ? (
                 <img src={emp.logo} className="w-full h-full object-cover" alt="Logo" />
               ) : (
@@ -506,7 +506,7 @@ const Layout: React.FC<LayoutProps> = ({
       <main className="flex-1 flex flex-col overflow-hidden w-full">
         <header className="h-14 sm:h-16 bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl border-b border-slate-200 dark:border-slate-700/50 flex items-center justify-between px-3 sm:px-4 lg:px-8 z-40 print:hidden transition-colors duration-300">
           <div className="flex items-center gap-2 sm:gap-4">
-            <button type="button" onClick={() => setIsSidebarOpen(true)}
+            <button type="button" aria-label="Abrir menú" onClick={() => setIsSidebarOpen(true)}
               className="lg:hidden p-2 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-xl transition-all print:hidden min-w-[44px] min-h-[44px] flex items-center justify-center">
               <Bars3Icon className="w-6 h-6" />
             </button>

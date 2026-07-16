@@ -180,8 +180,8 @@ const BlogEditor: React.FC = () => {
                 <td className="py-3 text-center">{post.videoUrl ? '🎥' : '-'}</td>
                 <td className="py-3 text-right text-xs text-slate-400">{new Date(post.createdAt).toLocaleDateString()}</td>
                 <td className="py-3 px-6 text-right flex justify-end gap-2">
-                  <button type="button" onClick={() => edit(post)} className="px-3 py-1.5 bg-sky-50 text-sky-500 rounded-lg text-[9px] font-black uppercase"><PencilIcon className="w-3 h-3" /></button>
-                  <button type="button" onClick={() => remove(post.id)} className="px-3 py-1.5 bg-rose-50 text-rose-500 rounded-lg text-[9px] font-black uppercase"><TrashIcon className="w-3 h-3" /></button>
+                  <button type="button" aria-label="Editar post" onClick={() => edit(post)} className="px-3 py-1.5 bg-sky-50 text-sky-500 rounded-lg text-[9px] font-black uppercase"><PencilIcon className="w-3 h-3" /></button>
+                  <button type="button" aria-label="Eliminar post" onClick={() => remove(post.id)} className="px-3 py-1.5 bg-rose-50 text-rose-500 rounded-lg text-[9px] font-black uppercase"><TrashIcon className="w-3 h-3" /></button>
                 </td>
               </tr>
             ))}

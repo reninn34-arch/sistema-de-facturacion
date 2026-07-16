@@ -108,7 +108,7 @@ const ConfigProfileSection: React.FC<ConfigProfileSectionProps> = ({
                 <input type={showProfilePassword ? "text" : "password"} placeholder="Contraseña Actual"
                   value={passwordData.current} onChange={(e) => setPasswordData((prev: any) => ({ ...prev, current: e.target.value }))}
                   className="w-full p-4 bg-slate-50 dark:bg-slate-800/50 dark:text-white rounded-2xl font-bold text-sm outline-none border-2 border-transparent focus:border-purple-500 transition-colors pr-10" />
-                <button type="button" onClick={() => setShowProfilePassword(!showProfilePassword)} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600">
+                <button type="button" aria-label={showProfilePassword ? 'Ocultar contraseña' : 'Mostrar contraseña'} onClick={() => setShowProfilePassword(!showProfilePassword)} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600">
                   {showProfilePassword ? <EyeSlashIcon className="w-5 h-5" /> : <EyeIcon className="w-5 h-5" />}
                 </button>
               </div>

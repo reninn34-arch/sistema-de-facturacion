@@ -272,7 +272,7 @@ const PagoInterno: React.FC<PagoInternoProps> = ({ businessInfo, isExpired = fal
             }
           }
 
-          // Mostrar mensaje de éxito indicando que está pendiende confirmación
+          // Mostrar mensaje de éxito indicando que está pendiente de confirmación
           showNotify('✅ Solicitud de activación enviada correctamente. Su suscripción será activada una vez que el administrador verifique el comprobante de pago.', 'success');
           
           // Mostrar pantalla de espera de aprobación en lugar de desbloquear
@@ -349,7 +349,7 @@ const PagoInterno: React.FC<PagoInternoProps> = ({ businessInfo, isExpired = fal
           </p>
           <div className="p-4 bg-amber-50 dark:bg-amber-900/20 rounded-xl border border-amber-200 dark:border-amber-800">
             <p className="text-sm text-amber-800 dark:text-amber-200">
-              <EnvelopeIcon className="w-4 h-4 inline" /> Se notificará a su correo electrónico una vez approveda la transferencia.
+              <EnvelopeIcon className="w-4 h-4 inline" /> Se notificará a su correo electrónico una vez aprobada la transferencia.
             </p>
           </div>
           <button type="button"
@@ -367,11 +367,14 @@ const PagoInterno: React.FC<PagoInternoProps> = ({ businessInfo, isExpired = fal
 
     {/* Solo mostrar el resto si no está esperando aprobación */}
     {!showPendingApproval && (
-    <div className={`min-h-screen flex items-center justify-center p-4 ${isExpired ? 'bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900' : 'bg-slate-50 dark:bg-slate-900'}`}>
-      {/* Overlay de bloqueo solo cuando está vencido */}
+    <div className={isExpired
+      ? 'min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900'
+      : 'w-full p-4 sm:p-6'}>
+      {/* Overlay de bloqueo solo cuando está vencido (bloqueo duro para forzar la renovación) */}
       {isExpired && <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-40"></div>}
-      
-      <div className={`relative z-50 w-full max-w-4xl bg-white dark:bg-slate-900 rounded-3xl shadow-2xl overflow-hidden ${isExpired ? '' : 'mt-8'}`}>
+
+      {/* Vencido: tarjeta flotante (takeover). No vencido: página integrada como el resto de pestañas. */}
+      <div className={`relative w-full max-w-4xl mx-auto bg-white dark:bg-slate-900 rounded-3xl overflow-hidden ${isExpired ? 'z-50 shadow-2xl' : 'shadow-sm border border-slate-100 dark:border-slate-700/50'}`}>
         {/* Header de alerta */}
         <div className={`p-6 text-white ${isExpired ? 'bg-gradient-to-r from-red-600 to-red-700' : 'bg-gradient-to-r from-sky-700 to-sky-700'}`}>
           <div className="flex items-center justify-between">
@@ -398,7 +401,7 @@ const PagoInterno: React.FC<PagoInternoProps> = ({ businessInfo, isExpired = fal
                   </p>
                 ) : (
                   <p className="text-sky-100 text-sm">
-                    Actualice su plan orene nueva suscripción cuando lo desee.
+                    Actualice su plan o renueve su suscripción cuando lo desee.
                   </p>
                 )}
               </div>
@@ -556,6 +559,7 @@ const PagoInterno: React.FC<PagoInternoProps> = ({ businessInfo, isExpired = fal
                             className="max-h-40 mx-auto rounded-lg"
                           />
                           <button type="button"
+                            aria-label="Quitar comprobante"
                             onClick={() => { setPaymentProof(null); setPaymentProofPreview(null); }}
                             className="absolute top-0 right-0 bg-red-500 text-white rounded-full p-1 hover:bg-red-600"
                           >
@@ -745,55 +749,6 @@ const PagoInterno: React.FC<PagoInternoProps> = ({ businessInfo, isExpired = fal
                       }}
                     />
                   </PayPalScriptProvider>
-                  {import.meta.env.DEV && (
-                    <button
-                      type="button"
-                      onClick={async () => {
-                        try {
-                          setIsProcessing(true);
-                          const mockOrderId = `mock_${currentPlan.price.toFixed(2)}`;
-                          console.log('Simulating PayPal payment with ID:', mockOrderId);
-                          
-                          const token = localStorage.getItem('adminToken');
-                          const response = await fetch(`${API_URL}/api/subscriptions/payment-internal`, {
-                            method: 'POST',
-                            credentials: 'include',
-                            headers: {
-                              'Content-Type': 'application/json',
-                              'Authorization': `Bearer ${token}`
-                            },
-                            body: JSON.stringify({
-                              businessId: businessInfo.id,
-                              plan: selectedPlan,
-                              paymentMethod: 'PAYPAL',
-                              amount: currentPlan.price,
-                              paymentDetails: {
-                                paypalOrderId: mockOrderId,
-                                paypalPayerId: 'mock_payer_id'
-                              }
-                            })
-                          });
-
-                          if (response.ok) {
-                            setShowSuccess(true);
-                            setTimeout(() => {
-                              onPaymentComplete();
-                            }, 2000);
-                          } else {
-                            showNotify('Error al procesar el pago simulado.', 'error');
-                          }
-                        } catch (err: any) {
-                          console.error('Mock payment error:', err);
-                          showNotify('Error en simulación: ' + err.message, 'error');
-                        } finally {
-                          setIsProcessing(false);
-                        }
-                      }}
-                      className="mt-2 w-full py-2 bg-amber-500 hover:bg-amber-600 text-white font-bold rounded-xl text-xs transition-colors"
-                    >
-                      ⚡ Simular Pago PayPal (Desarrollo)
-                    </button>
-                  )}
                 </div>
               )}
 
@@ -844,7 +799,7 @@ const PagoInterno: React.FC<PagoInternoProps> = ({ businessInfo, isExpired = fal
               {/* Mensaje instructivo para PayPal */}
               {paymentMethod === 'PAYPAL' && (
                 <p className="text-center text-xs text-slate-500 mt-4">
-                  Complete el pago usando el botón de PayPal acima. No cierre esta ventana hasta completar la transacción.
+                  Complete el pago usando el botón de PayPal de arriba. No cierre esta ventana hasta completar la transacción.
                 </p>
               )}
 

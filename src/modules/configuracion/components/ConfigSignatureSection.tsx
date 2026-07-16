@@ -49,7 +49,7 @@ const ConfigSignatureSection: React.FC<ConfigSignatureSectionProps> = ({
                   saveBusinessField({ features: updatedFeatures });
                 }}
                 className="w-full p-4 pr-12 bg-white/5 border border-white/10 rounded-2xl font-bold text-sm focus:border-sky-500 outline-none" />
-              <button type="button" onClick={() => setShowSignaturePassword(!showSignaturePassword)} className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-sky-400 transition-colors">
+              <button type="button" aria-label={showSignaturePassword ? 'Ocultar contraseña' : 'Mostrar contraseña'} onClick={() => setShowSignaturePassword(!showSignaturePassword)} className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-sky-400 transition-colors">
                 {showSignaturePassword ? <EyeSlashIcon className="w-5 h-5" /> : <EyeIcon className="w-5 h-5" />}
               </button>
             </div>

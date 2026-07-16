@@ -76,8 +76,101 @@ const BrandPanel = ({ landingLogo }: { landingLogo: string | null | false }) => 
     </div>
 );
 
+interface ForgotPasswordViewProps {
+    landingLogo: string | null | false;
+    resetEmail: string;
+    onResetEmailChange: (value: string) => void;
+    resetMessage: string;
+    loading: boolean;
+    onSubmit: (e: React.FormEvent) => void;
+    onBack: () => void;
+}
+
+const ForgotPasswordView: React.FC<ForgotPasswordViewProps> = ({
+    landingLogo, resetEmail, onResetEmailChange, resetMessage, loading, onSubmit, onBack
+}) => {
+    const fieldId = useId();
+    const isError = resetMessage.startsWith('Error');
+    return (
+        <div className="h-screen w-full flex bg-white" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+            <BrandPanel landingLogo={landingLogo} />
+
+            <div className="flex-1 flex items-center justify-center px-6 py-12 bg-white">
+                <div className="w-full max-w-md animate-fade-in">
+                    <div className="lg:hidden mb-10 text-center">
+                        {landingLogo ? (
+                          <img src={landingLogo} className="h-14 w-auto max-w-[220px] object-contain mx-auto mb-4" alt="Logo" />
+                        ) : null}
+                    </div>
+
+                    <div className="bg-white rounded-3xl border border-slate-200 shadow-xl shadow-sky-100/50 p-8">
+                        <div className="text-center mb-6">
+                            <h2 className="text-2xl font-extrabold text-slate-900">Recuperar Contraseña</h2>
+                            <p className="text-sm text-slate-500 mt-2 font-medium">
+                                Ingresa tu correo para recibir un enlace de recuperación.
+                            </p>
+                        </div>
+
+                        {resetMessage && (
+                            <div className={`mb-4 p-3 rounded-xl text-xs font-semibold flex items-center gap-2 ${
+                                isError
+                                    ? 'bg-red-50 text-red-700 border border-red-200'
+                                    : 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+                            }`}>
+                                {isError ? (
+                                    <ExclamationCircleIcon className="w-4 h-4 flex-shrink-0" />
+                                ) : (
+                                    <CheckCircleIcon className="w-4 h-4 flex-shrink-0" />
+                                )}
+                                {resetMessage}
+                            </div>
+                        )}
+
+                        <form onSubmit={onSubmit} className="space-y-6">
+                            <div>
+                                <label htmlFor={`${fieldId}-resetEmail`} className="block text-sm font-bold text-slate-700 mb-1.5">Correo Electrónico</label>
+                                <div className="relative">
+                                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
+                                        <EnvelopeIcon className="w-5 h-5" />
+                                    </div>
+                                    <input
+                                        id={`${fieldId}-resetEmail`}
+                                        type="email"
+                                        required
+                                        value={resetEmail}
+                                        onChange={(e) => onResetEmailChange(e.target.value)}
+                                        className="block w-full pl-10 pr-3 py-3 border border-slate-300 rounded-xl bg-slate-50 text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#0EA5E9] focus:border-[#0EA5E9] text-sm font-medium transition duration-150"
+                                        placeholder="usuario@empresa.com"
+                                    />
+                                </div>
+                            </div>
+                            <button
+                                type="submit"
+                                disabled={loading}
+                                className="w-full flex justify-center py-3.5 px-4 border border-transparent rounded-xl shadow-lg text-sm font-bold text-white bg-[#0EA5E9] hover:bg-[#0369A1] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#0EA5E9] transition-all duration-200 disabled:opacity-70 hover:-translate-y-0.5"
+                            >
+                                {loading ? 'Enviando...' : 'Enviar Enlace'}
+                            </button>
+                        </form>
+
+                        <div className="mt-6 text-center">
+                            <button type="button" onClick={onBack} className="inline-flex items-center gap-1.5 text-sm font-bold text-[#0EA5E9] hover:text-[#0369A1]">
+                                <ArrowLeftIcon className="w-4 h-4" />
+                                Volver al Inicio de Sesión
+                            </button>
+                        </div>
+                    </div>
+
+                    <p className="mt-8 text-center text-xs text-slate-400 font-medium">
+                        &copy; {new Date().getFullYear()} Azul. Todos los derechos reservados.
+                    </p>
+                </div>
+            </div>
+        </div>
+    );
+};
+
 const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
-  const fieldId = useId();
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [showPassword, setShowPassword] = useState(false);
@@ -192,81 +285,15 @@ const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
 
     if (view === 'forgot') {
         return (
-            <div className="h-screen w-full flex bg-white" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
-                <BrandPanel landingLogo={landingLogo} />
-
-                <div className="flex-1 flex items-center justify-center px-6 py-12 bg-white">
-                    <div className="w-full max-w-md animate-fade-in">
-                        <div className="lg:hidden mb-10 text-center">
-                            {landingLogo ? (
-                              <img src={landingLogo} className="h-14 w-auto max-w-[220px] object-contain mx-auto mb-4" alt="Logo" />
-                            ) : null}
-                        </div>
-
-                        <div className="bg-white rounded-3xl border border-slate-200 shadow-xl shadow-sky-100/50 p-8">
-                            <div className="text-center mb-6">
-                                <h2 className="text-2xl font-extrabold text-slate-900">Recuperar Contraseña</h2>
-                                <p className="text-sm text-slate-500 mt-2 font-medium">
-                                    Ingresa tu correo para recibir un enlace de recuperación.
-                                </p>
-                            </div>
-
-                            {resetMessage && (
-                                <div className={`mb-4 p-3 rounded-xl text-xs font-semibold flex items-center gap-2 ${
-                                    resetMessage.startsWith('Error') || resetMessage.startsWith('Error')
-                                        ? 'bg-red-50 text-red-700 border border-red-200'
-                                        : 'bg-emerald-50 text-emerald-700 border border-emerald-200'
-                                }`}>
-                                    {resetMessage.startsWith('Error') ? (
-                                        <ExclamationCircleIcon className="w-4 h-4 flex-shrink-0" />
-                                    ) : (
-                                        <CheckCircleIcon className="w-4 h-4 flex-shrink-0" />
-                                    )}
-                                    {resetMessage}
-                                </div>
-                            )}
-
-                            <form onSubmit={handleForgotPassword} className="space-y-6">
-                                <div>
-                                    <label htmlFor={`${fieldId}-resetEmail`} className="block text-sm font-bold text-slate-700 mb-1.5">Correo Electrónico</label>
-                                    <div className="relative">
-                                        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
-                                            <EnvelopeIcon className="w-5 h-5" />
-                                        </div>
-                                        <input
-                                            id={`${fieldId}-resetEmail`}
-                                            type="email"
-                                            required
-                                            value={resetEmail}
-                                            onChange={(e) => setResetEmail(e.target.value)}
-                                            className="block w-full pl-10 pr-3 py-3 border border-slate-300 rounded-xl bg-slate-50 text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#0EA5E9] focus:border-[#0EA5E9] text-sm font-medium transition duration-150"
-                                            placeholder="usuario@empresa.com"
-                                        />
-                                    </div>
-                                </div>
-                                <button
-                                    type="submit"
-                                    disabled={loading}
-                                    className="w-full flex justify-center py-3.5 px-4 border border-transparent rounded-xl shadow-lg text-sm font-bold text-white bg-[#0EA5E9] hover:bg-[#0369A1] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#0EA5E9] transition-all duration-200 disabled:opacity-70 hover:-translate-y-0.5"
-                                >
-                                    {loading ? 'Enviando...' : 'Enviar Enlace'}
-                                </button>
-                            </form>
-
-                            <div className="mt-6 text-center">
-                                <button type="button" onClick={() => setView('login')} className="inline-flex items-center gap-1.5 text-sm font-bold text-[#0EA5E9] hover:text-[#0369A1]">
-                                    <ArrowLeftIcon className="w-4 h-4" />
-                                    Volver al Inicio de Sesión
-                                </button>
-                            </div>
-                        </div>
-
-                        <p className="mt-8 text-center text-xs text-slate-400 font-medium">
-                            &copy; {new Date().getFullYear()} Azul. Todos los derechos reservados.
-                        </p>
-                    </div>
-                </div>
-            </div>
+            <ForgotPasswordView
+                landingLogo={landingLogo}
+                resetEmail={resetEmail}
+                onResetEmailChange={setResetEmail}
+                resetMessage={resetMessage}
+                loading={loading}
+                onSubmit={handleForgotPassword}
+                onBack={() => setView('login')}
+            />
         );
     }
 
@@ -341,6 +368,7 @@ const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
                                         />
                                         <button
                                             type="button"
+                                            aria-label={showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}
                                             className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-slate-600"
                                             onClick={() => setShowPassword(!showPassword)}
                                         >

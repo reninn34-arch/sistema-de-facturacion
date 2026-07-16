@@ -329,6 +329,7 @@ export default function RetentionForm({ business, clients, onSubmit }: Retention
                       <h4 className="font-medium text-gray-700 dark:text-slate-300">Impuesto {index + 1}</h4>
                       <button
                         type="button"
+                        aria-label="Eliminar impuesto"
                         onClick={() => removeTax(index)}
                         className="text-red-655 hover:text-red-800 text-lg"
                       >

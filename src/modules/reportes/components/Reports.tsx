@@ -166,6 +166,7 @@ const Reports: React.FC<ReportsProps> = ({ documents, businessInfo, onConvertPro
               {sriStatusFilter === 'REJECTED' ? 'Comprobantes Rechazados' : sriStatusFilter === 'PENDING' ? 'Comprobantes Pendientes' : 'Comprobantes SRI'}
             </h3>
             <select
+              aria-label="Filtrar comprobantes por estado SRI"
               value={sriStatusFilter}
               onChange={e => { setSriStatusFilter(e.target.value); if (onFilterChange) onFilterChange(e.target.value); }}
               className="p-3 rounded-2xl font-bold text-xs bg-slate-50 dark:bg-slate-900 border-2 border-slate-100 dark:border-slate-700 text-slate-800 dark:text-white outline-none cursor-pointer"

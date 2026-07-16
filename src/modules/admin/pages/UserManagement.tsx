@@ -623,7 +623,7 @@ const UserManagement: React.FC<UserManagementProps> = ({ currentUser, onNotify }
                 <h3 className="text-lg font-black text-slate-800 dark:text-white flex items-center gap-2">
                   <PlusIcon className="w-5 h-5" /> Nuevo Administrador
                 </h3>
-                <button type="button" onClick={() => setShowModal(false)} className="text-slate-400 hover:text-slate-600 dark:hover:text-white"><XMarkIcon className="w-5 h-5" /></button>
+                <button type="button" aria-label="Cerrar" onClick={() => setShowModal(false)} className="text-slate-400 hover:text-slate-600 dark:hover:text-white"><XMarkIcon className="w-5 h-5" /></button>
               </div>
             </div>
 
@@ -706,6 +706,7 @@ const UserManagement: React.FC<UserManagementProps> = ({ currentUser, onNotify }
                     />
                     <button
                       type="button"
+                      aria-label={showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}
                       onClick={() => setShowPassword(!showPassword)}
                       className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400"
                     >
@@ -819,7 +820,7 @@ const UserManagement: React.FC<UserManagementProps> = ({ currentUser, onNotify }
                 <h3 className="text-lg font-black text-slate-800 dark:text-white flex items-center gap-2">
                   <PencilIcon className="w-5 h-5" /> Editar Administrador
                 </h3>
-                <button type="button" onClick={() => { setShowEditModal(false); setEditingUser(null); }} className="text-slate-400 hover:text-slate-600 dark:hover:text-white"><XMarkIcon className="w-5 h-5" /></button>
+                <button type="button" aria-label="Cerrar" onClick={() => { setShowEditModal(false); setEditingUser(null); }} className="text-slate-400 hover:text-slate-600 dark:hover:text-white"><XMarkIcon className="w-5 h-5" /></button>
               </div>
             </div>
 

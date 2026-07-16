@@ -276,6 +276,7 @@ const CreditNoteForm: React.FC<Props> = ({
             <div className="mb-6">
               <h3 className="text-lg font-semibold mb-4 text-gray-800 dark:text-white">2. Motivo de la Nota de Crédito</h3>
               <select
+                aria-label="Motivo de la nota de crédito"
                 value={reason}
                 onChange={(e) => setReason(e.target.value)}
                 className="w-full p-3 border border-gray-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-sky-500 mb-3 bg-white dark:bg-slate-900/50 text-gray-800 dark:text-white"
@@ -323,6 +324,7 @@ const CreditNoteForm: React.FC<Props> = ({
                           <td className="px-4 py-3">
                             <input
                               type="number"
+                              aria-label="Cantidad a devolver"
                               min="0"
                               max={originalItem?.quantity || 0}
                               value={item.quantity}
