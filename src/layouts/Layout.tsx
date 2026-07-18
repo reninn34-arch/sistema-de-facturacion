@@ -322,8 +322,11 @@ const Layout: React.FC<LayoutProps> = ({
     if (item.id === 'pago-interno' && !isAdmin) return false;
     if (item.id === 'products' && !isAdmin) return false;
 
-    // Módulos: empleados sin ADMIN/SUPERADMIN
-    if (hasModuleControl && currentUser?.role !== 'ADMIN' && currentUser?.role !== 'SUPERADMIN') {
+    // Módulos por rol: los empleados (no ADMIN/SUPERADMIN) solo ven los módulos
+    // de su rol. El backend envía en modulePermissions el default del rol +
+    // ajustes por usuario. Si viene vacío (sesión previa a este cambio), no se
+    // filtra para no ocultar todo hasta el próximo login.
+    if (currentUser?.role !== 'ADMIN' && currentUser?.role !== 'SUPERADMIN' && modulePermissions.length > 0) {
       const moduleCode = menuItemModuleMap[item.id];
       if (moduleCode) {
         const perm = modulePermissions.find(p => p.moduleCode === moduleCode);

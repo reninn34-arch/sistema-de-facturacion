@@ -3,6 +3,7 @@ const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
 const { AppError } = require('../../middleware/error.handler');
 const { validatePayment, validateAmount } = require('../../services/paypal.service');
+const { getEffectiveModulePermissions } = require('../../utils/roleModules');
 
 const JWT_SECRET = process.env.JWT_SECRET || (process.env.NODE_ENV === 'production' ? (() => { throw new Error('JWT_SECRET must be set in production'); })() : 'secret_key_change_me');
 const MAX_LOGIN_ATTEMPTS = 5;
@@ -72,16 +73,20 @@ class AuthService {
     const isSubscriptionExpired = !user.business?.subscriptionEnd || new Date(user.business.subscriptionEnd) < now;
     const isSubscriptionPending = user.business?.subscriptionStatus === 'PENDING';
 
-    let userModulePermissions = [];
+    let explicitPermissions = [];
     let hasModuleControl = false;
     if (user.businessId && user.business?.plan) {
       const plan = await this.repo.findSubscriptionPlan(user.business.plan);
       hasModuleControl = plan?.hasModuleControl || false;
+      // El ajuste fino por usuario sigue siendo función del plan de pago.
       if (hasModuleControl) {
         const permissions = await this.repo.findUserModulePermissions(user.id);
-        userModulePermissions = permissions.map(p => ({ moduleCode: p.module.code, granted: p.granted }));
+        explicitPermissions = permissions.map(p => ({ moduleCode: p.module.code, granted: p.granted }));
       }
     }
+    // Los defaults por rol (mínimo privilegio) aplican SIEMPRE; los permisos
+    // explícitos por usuario se superponen encima.
+    const userModulePermissions = getEffectiveModulePermissions(user.role, explicitPermissions);
 
     return {
       token,

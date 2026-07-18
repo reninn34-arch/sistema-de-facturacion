@@ -147,9 +147,9 @@ const Dashboard: React.FC<DashboardProps> = ({ documents, products, setActiveTab
       return;
     }
 
-    // Si hasModuleControl está activo, verificar permiso explícito del módulo audit
+    // Verificar acceso al módulo audit según el rol/permiso del empleado
     const isEmployee = currentUser && currentUser.role !== 'ADMIN' && currentUser.role !== 'SUPERADMIN';
-    if (hasModuleControl && isEmployee) {
+    if (isEmployee && modulePermissions.length > 0) {
       const auditPerm = modulePermissions.find(p => p.moduleCode === 'audit');
       if (!auditPerm || !auditPerm.granted) {
         setAuditLoading(false);
@@ -653,7 +653,7 @@ const Dashboard: React.FC<DashboardProps> = ({ documents, products, setActiveTab
         {/* Auditoría: ocultar si el módulo está denegado vía permisos */}
         {(() => {
           const isEmployee = currentUser && currentUser.role !== 'ADMIN' && currentUser.role !== 'SUPERADMIN';
-          if (hasModuleControl && isEmployee) {
+          if (isEmployee && modulePermissions.length > 0) {
             const auditPerm = modulePermissions.find(p => p.moduleCode === 'audit');
             if (!auditPerm || !auditPerm.granted) return null;
           }
