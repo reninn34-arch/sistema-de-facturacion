@@ -32,7 +32,7 @@ const businessController = {
   }),
 
   updateUser: catchAsync(async (req, res) => {
-    const updatedUser = await service.updateUser(req.params.id, req.body, req.user.businessId);
+    const updatedUser = await service.updateUser(req.params.id, req.body, req.user.businessId, req.user.id);
     res.json({ success: true, user: updatedUser });
   }),
 
@@ -112,6 +112,11 @@ const businessController = {
     let filtro = {};
     const { type } = req.query;
     if (type) filtro.type = type;
+    // Sin empresa y sin ser SUPERADMIN → denegar (un token sin businessId no
+    // debe caer al filtro vacío y ver los documentos de todas las empresas).
+    if (req.user.role !== 'SUPERADMIN' && !req.user.businessId) {
+      return res.status(403).json({ success: false, error: 'Acceso no autorizado' });
+    }
     if (req.user.role === 'CLIENT') {
       filtro.businessId = req.user.businessId;
       filtro.entityRuc = req.user.ruc;

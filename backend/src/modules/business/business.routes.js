@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const businessController = require('./business.controller');
 const verifyToken = require('../../middleware/jwt.middleware');
+const checkRole = require('../../middleware/role.middleware');
 const prisma = require('../../../prisma/client');
 
 const invoiceLimitGuard = async (req, res, next) => {
@@ -54,13 +55,14 @@ const invoiceLimitGuard = async (req, res, next) => {
   }
 };
 
-// Usuarios
-router.get('/api/business/users', verifyToken, businessController.getUsers);
-router.post('/api/business/users', verifyToken, businessController.createUser);
-router.delete('/api/business/users/:id', verifyToken, businessController.deleteUser);
-router.put('/api/business/users/:id', verifyToken, businessController.updateUser);
-router.post('/api/business/users/:id/reset-password', verifyToken, businessController.resetUserPassword);
-router.put('/api/business/users/:id/status', verifyToken, businessController.toggleUserStatus);
+// Usuarios — solo ADMIN de la empresa (y SUPERADMIN) pueden gestionarlos
+const onlyAdmin = checkRole(['ADMIN', 'SUPERADMIN']);
+router.get('/api/business/users', verifyToken, onlyAdmin, businessController.getUsers);
+router.post('/api/business/users', verifyToken, onlyAdmin, businessController.createUser);
+router.delete('/api/business/users/:id', verifyToken, onlyAdmin, businessController.deleteUser);
+router.put('/api/business/users/:id', verifyToken, onlyAdmin, businessController.updateUser);
+router.post('/api/business/users/:id/reset-password', verifyToken, onlyAdmin, businessController.resetUserPassword);
+router.put('/api/business/users/:id/status', verifyToken, onlyAdmin, businessController.toggleUserStatus);
 
 // Perfil de Empresa
 router.get('/api/business', verifyToken, businessController.getBusinessProfile);

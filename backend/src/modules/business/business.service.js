@@ -15,6 +15,13 @@ class BusinessService {
     if (!email || !password) throw new AppError('Email y contraseña requeridos', 400);
     if (password.length < 6) throw new AppError('La contraseña debe tener al menos 6 caracteres', 400);
 
+    // Roles asignables desde una empresa. Nunca SUPERADMIN (solo desde el panel admin).
+    const ASSIGNABLE_ROLES = ['ADMIN', 'VENDEDOR', 'CONTADOR'];
+    const finalRole = role || 'ADMIN';
+    if (!ASSIGNABLE_ROLES.includes(finalRole)) {
+      throw new AppError('Rol no válido para asignar en una empresa', 400);
+    }
+
     const existing = await this.repo.findUserByEmail(email);
     if (existing) throw new AppError('El usuario ya existe', 400);
 
@@ -36,7 +43,7 @@ class BusinessService {
     const newUser = await this.repo.createUser({
       email,
       password: hashedPassword,
-      role: role || 'ADMIN',
+      role: finalRole,
       businessId: currentUser.businessId,
       name: name || undefined,
       isActive: true
@@ -77,15 +84,27 @@ class BusinessService {
     return this.repo.updateUser(targetId, { isActive });
   }
 
-  async updateUser(targetId, data, businessId) {
+  async updateUser(targetId, data, businessId, currentUserId) {
     const userToUpdate = await this.repo.findUserById(targetId);
     if (!userToUpdate || userToUpdate.businessId !== businessId) {
       throw new AppError('Usuario no encontrado', 404);
     }
     const updateData = {};
     if (data.name !== undefined) updateData.name = data.name;
-    if (data.role !== undefined) updateData.role = data.role;
-    if (data.password !== undefined && data.password !== '') updateData.password = data.password;
+    if (data.role !== undefined) {
+      const ASSIGNABLE_ROLES = ['ADMIN', 'VENDEDOR', 'CONTADOR'];
+      if (!ASSIGNABLE_ROLES.includes(data.role)) {
+        throw new AppError('Rol no válido para asignar en una empresa', 400);
+      }
+      // Un usuario no puede cambiar su propio rol (evita autoescalada de privilegios).
+      if (targetId === currentUserId) {
+        throw new AppError('No puedes cambiar tu propio rol', 400);
+      }
+      updateData.role = data.role;
+    }
+    if (data.password !== undefined && data.password !== '') {
+      updateData.password = await bcrypt.hash(data.password, 10);
+    }
     return this.repo.updateUser(targetId, updateData);
   }
 
@@ -129,6 +148,9 @@ class BusinessService {
   }
 
   async getClients(businessId, role) {
+    // Sin empresa y sin ser SUPERADMIN → denegar (evita que un token sin
+    // businessId, p.ej. de CLIENTE, traiga los datos de todas las empresas).
+    if (role !== 'SUPERADMIN' && !businessId) throw new AppError('Acceso no autorizado', 403);
     const filtro = role !== 'SUPERADMIN' ? { businessId } : {};
     return this.repo.findClients(filtro);
   }
@@ -163,6 +185,7 @@ class BusinessService {
   }
 
   async getProducts(businessId, role) {
+    if (role !== 'SUPERADMIN' && !businessId) throw new AppError('Acceso no autorizado', 403);
     const filtro = role !== 'SUPERADMIN' ? { businessId } : {};
     return this.repo.findProducts(filtro);
   }
