@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { DocumentTextIcon, ClockIcon, TagIcon, VideoCameraIcon, ArrowLeftIcon } from '@heroicons/react/24/outline';
+import { sanitizeHtml } from '../../../utils/sanitize';
 
 interface BlogPost {
   id: string;
@@ -72,7 +73,7 @@ const BlogPage: React.FC = () => {
             <img src={selectedPost.coverImage} alt={selectedPost.title} className="w-full rounded-2xl mb-8 shadow-lg object-cover max-h-96" />
           )}
 
-          <div className="prose prose-slate max-w-none bg-white rounded-3xl p-10 shadow-sm border border-slate-100" dangerouslySetInnerHTML={{ __html: postContent }} />
+          <div className="prose prose-slate max-w-none bg-white rounded-3xl p-10 shadow-sm border border-slate-100" dangerouslySetInnerHTML={{ __html: sanitizeHtml(postContent) }} />
         </div>
       </div>
     );

@@ -55,6 +55,26 @@ interface UserManagementProps {
   onNotify: (text: string, type?: 'success' | 'error' | 'info' | 'warning') => void;
 }
 
+// Constante y helper puros: se definen a nivel de módulo para no recrearlos
+// en cada render y no romper la memoización de los componentes hijos.
+const roleLabels: Record<string, { label: string; color: string }> = {
+  '': { label: 'Sin rol', color: 'slate' },
+  SUPERADMIN: { label: 'Super Admin', color: 'red' },
+  ADMIN: { label: 'Admin Empresa', color: 'blue' },
+  VENDEDOR: { label: 'Vendedor', color: 'emerald' },
+  CONTADOR: { label: 'Contador', color: 'purple' }
+};
+
+const getRoleIcon = (role: string) => {
+  switch (role) {
+    case 'SUPERADMIN': return <ShieldCheckIcon className="w-5 h-5" />;
+    case 'ADMIN': return <BriefcaseIcon className="w-5 h-5" />;
+    case 'VENDEDOR': return <ShoppingCartIcon className="w-5 h-5" />;
+    case 'CONTADOR': return <ChartBarIcon className="w-5 h-5" />;
+    default: return <QuestionMarkCircleIcon className="w-5 h-5" />;
+  }
+};
+
 const UserManagement: React.FC<UserManagementProps> = ({ currentUser, onNotify }) => {
   const [users, setUsers] = useState<User[]>([]);
   const [businesses, setBusinesses] = useState<Business[]>([]);
@@ -156,23 +176,6 @@ const UserManagement: React.FC<UserManagementProps> = ({ currentUser, onNotify }
     ? ['SUPERADMIN', 'ADMIN']
     : ['ADMIN', 'VENDEDOR', 'CONTADOR'];
 
-  const getRoleIcon = (role: string) => {
-    switch (role) {
-      case 'SUPERADMIN': return <ShieldCheckIcon className="w-5 h-5" />;
-      case 'ADMIN': return <BriefcaseIcon className="w-5 h-5" />;
-      case 'VENDEDOR': return <ShoppingCartIcon className="w-5 h-5" />;
-      case 'CONTADOR': return <ChartBarIcon className="w-5 h-5" />;
-      default: return <QuestionMarkCircleIcon className="w-5 h-5" />;
-    }
-  };
-
-  const roleLabels: Record<string, { label: string; color: string }> = {
-    '': { label: 'Sin rol', color: 'slate' },
-    SUPERADMIN: { label: 'Super Admin', color: 'red' },
-    ADMIN: { label: 'Admin Empresa', color: 'blue' },
-    VENDEDOR: { label: 'Vendedor', color: 'emerald' },
-    CONTADOR: { label: 'Contador', color: 'purple' }
-  };
 
   // Crear usuario
   const handleCreateUser = async (e: React.FormEvent) => {

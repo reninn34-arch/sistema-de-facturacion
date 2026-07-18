@@ -24,7 +24,7 @@ const PurchaseManager: React.FC<PurchaseManagerProps> = ({ clients, businessInfo
   const [supplierName, setSupplierName] = useState('');
   const [supplierRuc, setSupplierRuc] = useState('');
   const [docNumber, setDocNumber] = useState('');
-  const [docDate, setDocDate] = useState(new Date().toISOString().split('T')[0]);
+  const [docDate, setDocDate] = useState(() => new Date().toISOString().split('T')[0]);
   const [accessKey, setAccessKey] = useState('');
   const [items, setItems] = useState<InvoiceItem[]>([]);
   const [loading, setLoading] = useState(false);

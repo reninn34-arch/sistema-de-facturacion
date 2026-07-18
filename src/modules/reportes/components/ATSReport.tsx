@@ -12,7 +12,7 @@ interface ATSReportProps {
 export default function ATSReport({ documents, business, onNotify }: ATSReportProps) {
   const fieldId = useId();
   const [month, setMonth] = useState('');
-  const [year, setYear] = useState(new Date().getFullYear().toString());
+  const [year, setYear] = useState(() => new Date().getFullYear().toString());
 
   const generateATS = () => {
     if (!month || !year) {

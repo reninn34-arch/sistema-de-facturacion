@@ -33,6 +33,21 @@ interface ActivationRequestsProps {
   onNotify: (text: string, type?: 'success' | 'error' | 'info' | 'warning') => void;
 }
 
+// Función pura sin dependencias del componente: se define a nivel de módulo
+// para no recrearla en cada render y no romper el memo de los hijos.
+const getStatusColor = (status: string) => {
+  switch (status) {
+    case 'PENDING':
+      return 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-500';
+    case 'APPROVED':
+      return 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-500';
+    case 'REJECTED':
+      return 'bg-rose-100 text-rose-700 dark:bg-rose-900/30 dark:text-rose-500';
+    default:
+      return 'bg-slate-100 text-slate-700';
+  }
+};
+
 const ActivationRequests: React.FC<ActivationRequestsProps> = ({ onNotify }) => {
   const [requests, setRequests] = useState<ActivationRequest[]>([]);
   const [loading, setLoading] = useState(true);
@@ -151,19 +166,6 @@ const ActivationRequests: React.FC<ActivationRequestsProps> = ({ onNotify }) => 
 
   const confirmReject = () => {
     handleReject();
-  };
-
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'PENDING':
-        return 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-500';
-      case 'APPROVED':
-        return 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-500';
-      case 'REJECTED':
-        return 'bg-rose-100 text-rose-700 dark:bg-rose-900/30 dark:text-rose-500';
-      default:
-        return 'bg-slate-100 text-slate-700';
-    }
   };
 
   const getPlanName = (plan: string) => {

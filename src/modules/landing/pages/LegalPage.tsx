@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { DocumentTextIcon, ArrowLeftIcon, PhoneIcon, EnvelopeIcon } from '@heroicons/react/24/outline';
 import CookieBanner from '../../../components/CookieBanner';
+import { sanitizeHtml } from '../../../utils/sanitize';
 
 const API_URL = import.meta.env.VITE_BACKEND_URL || '';
 
@@ -240,7 +241,7 @@ const LegalPage: React.FC = () => {
             <h2 className="text-xl font-extrabold text-slate-800 mb-6">{activeContent.title}</h2>
             <div
               className="legal-content prose prose-slate max-w-none"
-              dangerouslySetInnerHTML={{ __html: activeContent.content }}
+              dangerouslySetInnerHTML={{ __html: sanitizeHtml(activeContent.content) }}
             />
           </div>
         </div>

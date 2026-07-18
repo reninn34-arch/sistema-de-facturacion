@@ -11,7 +11,7 @@ interface Form104Props {
 export default function Form104({ documents, business, onNotify }: Form104Props) {
   const fieldId = useId();
   const [month, setMonth] = useState('');
-  const [year, setYear] = useState(new Date().getFullYear().toString());
+  const [year, setYear] = useState(() => new Date().getFullYear().toString());
 
   const form104Data = useMemo((): Form104Data => {
     if (!month || !year) {

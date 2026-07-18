@@ -28,18 +28,46 @@ export const SRI_ENDPOINTS = {
   }
 };
 
+/** Redondeo a 2 decimales, consistente con lo que valida el SRI al centavo. */
+const round2 = (n: number): number => Math.round((n + Number.EPSILON) * 100) / 100;
+
+/**
+ * Determina el tipo de identificación del comprador (tabla 6 del SRI) a partir
+ * del número de identificación REAL (RUC/cédula), no del teléfono.
+ * 04=RUC, 05=Cédula, 06=Pasaporte/otro, 07=Consumidor final.
+ */
+const getTipoIdentificacion = (identificacion?: string): string => {
+  const id = (identificacion || '').trim();
+  if (!id || id === '9999999999999') return '07';
+  if (id.length === 13) return '04';
+  if (id.length === 10) return '05';
+  return '06';
+};
+
 /**
  * Genera el XML base de la factura siguiendo el estándar XSD v1.1.0 del SRI
  * Cumple con: Ficha Técnica Comprobantes Electrónicos v2.21
  */
 export const buildInvoiceXml = (doc: Document, business: BusinessInfo, items: InvoiceItem[]): string => {
-  const subtotal15 = items.reduce((a, b) => b.taxRate > 0 ? a + (b.quantity * b.unitPrice - b.discount) : a, 0);
-  const subtotal0 = items.reduce((a, b) => b.taxRate === 0 ? a + (b.quantity * b.unitPrice - b.discount) : a, 0);
-  const totalDesc = items.reduce((a, b) => a + (b.discount || 0), 0);
-  const totalSinImpuestos = subtotal15 + subtotal0;
+  // Sumamos las bases ya redondeadas por línea para que el agregado coincida
+  // exactamente con la suma de los <precioTotalSinImpuesto> emitidos.
+  let subtotal15 = 0, subtotal0 = 0, totalDesc = 0;
+  items.forEach(b => {
+    const base = round2(b.quantity * b.unitPrice - (b.discount || 0));
+    if (b.taxRate > 0) subtotal15 += base; else subtotal0 += base;
+    totalDesc += (b.discount || 0);
+  });
+  subtotal15 = round2(subtotal15);
+  subtotal0 = round2(subtotal0);
+  totalDesc = round2(totalDesc);
+  const totalSinImpuestos = round2(subtotal15 + subtotal0);
 
   // IVA 15% (código 4) - Vigente desde 2024
-  const totalIva = subtotal15 * 0.15;
+  const totalIva = round2(subtotal15 * 0.15);
+  const propina = round2(doc.tip || 0);
+  // importeTotal se deriva de los valores redondeados que realmente van en el XML,
+  // no de doc.total (que se calcula con aritmética sin redondear aguas arriba).
+  const importeTotal = round2(totalSinImpuestos + totalIva + propina);
 
   // Mapeo de Ambiente: 1=Pruebas, 2=Producción
   const ambiente = business.isProduction ? '2' : '1';
@@ -47,10 +75,9 @@ export const buildInvoiceXml = (doc: Document, business: BusinessInfo, items: In
   // Fecha en formato dd/mm/yyyy
   const fechaEmision = doc.issueDate.split('-').reverse().join('/');
 
-  // Tipo de identificación del comprador
-  const tipoIdComprador = doc.entityPhone?.length === 13 ? '04' : // RUC
-    doc.entityPhone?.length === 10 ? '05' : // Cédula
-      '07'; // Consumidor Final
+  // Tipo de identificación del comprador (derivado de la identificación real, no del teléfono)
+  const idComprador = doc.entityRuc || '9999999999999';
+  const tipoIdComprador = getTipoIdentificacion(idComprador);
 
   // Para persona natural, usar solo el nombre y quitar nombreComercial si no es necesario
   const razonSocial = business.taxpayerType === 'PERSONA_NATURAL'
@@ -73,7 +100,7 @@ export const buildInvoiceXml = (doc: Document, business: BusinessInfo, items: In
     <codDoc>01</codDoc>
     <estab>${business.establishmentCode}</estab>
     <ptoEmi>${business.emissionPointCode}</ptoEmi>
-    <secuencial>${doc.number.split('-')[2]}</secuencial>
+    <secuencial>${(doc.number.split('-')[2] || '').padStart(9, '0')}</secuencial>
     <dirMatriz>${escapeXml(business.address.trim())}</dirMatriz>${business.withholdingAgentCode ? `
     <agenteRetencion>${business.withholdingAgentCode}</agenteRetencion>` : ''}${business.regime === 'RIMPE_EMPRENDEDOR' || business.regime === 'RIMPE_POPULAR' ? `
     <contribuyenteRimpe>CONTRIBUYENTE RÉGIMEN RIMPE</contribuyenteRimpe>` : ''}
@@ -98,7 +125,7 @@ export const buildInvoiceXml = (doc: Document, business: BusinessInfo, items: In
     <totalImpuestoReembolso>${doc.reimbursements.reduce((acc, r) => acc + r.impuestoReembolso, 0).toFixed(2)}</totalImpuestoReembolso>` : ''}
     <tipoIdentificacionComprador>${tipoIdComprador}</tipoIdentificacionComprador>
     <razonSocialComprador>${escapeXml(doc.entityName)}</razonSocialComprador>
-    <identificacionComprador>${doc.entityRuc || '9999999999999'}</identificacionComprador>${doc.entityAddress ? `
+    <identificacionComprador>${idComprador}</identificacionComprador>${doc.entityAddress ? `
     <direccionComprador>${escapeXml(doc.entityAddress)}</direccionComprador>` : ''}
     <totalSinImpuestos>${totalSinImpuestos.toFixed(2)}</totalSinImpuestos>
     <totalDescuento>${totalDesc.toFixed(2)}</totalDescuento>
@@ -118,21 +145,22 @@ export const buildInvoiceXml = (doc: Document, business: BusinessInfo, items: In
         <valor>0.00</valor>
       </totalImpuesto>` : ''}
     </totalConImpuestos>
-    <propina>${(doc.tip || 0).toFixed(2)}</propina>
-    <importeTotal>${doc.total.toFixed(2)}</importeTotal>
+    <propina>${propina.toFixed(2)}</propina>
+    <importeTotal>${importeTotal.toFixed(2)}</importeTotal>
     <moneda>DOLAR</moneda>
     <pagos>
       <pago>
         <formaPago>${doc.paymentMethod || '01'}</formaPago>
-        <total>${doc.total.toFixed(2)}</total>
+        <total>${importeTotal.toFixed(2)}</total>
         <plazo>0</plazo>
         <unidadTiempo>dias</unidadTiempo>
       </pago>
     </pagos>
   </infoFactura>
   <detalles>${items.map((it, idx) => {
-    const baseImponible = it.quantity * it.unitPrice - (it.discount || 0);
-    const valorImpuesto = baseImponible * (it.taxRate / 100);
+    // Redondeamos por línea para que la suma coincida con los agregados (SRI valida al centavo).
+    const baseImponible = round2(it.quantity * it.unitPrice - (it.discount || 0));
+    const valorImpuesto = round2(baseImponible * (it.taxRate / 100));
     return `
     <detalle>
       <codigoPrincipal>${escapeXml(it.productId.substring(0, 25))}</codigoPrincipal>
@@ -200,18 +228,25 @@ export const buildCreditNoteXml = (
   reasonCode: string,
   customReason?: string
 ): string => {
-  const subtotal15 = items.reduce((a, b) => b.taxRate > 0 ? a + (b.quantity * b.unitPrice - b.discount) : a, 0);
-  const subtotal0 = items.reduce((a, b) => b.taxRate === 0 ? a + (b.quantity * b.unitPrice - b.discount) : a, 0);
-  const totalDesc = items.reduce((a, b) => a + (b.discount || 0), 0);
-  const totalSinImpuestos = subtotal15 + subtotal0;
-  const totalIva = subtotal15 * 0.15;
+  let subtotal15 = 0, subtotal0 = 0, totalDesc = 0;
+  items.forEach(b => {
+    const base = round2(b.quantity * b.unitPrice - (b.discount || 0));
+    if (b.taxRate > 0) subtotal15 += base; else subtotal0 += base;
+    totalDesc += (b.discount || 0);
+  });
+  subtotal15 = round2(subtotal15);
+  subtotal0 = round2(subtotal0);
+  totalDesc = round2(totalDesc);
+  const totalSinImpuestos = round2(subtotal15 + subtotal0);
+  const totalIva = round2(subtotal15 * 0.15);
+  const valorModificacion = round2(totalSinImpuestos + totalIva);
 
   const ambiente = business.isProduction ? '2' : '1';
   const fechaEmision = doc.issueDate.split('-').reverse().join('/');
 
-  // Tipo de identificación del comprador
-  const tipoIdComprador = doc.entityPhone?.length === 13 ? '04' :
-    doc.entityPhone?.length === 10 ? '05' : '07';
+  // Tipo de identificación del comprador (derivado de la identificación real, no del teléfono)
+  const idComprador = doc.entityRuc || '9999999999999';
+  const tipoIdComprador = getTipoIdentificacion(idComprador);
 
   // Secuencial del comprobante (también se usa en el XML)
   const secuencial = doc.number.split('-')[2].padStart(9, '0');
@@ -263,14 +298,14 @@ export const buildCreditNoteXml = (
     <dirEstablecimiento>${escapeXml((business.branchAddress || business.address).trim())}</dirEstablecimiento>
     <tipoIdentificacionComprador>${tipoIdComprador}</tipoIdentificacionComprador>
     <razonSocialComprador>${escapeXml(doc.entityName)}</razonSocialComprador>
-    <identificacionComprador>${doc.entityPhone || '9999999999999'}</identificacionComprador>
+    <identificacionComprador>${idComprador}</identificacionComprador>
     <contribuyenteEspecial>${business.specialTaxpayerCode || ''}</contribuyenteEspecial>
     <obligadoContabilidad>${business.isAccountingObliged ? 'SI' : 'NO'}</obligadoContabilidad>
     <codDocModificado>01</codDocModificado>
     <numDocModificado>${doc.relatedDocumentNumber}</numDocModificado>
     <fechaEmisionDocSustento>${doc.relatedDocumentDate?.split('-').reverse().join('/')}</fechaEmisionDocSustento>
     <totalSinImpuestos>${totalSinImpuestos.toFixed(2)}</totalSinImpuestos>
-    <valorModificacion>${doc.total.toFixed(2)}</valorModificacion>
+    <valorModificacion>${valorModificacion.toFixed(2)}</valorModificacion>
     <moneda>DOLAR</moneda>
     <totalConImpuestos>
       ${subtotal0 > 0 ? `<totalImpuesto>
@@ -289,8 +324,8 @@ export const buildCreditNoteXml = (
     <motivo>${escapeXml(motivoDescripcion)}</motivo>
   </infoNotaCredito>
   <detalles>${items.map(it => {
-    const baseImponible = it.quantity * it.unitPrice - it.discount;
-    const valorImpuesto = it.taxRate > 0 ? baseImponible * 0.15 : 0;
+    const baseImponible = round2(it.quantity * it.unitPrice - (it.discount || 0));
+    const valorImpuesto = it.taxRate > 0 ? round2(baseImponible * 0.15) : 0;
 
     return `
     <detalle>
@@ -571,6 +606,8 @@ export const authorizeWithSRI = async (
             xml: xml,
             p12Base64: p12Base64,
             password: signatureOptions.password,
+            // Necesario para que el backend bloquee certificados vencidos en producción.
+            isProduction: isProduction,
           }),
         });
 
@@ -687,7 +724,12 @@ const calcularDigitoVerificador = (clave: string): string => {
   }
 
   const residuo = suma % 11;
-  const resultado = residuo === 0 ? 0 : 11 - residuo;
+  // Regla oficial del SRI: dígito = 11 - residuo, con dos casos especiales:
+  // si el resultado es 11 el dígito es 0, y si es 10 el dígito es 1.
+  // (Antes se devolvía "10" cuando residuo === 1, generando claves de 50 dígitos inválidas.)
+  let resultado = 11 - residuo;
+  if (resultado === 11) resultado = 0;
+  if (resultado === 10) resultado = 1;
 
   return resultado.toString();
 };
