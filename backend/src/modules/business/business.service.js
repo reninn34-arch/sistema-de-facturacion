@@ -578,6 +578,61 @@ class BusinessService {
     }
     return results;
   }
+
+  // ============================================================
+  // FIRMA ELECTRÓNICA (.p12) — almacenamiento CIFRADO en reposo.
+  // El certificado y su contraseña nunca se guardan en texto plano.
+  // ============================================================
+
+  async saveSignature(businessId, p12Base64, password) {
+    if (!businessId) throw new AppError('No se encontró la empresa', 400);
+    if (!p12Base64 || !password) {
+      throw new AppError('Se requiere el certificado .p12 y su contraseña', 400);
+    }
+
+    const forge = require('node-forge');
+    const { encrypt } = require('../../utils/crypto');
+
+    // Validar que el .p12 se pueda abrir con la contraseña ANTES de guardarlo.
+    let certificate;
+    try {
+      const p12Der = forge.util.decode64(p12Base64);
+      const p12Asn1 = forge.asn1.fromDer(p12Der);
+      const p12 = forge.pkcs12.pkcs12FromAsn1(p12Asn1, password);
+      const certBags = p12.getBags({ bagType: forge.pki.oids.certBag });
+      certificate = certBags[forge.pki.oids.certBag]?.[0]?.cert;
+      if (!certificate) throw new Error('El .p12 no contiene un certificado');
+    } catch (e) {
+      throw new AppError('No se pudo abrir el certificado .p12. Verifica que la contraseña sea correcta.', 400);
+    }
+
+    await this.repo.updateBusiness(businessId, {
+      electronicSignature: encrypt(p12Base64),
+      sriPassword: encrypt(password),
+    });
+
+    return {
+      hasSignature: true,
+      subject: certificate.subject.attributes.map(a => `${a.shortName}=${a.value}`).join(', '),
+      validTo: certificate.validity.notAfter,
+    };
+  }
+
+  async removeSignature(businessId) {
+    if (!businessId) throw new AppError('No se encontró la empresa', 400);
+    const business = await this.repo.findBusinessById(businessId);
+    const updateData = { electronicSignature: null, sriPassword: null };
+    // Sin firma no es válido permanecer en producción.
+    if (business?.isProduction) updateData.isProduction = false;
+    await this.repo.updateBusiness(businessId, updateData);
+    return { hasSignature: false };
+  }
+
+  async getSignatureStatus(businessId) {
+    if (!businessId) throw new AppError('No se encontró la empresa', 400);
+    const business = await this.repo.findBusinessById(businessId);
+    return { hasSignature: !!(business?.electronicSignature && business?.sriPassword) };
+  }
 }
 
 module.exports = BusinessService;

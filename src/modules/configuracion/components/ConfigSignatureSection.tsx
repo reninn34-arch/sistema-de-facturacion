@@ -70,7 +70,7 @@ const ConfigSignatureSection: React.FC<ConfigSignatureSectionProps> = ({
         </div>
 
         <p className="text-[9px] text-slate-500 leading-relaxed italic">
-          * Tu firma es procesada localmente. Azul no almacena copias de tu certificado en servidores externos.
+          * Tu certificado y su contraseña se guardan en nuestros servidores para poder firmar tus comprobantes electrónicos.
         </p>
       </section>
 

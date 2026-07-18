@@ -66,6 +66,11 @@ router.put('/api/business/users/:id/status', verifyToken, businessController.tog
 router.get('/api/business', verifyToken, businessController.getBusinessProfile);
 router.post('/api/business', verifyToken, businessController.updateBusinessProfile);
 
+// Firma electrónica (.p12) — almacenamiento cifrado en el servidor
+router.get('/api/business/signature', verifyToken, businessController.getSignatureStatus);
+router.post('/api/business/signature', verifyToken, businessController.uploadSignature);
+router.delete('/api/business/signature', verifyToken, businessController.deleteSignature);
+
 // Modo Demo y Producción
 router.post('/api/business/demo', verifyToken, businessController.toggleDemoMode);
 router.get('/api/business/demo', verifyToken, businessController.getDemoStatus);

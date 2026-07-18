@@ -55,12 +55,33 @@ const SRI_ENDPOINTS = {
 // ============================================
 router.post('/api/sri/sign-xml', authenticate, async (req, res) => {
   try {
-    const { xml, p12Base64, password, isProduction } = req.body;
+    let { xml, p12Base64, password, isProduction, businessId } = req.body;
+
+    // Camino seguro: si la petición no trae el .p12, se carga CIFRADO desde el
+    // certificado guardado del negocio y se descifra solo aquí, en memoria.
+    // (El camino legacy —recibir p12Base64/password del cliente— sigue funcionando.)
+    if (xml && (!p12Base64 || !password) && businessId) {
+      try {
+        const prisma = require('../../../prisma/client');
+        const { decrypt } = require('../../utils/crypto');
+        const biz = await prisma.business.findUnique({
+          where: { id: businessId },
+          select: { electronicSignature: true, sriPassword: true }
+        });
+        if (biz?.electronicSignature && biz?.sriPassword) {
+          p12Base64 = decrypt(biz.electronicSignature);
+          password = decrypt(biz.sriPassword);
+          logger.info('🔐 Firmando con el certificado cifrado almacenado del negocio');
+        }
+      } catch (e) {
+        logger.error('❌ No se pudo cargar el certificado almacenado:', e.message);
+      }
+    }
 
     if (!xml || !p12Base64 || !password) {
       return res.status(400).json({
         success: false,
-        error: 'Faltan parámetros requeridos: xml, p12Base64, password'
+        error: 'Faltan parámetros requeridos: xml y el certificado (.p12 en la petición o firma guardada del negocio)'
       });
     }
 

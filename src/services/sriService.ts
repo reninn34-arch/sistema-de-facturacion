@@ -1,5 +1,6 @@
 import { Document, BusinessInfo, InvoiceItem, SriStatus } from '../../src/types/types';
 import { SignatureOptions } from './xmlSigner';
+import { generateAccessKey } from '../utils/sri';
 
 /**
  * URL del Backend Proxy para comunicación con SRI
@@ -258,15 +259,19 @@ export const buildCreditNoteXml = (
   } else {
     const [year, month, day] = doc.issueDate.split('-');
     const fecha = `${day}${month}${year}`;
-    const tipoComprobante = '04';
-    const ruc = business.ruc;
-    const tipoAmbiente = ambiente;
-    const serie = business.establishmentCode + business.emissionPointCode;
     const codigoNumerico = Math.floor(Math.random() * 100000000).toString().padStart(8, '0');
-    const tipoEmision = '1';
-    const claveBase = fecha + tipoComprobante + ruc + tipoAmbiente + serie + secuencial + codigoNumerico + tipoEmision;
-    const digitoVerificador = calcularDigitoVerificador(claveBase);
-    claveAcceso = claveBase + digitoVerificador;
+    // Fuente única de verdad para la clave de acceso (algoritmo módulo 11 correcto).
+    claveAcceso = generateAccessKey(
+      fecha,
+      '04', // Nota de crédito
+      business.ruc,
+      ambiente,
+      business.establishmentCode,
+      business.emissionPointCode,
+      secuencial,
+      codigoNumerico,
+      '1'
+    );
   }
 
   // Descripción del motivo
@@ -707,29 +712,4 @@ export const authorizeWithSRI = async (
       message: error.message,
     };
   }
-};
-
-/**
- * Calcula el dígito verificador módulo 11 para la clave de acceso
- * Según especificaciones del SRI
- */
-const calcularDigitoVerificador = (clave: string): string => {
-  const factores = [2, 3, 4, 5, 6, 7];
-  let suma = 0;
-  let factor = 0;
-
-  for (let i = clave.length - 1; i >= 0; i--) {
-    suma += parseInt(clave[i]) * factores[factor];
-    factor = (factor + 1) % 6;
-  }
-
-  const residuo = suma % 11;
-  // Regla oficial del SRI: dígito = 11 - residuo, con dos casos especiales:
-  // si el resultado es 11 el dígito es 0, y si es 10 el dígito es 1.
-  // (Antes se devolvía "10" cuando residuo === 1, generando claves de 50 dígitos inválidas.)
-  let resultado = 11 - residuo;
-  if (resultado === 11) resultado = 0;
-  if (resultado === 10) resultado = 1;
-
-  return resultado.toString();
 };

@@ -46,6 +46,23 @@ const businessController = {
     res.json(result);
   }),
 
+  // Firma electrónica (.p12) — almacenamiento cifrado
+  uploadSignature: catchAsync(async (req, res) => {
+    const { p12Base64, password } = req.body;
+    const result = await service.saveSignature(req.user.businessId, p12Base64, password);
+    res.json({ success: true, ...result });
+  }),
+
+  deleteSignature: catchAsync(async (req, res) => {
+    const result = await service.removeSignature(req.user.businessId);
+    res.json({ success: true, ...result });
+  }),
+
+  getSignatureStatus: catchAsync(async (req, res) => {
+    const result = await service.getSignatureStatus(req.user.businessId);
+    res.json(result);
+  }),
+
   getClients: catchAsync(async (req, res) => {
     const clients = await service.getClients(req.user.businessId, req.user.role);
     res.json(clients);
