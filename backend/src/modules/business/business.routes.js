@@ -64,22 +64,22 @@ router.put('/api/business/users/:id', verifyToken, onlyAdmin, businessController
 router.post('/api/business/users/:id/reset-password', verifyToken, onlyAdmin, businessController.resetUserPassword);
 router.put('/api/business/users/:id/status', verifyToken, onlyAdmin, businessController.toggleUserStatus);
 
-// Perfil de Empresa
+// Perfil de Empresa — leer lo puede cualquier usuario; EDITAR el perfil fiscal solo ADMIN
 router.get('/api/business', verifyToken, businessController.getBusinessProfile);
-router.post('/api/business', verifyToken, businessController.updateBusinessProfile);
+router.post('/api/business', verifyToken, onlyAdmin, businessController.updateBusinessProfile);
 
-// Firma electrónica (.p12) — almacenamiento cifrado en el servidor
-router.get('/api/business/signature', verifyToken, businessController.getSignatureStatus);
-router.post('/api/business/signature', verifyToken, businessController.uploadSignature);
-router.delete('/api/business/signature', verifyToken, businessController.deleteSignature);
+// Firma electrónica (.p12) — configuración sensible: solo ADMIN gestiona el certificado
+router.get('/api/business/signature', verifyToken, onlyAdmin, businessController.getSignatureStatus);
+router.post('/api/business/signature', verifyToken, onlyAdmin, businessController.uploadSignature);
+router.delete('/api/business/signature', verifyToken, onlyAdmin, businessController.deleteSignature);
 
-// Modo Demo y Producción
-router.post('/api/business/demo', verifyToken, businessController.toggleDemoMode);
+// Modo Demo y Producción — cambiar el ambiente afecta a toda la empresa: solo ADMIN
+router.post('/api/business/demo', verifyToken, onlyAdmin, businessController.toggleDemoMode);
 router.get('/api/business/demo', verifyToken, businessController.getDemoStatus);
-router.post('/api/business/production', verifyToken, businessController.activateProduction);
-router.post('/api/business/toggle-demo', verifyToken, businessController.toggleDemoMode);
+router.post('/api/business/production', verifyToken, onlyAdmin, businessController.activateProduction);
+router.post('/api/business/toggle-demo', verifyToken, onlyAdmin, businessController.toggleDemoMode);
 router.get('/api/business/demo-status', verifyToken, businessController.getDemoStatus);
-router.post('/api/business/activate-production', verifyToken, businessController.activateProduction);
+router.post('/api/business/activate-production', verifyToken, onlyAdmin, businessController.activateProduction);
 
 // Clientes
 router.get('/api/clients', verifyToken, businessController.getClients);
