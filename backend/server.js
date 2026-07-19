@@ -237,8 +237,6 @@ async function startServer() {
       console.log(`   POST http://localhost:${PORT}/api/auth/client/login`);
       console.log(`   POST http://localhost:${PORT}/api/forgot-password`);
       console.log(`   POST http://localhost:${PORT}/api/notifications/send-email`);
-      console.log(`   POST http://localhost:${PORT}/api/notifications/send-sms`);
-      console.log(`   POST http://localhost:${PORT}/api/notifications/send-whatsapp`);
       console.log(`   GET  http://localhost:${PORT}/health`);
       console.log(`   GET  http://localhost:${PORT}/api/info`);
       console.log('');

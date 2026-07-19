@@ -11,6 +11,7 @@ const notificationController = {
       });
     }
 
+    try {
     logger.info(`📧 Enviando email a ${to}...`);
 
     const emailHtml = html || `<p>${message || 'Adjunto encontrará su comprobante electrónico'}</p>`;
@@ -95,7 +96,32 @@ const notificationController = {
         auth: { user: settings.smtpUser, pass: settings.smtpPassword }
       });
 
-      return res.json({ success: true, message: 'Email enviado exitosamente (SMTP simulado)', provider: 'smtp' });
+      const mailData = {
+        from: settings.senderEmail || settings.smtpUser || 'noreply@ecuafact.com',
+        to,
+        subject: subject || 'Comprobante Electrónico Autorizado',
+        text: emailText,
+        html: emailHtml,
+      };
+      const mailAttachments = [];
+      if (rideBase64 && documentNumber) {
+        mailAttachments.push({ filename: `RIDE_${documentNumber}.pdf`, content: rideBase64, encoding: 'base64' });
+      }
+      if (attachments && Array.isArray(attachments)) {
+        attachments.forEach(att => {
+          const cleanBase64 = (att.content || '').replace(/^data:[^;]+;base64,/, '');
+          mailAttachments.push({ filename: att.filename, content: cleanBase64, encoding: 'base64' });
+        });
+      }
+      if (mailAttachments.length) mailData.attachments = mailAttachments;
+
+      // Antes esta rama NO enviaba (devolvía "SMTP simulado"): ahora sí envía.
+      const info = await transporter.sendMail(mailData);
+      return res.json({ success: true, message: 'Email enviado exitosamente', provider: 'smtp', messageId: info.messageId });
+    }
+    } catch (error) {
+      logger.error(`❌ Error enviando email a ${to}`, error);
+      return res.status(500).json({ success: false, error: error.message });
     }
   }
 };
