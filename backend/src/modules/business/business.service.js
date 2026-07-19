@@ -121,13 +121,42 @@ class BusinessService {
     if (!user.businessId) throw new AppError('Error crítico: Usuario sin empresa asignada', 400);
     const business = await this.repo.findBusinessById(user.businessId);
     if (!business) throw new AppError('Empresa no encontrada', 404);
-    return business;
+
+    // Clonar y enmascarar credenciales sensibles
+    const sanitizedBusiness = { ...business };
+    if (sanitizedBusiness.notificationSettings) {
+      const settings = { ...sanitizedBusiness.notificationSettings };
+      if (settings.smtpPassword) settings.smtpPassword = '••••••••••••••••';
+      if (settings.sendgridApiKey) settings.sendgridApiKey = '••••••••••••••••';
+      if (settings.mailgunApiKey) settings.mailgunApiKey = '••••••••••••••••';
+      sanitizedBusiness.notificationSettings = settings;
+    }
+    return sanitizedBusiness;
   }
 
   async updateBusinessProfile(businessId, data) {
     const updateData = { ...data };
     if (updateData.address === '') updateData.address = null;
     if (updateData.phone === '') updateData.phone = null;
+
+    // Si se está actualizando la configuración de notificaciones, manejar las contraseñas enmascaradas
+    if (updateData.notificationSettings) {
+      const existing = await this.repo.findBusinessById(businessId);
+      const existingSettings = existing?.notificationSettings || {};
+      const newSettings = { ...updateData.notificationSettings };
+
+      if (newSettings.smtpPassword === '••••••••••••••••') {
+        newSettings.smtpPassword = existingSettings.smtpPassword;
+      }
+      if (newSettings.sendgridApiKey === '••••••••••••••••') {
+        newSettings.sendgridApiKey = existingSettings.sendgridApiKey;
+      }
+      if (newSettings.mailgunApiKey === '••••••••••••••••') {
+        newSettings.mailgunApiKey = existingSettings.mailgunApiKey;
+      }
+
+      updateData.notificationSettings = newSettings;
+    }
 
     // Si se está eliminando la firma digital, revocar automáticamente el modo producción.
     // Sin .p12 no es posible firmar XML → mantener producción activa sería un estado inválido.
