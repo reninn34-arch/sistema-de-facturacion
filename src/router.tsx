@@ -363,25 +363,11 @@ const AppShell: React.FC = () => {
       modulePermissions={modulePermissions}
       pointsProgramEnabled={pointsProgramEnabled}
       onActivateProduction={handleActivateProduction}
+      onToggleDarkMode={toggleDarkMode}
     >
       <Suspense fallback={<div className="flex items-center justify-center h-full min-h-[400px]"><div className="w-8 h-8 border-4 border-sky-500 border-t-transparent rounded-full animate-spin" /></div>}>
         {renderContent()}
       </Suspense>
-
-      {currentUser?.role === 'SUPERADMIN' && (
-        <div className="fixed top-5 right-24 z-[90] flex items-center gap-3 bg-white/90 dark:bg-slate-800/90 backdrop-blur-sm px-4 py-2 rounded-full shadow-sm border border-slate-200 dark:border-slate-600/50 transition-colors duration-300">
-          <button type="button"
-            onClick={toggleDarkMode}
-            className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-slate-500 dark:text-slate-400 hover:text-sky-500 dark:hover:text-sky-400 transition-colors"
-          >
-            {(businessInfo.features?.isDarkMode ?? false) ? (
-              <><SunIcon className="w-4 h-4" /> Claro</>
-            ) : (
-              <><MoonIcon className="w-4 h-4" /> Oscuro</>
-            )}
-          </button>
-        </div>
-      )}
       <div className="fixed bottom-6 right-6 z-[999] flex flex-col gap-3 pointer-events-none">
         {ctxToasts.map((toast) => (
           <div

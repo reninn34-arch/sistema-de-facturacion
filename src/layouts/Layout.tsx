@@ -37,6 +37,8 @@ import {
   ChevronDownIcon,
   TrophyIcon,
   ShoppingCartIcon,
+  SunIcon,
+  MoonIcon,
 } from '@heroicons/react/24/outline';
 
 interface LayoutProps {
@@ -53,6 +55,7 @@ interface LayoutProps {
   modulePermissions?: { moduleCode: string; granted: boolean }[];
   pointsProgramEnabled?: boolean;
   onActivateProduction?: () => Promise<void>;
+  onToggleDarkMode?: () => void;
 }
 
 const iconMap: Record<string, React.ReactNode> = {
@@ -264,7 +267,7 @@ const Layout: React.FC<LayoutProps> = ({
   children, notifications, onMarkRead, onRemoveNotif,
   businessInfo, currentUser, subscriptionExpired = false, pendingActivations = 0,
   planHasAIAssistant = false, hasModuleControl = false, modulePermissions = [],
-  pointsProgramEnabled = true, onActivateProduction
+  pointsProgramEnabled = true, onActivateProduction, onToggleDarkMode
 }) => {
   const location = useLocation();
   const navigate = useNavigate();
@@ -531,6 +534,19 @@ const Layout: React.FC<LayoutProps> = ({
           </div>
 
           <div className="flex items-center space-x-1 sm:space-x-2 lg:space-x-4 print:hidden">
+            {onToggleDarkMode && (
+              <button type="button" onClick={onToggleDarkMode}
+                className="p-2 rounded-xl text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700 hover:text-sky-500 transition-all min-w-[44px] min-h-[44px] flex items-center justify-center"
+                aria-label="Alternar tema oscuro/claro"
+              >
+                {(businessInfo.features?.isDarkMode ?? false) ? (
+                  <SunIcon className="w-5 h-5 sm:w-6 sm:h-6 text-amber-500" />
+                ) : (
+                  <MoonIcon className="w-5 h-5 sm:w-6 sm:h-6" />
+                )}
+              </button>
+            )}
+
             <div className="relative" ref={notificationRef}>
               <button type="button" onClick={() => setShowNotifications(!showNotifications)}
                 className={`relative p-2 rounded-xl transition-all min-w-[44px] min-h-[44px] flex items-center justify-center ${
