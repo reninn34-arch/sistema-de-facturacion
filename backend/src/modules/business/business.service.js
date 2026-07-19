@@ -386,15 +386,7 @@ class BusinessService {
         number = seq.currentValue.toString().padStart(9, '0');
       }
 
-      const {
-        clientId: _clientId,
-        emissionDate: _emissionDate,
-        tip: _tip,
-        ...cleanedData
-      } = data;
-
       const doc = await this.repo.createDocument(tx, {
-        ...cleanedData,
         type: docType,
         number,
         businessId,
@@ -408,6 +400,21 @@ class BusinessService {
         total,
         status,
         paymentStatus,
+        establishmentCode: data.establishmentCode || '001',
+        emissionPointCode: data.emissionPointCode || '001',
+        accessKey: data.accessKey || null,
+        additionalInfo: data.additionalInfo || null,
+        authorizedXml: data.authorizedXml || null,
+        creditNoteReason: data.creditNoteReason || null,
+        paymentMethod: data.paymentMethod || '01',
+        relatedDocumentAccessKey: data.relatedDocumentAccessKey || null,
+        relatedDocumentNumber: data.relatedDocumentNumber || null,
+        source: data.source || 'LOCAL',
+        sustainingDocNumber: data.sustainingDocNumber || null,
+        sustainingDocTotal: data.sustainingDocTotal ? parseFloat(data.sustainingDocTotal) : null,
+        sustainingDocType: data.sustainingDocType || null,
+        taxPeriod: data.taxPeriod || null,
+        invoiceType: data.invoiceType || null,
         dueDate: data.dueDate ? new Date(data.dueDate) : undefined,
         relatedDocumentDate: data.relatedDocumentDate ? new Date(data.relatedDocumentDate) : null,
         sustainingDocDate: data.sustainingDocDate ? new Date(data.sustainingDocDate) : null,
