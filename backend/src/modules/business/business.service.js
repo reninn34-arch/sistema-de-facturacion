@@ -419,6 +419,9 @@ class BusinessService {
         relatedDocumentDate: data.relatedDocumentDate ? new Date(data.relatedDocumentDate) : null,
         sustainingDocDate: data.sustainingDocDate ? new Date(data.sustainingDocDate) : null,
         retentionTaxes: retentionTaxes || undefined,
+        tip: data.tip ? parseFloat(data.tip) : 0,
+        isReimbursement: data.isReimbursement ?? false,
+        reimbursements: data.reimbursements || null,
         items: itemsList.length > 0 ? {
           create: itemsList.map(item => {
             const price = item.unitPrice || item.price || 0;

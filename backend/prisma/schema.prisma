@@ -222,6 +222,11 @@ model Document {
   sustainingDocTotal       Float?
   sustainingDocType        String?
   taxPeriod                String?
+  
+  // Campos adicionales para propinas y reembolsos
+  tip                      Float?    @default(0)
+  isReimbursement          Boolean?  @default(false)
+  reimbursements           Json?
 
   // Tipo de factura para el portal SaaS
   invoiceType              String?   @default("CLIENT") // "CLIENT" = factura a cliente, "SaaS" = factura de suscripción
