@@ -306,6 +306,13 @@ const SubscriptionPage: React.FC = () => {
       const data = await response.json();
 
       if (data.success) {
+        // Cerrar cualquier sesión previa EN EL SERVIDOR: borra las cookies HttpOnly
+        // (adminToken, etc.). Limpiar solo localStorage no basta porque la cookie del
+        // usuario anterior (ej: Superadmin) seguiría autenticando las peticiones.
+        try {
+          await fetch(`${API_URL}/api/logout`, { method: 'POST', credentials: 'include' });
+        } catch { /* si falla, igual limpiamos el estado local abajo */ }
+
         // Limpiar sesión previa para evitar auto-login como el usuario anterior (ej: Superadmin)
         localStorage.removeItem('adminToken');
         localStorage.removeItem('adminUser');

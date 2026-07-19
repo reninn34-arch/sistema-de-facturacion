@@ -12,13 +12,6 @@ const isLocalhost = typeof window !== 'undefined' && (
 );
 const BASE_URL = isLocalhost ? '' : API_URL;
 
-console.log('API Client Debug:', {
-  VITE_BACKEND_URL: import.meta.env.VITE_BACKEND_URL,
-  BASE_URL,
-  DEV: import.meta.env.DEV,
-  isLocalhost
-});
-
 // Crear cliente axios con configuración base
 export const client = axios.create({
   baseURL: BASE_URL,
