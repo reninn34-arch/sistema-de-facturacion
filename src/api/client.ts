@@ -6,6 +6,12 @@ import axios from 'axios';
 const API_URL = import.meta.env.VITE_BACKEND_URL || '';
 const BASE_URL = import.meta.env.DEV ? '' : API_URL;
 
+console.log('API Client Debug:', {
+  VITE_BACKEND_URL: import.meta.env.VITE_BACKEND_URL,
+  BASE_URL,
+  DEV: import.meta.env.DEV
+});
+
 // Crear cliente axios con configuración base
 export const client = axios.create({
   baseURL: BASE_URL,
