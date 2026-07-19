@@ -1,14 +1,18 @@
 const express = require('express');
 const router = express.Router();
 const verifyToken = require('../../middleware/jwt.middleware');
+const requireCompanyContext = require('../../middleware/requireCompanyContext');
 const productionController = require('./production.controller');
 
-router.get('/api/recipes', verifyToken, productionController.getRecipes);
-router.post('/api/recipes', verifyToken, productionController.createRecipe);
-router.put('/api/recipes/:id', verifyToken, productionController.updateRecipe);
-router.delete('/api/recipes/:id', verifyToken, productionController.deleteRecipe);
+// Toda la producción (recetas y registros) es de la empresa del usuario.
+router.use(verifyToken, requireCompanyContext);
 
-router.post('/api/production', verifyToken, productionController.registerProduction);
-router.get('/api/production', verifyToken, productionController.getProductionRecords);
+router.get('/api/recipes', productionController.getRecipes);
+router.post('/api/recipes', productionController.createRecipe);
+router.put('/api/recipes/:id', productionController.updateRecipe);
+router.delete('/api/recipes/:id', productionController.deleteRecipe);
+
+router.post('/api/production', productionController.registerProduction);
+router.get('/api/production', productionController.getProductionRecords);
 
 module.exports = router;
