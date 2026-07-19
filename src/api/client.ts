@@ -30,9 +30,15 @@ function processQueue(error: any, token: string | null = null) {
   failedQueue = [];
 }
 
-// Interceptor para agregar token de autenticación
+// Interceptor para agregar token de autenticación y normalizar URLs
 client.interceptors.request.use(
   (config) => {
+    // Si baseURL está configurado y la URL inicia con '/', removemos la barra inicial
+    // para que Axios la concatene en vez de ignorar el baseURL y apuntar a la raíz del dominio.
+    if (config.baseURL && config.url && config.url.startsWith('/')) {
+      config.url = config.url.substring(1);
+    }
+
     const token = localStorage.getItem('adminToken') || localStorage.getItem('token');
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
