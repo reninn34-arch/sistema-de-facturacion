@@ -828,7 +828,7 @@ const UserManagement: React.FC<UserManagementProps> = ({ currentUser, onNotify }
             <div className="p-6 border-b border-slate-100 dark:border-slate-700/50">
               <div className="flex justify-between items-center">
                 <h3 className="text-lg font-black text-slate-800 dark:text-white flex items-center gap-2">
-                  <PencilIcon className="w-5 h-5" /> Editar Administrador
+                  <PencilIcon className="w-5 h-5" /> Editar Usuario
                 </h3>
                 <button type="button" aria-label="Cerrar" onClick={() => { setShowEditModal(false); setEditingUser(null); }} className="text-slate-400 hover:text-slate-600 dark:hover:text-white"><XMarkIcon className="w-5 h-5" /></button>
               </div>
@@ -867,25 +867,30 @@ const UserManagement: React.FC<UserManagementProps> = ({ currentUser, onNotify }
                   onChange={(e) => setEditFormData({...editFormData, role: e.target.value})}
                   className="w-full p-3 bg-slate-50 dark:bg-slate-800/50 dark:text-white rounded-xl text-sm font-medium border border-slate-200 dark:border-slate-700/50 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
-                  <option value="SUPERADMIN">Superadmin</option>
-                  <option value="ADMIN">Admin de Empresa</option>
-                </select>
-              </div>
-
-              <div className="space-y-2">
-                <label htmlFor={`${fieldId}-edit-business`} className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest">Empresa</label>
-                <select
-                  id={`${fieldId}-edit-business`}
-                  value={editFormData.businessId}
-                  onChange={(e) => setEditFormData({...editFormData, businessId: e.target.value})}
-                  className="w-full p-3 bg-slate-50 dark:bg-slate-800/50 dark:text-white rounded-xl text-sm font-medium border border-slate-200 dark:border-slate-700/50 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                >
-                  <option value="">Sin empresa (Global)</option>
-                  {businesses.map(biz => (
-                    <option key={biz.id} value={biz.id}>{biz.name} - {biz.ruc}</option>
+                  {/* Incluye el rol actual del usuario + los roles asignables según quién edita */}
+                  {Array.from(new Set([editFormData.role, ...availableRoles])).filter(Boolean).map(role => (
+                    <option key={role} value={role}>{roleLabels[role]?.label || role}</option>
                   ))}
                 </select>
               </div>
+
+              {/* Reasignar empresa es exclusivo del SUPERADMIN; un admin de empresa no lo ve */}
+              {isSuperAdmin && (
+                <div className="space-y-2">
+                  <label htmlFor={`${fieldId}-edit-business`} className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest">Empresa</label>
+                  <select
+                    id={`${fieldId}-edit-business`}
+                    value={editFormData.businessId}
+                    onChange={(e) => setEditFormData({...editFormData, businessId: e.target.value})}
+                    className="w-full p-3 bg-slate-50 dark:bg-slate-800/50 dark:text-white rounded-xl text-sm font-medium border border-slate-200 dark:border-slate-700/50 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  >
+                    <option value="">Sin empresa (Global)</option>
+                    {businesses.map(biz => (
+                      <option key={biz.id} value={biz.id}>{biz.name} - {biz.ruc}</option>
+                    ))}
+                  </select>
+                </div>
+              )}
 
               <div className="pt-4 flex gap-3">
                 <button
