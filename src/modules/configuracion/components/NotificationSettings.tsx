@@ -30,6 +30,12 @@ const NotificationSettingsComponent: React.FC<NotificationSettingsProps> = ({ se
   const [showWhatsAppGuide, setShowWhatsAppGuide] = useState(false);
   const fieldId = useId();
 
+  // El proveedor por defecto se calcula con el mismo fallback que el <select>,
+  // para que los campos correspondientes se muestren desde el inicio (antes el
+  // select decía "SMTP" pero el estado crudo era undefined y no renderizaba nada).
+  const emailProvider = localSettings.emailProvider || 'smtp';
+  const whatsappProvider = localSettings.whatsappProvider || 'twilio';
+
   const handleSave = () => {
     onSave(localSettings);
     onNotify('Configuración guardada exitosamente', 'success');
@@ -163,7 +169,7 @@ const NotificationSettingsComponent: React.FC<NotificationSettingsProps> = ({ se
                 <div className="space-y-4">
                   <select
                     aria-label="Proveedor de email"
-                    value={localSettings.emailProvider || 'smtp'}
+                    value={emailProvider}
                     onChange={e => setLocalSettings({ ...localSettings, emailProvider: e.target.value as any })}
                     className="w-full p-3 bg-slate-50 border rounded-xl font-bold"
                   >
@@ -172,7 +178,7 @@ const NotificationSettingsComponent: React.FC<NotificationSettingsProps> = ({ se
                     <option value="mailgun">Mailgun</option>
                   </select>
 
-                  {localSettings.emailProvider === 'smtp' && (
+                  {emailProvider === 'smtp' && (
                     <>
                       <div>
                         <label htmlFor={`${fieldId}-smtpHost`} className="block text-xs font-black text-slate-700 mb-2">Host SMTP</label>
@@ -224,7 +230,7 @@ const NotificationSettingsComponent: React.FC<NotificationSettingsProps> = ({ se
                     </>
                   )}
 
-                  {localSettings.emailProvider === 'sendgrid' && (
+                  {emailProvider === 'sendgrid' && (
                     <>
                       <div>
                         <label htmlFor={`${fieldId}-sendgridKey`} className="block text-xs font-black text-slate-700 mb-2">SendGrid API Key</label>
@@ -243,7 +249,7 @@ const NotificationSettingsComponent: React.FC<NotificationSettingsProps> = ({ se
                     </>
                   )}
 
-                  {localSettings.emailProvider === 'mailgun' && (
+                  {emailProvider === 'mailgun' && (
                     <>
                       <div>
                         <label htmlFor={`${fieldId}-mailgunKey`} className="block text-xs font-black text-slate-700 mb-2">Mailgun API Key</label>
@@ -372,7 +378,7 @@ const NotificationSettingsComponent: React.FC<NotificationSettingsProps> = ({ se
                 <div className="space-y-4">
                   <select
                     aria-label="Proveedor de WhatsApp"
-                    value={localSettings.whatsappProvider || 'twilio'}
+                    value={whatsappProvider}
                     onChange={e => setLocalSettings({ ...localSettings, whatsappProvider: e.target.value as any })}
                     className="w-full p-3 bg-slate-50 border rounded-xl font-bold"
                   >
@@ -380,7 +386,7 @@ const NotificationSettingsComponent: React.FC<NotificationSettingsProps> = ({ se
                     <option value="whatsapp-business">WhatsApp Cloud (Gratis)</option>
                   </select>
 
-                  {localSettings.whatsappProvider === 'twilio' ? (
+                  {whatsappProvider === 'twilio' ? (
                     <>
                       <input
                         type="text"
