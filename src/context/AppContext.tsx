@@ -324,6 +324,9 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
         if (empresa) {
           setBusinessInfo(empresa as BusinessInfo);
+          if (empresa.notificationSettings) {
+            setNotificationSettings(empresa.notificationSettings as any);
+          }
 
           if (currentUser?.role !== 'SUPERADMIN') {
             const now = new Date();
@@ -669,8 +672,11 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     setNotificationSettings(settings);
 
     try {
+      // Destructurar para no enviar id o relaciones en el body que causen fallos de validacion
+      const { id, users, clients, products, documents, sequences, subscriptions, activationRequests, recipes, productionRecords, quickSales, emissionPoints, referrals, createdAt, updatedAt, ...restBusinessInfo } = businessInfo as any;
+
       const updatedBusinessInfo = {
-        ...businessInfo,
+        ...restBusinessInfo,
         notificationSettings: settings
       };
 
@@ -686,7 +692,10 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
       if (!response.ok) throw new Error('Error guardando en servidor');
 
-      setBusinessInfo(updatedBusinessInfo);
+      setBusinessInfo({
+        ...businessInfo,
+        notificationSettings: settings
+      });
       showNotify('Configuración de notificaciones guardada en Base de Datos', 'success');
     } catch (error) {
       console.error(error);
