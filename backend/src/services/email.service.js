@@ -1,5 +1,6 @@
 const nodemailer = require('nodemailer');
 const path = require('path');
+const logger = require('../utils/logger');
 require('dotenv').config({ path: path.resolve(__dirname, '../../.env') });
 
 let transporter = null;
@@ -11,7 +12,6 @@ function getTransporter() {
   const port = process.env.SMTP_PORT;
   const user = process.env.SMTP_USER;
   const pass = process.env.SMTP_PASS;
-  const from = process.env.SMTP_FROM || 'noreply@azulpro.com';
 
   if (host && port && user && pass) {
     transporter = nodemailer.createTransport({
@@ -20,9 +20,14 @@ function getTransporter() {
       secure: port === '465',
       auth: { user, pass },
     });
-    console.log(`[EMAIL] Servicio configurado: ${host}:${port}`);
+    logger.info(`[EMAIL] Servicio SMTP configurado: ${host}:${port}`);
+  } else if (process.env.NODE_ENV === 'production') {
+    // En producción esto NO debería pasar: sin SMTP los emails de verificación y
+    // recuperación NO se envían. Se avisa fuerte para que no falle en silencio.
+    logger.warn('[EMAIL] ⚠️ SMTP NO configurado en PRODUCCIÓN: no se enviarán emails (verificación, recuperación). Configura SMTP_HOST/PORT/USER/PASS.');
+    transporter = null;
   } else {
-    console.log('[EMAIL] SMTP no configurado - usando modo desarrollo (logs en consola)');
+    logger.info('[EMAIL] SMTP no configurado - modo desarrollo (los emails se muestran en consola)');
     transporter = null;
   }
 
@@ -34,20 +39,17 @@ async function sendEmail({ to, subject, html }) {
   const from = process.env.SMTP_FROM || 'noreply@azulpro.com';
 
   if (!transport) {
-    console.log('========================================');
-    console.log('[EMAIL MOCK] Destinatario:', to);
-    console.log('[EMAIL MOCK] Asunto:', subject);
-    console.log('[EMAIL MOCK] Contenido HTML:', html);
-    console.log('========================================');
+    logger.info(`[EMAIL MOCK] Para: ${to} | Asunto: ${subject}`);
+    logger.debug('[EMAIL MOCK] HTML', html);
     return { success: true, mock: true };
   }
 
   try {
     const info = await transport.sendMail({ from, to, subject, html });
-    console.log('[EMAIL] Enviado correctamente a:', to, 'MessageId:', info.messageId);
+    logger.info(`[EMAIL] Enviado a ${to} (MessageId: ${info.messageId})`);
     return { success: true, messageId: info.messageId };
   } catch (error) {
-    console.error('[EMAIL] Error al enviar:', error.message);
+    logger.error(`[EMAIL] Error al enviar a ${to}`, error);
     return { success: false, error: error.message };
   }
 }

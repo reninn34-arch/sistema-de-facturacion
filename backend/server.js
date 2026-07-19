@@ -209,8 +209,10 @@ async function startServer() {
     console.error('❌ ═══════════════════════════════════════════════════ ❌');
     console.error('  ERROR DE CONEXIÓN A LA BASE DE DATOS');
     console.error('  No se pudo establecer conexión con la base de datos.');
-    console.error('  Por favor, asegúrate de que Docker esté encendido y que');
-    console.error('  el contenedor de PostgreSQL (ecuafact_db) esté en ejecución.');
+    console.error('  Verifica que la base de datos esté encendida y accesible y');
+    console.error('  que DATABASE_URL sea correcta.');
+    console.error('  (Local: Docker/PostgreSQL. Producción: Neon/Supabase/etc.)');
+    console.error(`  Detalle: ${error.message}`);
     console.error('❌ ═══════════════════════════════════════════════════ ❌');
     console.error('');
     process.exit(1);
