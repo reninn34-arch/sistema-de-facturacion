@@ -389,6 +389,7 @@ class BusinessService {
       const {
         clientId: _clientId,
         emissionDate: _emissionDate,
+        tip: _tip,
         ...cleanedData
       } = data;
 
