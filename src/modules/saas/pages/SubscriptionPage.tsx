@@ -306,6 +306,16 @@ const SubscriptionPage: React.FC = () => {
       const data = await response.json();
 
       if (data.success) {
+        // Limpiar sesión previa para evitar auto-login como el usuario anterior (ej: Superadmin)
+        localStorage.removeItem('adminToken');
+        localStorage.removeItem('adminUser');
+        localStorage.removeItem('sessionId');
+        localStorage.removeItem('refreshToken');
+        localStorage.removeItem('subscriptionExpired');
+        localStorage.removeItem('businessActive');
+        localStorage.removeItem('hasModuleControl');
+        localStorage.removeItem('modulePermissions');
+
         if (paymentMethod === 'PAYPAL' || paymentMethod === 'FREE') {
           // Guardar el email temporal en sessionStorage para prellenar en el Login
           sessionStorage.setItem('tempLoginEmail', formData.email);
