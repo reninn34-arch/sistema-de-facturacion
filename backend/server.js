@@ -68,12 +68,10 @@ const corsOptions = {
       return callback(null, true);
     }
 
-    // Permitir túneles de desarrollo (localhost, devtunnels.ms, ngrok, etc.)
-    if (origin.includes('localhost') || origin.includes('127.0.0.1') || origin.includes('devtunnels.ms') || origin.includes('ngrok')) {
-      return callback(null, true);
-    }
-
-    // En desarrollo, permitir todos los orígenes
+    // En desarrollo se permiten todos los orígenes (incluye túneles ngrok/devtunnels
+    // y localhost). En producción SOLO los de allowedOrigins / FRONTEND_URL: antes un
+    // `origin.includes('localhost')` dejaba pasar orígenes maliciosos como
+    // "https://notlocalhost.com" también en producción.
     if (process.env.NODE_ENV !== 'production') {
       return callback(null, true);
     }
