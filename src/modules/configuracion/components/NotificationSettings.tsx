@@ -53,6 +53,7 @@ const NotificationSettingsComponent: React.FC<NotificationSettingsProps> = ({ se
       const res = await fetch('/api/notifications/send-email', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify({
           to: localSettings.senderEmail,
           subject: 'Email de prueba - Azul',

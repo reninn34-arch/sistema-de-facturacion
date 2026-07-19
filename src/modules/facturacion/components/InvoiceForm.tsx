@@ -441,6 +441,7 @@ const InvoiceForm: React.FC<InvoiceFormProps> = ({ clients, setClients, isDemoMo
       const response = await fetch('/api/notifications/send-email', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify({
           to: clientEmail,
           subject: `Factura Electrónica N° ${lastDocument.number} - ${businessInfo.name}`,
@@ -511,6 +512,7 @@ const InvoiceForm: React.FC<InvoiceFormProps> = ({ clients, setClients, isDemoMo
         const emailResponse = await fetch('/api/notifications/send-email', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
           body: JSON.stringify({
             to: selectedClient.email,
             subject: `Factura Electrónica N° ${doc.number} - ${businessInfo.name}`,

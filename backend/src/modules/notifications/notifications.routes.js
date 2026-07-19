@@ -1,17 +1,11 @@
 const router = require('express').Router();
 const notificationController = require('./notifications.controller');
+const verifyToken = require('../../middleware/jwt.middleware');
 
-const authenticate = (req, res, next) => {
-  if (process.env.NODE_ENV === 'production') {
-    const apiKey = req.headers['x-api-key'];
-    const validApiKey = process.env.API_KEY || process.env.VITE_API_KEY;
-    if (!apiKey || !validApiKey || apiKey !== validApiKey) {
-      return res.status(401).json({ success: false, error: 'No autorizado - API Key inválida' });
-    }
-  }
-  next();
-};
-
-router.post('/send-email', authenticate, notificationController.sendEmail);
+// Enviar email (RIDE al cliente, prueba de configuración, etc.) lo dispara un
+// usuario logueado desde el frontend. Se autentica por la sesión (cookie/JWT),
+// no por X-API-Key: antes exigía X-API-Key en producción y el frontend no lo
+// enviaba, así que todos los envíos daban 401 en producción.
+router.post('/send-email', verifyToken, notificationController.sendEmail);
 
 module.exports = router;
