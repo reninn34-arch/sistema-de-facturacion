@@ -17,12 +17,20 @@ if (!isVercel) {
 
 const getTimestamp = () => new Date().toISOString();
 
+// Une el mensaje con sus argumentos extra (objetos como JSON) en una sola línea.
+const formatMessage = (message, args) => {
+    const extra = args && args.length
+        ? ' ' + args.map(a => (typeof a === 'object' ? JSON.stringify(a) : a)).join(' ')
+        : '';
+    return `${message}${extra}`;
+};
+
 const logToFile = (level, message) => {
-    if (isVercel) return;
+    if (isVercel) return; // En Vercel el FS es de solo lectura; los logs van a stdout.
     const date = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
     const filepath = path.join(logDir, `${date}.log`);
-    const logEntry = `[${getTimestamp()}] [${level.toUpperCase()}] \n`;
-    
+    const logEntry = `[${getTimestamp()}] [${level.toUpperCase()}] ${message}\n`;
+
     try {
         fs.appendFileSync(filepath, logEntry);
     } catch (e) {
@@ -32,37 +40,26 @@ const logToFile = (level, message) => {
 
 const logger = {
     info: (message, ...args) => {
-        const formattedArgs = args.length ? args.map(a => typeof a === 'object' ? JSON.stringify(a) : a).join(' ') : '';
-        const fullMessage = formattedArgs ? ` ` : message;
-        
-        console.log(`✅ [INFO] `, ...args);
-        logToFile('info', fullMessage);
+        console.log(`✅ [INFO] ${message}`, ...args);
+        logToFile('info', formatMessage(message, args));
     },
-    
+
     error: (message, error) => {
         const errorDetails = error ? (error.stack || error.message || JSON.stringify(error)) : '';
-        const fullMessage = ` `;
-        
-        console.error(`❌ [ERROR] `, error || '');
-        logToFile('error', fullMessage);
+        console.error(`❌ [ERROR] ${message}`, error || '');
+        logToFile('error', `${message}${errorDetails ? ' ' + errorDetails : ''}`);
     },
-    
-    warn: (message, ...args) => {
-        const formattedArgs = args.length ? args.map(a => typeof a === 'object' ? JSON.stringify(a) : a).join(' ') : '';
-        const fullMessage = formattedArgs ? ` ` : message;
 
-        console.warn(`⚠️ [WARN] `, ...args);
-        logToFile('warn', fullMessage);
+    warn: (message, ...args) => {
+        console.warn(`⚠️ [WARN] ${message}`, ...args);
+        logToFile('warn', formatMessage(message, args));
     },
-    
+
     debug: (message, ...args) => {
-        // Solo mostrar debug en desarrollo, pero guardar en archivo si se desea
+        // Solo mostrar debug fuera de producción.
         if (process.env.NODE_ENV !== 'production') {
-            const formattedArgs = args.length ? args.map(a => typeof a === 'object' ? JSON.stringify(a) : a).join(' ') : '';
-            const fullMessage = formattedArgs ? ` ` : message;
-            
-            console.debug(`🐛 [DEBUG] `, ...args);
-            logToFile('debug', fullMessage);
+            console.debug(`🐛 [DEBUG] ${message}`, ...args);
+            logToFile('debug', formatMessage(message, args));
         }
     }
 };
