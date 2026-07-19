@@ -221,22 +221,22 @@ const RideViewer: React.FC<RideViewerProps> = ({ document, businessInfo, items, 
     }
   };
 
-  // Cálculos robustos basados en la normativa del SRI
-  const subtotal15 = items.reduce((acc, item) => 
-    item.taxRate > 0 ? acc + (item.quantity * item.unitPrice - item.discount) : acc, 0
-  );
-  
-  const subtotal0 = items.reduce((acc, item) => 
-    item.taxRate === 0 ? acc + (item.quantity * item.unitPrice - item.discount) : acc, 0
-  );
+  // Cálculos basados en la normativa del SRI. Redondeo por línea + agregado con
+  // el mismo criterio que buildInvoiceXml para que el RIDE cuadre al centavo.
+  const round2 = (n: number) => Math.round((n + Number.EPSILON) * 100) / 100;
+  const subtotal15 = round2(items.reduce((acc, item) =>
+    item.taxRate > 0 ? acc + round2(item.quantity * item.unitPrice - (item.discount || 0)) : acc, 0
+  ));
 
-  const totalDiscount = items.reduce((acc, item) => acc + (item.discount || 0), 0);
-  
-  const totalIva = items.reduce((acc, item) => 
-    item.taxRate > 0 ? acc + ((item.quantity * item.unitPrice - item.discount) * (item.taxRate / 100)) : acc, 0
-  );
+  const subtotal0 = round2(items.reduce((acc, item) =>
+    item.taxRate === 0 ? acc + round2(item.quantity * item.unitPrice - (item.discount || 0)) : acc, 0
+  ));
 
-  const finalTotal = subtotal15 + subtotal0 + totalIva;
+  const totalDiscount = round2(items.reduce((acc, item) => acc + (item.discount || 0), 0));
+
+  const totalIva = round2(subtotal15 * 0.15);
+
+  const finalTotal = round2(subtotal15 + subtotal0 + totalIva);
 
   return (
     <div className="fixed inset-0 bg-slate-900/90 backdrop-blur-sm z-[300] overflow-y-auto">

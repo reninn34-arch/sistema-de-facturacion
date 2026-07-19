@@ -635,7 +635,10 @@ const InvoiceForm: React.FC<InvoiceFormProps> = ({ clients, setClients, isDemoMo
   }, [preloadRejected]);
 
   const totals = useMemo(() => {
-    let sub15 = 0, sub0 = 0, desc = 0, tax = 0;
+    // Mismo redondeo que buildInvoiceXml (sriService) para que el total mostrado,
+    // doc.total y el importeTotal del XML coincidan al centavo (evita descuadres).
+    const round2 = (n: number) => Math.round((n + Number.EPSILON) * 100) / 100;
+    let sub15 = 0, sub0 = 0, desc = 0;
     const totalBase = items.reduce((acc, i) => acc + (i.quantity * i.unitPrice), 0);
 
     items.forEach(i => {
@@ -644,17 +647,19 @@ const InvoiceForm: React.FC<InvoiceFormProps> = ({ clients, setClients, isDemoMo
         const itemBase = i.quantity * i.unitPrice;
         itemDiscount = (itemBase / totalBase) * globalDiscount;
       }
-      const base = i.quantity * i.unitPrice - itemDiscount;
-      const net = Math.max(0, base);
+      const base = round2(Math.max(0, i.quantity * i.unitPrice - itemDiscount));
       desc += itemDiscount;
       if (i.taxRate > 0) {
-        sub15 += net;
-        tax += (net * (i.taxRate / 100));
+        sub15 += base;
       } else {
-        sub0 += net;
+        sub0 += base;
       }
     });
-    return { sub15, sub0, desc, tax, total: sub15 + sub0 + tax };
+    sub15 = round2(sub15);
+    sub0 = round2(sub0);
+    desc = round2(desc);
+    const tax = round2(sub15 * 0.15);
+    return { sub15, sub0, desc, tax, total: round2(sub15 + sub0 + tax) };
   }, [items, invoiceType, discountType, globalDiscount]);
 
   const addItem = (product: Product) => {

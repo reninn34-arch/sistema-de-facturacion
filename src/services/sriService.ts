@@ -54,7 +54,7 @@ export const buildInvoiceXml = (doc: Document, business: BusinessInfo, items: In
   // exactamente con la suma de los <precioTotalSinImpuesto> emitidos.
   let subtotal15 = 0, subtotal0 = 0, totalDesc = 0;
   items.forEach(b => {
-    const base = round2(b.quantity * b.unitPrice - (b.discount || 0));
+    const base = round2(Math.max(0, b.quantity * b.unitPrice - (b.discount || 0)));
     if (b.taxRate > 0) subtotal15 += base; else subtotal0 += base;
     totalDesc += (b.discount || 0);
   });
@@ -160,7 +160,7 @@ export const buildInvoiceXml = (doc: Document, business: BusinessInfo, items: In
   </infoFactura>
   <detalles>${items.map((it, idx) => {
     // Redondeamos por línea para que la suma coincida con los agregados (SRI valida al centavo).
-    const baseImponible = round2(it.quantity * it.unitPrice - (it.discount || 0));
+    const baseImponible = round2(Math.max(0, it.quantity * it.unitPrice - (it.discount || 0)));
     const valorImpuesto = round2(baseImponible * (it.taxRate / 100));
     return `
     <detalle>
@@ -231,7 +231,7 @@ export const buildCreditNoteXml = (
 ): string => {
   let subtotal15 = 0, subtotal0 = 0, totalDesc = 0;
   items.forEach(b => {
-    const base = round2(b.quantity * b.unitPrice - (b.discount || 0));
+    const base = round2(Math.max(0, b.quantity * b.unitPrice - (b.discount || 0)));
     if (b.taxRate > 0) subtotal15 += base; else subtotal0 += base;
     totalDesc += (b.discount || 0);
   });
@@ -329,7 +329,7 @@ export const buildCreditNoteXml = (
     <motivo>${escapeXml(motivoDescripcion)}</motivo>
   </infoNotaCredito>
   <detalles>${items.map(it => {
-    const baseImponible = round2(it.quantity * it.unitPrice - (it.discount || 0));
+    const baseImponible = round2(Math.max(0, it.quantity * it.unitPrice - (it.discount || 0)));
     const valorImpuesto = it.taxRate > 0 ? round2(baseImponible * 0.15) : 0;
 
     return `
