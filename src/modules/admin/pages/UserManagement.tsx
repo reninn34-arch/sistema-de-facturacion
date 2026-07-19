@@ -231,10 +231,17 @@ const UserManagement: React.FC<UserManagementProps> = ({ currentUser, onNotify }
       const data = await response.json();
 
       if (response.ok && data.success) {
-        onNotify('Administrador creado exitosamente', 'success');
+        onNotify('Usuario creado exitosamente', 'success');
         setShowModal(false);
         setFormData({ email: '', password: '', confirmPassword: '', name: '', role: isSuperAdmin ? 'ADMIN' : 'ADMIN', businessId: '' });
         loadData();
+        // Si el plan permite control de módulos y es un empleado, abrir el modal
+        // para elegir de inmediato a qué módulos accede (sobre su default de rol).
+        if (!isSuperAdmin && hasModuleControl && data.user &&
+            (data.user.role === 'VENDEDOR' || data.user.role === 'CONTADOR')) {
+          setModuleUser(data.user);
+          setShowModuleModal(true);
+        }
       } else {
         onNotify(data.message || 'Error al crear usuario', 'error');
       }
