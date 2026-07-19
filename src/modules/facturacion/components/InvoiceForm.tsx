@@ -89,42 +89,33 @@ const InvoiceForm: React.FC<InvoiceFormProps> = ({ clients, setClients, isDemoMo
   // Función auxiliar para generar PDF en Base64
   const generatePdfBase64 = async (doc: Document, docItems: InvoiceItem[]): Promise<string | null> => {
     try {
-      console.log('🔄 Iniciando generación de PDF...');
-      console.log('📦 Items a incluir:', docItems.length);
       
       if (!docItems || docItems.length === 0) {
         console.error('❌ No hay items para incluir en el PDF');
         return null;
       }
       
-      console.log('🔄 Importando QRCode...');
       const QRCode = await import('qrcode');
-      console.log('✅ QRCode importado');
       
       // Generar QR como imagen base64
-      console.log('🔄 Generando código QR para:', doc.accessKey);
       const qrCodeDataUrl = await QRCode.toDataURL(doc.accessKey, { 
         margin: 1, 
         width: 200, 
         color: { dark: '#000000', light: '#ffffff' } 
       });
-      console.log('✅ Código QR generado, longitud:', qrCodeDataUrl.length);
 
       // Crear PDF (jsPDF ya está importado estáticamente)
-      console.log('🔄 Creando documento PDF...');
       const pdf = new jsPDF({
         orientation: 'portrait',
         unit: 'mm',
         format: 'a4'
       });
-      console.log('✅ Documento PDF creado');
       
       // Verificar que autoTable esté disponible
       if (typeof autoTable !== 'function') {
         console.error('❌ ERROR: autoTable no está importado correctamente!');
         return null;
       } else {
-        console.log('✅ autoTable está disponible como función');
       }
 
       // Calcular totales
@@ -132,14 +123,6 @@ const InvoiceForm: React.FC<InvoiceFormProps> = ({ clients, setClients, isDemoMo
       const pdfSub0 = docItems.reduce((a, b) => b.taxRate === 0 ? a + (b.quantity * b.unitPrice - (b.discount || 0)) : a, 0);
       const pdfTax = docItems.reduce((a, b) => b.taxRate > 0 ? a + ((b.quantity * b.unitPrice - (b.discount || 0)) * (b.taxRate / 100)) : a, 0);
       const totalDiscount = docItems.reduce((acc, item) => acc + (item.discount || 0), 0);
-
-      console.log('💰 Totales calculados:', { 
-        sub15: pdfSub15.toFixed(2), 
-        sub0: pdfSub0.toFixed(2), 
-        tax: pdfTax.toFixed(2), 
-        discount: totalDiscount.toFixed(2),
-        total: doc.total.toFixed(2)
-      });
 
       let yPos = 15;
 
@@ -152,7 +135,6 @@ const InvoiceForm: React.FC<InvoiceFormProps> = ({ clients, setClients, isDemoMo
       // Agregar logo si existe
       if (businessInfo.logo) {
         try {
-          console.log('🔄 Agregando logo al PDF...');
           
           // Obtener dimensiones de la imagen para mantener proporciones
           const imgProps = pdf.getImageProperties(businessInfo.logo);
@@ -175,10 +157,8 @@ const InvoiceForm: React.FC<InvoiceFormProps> = ({ clients, setClients, isDemoMo
             logoWidth = logoHeight * aspectRatio;
           }
           
-          console.log(`📐 Logo dimensions: ${logoWidth.toFixed(2)}x${logoHeight.toFixed(2)}mm (aspect ratio: ${aspectRatio.toFixed(2)})`);
           
           pdf.addImage(businessInfo.logo, 'PNG', 12, yPos + 5, logoWidth, logoHeight);
-          console.log('✅ Logo agregado');
           
           // Texto al lado del logo
           const textStartX = 12 + logoWidth + 3; // Logo + margen
@@ -272,7 +252,6 @@ const InvoiceForm: React.FC<InvoiceFormProps> = ({ clients, setClients, isDemoMo
       yPos += 25;
 
       // SECCIÓN 3: Tabla de productos
-      console.log('🔄 Agregando tabla de productos...');
       const productData = docItems.map((item, idx) => [
         item.productId || `ITM-${idx + 1}`,
         item.quantity.toString(),
@@ -282,7 +261,6 @@ const InvoiceForm: React.FC<InvoiceFormProps> = ({ clients, setClients, isDemoMo
         `$${(item.quantity * item.unitPrice - (item.discount || 0)).toFixed(2)}`
       ]);
 
-      console.log('📊 Datos de productos:', productData.length, 'filas');
 
       // Usar autoTable como función (versión 5.x)
       try {
@@ -302,14 +280,12 @@ const InvoiceForm: React.FC<InvoiceFormProps> = ({ clients, setClients, isDemoMo
             5: { cellWidth: 30, halign: 'right' }
           }
         });
-        console.log('✅ Tabla de productos agregada exitosamente');
       } catch (error) {
         console.error('❌ ERROR agregando tabla de productos:', error);
         throw error;
       }
 
       yPos = (pdf as any).lastAutoTable.finalY + 5;
-      console.log('✅ Tabla de productos agregada. Nueva posición Y:', yPos);
 
       // SECCIÓN 4: Información adicional y totales (lado a lado)
       // Cuadro izquierdo: Información adicional
@@ -330,7 +306,6 @@ const InvoiceForm: React.FC<InvoiceFormProps> = ({ clients, setClients, isDemoMo
       pdf.text(`${doc.paymentMethod || 'SIN UTILIZACION DEL SISTEMA FINANCIERO'}: $${doc.total.toFixed(2)}`, 12, yPos + 37);
 
       // Cuadro derecho: Totales
-      console.log('🔄 Agregando tabla de totales...');
       const totalsData = [
         ['SUBTOTAL 15%', `$${pdfSub15.toFixed(2)}`],
         ['SUBTOTAL 0%', `$${pdfSub0.toFixed(2)}`],
@@ -361,21 +336,17 @@ const InvoiceForm: React.FC<InvoiceFormProps> = ({ clients, setClients, isDemoMo
             }
           }
         });
-        console.log('✅ Tabla de totales agregada exitosamente');
       } catch (error) {
         console.error('❌ ERROR agregando tabla de totales:', error);
         throw error;
       }
       
-      console.log('✅ Tabla de totales agregada');
 
       // Agregar código QR al final
-      console.log('🔄 Agregando código QR al PDF...');
       const qrYPos = yPos + 55;
       
       try {
         pdf.addImage(qrCodeDataUrl, 'PNG', 10, qrYPos, 30, 30);
-        console.log('✅ Código QR agregado al PDF');
       } catch (error) {
         console.error('⚠️ Error agregando QR:', error);
       }
@@ -385,18 +356,14 @@ const InvoiceForm: React.FC<InvoiceFormProps> = ({ clients, setClients, isDemoMo
       pdf.setFontSize(5);
       pdf.text(doc.accessKey, 10, qrYPos + 36, { maxWidth: 190 });
 
-      console.log('✅ PDF completado. Preparando conversión a Base64...');
       
       // Verificar que el PDF tenga páginas
       const pageCount = pdf.internal.pages.length - 1; // -1 porque la primera es null
-      console.log(`📄 Páginas en el PDF: ${pageCount}`);
 
       // Convertir a Base64 usando el método más confiable
-      console.log('🔄 Convirtiendo PDF a Base64...');
       
       // Obtener el PDF como ArrayBuffer
       const pdfOutput = pdf.output('arraybuffer');
-      console.log(`📦 PDF ArrayBuffer size: ${pdfOutput.byteLength} bytes (~${Math.round(pdfOutput.byteLength / 1024)} KB)`);
       
       // Convertir a Base64
       const uint8Array = new Uint8Array(pdfOutput);
@@ -419,10 +386,6 @@ const InvoiceForm: React.FC<InvoiceFormProps> = ({ clients, setClients, isDemoMo
         return null;
       }
       
-      console.log(`✅ PDF generado correctamente:`);
-      console.log(`   - ArrayBuffer: ${pdfOutput.byteLength} bytes`);
-      console.log(`   - Base64: ${pdfBase64.length} caracteres (~${Math.round(pdfBase64.length / 1024)} KB)`);
-      console.log(`   - Estimado final: ~${Math.round((pdfOutput.byteLength) / 1024)} KB`);
       return pdfBase64;
       
     } catch (error) {
