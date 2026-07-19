@@ -4,12 +4,19 @@ import axios from 'axios';
 // a través del proxy de Vite (/api → localhost:3001) y las cookies
 // HttpOnly funcionen en same-origin. En producción se usa la URL real.
 const API_URL = import.meta.env.VITE_BACKEND_URL || '';
-const BASE_URL = import.meta.env.DEV ? '' : API_URL;
+const isLocalhost = typeof window !== 'undefined' && (
+  window.location.hostname === 'localhost' ||
+  window.location.hostname === '127.0.0.1' ||
+  window.location.hostname.startsWith('192.168.') ||
+  window.location.hostname.includes('gitpod')
+);
+const BASE_URL = isLocalhost ? '' : API_URL;
 
 console.log('API Client Debug:', {
   VITE_BACKEND_URL: import.meta.env.VITE_BACKEND_URL,
   BASE_URL,
-  DEV: import.meta.env.DEV
+  DEV: import.meta.env.DEV,
+  isLocalhost
 });
 
 // Crear cliente axios con configuración base
