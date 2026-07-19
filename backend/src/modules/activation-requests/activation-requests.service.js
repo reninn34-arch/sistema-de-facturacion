@@ -134,72 +134,78 @@ const ActivationRequestService = {
       endDate.setDate(endDate.getDate() + durationDays);
     }
 
-    const updatedBusiness = await prisma.business.update({
-      where: { id: currentRequest.businessId },
-      data: {
-        plan: currentRequest.plan,
-        isActive: true,
-        subscriptionStatus: 'ACTIVE',
-        subscriptionStart: startDate,
-        subscriptionEnd: endDate
-      }
-    });
+    // Todas las escrituras en una transacción: si algo falla, no queda estado
+    // parcial (ej. empresa activada pero solicitud aún PENDING).
+    const { updatedBusiness, activationRequest } = await prisma.$transaction(async (tx) => {
+      const updatedBusiness = await tx.business.update({
+        where: { id: currentRequest.businessId },
+        data: {
+          plan: currentRequest.plan,
+          isActive: true,
+          subscriptionStatus: 'ACTIVE',
+          subscriptionStart: startDate,
+          subscriptionEnd: endDate
+        }
+      });
 
-    await prisma.subscription.create({
-      data: {
-        businessId: currentRequest.businessId,
-        plan: currentRequest.plan,
-        status: 'ACTIVE',
-        startDate,
-        endDate,
-        paymentMethod: currentRequest.paymentMethod,
-        amount: currentRequest.amount,
-        currency: currentRequest.currency,
-        paymentId: currentRequest.referenceNumber,
-        notes: `Activación aprobada por transferencia - ${adminNotes || 'Sin notas'}`
-      }
-    });
+      await tx.subscription.create({
+        data: {
+          businessId: currentRequest.businessId,
+          plan: currentRequest.plan,
+          status: 'ACTIVE',
+          startDate,
+          endDate,
+          paymentMethod: currentRequest.paymentMethod,
+          amount: currentRequest.amount,
+          currency: currentRequest.currency,
+          paymentId: currentRequest.referenceNumber,
+          notes: `Activación aprobada por transferencia - ${adminNotes || 'Sin notas'}`
+        }
+      });
 
-    const lastDocument = await prisma.document.findFirst({
-      where: { businessId: currentRequest.businessId, type: 'INVOICE' },
-      orderBy: { createdAt: 'desc' }
-    });
-    let nextNumber = 1;
-    if (lastDocument && lastDocument.number) {
-      const parts = lastDocument.number.split('-');
-      if (parts.length === 3) {
-        nextNumber = parseInt(parts[2]) + 1;
+      const lastDocument = await tx.document.findFirst({
+        where: { businessId: currentRequest.businessId, type: 'INVOICE' },
+        orderBy: { createdAt: 'desc' }
+      });
+      let nextNumber = 1;
+      if (lastDocument && lastDocument.number) {
+        const parts = lastDocument.number.split('-');
+        if (parts.length === 3) {
+          nextNumber = parseInt(parts[2]) + 1;
+        }
       }
-    }
-    const invoiceNumber = `001-001-${String(nextNumber).padStart(7, '0')}`;
-    const accessKey = `${now.toISOString().split('T')[0].replace(/-/g, '')}01${now.getTime().toString().slice(-11)}${String(Math.floor(Math.random() * 99999999999)).padStart(13, '0')}1`;
+      const invoiceNumber = `001-001-${String(nextNumber).padStart(7, '0')}`;
+      const accessKey = `${now.toISOString().split('T')[0].replace(/-/g, '')}01${now.getTime().toString().slice(-11)}${String(Math.floor(Math.random() * 99999999999)).padStart(13, '0')}1`;
 
-    await prisma.document.create({
-      data: {
-        businessId: currentRequest.businessId,
-        type: 'INVOICE',
-        number: invoiceNumber,
-        accessKey: accessKey,
-        issueDate: now,
-        status: 'LOCAL',
-        total: parseFloat(currentRequest.amount) || 0,
-        entityName: business.name,
-        entityRuc: business.ruc,
-        entityEmail: business.email,
-        paymentStatus: 'PAGADO',
-        source: 'WEB',
-        invoiceType: 'SaaS'
-      }
-    });
+      await tx.document.create({
+        data: {
+          businessId: currentRequest.businessId,
+          type: 'INVOICE',
+          number: invoiceNumber,
+          accessKey: accessKey,
+          issueDate: now,
+          status: 'LOCAL',
+          total: parseFloat(currentRequest.amount) || 0,
+          entityName: business.name,
+          entityRuc: business.ruc,
+          entityEmail: business.email,
+          paymentStatus: 'PAGADO',
+          source: 'WEB',
+          invoiceType: 'SaaS'
+        }
+      });
 
-    const activationRequest = await prisma.activationRequest.update({
-      where: { id },
-      data: {
-        status: 'APPROVED',
-        adminNotes,
-        processedBy: adminId,
-        processedAt: new Date()
-      }
+      const activationRequest = await tx.activationRequest.update({
+        where: { id },
+        data: {
+          status: 'APPROVED',
+          adminNotes,
+          processedBy: adminId,
+          processedAt: new Date()
+        }
+      });
+
+      return { updatedBusiness, activationRequest };
     });
 
     return { request: activationRequest, business: updatedBusiness };
