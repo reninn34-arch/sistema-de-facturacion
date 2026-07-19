@@ -144,6 +144,10 @@ const handleLogout = async () => {
       });
     } catch (e) { /* ignorar */ }
   }
+  // Borrar las cookies HttpOnly en el servidor (además de revocar la sesión arriba).
+  try {
+    await fetch(`${import.meta.env.VITE_BACKEND_URL || ''}/api/logout`, { method: 'POST', credentials: 'include' });
+  } catch (e) { /* ignorar */ }
   localStorage.removeItem('adminToken'); localStorage.removeItem('adminUser');
   localStorage.removeItem('subscriptionExpired'); localStorage.removeItem('businessActive');
   localStorage.removeItem('hasModuleControl'); localStorage.removeItem('modulePermissions');

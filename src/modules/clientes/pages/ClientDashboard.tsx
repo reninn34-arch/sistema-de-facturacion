@@ -131,7 +131,12 @@ const ClientDashboard = () => {
     }
   };
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
+    // Borrar la cookie HttpOnly clientToken en el servidor: limpiar solo
+    // localStorage no cierra la sesión (la cookie seguiría autenticando al cliente).
+    try {
+      await fetch(`${import.meta.env.VITE_BACKEND_URL || ''}/api/logout`, { method: 'POST', credentials: 'include' });
+    } catch { /* si falla, igual limpiamos abajo */ }
     localStorage.removeItem('clientToken');
     localStorage.removeItem('clientUser');
     localStorage.removeItem('requirePasswordChange');
