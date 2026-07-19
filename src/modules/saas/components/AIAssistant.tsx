@@ -46,14 +46,14 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ businessInfo }) => {
     const fetchProviders = async () => {
       try {
         const response = await client.get<{ providers: AIProvider[] }>('/api/ai/providers');
-        const list = response.data.providers;
+        const list = response.data?.providers || [];
         setProviders(list);
         
         // Seleccionar por defecto el proveedor que venga marcado como activo
-        const active = list.find(p => p.active);
+        const active = Array.isArray(list) ? list.find(p => p.active) : undefined;
         if (active) {
           setSelectedProvider(active.id);
-        } else if (list.length > 0) {
+        } else if (Array.isArray(list) && list.length > 0) {
           setSelectedProvider(list[0].id);
         }
       } catch (error) {
@@ -110,7 +110,9 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ businessInfo }) => {
     }
   };
 
-  const activeProviderName = providers.find(p => p.id === selectedProvider)?.name || 'AI';
+  const activeProviderName = Array.isArray(providers)
+    ? (providers.find(p => p.id === selectedProvider)?.name || 'AI')
+    : 'AI';
 
   return (
     <div className="flex flex-col h-[calc(100vh-140px)] max-w-4xl mx-auto bg-white rounded-[2.5rem] shadow-xl overflow-hidden border border-slate-100">
