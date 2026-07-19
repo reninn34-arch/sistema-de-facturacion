@@ -36,12 +36,41 @@ const NotificationSettingsComponent: React.FC<NotificationSettingsProps> = ({ se
   const emailProvider = localSettings.emailProvider || 'smtp';
   const whatsappProvider = localSettings.whatsappProvider || 'twilio';
 
-  const handleSave = () => {
-    onSave(localSettings);
-    onNotify('Configuración guardada exitosamente', 'success');
+  const handleSave = async () => {
+    // onSave (contexto) persiste en el backend y muestra su propio toast real de
+    // éxito/error. Antes se mostraba "guardado" de inmediato, aun si el POST fallaba.
+    await onSave(localSettings);
   };
 
-  const testEmail = () => onNotify('Email de prueba enviado', 'success');
+  const testEmail = async () => {
+    if (!localSettings.senderEmail) {
+      onNotify('Ingresa primero el Email Remitente', 'warning');
+      return;
+    }
+    onNotify('Enviando email de prueba...', 'info');
+    try {
+      // Envío REAL con la configuración actual (aunque no se haya guardado aún).
+      const res = await fetch('/api/notifications/send-email', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          to: localSettings.senderEmail,
+          subject: 'Email de prueba - Azul',
+          settings: localSettings,
+          html: '<p>✅ Si recibes este correo, tu configuración de email funciona correctamente.</p>',
+        }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (res.ok && data.success) {
+        onNotify(`Email de prueba enviado a ${localSettings.senderEmail}. Revisa tu bandeja.`, 'success');
+      } else {
+        onNotify(`No se pudo enviar: ${data.error || 'revisa la configuración del proveedor'}`, 'warning');
+      }
+    } catch (e) {
+      onNotify('Error de conexión al enviar el email de prueba', 'warning');
+    }
+  };
+
   const testSMS = () => onNotify('SMS de prueba enviado', 'success');
   const testWhatsApp = () => onNotify('WhatsApp de prueba enviado', 'success');
 
