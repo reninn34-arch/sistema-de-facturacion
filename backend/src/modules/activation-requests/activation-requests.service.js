@@ -81,10 +81,6 @@ const ActivationRequestService = {
   async uploadProof(id, data) {
     const { paymentProofUrl, paymentProofName } = data;
 
-    console.log('Upload proof - Request ID:', id);
-    console.log('Upload proof - paymentProofUrl length:', paymentProofUrl ? paymentProofUrl.length : 0);
-    console.log('Upload proof - paymentProofName:', paymentProofName);
-
     return prisma.activationRequest.update({
       where: { id },
       data: {
@@ -112,23 +108,15 @@ const ActivationRequestService = {
       throw err;
     }
 
-    let durationDays = 30;
-    switch (currentRequest.plan) {
-      case 'BASIC':
-        durationDays = 30;
-        break;
-      case 'PRO':
-        durationDays = 180;
-        break;
-      case 'ENTERPRISE':
-        durationDays = 365;
-        break;
-      case 'UNLIMITED':
-        durationDays = 365 * 10;
-        break;
-      default:
-        durationDays = 30;
-    }
+    // Fuente única de verdad: la duración configurada del plan en la BD (igual que
+    // admin.service). Antes un switch hardcodeado daba duraciones equivocadas para
+    // planes no listados (p.ej. YEARLY/SEMIANNUAL/MONTHLY caían a 30 días) y
+    // contradecía los valores editables del plan.
+    const planRecord = await prisma.subscriptionPlan.findUnique({
+      where: { code: currentRequest.plan },
+      select: { durationDays: true }
+    });
+    const durationDays = planRecord?.durationDays || 30;
 
     const now = new Date();
     let startDate = now;
