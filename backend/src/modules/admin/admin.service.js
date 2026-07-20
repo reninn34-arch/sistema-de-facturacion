@@ -247,9 +247,14 @@ class AdminService {
     const newEnd = new Date(currentEnd);
     newEnd.setDate(newEnd.getDate() + days);
 
+    // Se actualizan los tres campos juntos: el login calcula el acceso con
+    // isActive && !vencida, así que extender la suscripción sin tocar isActive
+    // dejaba a la empresa sin poder entrar aunque ya tuviera fecha válida.
+    const isValid = newEnd > new Date();
     const updatedBusiness = await this.repo.updateBusiness(id, {
       subscriptionEnd: newEnd,
-      subscriptionStatus: newEnd > new Date() ? 'ACTIVE' : 'EXPIRED'
+      subscriptionStatus: isValid ? 'ACTIVE' : 'EXPIRED',
+      isActive: isValid
     });
 
     return {
@@ -266,11 +271,10 @@ class AdminService {
     if (!business) throw new AppError('Empresa no encontrada', 404);
     if (business.ruc === '9999999999999') throw new AppError('No se puede eliminar la Empresa SaaS Global.', 403);
 
-    // Eliminar datos relacionados (Cascade manual si no está en DB)
-    await this.repo.deleteSequencesByBusiness(String(id));
-    await this.repo.deleteClientsByBusiness(String(id));
-    await this.repo.deleteProductsByBusiness(String(id));
-    await this.repo.deleteUsersByBusiness(String(id));
+    // Todas las relaciones a Business tienen onDelete: Cascade en el esquema, así
+    // que este único DELETE borra los datos asociados de forma atómica. Antes se
+    // hacían borrados manuales secuenciales: si uno fallaba a la mitad, la empresa
+    // quedaba parcialmente eliminada (clientes/productos borrados, empresa viva).
     await this.repo.deleteBusiness(String(id));
 
     return { success: true, message: 'Empresa y sus datos eliminados correctamente' };
@@ -297,9 +301,13 @@ class AdminService {
     const newEndDate = new Date(currentEnd);
     newEndDate.setMonth(newEndDate.getMonth() + monthsInt);
 
+    // Mismos campos que updateSubscriptionDays, para que ambas vías dejen a la
+    // empresa en un estado coherente (antes esta no tocaba subscriptionStatus).
+    const isValid = newEndDate > now;
     const updatedBusiness = await this.repo.updateBusiness(String(businessId), {
       subscriptionEnd: newEndDate,
-      isActive: newEndDate > now
+      subscriptionStatus: isValid ? 'ACTIVE' : 'EXPIRED',
+      isActive: isValid
     });
 
     return {
