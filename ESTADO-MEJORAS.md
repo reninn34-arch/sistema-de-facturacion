@@ -28,7 +28,7 @@ Resumen breve de lo corregido y lo que falta revisar. Actualizado: 2026-07-19.
 - **Firma `.p12` – Fase B**: el frontend todavía envía el certificado en cada firma. Falta el "cutover" para que firme por `businessId` usando el certificado cifrado en el servidor (la infraestructura ya está hecha).
 
 ### Módulos aún sin revisar
-- **Reportes**: falta revisar Kardex y Análisis de Rentabilidad (ATS, Form104 y Libro de Ventas ya revisados).
+- **Reportes**: ✅ módulo completo revisado (ATS, Form104, Libro de Ventas, Kardex, Rentabilidad).
 - **Producción / recetas**, **caja / quicksale**, **puntos y referidos**.
 - **Blog** y **settings / landing page**.
 
