@@ -23,7 +23,16 @@ if (!process.env.DIRECT_URL && process.env.DATABASE_URL) {
 }
 
 if (!process.env.DATABASE_URL) {
-  console.warn('[migrate] DATABASE_URL no configurada: se omiten las migraciones.');
+  // En un build de PRODUCCIÓN saltarse las migraciones deja la base desactualizada
+  // y la app rota (el cliente Prisma consulta columnas que no existen → 500).
+  // Es preferible fallar el build a desplegar algo roto en silencio.
+  if (process.env.VERCEL_ENV === 'production') {
+    console.error('[migrate] ERROR: DATABASE_URL no disponible en el build de PRODUCCIÓN.');
+    console.error('[migrate] Las migraciones no se aplicarían y la app quedaría rota.');
+    console.error('[migrate] Configura DATABASE_URL y DIRECT_URL (o DB_SAAS_DATABASE_URL[_UNPOOLED]) en las variables del proyecto en Vercel.');
+    process.exit(1);
+  }
+  console.warn('[migrate] DATABASE_URL no configurada: se omiten las migraciones (build no productivo).');
   process.exit(0);
 }
 
