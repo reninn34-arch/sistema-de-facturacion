@@ -90,6 +90,8 @@ const PagoInterno: React.FC<PagoInternoProps> = ({ businessInfo, isExpired = fal
   });
   const [paymentProof, setPaymentProof] = useState<File | null>(null);
   const [paymentProofPreview, setPaymentProofPreview] = useState<string | null>(null);
+  // Motivo por el que no se pudo cargar la vista previa (antes fallaba en silencio).
+  const [proofError, setProofError] = useState<string | null>(null);
   const [showSuccess, setShowSuccess] = useState(false);
   const [showPendingApproval, setShowPendingApproval] = useState(false);
   const [availablePlans, setAvailablePlans] = useState<any[]>(() => [
@@ -575,14 +577,29 @@ const PagoInterno: React.FC<PagoInternoProps> = ({ businessInfo, isExpired = fal
                             accept="image/*"
                             onChange={(e) => {
                               const file = e.target.files?.[0];
-                              if (file) {
-                                setPaymentProof(file);
-                                const reader = new FileReader();
-                                reader.onloadend = () => {
-                                  setPaymentProofPreview(reader.result as string);
-                                };
-                                reader.readAsDataURL(file);
+                              if (!file) return;
+                              setProofError(null);
+
+                              if (!file.type.startsWith('image/')) {
+                                setProofError(`El archivo debe ser una imagen (PNG o JPG). Recibido: ${file.type || 'tipo desconocido'}.`);
+                                return;
                               }
+                              if (file.size > 5 * 1024 * 1024) {
+                                setProofError(`La imagen pesa ${(file.size / 1024 / 1024).toFixed(1)} MB y el máximo son 5 MB.`);
+                                return;
+                              }
+
+                              setPaymentProof(file);
+                              const reader = new FileReader();
+                              reader.onerror = () => setProofError('No se pudo leer la imagen. Prueba con otro archivo (PNG o JPG).');
+                              reader.onloadend = () => {
+                                if (typeof reader.result === 'string') {
+                                  setPaymentProofPreview(reader.result);
+                                } else {
+                                  setProofError('No se pudo generar la vista previa de la imagen.');
+                                }
+                              };
+                              reader.readAsDataURL(file);
                             }}
                             className="hidden"
                           />
@@ -600,6 +617,9 @@ const PagoInterno: React.FC<PagoInternoProps> = ({ businessInfo, isExpired = fal
                         </label>
                       )}
                     </div>
+                    {proofError && (
+                      <p className="mt-2 text-xs font-bold text-red-600 dark:text-red-400">{proofError}</p>
+                    )}
                   </div>
                 </div>
               )}
