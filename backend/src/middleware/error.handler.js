@@ -22,14 +22,31 @@ const errorHandler = (err, req, res, next) => {
   err.statusCode = err.statusCode || 500;
   err.status = err.status || 'error';
 
+  // ID corto para correlacionar la respuesta del cliente con el log del servidor.
+  const errorId = require('crypto').randomBytes(4).toString('hex');
+
   // Log del error en consola para el desarrollador
-  logger.error('❌ Error:', err);
+  logger.error(`❌ Error [${errorId}] ${req.method} ${req.originalUrl}`, err);
+
+  // Esquema de base de datos desactualizado: Prisma P2021 (tabla inexistente) /
+  // P2022 (columna inexistente). Es un fallo de despliegue muy concreto, así que
+  // se responde con un mensaje accionable en vez de un 500 opaco.
+  if (err.code === 'P2021' || err.code === 'P2022') {
+    return res.status(500).json({
+      success: false,
+      status: 'error',
+      errorId,
+      code: err.code,
+      message: 'La base de datos no está actualizada: faltan tablas o columnas. Aplica las migraciones pendientes (prisma migrate deploy).'
+    });
+  }
 
   if (process.env.NODE_ENV === 'development') {
     // En desarrollo: enviamos todo el stack trace
     res.status(err.statusCode).json({
       success: false,
       status: err.status,
+      errorId,
       error: err,
       message: err.message,
       stack: err.stack
@@ -41,6 +58,7 @@ const errorHandler = (err, req, res, next) => {
       res.status(err.statusCode).json({
         success: false,
         status: err.status,
+        errorId,
         message: err.message
       });
     } else {
@@ -49,7 +67,8 @@ const errorHandler = (err, req, res, next) => {
       res.status(500).json({
         success: false,
         status: 'error',
-        message: 'Algo salió mal en el servidor, por favor intente más tarde.'
+        errorId,
+        message: `Algo salió mal en el servidor. Referencia del error: ${errorId}`
       });
     }
   }
