@@ -1,5 +1,6 @@
 const bcrypt = require('bcryptjs');
 const { AppError } = require('../../middleware/error.handler');
+const { maskSettings, resolveMaskedSettings } = require('../../utils/maskedCredentials');
 
 class BusinessService {
   constructor(repo) {
@@ -122,14 +123,10 @@ class BusinessService {
     const business = await this.repo.findBusinessById(user.businessId);
     if (!business) throw new AppError('Empresa no encontrada', 404);
 
-    // Clonar y enmascarar credenciales sensibles
+    // Clonar y enmascarar credenciales sensibles (máscara compartida en utils).
     const sanitizedBusiness = { ...business };
     if (sanitizedBusiness.notificationSettings) {
-      const settings = { ...sanitizedBusiness.notificationSettings };
-      if (settings.smtpPassword) settings.smtpPassword = '••••••••••••••••';
-      if (settings.sendgridApiKey) settings.sendgridApiKey = '••••••••••••••••';
-      if (settings.mailgunApiKey) settings.mailgunApiKey = '••••••••••••••••';
-      sanitizedBusiness.notificationSettings = settings;
+      sanitizedBusiness.notificationSettings = maskSettings(sanitizedBusiness.notificationSettings);
     }
     return sanitizedBusiness;
   }
@@ -139,23 +136,14 @@ class BusinessService {
     if (updateData.address === '') updateData.address = null;
     if (updateData.phone === '') updateData.phone = null;
 
-    // Si se está actualizando la configuración de notificaciones, manejar las contraseñas enmascaradas
+    // Si llegan settings de notificaciones, las credenciales enmascaradas se
+    // reemplazan por las guardadas (para no sobrescribirlas con la máscara).
     if (updateData.notificationSettings) {
       const existing = await this.repo.findBusinessById(businessId);
-      const existingSettings = existing?.notificationSettings || {};
-      const newSettings = { ...updateData.notificationSettings };
-
-      if (newSettings.smtpPassword === '••••••••••••••••') {
-        newSettings.smtpPassword = existingSettings.smtpPassword;
-      }
-      if (newSettings.sendgridApiKey === '••••••••••••••••') {
-        newSettings.sendgridApiKey = existingSettings.sendgridApiKey;
-      }
-      if (newSettings.mailgunApiKey === '••••••••••••••••') {
-        newSettings.mailgunApiKey = existingSettings.mailgunApiKey;
-      }
-
-      updateData.notificationSettings = newSettings;
+      updateData.notificationSettings = resolveMaskedSettings(
+        updateData.notificationSettings,
+        existing?.notificationSettings
+      );
     }
 
     // Si se está eliminando la firma digital, revocar automáticamente el modo producción.

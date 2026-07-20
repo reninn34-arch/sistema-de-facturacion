@@ -1,8 +1,11 @@
 const logger = require('../../utils/logger');
+const prisma = require('../../../prisma/client');
+const { resolveMaskedSettings } = require('../../utils/maskedCredentials');
 
 const notificationController = {
   sendEmail: async (req, res) => {
-    const { to, subject, message, html, rideBase64, documentNumber, settings, attachments } = req.body;
+    const { to, subject, message, html, rideBase64, documentNumber, attachments } = req.body;
+    let settings = req.body.settings;
 
     if (!to || !settings) {
       return res.status(400).json({
@@ -12,6 +15,17 @@ const notificationController = {
     }
 
     try {
+    // La API devuelve las credenciales enmascaradas (••••), así que las que llegan
+    // del frontend pueden ser la máscara: se resuelven con las guardadas del
+    // negocio. Sin esto se intentaría autenticar literalmente con "••••" y fallaría.
+    if (req.user?.businessId) {
+      const business = await prisma.business.findUnique({
+        where: { id: req.user.businessId },
+        select: { notificationSettings: true }
+      });
+      settings = resolveMaskedSettings(settings, business?.notificationSettings);
+    }
+
     logger.info(`📧 Enviando email a ${to}...`);
 
     const emailHtml = html || `<p>${message || 'Adjunto encontrará su comprobante electrónico'}</p>`;
