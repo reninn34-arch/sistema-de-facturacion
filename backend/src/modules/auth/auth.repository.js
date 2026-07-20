@@ -95,7 +95,10 @@ class AuthRepository {
   async findDocumentsByEntityRuc(ruc, filter) {
     return prisma.document.findMany({
       where: { entityRuc: ruc, ...filter },
-      include: { business: { select: { id: true, name: true, ruc: true } } },
+      include: { 
+        business: true,
+        items: true
+      },
       orderBy: { issueDate: 'desc' }
     });
   }

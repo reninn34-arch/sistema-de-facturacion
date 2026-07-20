@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useMemo, useId } from 'react';
 import { Document } from '../../../types/types';
 import { DocumentTextIcon, ArrowRightOnRectangleIcon, CheckCircleIcon, CreditCardIcon, ClockIcon, DocumentIcon, CodeBracketIcon, LockClosedIcon, QuestionMarkCircleIcon } from '@heroicons/react/24/outline';
+import RideViewer from '../../facturacion/components/RideViewer';
 
 const API_URL = import.meta.env.VITE_BACKEND_URL || '';
 
@@ -18,6 +19,23 @@ const ClientDashboard = () => {
   const [passwordMessage, setPasswordMessage] = useState<{ text: string; type: 'success' | 'error' | '' }>({ text: '', type: '' });
   const [isSubmittingPassword, setIsSubmittingPassword] = useState(false);
   const [activeTab, setActiveTab] = useState<'dashboard' | 'password'>('dashboard');
+  const [selectedDocForRide, setSelectedDocForRide] = useState<any>(null);
+
+  const handleDownloadXml = (doc: any) => {
+    if (!doc.authorizedXml) {
+      alert("Este comprobante no está autorizado por el SRI (no posee XML firmado).");
+      return;
+    }
+    const encoder = new TextEncoder();
+    const xmlBytes = encoder.encode(doc.authorizedXml);
+    const blob = new Blob([xmlBytes], { type: 'application/xml' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${doc.type === '00' ? 'proforma' : 'comprobante'}-${doc.number}.xml`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
 
   const fetchDocuments = async () => {
     try {
@@ -289,10 +307,19 @@ const ClientDashboard = () => {
                             </td>
                             <td className="px-4 py-5 text-[#0d121b] dark:text-white text-sm font-semibold">${doc.total?.toFixed(2) || '0.00'}</td>
                             <td className="px-4 py-5 text-right space-x-2">
-                              <button type="button" className="inline-flex items-center justify-center p-2 rounded-lg bg-[#0ea5e9]/10 text-[#0ea5e9] hover:bg-[#0ea5e9] hover:text-white transition-all" title="Descargar PDF">
+                              <button type="button" 
+                                onClick={() => setSelectedDocForRide(doc)}
+                                className="inline-flex items-center justify-center p-2 rounded-lg bg-[#0ea5e9]/10 text-[#0ea5e9] hover:bg-[#0ea5e9] hover:text-white transition-all" title="Ver RIDE (PDF)">
                                 <DocumentIcon className="w-5 h-5" />
                               </button>
-                              <button type="button" className="inline-flex items-center justify-center p-2 rounded-lg bg-[#0ea5e9]/10 text-[#0ea5e9] hover:bg-[#0ea5e9] hover:text-white transition-all" title="Descargar XML">
+                              <button type="button" 
+                                onClick={() => handleDownloadXml(doc)}
+                                disabled={!doc.authorizedXml}
+                                className={`inline-flex items-center justify-center p-2 rounded-lg transition-all ${
+                                  doc.authorizedXml ? 'bg-[#0ea5e9]/10 text-[#0ea5e9] hover:bg-[#0ea5e9] hover:text-white' : 'opacity-40 cursor-not-allowed text-slate-400'
+                                }`} 
+                                title="Descargar XML"
+                              >
                                 <CodeBracketIcon className="w-5 h-5" />
                               </button>
                             </td>
@@ -332,10 +359,19 @@ const ClientDashboard = () => {
                             {doc.business?.name || 'N/A'} - {new Date(doc.issueDate).toLocaleDateString()}
                           </span>
                           <div className="flex gap-2">
-                            <button type="button" className="inline-flex items-center justify-center p-2 rounded-lg bg-[#0ea5e9]/10 text-[#0ea5e9] hover:bg-[#0ea5e9] hover:text-white transition-all" title="Descargar PDF">
+                            <button type="button" 
+                              onClick={() => setSelectedDocForRide(doc)}
+                              className="inline-flex items-center justify-center p-2 rounded-lg bg-[#0ea5e9]/10 text-[#0ea5e9] hover:bg-[#0ea5e9] hover:text-white transition-all" title="Ver RIDE (PDF)">
                               <DocumentIcon className="w-5 h-5" />
                             </button>
-                            <button type="button" className="inline-flex items-center justify-center p-2 rounded-lg bg-[#0ea5e9]/10 text-[#0ea5e9] hover:bg-[#0ea5e9] hover:text-white transition-all" title="Descargar XML">
+                            <button type="button" 
+                              onClick={() => handleDownloadXml(doc)}
+                              disabled={!doc.authorizedXml}
+                              className={`inline-flex items-center justify-center p-2 rounded-lg transition-all ${
+                                doc.authorizedXml ? 'bg-[#0ea5e9]/10 text-[#0ea5e9] hover:bg-[#0ea5e9] hover:text-white' : 'opacity-40 cursor-not-allowed text-slate-400'
+                              }`} 
+                              title="Descargar XML"
+                            >
                               <CodeBracketIcon className="w-5 h-5" />
                             </button>
                           </div>
@@ -433,6 +469,14 @@ const ClientDashboard = () => {
             </div>
           </div>
         </footer>
+        {selectedDocForRide && (
+          <RideViewer 
+            document={selectedDocForRide} 
+            businessInfo={selectedDocForRide.business} 
+            items={selectedDocForRide.items || []} 
+            onClose={() => setSelectedDocForRide(null)} 
+          />
+        )}
       </div>
     </>
   );
