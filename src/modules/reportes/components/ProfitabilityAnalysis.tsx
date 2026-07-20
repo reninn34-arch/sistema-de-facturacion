@@ -44,7 +44,8 @@ export default function ProfitabilityAnalysis({ products, documents, onNotify }:
           existing.totalRevenue += revenue;
           existing.totalCost += cost;
           existing.grossProfit = existing.totalRevenue - existing.totalCost;
-          existing.profitMargin = (existing.grossProfit / existing.totalRevenue) * 100;
+          // Guarda contra división por cero (producto con ingreso 0, p.ej. 100% descuento).
+          existing.profitMargin = existing.totalRevenue > 0 ? (existing.grossProfit / existing.totalRevenue) * 100 : 0;
         } else {
           const grossProfit = revenue - cost;
           productMap.set(item.productId, {
@@ -55,7 +56,7 @@ export default function ProfitabilityAnalysis({ products, documents, onNotify }:
             totalRevenue: revenue,
             totalCost: cost,
             grossProfit,
-            profitMargin: (grossProfit / revenue) * 100
+            profitMargin: revenue > 0 ? (grossProfit / revenue) * 100 : 0
           });
         }
       });
@@ -92,7 +93,9 @@ export default function ProfitabilityAnalysis({ products, documents, onNotify }:
       csv += `${item.productCode},"${item.productName}",${item.unitsSold},${item.totalRevenue.toFixed(2)},${item.totalCost.toFixed(2)},${item.grossProfit.toFixed(2)},${item.profitMargin.toFixed(2)}\n`;
     });
 
-    csv += `\nTOTALES,,${totals.unitsSold},${totals.revenue.toFixed(2)},${totals.cost.toFixed(2)},${totals.profit.toFixed(2)},${((totals.profit / totals.revenue) * 100).toFixed(2)}`;
+    const totalMargin = totals.revenue > 0 ? (totals.profit / totals.revenue) * 100 : 0;
+    csv += `\nTOTALES,,${totals.unitsSold},${totals.revenue.toFixed(2)},${totals.cost.toFixed(2)},${totals.profit.toFixed(2)},${totalMargin.toFixed(2)}`;
+    csv += `\n\nNota: el costo es una estimación (60% del precio de venta); no refleja costos reales de compra.`;
 
     const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
     const link = document.createElement('a');
@@ -111,7 +114,7 @@ export default function ProfitabilityAnalysis({ products, documents, onNotify }:
             <ChartBarIcon className="w-10 h-10 text-slate-600 dark:text-slate-300" />
             <div>
               <h2 className="text-2xl font-black text-slate-800 dark:text-white tracking-tight">Análisis de Rentabilidad</h2>
-              <p className="text-sm text-slate-500 dark:text-slate-400 font-bold">Utilidad por producto</p>
+              <p className="text-sm text-slate-500 dark:text-slate-400 font-bold">Utilidad por producto · costo estimado (60% del precio)</p>
             </div>
           </div>
           <button type="button"

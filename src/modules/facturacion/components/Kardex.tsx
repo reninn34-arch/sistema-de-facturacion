@@ -40,7 +40,10 @@ export default function Kardex({ products, documents, onNotify }: KardexProps) {
       const item = doc.items?.find(i => i.productId === selectedProductId);
       if (!item) return;
 
-      const isOutbound = doc.type === '01'; // Factura = salida
+      const isReceived = (doc as any).source === 'RECEIVED';
+      // Solo MIS facturas de venta (type 01 no recibidas) sacan stock. Una factura
+      // de COMPRA recibida (type 01 + source RECEIVED) ingresa stock, no lo saca.
+      const isOutbound = doc.type === '01' && !isReceived;
       const quantity = item.quantity;
       const unitCost = item.unitPrice;
 
@@ -61,9 +64,9 @@ export default function Kardex({ products, documents, onNotify }: KardexProps) {
         balance += quantity;
         productMovements.push({
           date: doc.issueDate,
-          documentType: 'COMPRA',
+          documentType: isReceived ? 'COMPRA' : (doc.type === '04' ? 'NOTA CRÉDITO' : 'INGRESO'),
           documentNumber: doc.number,
-          description: `Compra`,
+          description: isReceived ? 'Compra' : (doc.type === '04' ? `Devolución de ${doc.entityName}` : 'Ingreso'),
           quantityIn: quantity,
           quantityOut: 0,
           balance,
