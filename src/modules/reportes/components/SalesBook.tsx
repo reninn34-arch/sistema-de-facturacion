@@ -8,6 +8,9 @@ interface SalesBookProps {
   onNotify: (message: string, type?: 'success' | 'info' | 'warning') => void;
 }
 
+// Mismo redondeo que el resto del sistema: el SRI cuadra al centavo.
+const round2 = (n: number) => Math.round((n + Number.EPSILON) * 100) / 100;
+
 export default function SalesBook({ documents, business, onNotify }: SalesBookProps) {
   const fieldId = useId();
   const [startDate, setStartDate] = useState('');
@@ -30,7 +33,8 @@ export default function SalesBook({ documents, business, onNotify }: SalesBookPr
       let subtotal12 = 0;
       if (doc.items) {
         for (const item of doc.items) {
-          const base = item.unitPrice * item.quantity - item.discount;
+          // `|| 0`: el descuento puede venir nulo desde la BD y volvía NaN todo el libro.
+          const base = round2(item.unitPrice * item.quantity - (item.discount || 0));
           if (item.taxRate === 0) {
             subtotal0 += base;
           } else {
@@ -38,14 +42,17 @@ export default function SalesBook({ documents, business, onNotify }: SalesBookPr
           }
         }
       }
-      const iva = subtotal12 * 0.15;
+      subtotal0 = round2(subtotal0);
+      subtotal12 = round2(subtotal12);
+      const iva = round2(subtotal12 * 0.15);
       
       entries.push({
         date: doc.issueDate,
         documentType: doc.type === '01' ? 'FACTURA' : doc.type === '04' ? 'NOTA DE CRÉDITO' : 'OTRO',
         documentNumber: doc.number,
         authorizationNumber: doc.accessKey,
-        clientRuc: doc.entityName.split(' - ')[0] || '',
+        // Identificación del campo real, no parseada del nombre del cliente.
+        clientRuc: doc.entityRuc || '9999999999999',
         clientName: doc.entityName,
         subtotal0,
         subtotal12,

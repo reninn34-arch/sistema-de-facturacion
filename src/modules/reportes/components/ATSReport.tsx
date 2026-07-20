@@ -9,6 +9,30 @@ interface ATSReportProps {
   onNotify: (message: string, type?: 'success' | 'info' | 'warning') => void;
 }
 
+// Mismo redondeo que el resto del sistema: el SRI cuadra al centavo.
+const round2 = (n: number) => Math.round((n + Number.EPSILON) * 100) / 100;
+
+// Tipo de identificación del ATS a partir de la identificación real.
+// 04=RUC, 05=Cédula, 06=Pasaporte/otro, 07=Consumidor final.
+const atsIdType = (id: string): '04' | '05' | '06' | '07' => {
+  if (!id || id === '9999999999999') return '07';
+  if (id.length === 13) return '04';
+  if (id.length === 10) return '05';
+  return '06';
+};
+
+// Suma las bases de un documento separando 0% e IVA, redondeando por línea.
+// El descuento puede venir nulo desde la BD: sin `|| 0` el total se volvía NaN.
+const sumDocBases = (doc: Document) => {
+  let subtotal0 = 0;
+  let subtotalIva = 0;
+  for (const item of doc.items || []) {
+    const amount = round2(item.unitPrice * item.quantity - (item.discount || 0));
+    if (item.taxRate === 0) subtotal0 += amount; else subtotalIva += amount;
+  }
+  return { subtotal0: round2(subtotal0), subtotal12: round2(subtotalIva) };
+};
+
 export default function ATSReport({ documents, business, onNotify }: ATSReportProps) {
   const fieldId = useId();
   const [month, setMonth] = useState('');
@@ -34,27 +58,19 @@ export default function ATSReport({ documents, business, onNotify }: ATSReportPr
     const sales: ATSSale[] = [];
     for (const doc of filteredDocs) {
       if (doc.type === '01' && (doc as any).source !== 'RECEIVED') {
-        let subtotal0 = 0;
-        let subtotal12 = 0;
-        if (doc.items) {
-          for (const item of doc.items) {
-            const amount = item.unitPrice * item.quantity - item.discount;
-            if (item.taxRate === 0) {
-              subtotal0 += amount;
-            } else {
-              subtotal12 += amount;
-            }
-          }
-        }
-        const iva = subtotal12 * 0.15;
-        const clientId = doc.entityName.split(' - ')[0] || '';
+        const { subtotal0, subtotal12 } = sumDocBases(doc);
+        const iva = round2(subtotal12 * 0.15);
+        // La identificación sale del campo real (igual que en compras). Antes se
+        // parseaba del NOMBRE del cliente, así que el ATS podía declarar el nombre
+        // como si fuera la cédula.
+        const clientId = doc.entityRuc || '9999999999999';
         sales.push({
           establishmentType: '01' as const,
           documentType: doc.type,
           documentNumber: doc.number,
           authorizationNumber: doc.accessKey,
           issueDate: doc.issueDate,
-          clientIdType: clientId.length === 13 ? '04' as const : '05' as const,
+          clientIdType: atsIdType(clientId),
           clientId,
           clientName: doc.entityName,
           subtotal0,
@@ -68,19 +84,8 @@ export default function ATSReport({ documents, business, onNotify }: ATSReportPr
     const purchases: ATSPurchase[] = [];
     for (const doc of filteredDocs) {
       if (doc.type === '01' && (doc as any).source === 'RECEIVED') {
-        let subtotal0 = 0;
-        let subtotal12 = 0;
-        if (doc.items) {
-          for (const item of doc.items) {
-            const amount = item.unitPrice * item.quantity - item.discount;
-            if (item.taxRate === 0) {
-              subtotal0 += amount;
-            } else {
-              subtotal12 += amount;
-            }
-          }
-        }
-        const iva = subtotal12 * 0.15;
+        const { subtotal0, subtotal12 } = sumDocBases(doc);
+        const iva = round2(subtotal12 * 0.15);
         const providerId = doc.entityRuc || '9999999999999';
         const idType = providerId.length === 13 ? '01' : '02';
         purchases.push({

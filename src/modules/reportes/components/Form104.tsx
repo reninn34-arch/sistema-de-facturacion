@@ -36,33 +36,35 @@ export default function Form104({ documents, business, onNotify }: Form104Props)
     const salesDocs = filteredDocs.filter(d => (d as any).source !== 'RECEIVED');
     const purchaseDocs = filteredDocs.filter(d => (d as any).source === 'RECEIVED');
 
-    const taxableBase0 = salesDocs.reduce((sum, doc) => {
-      const sub0 = doc.items?.filter(i => i.taxRate === 0).reduce((s, item) => s + (item.unitPrice * item.quantity - item.discount), 0) || 0;
-      return sum + sub0;
-    }, 0);
-    const taxableBase12 = salesDocs.reduce((sum, doc) => {
-      const sub12 = doc.items?.filter(i => i.taxRate > 0).reduce((s, item) => s + (item.unitPrice * item.quantity - item.discount), 0) || 0;
-      return sum + sub12;
-    }, 0);
-    const generatedIva = taxableBase12 * 0.15;
+    // Mismo redondeo que el resto del sistema (facturación/XML): el SRI cuadra al centavo.
+    const round2 = (n: number) => Math.round((n + Number.EPSILON) * 100) / 100;
+    // El descuento puede venir nulo desde la BD: sin la guarda `|| 0`, un solo ítem
+    // sin descuento convertía TODO el reporte en NaN.
+    const lineBase = (item: { unitPrice: number; quantity: number; discount?: number }) =>
+      round2(item.unitPrice * item.quantity - (item.discount || 0));
 
-    const purchasesWithCredit = purchaseDocs.reduce((sum, doc) => {
-      const base12 = doc.items?.filter(i => i.taxRate > 0).reduce((s, item) => s + (item.unitPrice * item.quantity - item.discount), 0) || 0;
-      return sum + base12;
-    }, 0);
-    const ivaPurchases = purchaseDocs.reduce((sum, doc) => {
-      const iva = doc.items?.filter(i => i.taxRate > 0).reduce((s, item) => s + ((item.unitPrice * item.quantity - item.discount) * (item.taxRate / 100)), 0) || 0;
-      return sum + iva;
-    }, 0);
+    const sumBases = (docs: Document[], matches: (i: { taxRate: number }) => boolean) =>
+      round2(docs.reduce((sum, doc) =>
+        sum + (doc.items?.filter(matches).reduce((s, item) => s + lineBase(item), 0) || 0), 0));
+
+    const taxableBase0 = sumBases(salesDocs, i => i.taxRate === 0);
+    // Nota: el campo se llama taxableBase12 por herencia (el IVA era 12%); hoy es 15%.
+    const taxableBaseIva = sumBases(salesDocs, i => i.taxRate > 0);
+    const generatedIva = round2(taxableBaseIva * 0.15);
+
+    const purchasesWithCredit = sumBases(purchaseDocs, i => i.taxRate > 0);
+    const ivaPurchases = round2(purchaseDocs.reduce((sum, doc) =>
+      sum + (doc.items?.filter(i => i.taxRate > 0)
+        .reduce((s, item) => s + round2(lineBase(item) * (item.taxRate / 100)), 0) || 0), 0));
 
     return {
       period: `${month}/${year}`,
       taxableBase0,
-      taxableBase12,
+      taxableBase12: taxableBaseIva,
       generatedIva,
       purchasesWithCredit,
       ivaPurchases,
-      ivaToPayOrCredit: generatedIva - ivaPurchases
+      ivaToPayOrCredit: round2(generatedIva - ivaPurchases)
     };
   }, [documents, month, year]);
 
@@ -79,8 +81,8 @@ Período: ${form104Data.period}
 
 VENTAS
 Base Imponible Tarifa 0%: $${form104Data.taxableBase0.toFixed(2)}
-Base Imponible Tarifa 12%: $${form104Data.taxableBase12.toFixed(2)}
-IVA Generado (12%): $${form104Data.generatedIva.toFixed(2)}
+Base Imponible Tarifa 15%: $${form104Data.taxableBase12.toFixed(2)}
+IVA Generado (15%): $${form104Data.generatedIva.toFixed(2)}
 
 COMPRAS
 Base Imponible con Crédito Tributario: $${form104Data.purchasesWithCredit.toFixed(2)}
@@ -157,7 +159,7 @@ IVA a Pagar / Crédito Tributario: $${form104Data.ivaToPayOrCredit.toFixed(2)}
                 <span className="text-xl font-black text-sky-900 dark:text-sky-200">${form104Data.taxableBase0.toFixed(2)}</span>
               </div>
               <div className="flex justify-between items-center">
-                <span className="text-sm font-bold text-sky-600 dark:text-sky-400">Base Imponible Tarifa 12%</span>
+                <span className="text-sm font-bold text-sky-600 dark:text-sky-400">Base Imponible Tarifa 15%</span>
                 <span className="text-xl font-black text-sky-900 dark:text-sky-200">${form104Data.taxableBase12.toFixed(2)}</span>
               </div>
               <div className="flex justify-between items-center pt-3 border-t-2 border-sky-300 dark:border-sky-700">
