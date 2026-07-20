@@ -9,7 +9,7 @@
     "dev:backend": "cd backend && npm run dev",
     "build": "vite build",
     "postinstall": "cd backend && npm install && npx prisma generate",
-    "vercel-build": "npm run build && cd backend && npx prisma generate",
+    "vercel-build": "npm run build && cd backend && npx prisma generate && node scripts/migrate-deploy.js",
     "preview": "vite preview",
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui"

@@ -29,3 +29,6 @@ dist-ssr
 
 # Backups
 backend/backups/
+
+# Vercel (IDs del proyecto/organización generados por la CLI)
+.vercel
