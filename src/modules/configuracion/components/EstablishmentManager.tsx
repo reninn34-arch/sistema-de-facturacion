@@ -1,6 +1,7 @@
-import React, { useState, useId } from 'react';
+import React, { useState, useEffect, useId } from 'react';
 import { BuildingOfficeIcon, PlusIcon, CheckCircleIcon, XMarkIcon, TagIcon, MapPinIcon, PencilSquareIcon, TrashIcon } from '@heroicons/react/24/outline';
 import { BusinessInfo } from '../../../types/types';
+import { client } from '../../../api/client';
 
 export interface Establishment {
   id: string;
@@ -25,36 +26,70 @@ interface EstablishmentManagerProps {
 
 export default function EstablishmentManager({ businessInfo, onNotify }: EstablishmentManagerProps) {
   const fieldId = useId();
-  const [establishments, setEstablishments] = useState<Establishment[]>([
-    {
-      id: 'est-001',
-      code: '001',
-      name: 'Matriz Principal',
-      address: businessInfo.address || 'Quito, Ecuador',
-      isMain: true,
-      emissionPoints: [
-        { id: 'pts-001', code: '001', description: 'Caja Principal / Facturación Web', isActive: true },
-        { id: 'pts-002', code: '002', description: 'Caja Factura Rápida (POS)', isActive: true }
-      ]
-    },
-    {
-      id: 'est-002',
-      code: '002',
-      name: 'Sucursal Norte',
-      address: 'Av. Amazonas y Eloy Alfaro',
-      isMain: false,
-      emissionPoints: [
-        { id: 'pts-003', code: '001', description: 'Caja Sucursal Norte', isActive: true }
-      ]
-    }
-  ]);
-
-  const [activeEmissionPointCode, setActiveEmissionPointCode] = useState('001-001');
+  const [loading, setLoading] = useState(true);
+  const [establishments, setEstablishments] = useState<Establishment[]>([]);
+  const [activeEmissionPointCode, setActiveEmissionPointCode] = useState(() => {
+    return localStorage.getItem('activeEmissionPoint') || '001-001';
+  });
   const [showEstModal, setShowEstModal] = useState(false);
   const [newEst, setNewEst] = useState({ code: '', name: '', address: '' });
   const [editingEst, setEditingEst] = useState<Establishment | null>(null);
-  const [showPtsModal, setShowPtsModal] = useState<string | null>(null); // estId
+  const [showPtsModal, setShowPtsModal] = useState<string | null>(null); // estId / estabCode
   const [newPts, setNewPts] = useState({ code: '', description: '' });
+
+  const fetchEmissionPoints = async () => {
+    setLoading(true);
+    try {
+      const res = await client.get<any[]>('/api/emission-points');
+      const rawPoints = Array.isArray(res.data) ? res.data : [];
+
+      // Agrupar por establishmentCode
+      const map = new Map<string, Establishment>();
+
+      if (rawPoints.length === 0) {
+        // Matriz por defecto si no existen datos
+        map.set('001', {
+          id: 'est-001',
+          code: '001',
+          name: businessInfo.name || 'Matriz Principal',
+          address: businessInfo.address || 'Quito, Ecuador',
+          isMain: true,
+          emissionPoints: [{ id: 'pts-001', code: '001', description: 'Caja Principal', isActive: true }]
+        });
+      } else {
+        rawPoints.forEach((pts: any) => {
+          const estabCode = pts.establishmentCode || '001';
+          if (!map.has(estabCode)) {
+            map.set(estabCode, {
+              id: `est-${estabCode}`,
+              code: estabCode,
+              name: estabCode === '001' ? (businessInfo.name || 'Matriz Principal') : `Sucursal ${estabCode}`,
+              address: businessInfo.address || 'Ecuador',
+              isMain: estabCode === '001',
+              emissionPoints: []
+            });
+          }
+          map.get(estabCode)!.emissionPoints.push({
+            id: pts.id,
+            code: pts.emissionPointCode || '001',
+            description: pts.description || `Caja ${pts.emissionPointCode}`,
+            isActive: pts.isActive !== false
+          });
+        });
+      }
+
+      setEstablishments(Array.from(map.values()));
+    } catch (e: any) {
+      console.error('Error cargando sucursales:', e);
+      onNotify('No se pudieron cargar las sucursales del servidor', 'error');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchEmissionPoints();
+  }, [businessInfo.id]);
 
   const handleSetPrimaryEmissionPoint = (estabCode: string, ptsCode: string) => {
     const fullCode = `${estabCode}-${ptsCode}`;
@@ -63,28 +98,31 @@ export default function EstablishmentManager({ businessInfo, onNotify }: Establi
     onNotify(`Punto de emisión activo configurado en ${fullCode}`, 'success');
   };
 
-  const handleCreateEstablishment = (e: React.FormEvent) => {
+  const handleCreateEstablishment = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newEst.code || !newEst.name) {
       onNotify('Código y Nombre del establecimiento son requeridos', 'error');
       return;
     }
 
-    const created: Establishment = {
-      id: `est-${Date.now()}`,
-      code: newEst.code.padStart(3, '0'),
-      name: newEst.name,
-      address: newEst.address || 'Ecuador',
-      isMain: false,
-      emissionPoints: [
-        { id: `pts-${Date.now()}`, code: '001', description: 'Caja Principal', isActive: true }
-      ]
-    };
+    const formattedCode = newEst.code.padStart(3, '0');
 
-    setEstablishments([...establishments, created]);
-    setShowEstModal(false);
-    setNewEst({ code: '', name: '', address: '' });
-    onNotify(`Sucursal ${created.code} - ${created.name} creada correctamente`, 'success');
+    try {
+      // Crear primer punto de emision de la sucursal en DB
+      await client.post('/api/emission-points', {
+        establishmentCode: formattedCode,
+        emissionPointCode: '001',
+        description: `Caja Principal (${newEst.name})`
+      });
+
+      setShowEstModal(false);
+      setNewEst({ code: '', name: '', address: '' });
+      onNotify(`Sucursal ${formattedCode} - ${newEst.name} creada correctamente`, 'success');
+      fetchEmissionPoints();
+    } catch (err: any) {
+      const msg = err?.response?.data?.message || err.message || 'Error creando sucursal';
+      onNotify(msg, 'error');
+    }
   };
 
   const handleUpdateEstablishment = (e: React.FormEvent) => {
@@ -95,52 +133,60 @@ export default function EstablishmentManager({ businessInfo, onNotify }: Establi
     onNotify(`Sucursal ${editingEst.code} actualizada correctamente`, 'success');
   };
 
-  const handleDeleteEstablishment = (estId: string) => {
+  const handleDeleteEstablishment = async (estId: string) => {
     const target = establishments.find(e => e.id === estId);
-    if (target?.isMain) {
-      onNotify('No se puede eliminar el establecimiento Matriz Principal', 'warning');
+    if (target?.isMain || target?.code === '001') {
+      onNotify('No se puede eliminar la Matriz Principal', 'warning');
       return;
     }
-    setEstablishments(establishments.filter(e => e.id !== estId));
-    onNotify('Sucursal eliminada correctamente', 'info');
+
+    try {
+      // Eliminar todos los puntos de la sucursal
+      for (const pts of target?.emissionPoints || []) {
+        await client.delete(`/api/emission-points/${pts.id}`).catch(() => {});
+      }
+      onNotify(`Sucursal ${target?.code} eliminada correctamente`, 'info');
+      fetchEmissionPoints();
+    } catch (e: any) {
+      onNotify('Error eliminando sucursal', 'error');
+    }
   };
 
-  const handleAddEmissionPoint = (estId: string, e: React.FormEvent) => {
+  const handleAddEmissionPoint = async (estabCode: string, e: React.FormEvent) => {
     e.preventDefault();
     if (!newPts.code || !newPts.description) {
       onNotify('Código y descripción requeridos para la caja', 'error');
       return;
     }
 
-    setEstablishments(establishments.map(est => {
-      if (est.id !== estId) return est;
-      const newPoint: EmissionPoint = {
-        id: `pts-${Date.now()}`,
-        code: newPts.code.padStart(3, '0'),
-        description: newPts.description,
-        isActive: true
-      };
-      return { ...est, emissionPoints: [...est.emissionPoints, newPoint] };
-    }));
+    const formattedCode = newPts.code.padStart(3, '0');
 
-    setShowPtsModal(null);
-    setNewPts({ code: '', description: '' });
-    onNotify('Caja/Punto de emisión agregado correctamente', 'success');
+    try {
+      await client.post('/api/emission-points', {
+        establishmentCode: estabCode,
+        emissionPointCode: formattedCode,
+        description: newPts.description
+      });
+
+      setShowPtsModal(null);
+      setNewPts({ code: '', description: '' });
+      onNotify(`Caja ${estabCode}-${formattedCode} agregada correctamente`, 'success');
+      fetchEmissionPoints();
+    } catch (err: any) {
+      const msg = err?.response?.data?.message || err.message || 'Error agregando caja';
+      onNotify(msg, 'error');
+    }
   };
 
-  const handleDeleteEmissionPoint = (estId: string, ptsId: string) => {
-    setEstablishments(establishments.map(est => {
-      if (est.id !== estId) return est;
-      if (est.emissionPoints.length <= 1) {
-        onNotify('Cada sucursal debe tener al menos un punto de emisión', 'warning');
-        return est;
-      }
-      return {
-        ...est,
-        emissionPoints: est.emissionPoints.filter(p => p.id !== ptsId)
-      };
-    }));
-    onNotify('Caja eliminada', 'info');
+  const handleDeleteEmissionPoint = async (estId: string, ptsId: string) => {
+    try {
+      await client.delete(`/api/emission-points/${ptsId}`);
+      onNotify('Caja eliminada correctamente', 'info');
+      fetchEmissionPoints();
+    } catch (err: any) {
+      const msg = err?.response?.data?.message || err.message || 'Error eliminando caja';
+      onNotify(msg, 'error');
+    }
   };
 
   return (
@@ -216,7 +262,7 @@ export default function EstablishmentManager({ businessInfo, onNotify }: Establi
                 </h4>
                 <button
                   type="button"
-                  onClick={() => { setShowPtsModal(est.id); setNewPts({ code: `00${est.emissionPoints.length + 1}`, description: '' }); }}
+                  onClick={() => { setShowPtsModal(est.code); setNewPts({ code: `00${est.emissionPoints.length + 1}`, description: '' }); }}
                   className="text-[10px] font-bold text-sky-600 dark:text-sky-400 hover:underline flex items-center gap-1"
                 >
                   <PlusIcon className="w-3 h-3" /> Agregar Caja
