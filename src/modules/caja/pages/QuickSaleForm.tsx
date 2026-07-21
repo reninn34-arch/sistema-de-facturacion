@@ -454,7 +454,14 @@ const QuickSaleForm: React.FC<QuickSaleFormProps> = ({ products, clients = [], s
                   >
                     <div>
                       <p className="font-bold text-sm text-slate-800 dark:text-white">{product.description}</p>
-                      <p className="text-[10px] text-slate-400 font-bold">{product.code} · Stock: {product.stock}</p>
+                      <div className="text-[10px] text-slate-400 font-bold flex items-center gap-1.5 flex-wrap mt-0.5">
+                        <span>{product.code} · Stock Total: {product.stock}</span>
+                        {product.branchStock && Object.keys(product.branchStock).length > 0 && (
+                          <span className="text-sky-600 dark:text-sky-400 font-bold bg-sky-50 dark:bg-sky-500/10 px-1.5 py-0.5 rounded text-[9px]">
+                            🏬 {Object.entries(product.branchStock).map(([b, q]) => `${b === '001' ? 'Matriz' : `Suc.${b}`}: ${q}`).join(' | ')}
+                          </span>
+                        )}
+                      </div>
                     </div>
                     <div className="text-right">
                       <p className="font-black text-sm text-sky-500 dark:text-sky-400">${product.price.toFixed(2)}</p>

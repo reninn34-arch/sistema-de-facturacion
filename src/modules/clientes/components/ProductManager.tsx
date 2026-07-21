@@ -356,11 +356,20 @@ const ProductManager: React.FC<ProductManagerProps> = ({ products, setProducts, 
               </div>
 
               <div className="flex justify-between items-center pt-2">
-                <div className="flex flex-col">
+                <div className="flex flex-col gap-1">
                   <span className={`text-[10px] font-black uppercase ${p.stock <= p.minStock ? 'text-rose-500' : 'text-emerald-500'}`}>
-                    Stock: {p.stock}{p.unitOfMeasure ? ` ${p.unitOfMeasure}` : ''}
+                    Stock Total: {p.stock}{p.unitOfMeasure ? ` ${p.unitOfMeasure}` : ''}
                   </span>
-                  {p.isSynced && <span className={`text-[8px] font-bold ${isDarkMode ? 'text-slate-500' : 'text-slate-400'} uppercase mt-1`}>Web Linked</span>}
+                  {p.branchStock && Object.keys(p.branchStock).length > 0 && (
+                    <div className="flex flex-wrap gap-1">
+                      {Object.entries(p.branchStock).map(([code, qty]) => (
+                        <span key={code} className="px-1.5 py-0.5 bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 rounded font-mono font-bold text-[8px]">
+                          {code}: {qty}
+                        </span>
+                      ))}
+                    </div>
+                  )}
+                  {p.isSynced && <span className={`text-[8px] font-bold ${isDarkMode ? 'text-slate-500' : 'text-slate-400'} uppercase`}>Web Linked</span>}
                 </div>
                 <button type="button" onClick={() => handleOpenModal(p)} className={`${isDarkMode ? 'bg-slate-700 hover:bg-slate-600 text-slate-300' : 'bg-slate-50 hover:bg-slate-100 text-slate-600'} p-3 rounded-xl text-[10px] font-black uppercase transition-all`}>
                   Editar Ficha
@@ -450,8 +459,35 @@ const ProductManager: React.FC<ProductManagerProps> = ({ products, setProducts, 
                     </select>
                   </div>
                   <div className="space-y-2">
-                    <label htmlFor={`${fieldId}-stock`} className={`text-[10px] font-black ${isDarkMode ? 'text-slate-500' : 'text-slate-400'} uppercase tracking-widest ml-1`}>Stock Actual{formData.unitOfMeasure ? ` (${formData.unitOfMeasure})` : ''}</label>
+                    <label htmlFor={`${fieldId}-stock`} className={`text-[10px] font-black ${isDarkMode ? 'text-slate-500' : 'text-slate-400'} uppercase tracking-widest ml-1`}>Stock Total{formData.unitOfMeasure ? ` (${formData.unitOfMeasure})` : ''}</label>
                     <input id={`${fieldId}-stock`} type="number" value={formData.stock} className={`w-full p-4 ${isDarkMode ? 'bg-slate-700 text-white border-slate-600' : 'bg-slate-50'} rounded-2xl font-bold outline-none border-2 border-transparent focus:border-sky-500 transition-all`} onChange={e => setFormData({...formData, stock: Number(e.target.value)})} />
+                  </div>
+                </div>
+
+                {/* Desglose de Stock por Sucursal */}
+                <div className="p-6 bg-slate-50 dark:bg-slate-700/50 rounded-2xl border border-slate-200 dark:border-slate-600 space-y-3">
+                  <p className="text-[10px] font-black text-slate-500 dark:text-slate-300 uppercase tracking-widest flex items-center gap-1">
+                    🏬 Disponibilidad de Stock por Sucursal
+                  </p>
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                    {['001', '002', '003'].map(estCode => (
+                      <div key={estCode} className="space-y-1">
+                        <label className="text-[9px] font-bold text-slate-500 dark:text-slate-400 uppercase">
+                          {estCode === '001' ? '001 - Matriz' : `Sucursal ${estCode}`}
+                        </label>
+                        <input
+                          type="number"
+                          min="0"
+                          value={(formData.branchStock as any)?.[estCode] ?? (estCode === '001' ? formData.stock : 0)}
+                          onChange={e => {
+                            const newBranchStock = { ...(formData.branchStock || {}), [estCode]: Number(e.target.value) };
+                            const sum = Object.values(newBranchStock).reduce((a: number, b: any) => a + (Number(b) || 0), 0);
+                            setFormData({ ...formData, branchStock: newBranchStock, stock: sum });
+                          }}
+                          className="w-full p-2.5 bg-white dark:bg-slate-800 text-slate-900 dark:text-white rounded-xl text-xs font-black border border-slate-200 dark:border-slate-700 focus:ring-2 focus:ring-sky-500"
+                        />
+                      </div>
+                    ))}
                   </div>
                 </div>
 

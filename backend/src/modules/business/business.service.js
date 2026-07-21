@@ -234,20 +234,20 @@ class BusinessService {
     if (productData.stock === undefined || productData.stock === null) {
       productData.stock = 0;
     }
-    // Default required fields
-    if (!productData.description) {
-      productData.description = productData.name || 'Producto sin descripción';
-    }
-    if (!productData.type) {
-      productData.type = 'BIEN';
-    }
-    // Clean up temporary/legacy name attribute
     delete productData.name;
+    if (productData.branchStock && typeof productData.branchStock === 'object') {
+      const sum = Object.values(productData.branchStock).reduce((acc, val) => acc + (Number(val) || 0), 0);
+      productData.stock = sum;
+    }
     return this.repo.createProduct(productData);
   }
 
   async updateProduct(id, data, businessId) {
     const { id: _, ...cleanData } = data;
+    if (cleanData.branchStock && typeof cleanData.branchStock === 'object') {
+      const sum = Object.values(cleanData.branchStock).reduce((acc, val) => acc + (Number(val) || 0), 0);
+      cleanData.stock = sum;
+    }
     return this.repo.updateProduct(id, { ...cleanData, businessId });
   }
 

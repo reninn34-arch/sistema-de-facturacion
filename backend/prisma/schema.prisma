@@ -169,6 +169,7 @@ model Product {
   unitOfMeasure    String?  @default("UNIDAD") // kg, lb, g, ml, L, UNIDAD, etc.
   
   isRawMaterial    Boolean  @default(false) // Si es un insumo/materia prima (para recetas)
+  branchStock      Json?    // Desglose de stock por sucursal: { "001": 10, "002": 5 }
   
   // SAAS: Pertenece a una empresa
   businessId       String

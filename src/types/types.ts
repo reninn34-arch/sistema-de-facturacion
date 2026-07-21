@@ -99,6 +99,7 @@ export interface Product {
   subscriptionDuration?: number; // Duración en días
   isSynced?: boolean;
   lastSync?: string;
+  branchStock?: Record<string, number>;
 }
 
 export interface Client {
