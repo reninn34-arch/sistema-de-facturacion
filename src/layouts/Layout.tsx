@@ -322,12 +322,14 @@ const Layout: React.FC<LayoutProps> = ({
   const isSuperAdmin = currentUser?.role === 'SUPERADMIN';
   const isAdmin = currentUser?.role === 'ADMIN';
 
-  // Matriz de características permitidas según el plan de suscripción de la empresa
+  // Matriz de características permitidas según el plan de suscripción de la empresa + Excepciones Personalizadas por Superadmin
   const currentPlanCode = (emp?.plan || 'FREE').toUpperCase();
-  const planHasEstablishments = ['ENTERPRISE', 'UNLIMITED', 'PRO'].includes(currentPlanCode);
-  const planHasRecurringInvoices = ['PRO', 'ENTERPRISE', 'UNLIMITED', 'GASTRONOMICO'].includes(currentPlanCode);
-  const planHasProduction = ['GASTRONOMICO', 'ENTERPRISE', 'UNLIMITED'].includes(currentPlanCode);
-  const planHasAts = ['PRO', 'ENTERPRISE', 'UNLIMITED'].includes(currentPlanCode);
+  const customModules: string[] = Array.isArray((emp as any)?.customModules) ? (emp as any).customModules : [];
+
+  const planHasEstablishments = ['ENTERPRISE', 'UNLIMITED', 'PRO'].includes(currentPlanCode) || customModules.includes('establishments');
+  const planHasRecurringInvoices = ['PRO', 'ENTERPRISE', 'UNLIMITED', 'GASTRONOMICO'].includes(currentPlanCode) || customModules.includes('recurring-invoices');
+  const planHasProduction = ['GASTRONOMICO', 'ENTERPRISE', 'UNLIMITED'].includes(currentPlanCode) || customModules.includes('production');
+  const planHasAts = ['PRO', 'ENTERPRISE', 'UNLIMITED'].includes(currentPlanCode) || customModules.includes('ats');
 
   // Filtrar ítems por role, tipo de negocio, suscripción, módulos, plan
   const filterItem = (item: MenuItem): boolean => {
