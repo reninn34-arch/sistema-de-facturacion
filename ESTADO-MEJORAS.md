@@ -45,9 +45,9 @@ Resumen breve de lo corregido y lo que falta revisar. Actualizado: 2026-07-20.
 - **Compras**: ✅ Módulo completo revisado (registro de comprobantes recibidos, filtrado de proveedores y cálculo de impuestos).
 
 ### Conocidos, decididos a propósito
-- **SMS y WhatsApp**: son WIP, no hay endpoints en el backend; sus botones de prueba solo simulan.
-- **Rate limiting**: `express-rate-limit` no funciona en serverless (cada invocación es aislada). Necesitaría Redis; se omitió por ahora. El login ya tiene bloqueo por intentos fallidos por cuenta.
-- **KYC**: los documentos del registro solo se guardan cuando el pago es por **TRANSFER**.
+- **SMS y WhatsApp**: Funcionalidades WIP (en desarrollo). No existen gateways ni endpoints backend para SMS/WhatsApp en este momento. Los botones de prueba en `NotificationSettings.tsx` ahora muestran mensajes informativos explícitos de simulación/desarrollo sin inducir a error.
+- **Rate limiting**: `express-rate-limit` no funciona en entornos serverless (cada invocación corre aislada en Vercel sin estado persistente). Requeriría Redis; se omitió por ahora. La protección de fuerza bruta en el login se mantiene mediante bloqueo por intentos fallidos a nivel de base de datos/usuario.
+- **KYC (Documentos de registro)**: La carga de cédula/RUC y comprobante de pago es obligatoria únicamente cuando el método de pago elegido es **TRANSFER** (transferencia bancaria para aprobación manual en `ActivationRequests`). Para compras inmediatas con PayPal o Tarjeta se omite para no friccionar el flujo de onboarding.
 
 ### Calidad
 - No hay **pruebas automatizadas** del flujo end-to-end (registro → verificación → login → emisión → envío del RIDE).

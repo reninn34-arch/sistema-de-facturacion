@@ -1,4 +1,4 @@
-﻿import React, { useState, useId } from 'react';
+import React, { useState, useId } from 'react';
 import {
   RocketLaunchIcon,
   EnvelopeIcon,
@@ -72,8 +72,8 @@ const NotificationSettingsComponent: React.FC<NotificationSettingsProps> = ({ se
     }
   };
 
-  const testSMS = () => onNotify('SMS de prueba enviado', 'success');
-  const testWhatsApp = () => onNotify('WhatsApp de prueba enviado', 'success');
+  const testSMS = () => onNotify('SMS de prueba simulado (Integración SMS en desarrollo)', 'info');
+  const testWhatsApp = () => onNotify('WhatsApp de prueba simulado (Integración WhatsApp en desarrollo)', 'info');
 
   return (
     <div className="max-w-6xl mx-auto space-y-6 pb-20">
