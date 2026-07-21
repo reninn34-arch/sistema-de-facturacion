@@ -1,5 +1,5 @@
 import React, { useState, useId } from 'react';
-import { ArrowPathIcon, PlusIcon, PlayIcon, PauseIcon, CheckCircleIcon, CalendarIcon, UserIcon, DocumentTextIcon, XMarkIcon } from '@heroicons/react/24/outline';
+import { ArrowPathIcon, PlusIcon, PlayIcon, PauseIcon, CheckCircleIcon, CalendarIcon, UserIcon, DocumentTextIcon, XMarkIcon, PencilSquareIcon, TrashIcon } from '@heroicons/react/24/outline';
 import { BusinessInfo, Client } from '../../../types/types';
 
 export interface RecurringContract {
@@ -48,7 +48,8 @@ export default function RecurringInvoices({ businessInfo, clients = [], onNotify
   ]);
 
   const [showModal, setShowModal] = useState(false);
-  const [newContract, setNewContract] = useState<{
+  const [editingContract, setEditingContract] = useState<RecurringContract | null>(null);
+  const [formData, setFormData] = useState<{
     clientName: string;
     clientRuc: string;
     frequency: 'SEMANAL' | 'MENSUAL' | 'TRIMESTRAL' | 'ANUAL';
@@ -62,6 +63,30 @@ export default function RecurringInvoices({ businessInfo, clients = [], onNotify
     amount: ''
   });
 
+  const handleOpenCreateModal = () => {
+    setEditingContract(null);
+    setFormData({ clientName: '', clientRuc: '', frequency: 'MENSUAL', description: '', amount: '' });
+    setShowModal(true);
+  };
+
+  const handleOpenEditModal = (contract: RecurringContract) => {
+    setEditingContract(contract);
+    setFormData({
+      clientName: contract.clientName,
+      clientRuc: contract.clientRuc,
+      frequency: contract.frequency,
+      description: contract.description,
+      amount: contract.amount
+    });
+    setShowModal(true);
+  };
+
+  const handleDeleteContract = (id: string) => {
+    if (!window.confirm('¿Está seguro de eliminar este contrato de facturación recurrente?')) return;
+    setContracts(prev => prev.filter(c => c.id !== id));
+    onNotify('Contrato recurrente eliminado exitosamente', 'info');
+  };
+
   const handleToggleStatus = (id: string) => {
     setContracts(prev => prev.map(c => {
       if (c.id === id) {
@@ -73,28 +98,41 @@ export default function RecurringInvoices({ businessInfo, clients = [], onNotify
     }));
   };
 
-  const handleCreateContract = (e: React.FormEvent) => {
+  const handleSaveContract = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!newContract.clientName || !newContract.description || !newContract.amount) {
+    if (!formData.clientName || !formData.description || !formData.amount) {
       onNotify('Completa todos los campos obligatorios', 'error');
       return;
     }
 
-    const created: RecurringContract = {
-      id: `rec-${Date.now()}`,
-      clientName: newContract.clientName,
-      clientRuc: newContract.clientRuc || '9999999999999',
-      frequency: newContract.frequency,
-      description: newContract.description,
-      amount: Number(newContract.amount) || 0,
-      status: 'ACTIVA',
-      nextExecutionDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
-    };
+    if (editingContract) {
+      // Actualizar contrato existente
+      setContracts(prev => prev.map(c => c.id === editingContract.id ? {
+        ...c,
+        clientName: formData.clientName,
+        clientRuc: formData.clientRuc || '9999999999999',
+        frequency: formData.frequency,
+        description: formData.description,
+        amount: Number(formData.amount) || 0
+      } : c));
+      onNotify('Contrato recurrente actualizado correctamente', 'success');
+    } else {
+      // Crear nuevo contrato
+      const created: RecurringContract = {
+        id: `rec-${Date.now()}`,
+        clientName: formData.clientName,
+        clientRuc: formData.clientRuc || '9999999999999',
+        frequency: formData.frequency,
+        description: formData.description,
+        amount: Number(formData.amount) || 0,
+        status: 'ACTIVA',
+        nextExecutionDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
+      };
+      setContracts([created, ...contracts]);
+      onNotify('Contrato de facturación recurrente registrado exitosamente', 'success');
+    }
 
-    setContracts([created, ...contracts]);
     setShowModal(false);
-    setNewContract({ clientName: '', clientRuc: '', frequency: 'MENSUAL', description: '', amount: '' });
-    onNotify('Contrato de facturación recurrente registrado exitosamente', 'success');
   };
 
   const handleRunBatchExecution = () => {
@@ -132,7 +170,7 @@ export default function RecurringInvoices({ businessInfo, clients = [], onNotify
           </button>
           <button
             type="button"
-            onClick={() => setShowModal(true)}
+            onClick={handleOpenCreateModal}
             className="px-6 py-4 bg-sky-600 hover:bg-sky-500 text-white rounded-2xl font-black text-xs uppercase shadow-lg shadow-sky-600/20 transition-all flex items-center gap-2"
           >
             <PlusIcon className="w-5 h-5" /> Nuevo Contrato Recurrente
@@ -181,15 +219,32 @@ export default function RecurringInvoices({ businessInfo, clients = [], onNotify
                       {contract.status}
                     </span>
                   </td>
-                  <td className="p-4 text-right">
+                  <td className="p-4 text-right flex items-center justify-end gap-1.5">
                     <button
                       type="button"
+                      aria-label="Pausar o activar contrato"
                       onClick={() => handleToggleStatus(contract.id)}
                       className={`p-2 rounded-xl text-xs font-bold transition-colors ${
-                        contract.status === 'ACTIVA' ? 'bg-amber-50 text-amber-600 hover:bg-amber-100' : 'bg-emerald-50 text-emerald-600 hover:bg-emerald-100'
+                        contract.status === 'ACTIVA' ? 'bg-amber-50 text-amber-600 hover:bg-amber-100 dark:bg-amber-500/10' : 'bg-emerald-50 text-emerald-600 hover:bg-emerald-100 dark:bg-emerald-500/10'
                       }`}
                     >
-                      {contract.status === 'ACTIVA' ? <PauseIcon className="w-4 h-4 inline" /> : <PlayIcon className="w-4 h-4 inline" />}
+                      {contract.status === 'ACTIVA' ? <PauseIcon className="w-4 h-4" /> : <PlayIcon className="w-4 h-4" />}
+                    </button>
+                    <button
+                      type="button"
+                      aria-label="Editar contrato"
+                      onClick={() => handleOpenEditModal(contract)}
+                      className="p-2 rounded-xl text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-700 transition-colors"
+                    >
+                      <PencilSquareIcon className="w-4 h-4" />
+                    </button>
+                    <button
+                      type="button"
+                      aria-label="Eliminar contrato"
+                      onClick={() => handleDeleteContract(contract.id)}
+                      className="p-2 rounded-xl text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 transition-colors"
+                    >
+                      <TrashIcon className="w-4 h-4" />
                     </button>
                   </td>
                 </tr>
@@ -199,26 +254,28 @@ export default function RecurringInvoices({ businessInfo, clients = [], onNotify
         </div>
       </div>
 
-      {/* Modal Nuevo Contrato Recurrente */}
+      {/* Modal Crear / Editar Contrato Recurrente */}
       {showModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-200">
           <div className="bg-white dark:bg-slate-800 rounded-[2.5rem] shadow-2xl w-full max-w-lg overflow-hidden border border-slate-100 dark:border-slate-700">
             <div className="p-6 border-b border-slate-100 dark:border-slate-700 flex justify-between items-center">
-              <h3 className="text-lg font-black text-slate-800 dark:text-white uppercase">Nuevo Contrato Recurrente</h3>
+              <h3 className="text-lg font-black text-slate-800 dark:text-white uppercase">
+                {editingContract ? 'Editar Contrato Recurrente' : 'Nuevo Contrato Recurrente'}
+              </h3>
               <button type="button" aria-label="Cerrar modal contrato" onClick={() => setShowModal(false)} className="p-2 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-full transition-colors">
                 <XMarkIcon className="w-5 h-5 text-slate-400" />
               </button>
             </div>
 
-            <form onSubmit={handleCreateContract} className="p-6 space-y-4">
+            <form onSubmit={handleSaveContract} className="p-6 space-y-4">
               <div className="space-y-1">
                 <label htmlFor={`${fieldId}-clientName`} className="text-xs font-bold text-slate-500 uppercase">Nombre / Razón Social del Cliente *</label>
                 <input
                   id={`${fieldId}-clientName`}
                   type="text"
                   placeholder="Ej. Empresa ABC S.A."
-                  value={newContract.clientName}
-                  onChange={e => setNewContract({ ...newContract, clientName: e.target.value })}
+                  value={formData.clientName}
+                  onChange={e => setFormData({ ...formData, clientName: e.target.value })}
                   className="w-full p-3.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-bold dark:text-white outline-none focus:border-sky-500"
                   required
                 />
@@ -231,8 +288,8 @@ export default function RecurringInvoices({ businessInfo, clients = [], onNotify
                     id={`${fieldId}-clientRuc`}
                     type="text"
                     placeholder="1790000000001"
-                    value={newContract.clientRuc}
-                    onChange={e => setNewContract({ ...newContract, clientRuc: e.target.value })}
+                    value={formData.clientRuc}
+                    onChange={e => setFormData({ ...formData, clientRuc: e.target.value })}
                     className="w-full p-3.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-bold dark:text-white outline-none focus:border-sky-500"
                   />
                 </div>
@@ -241,8 +298,8 @@ export default function RecurringInvoices({ businessInfo, clients = [], onNotify
                   <label htmlFor={`${fieldId}-frequency`} className="text-xs font-bold text-slate-500 uppercase">Frecuencia *</label>
                   <select
                     id={`${fieldId}-frequency`}
-                    value={newContract.frequency}
-                    onChange={e => setNewContract({ ...newContract, frequency: e.target.value as any })}
+                    value={formData.frequency}
+                    onChange={e => setFormData({ ...formData, frequency: e.target.value as any })}
                     className="w-full p-3.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-bold dark:text-white outline-none focus:border-sky-500"
                   >
                     <option value="SEMANAL">Semanal</option>
@@ -259,8 +316,8 @@ export default function RecurringInvoices({ businessInfo, clients = [], onNotify
                   id={`${fieldId}-description`}
                   type="text"
                   placeholder="Ej. Honorarios Profesionales de Contabilidad"
-                  value={newContract.description}
-                  onChange={e => setNewContract({ ...newContract, description: e.target.value })}
+                  value={formData.description}
+                  onChange={e => setFormData({ ...formData, description: e.target.value })}
                   className="w-full p-3.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-bold dark:text-white outline-none focus:border-sky-500"
                   required
                 />
@@ -273,8 +330,8 @@ export default function RecurringInvoices({ businessInfo, clients = [], onNotify
                   type="number"
                   step="0.01"
                   placeholder="0.00"
-                  value={newContract.amount}
-                  onChange={e => setNewContract({ ...newContract, amount: e.target.value ? parseFloat(e.target.value) : '' })}
+                  value={formData.amount}
+                  onChange={e => setFormData({ ...formData, amount: e.target.value ? parseFloat(e.target.value) : '' })}
                   className="w-full p-3.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-black dark:text-white outline-none focus:border-sky-500"
                   required
                 />
@@ -285,7 +342,7 @@ export default function RecurringInvoices({ businessInfo, clients = [], onNotify
                   Cancelar
                 </button>
                 <button type="submit" className="flex-1 py-4 bg-sky-600 hover:bg-sky-500 text-white font-black rounded-2xl text-xs uppercase transition-colors shadow-lg">
-                  Guardar Contrato
+                  {editingContract ? 'Guardar Cambios' : 'Crear Contrato'}
                 </button>
               </div>
             </form>

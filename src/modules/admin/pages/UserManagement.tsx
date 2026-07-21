@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect, useId } from 'react';
+import React, { useState, useEffect, useId } from 'react';
 import {
   UserIcon,
   ShieldCheckIcon,
@@ -30,6 +30,8 @@ interface User {
   email: string;
   role: string;
   name?: string;
+  establishmentCode?: string;
+  emissionPointCode?: string;
   isActive?: boolean;
   businessId?: string | null;
   business?: {
@@ -105,14 +107,18 @@ const UserManagement: React.FC<UserManagementProps> = ({ currentUser, onNotify }
     confirmPassword: '',
     name: '',
     role: isSuperAdmin ? 'ADMIN' : 'ADMIN',
-    businessId: ''
+    businessId: '',
+    establishmentCode: '001',
+    emissionPointCode: '001'
   });
 
   const [editFormData, setEditFormData] = useState({
     email: '',
     name: '',
     role: 'ADMIN',
-    businessId: ''
+    businessId: '',
+    establishmentCode: '001',
+    emissionPointCode: '001'
   });
 
   // Cargar datos según el rol
@@ -215,7 +221,9 @@ const UserManagement: React.FC<UserManagementProps> = ({ currentUser, onNotify }
           email: formData.email,
           password: formData.password,
           role: formData.role,
-          name: formData.name
+          name: formData.name,
+          establishmentCode: formData.establishmentCode,
+          emissionPointCode: formData.emissionPointCode
         };
       }
 
@@ -504,6 +512,9 @@ const UserManagement: React.FC<UserManagementProps> = ({ currentUser, onNotify }
                               {isCurrentUser && <span className="ml-2 text-[9px] bg-sky-100 dark:bg-sky-500/20 text-sky-500 dark:text-sky-400 px-2 py-0.5 rounded-full font-black">TÚ</span>}
                             </p>
                             {user.name && <p className="text-xs text-slate-400 dark:text-slate-500">{user.email}</p>}
+                            <p className="text-[10px] font-mono font-bold text-slate-400 mt-0.5">
+                              Sucursal/Punto: <span className="text-slate-600 dark:text-slate-300">{user.establishmentCode || '001'}-{user.emissionPointCode || '001'}</span>
+                            </p>
                           </div>
                         </div>
                       </td>
@@ -680,6 +691,35 @@ const UserManagement: React.FC<UserManagementProps> = ({ currentUser, onNotify }
                     );
                   })}
                 </select>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <label htmlFor={`${fieldId}-create-estab`} className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest">Sucursal / Establecimiento</label>
+                  <select
+                    id={`${fieldId}-create-estab`}
+                    value={formData.establishmentCode}
+                    onChange={(e) => setFormData({ ...formData, establishmentCode: e.target.value })}
+                    className="w-full p-3 bg-slate-50 dark:bg-slate-800/50 dark:text-white rounded-xl text-sm font-bold border border-slate-200 dark:border-slate-700/50 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  >
+                    <option value="001">001 - Matriz Principal</option>
+                    <option value="002">002 - Sucursal Norte</option>
+                    <option value="003">003 - Sucursal Sur</option>
+                  </select>
+                </div>
+                <div className="space-y-2">
+                  <label htmlFor={`${fieldId}-create-ptoEmi`} className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest">Punto Emisión / Caja</label>
+                  <select
+                    id={`${fieldId}-create-ptoEmi`}
+                    value={formData.emissionPointCode}
+                    onChange={(e) => setFormData({ ...formData, emissionPointCode: e.target.value })}
+                    className="w-full p-3 bg-slate-50 dark:bg-slate-800/50 dark:text-white rounded-xl text-sm font-bold border border-slate-200 dark:border-slate-700/50 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  >
+                    <option value="001">001 - Caja 1</option>
+                    <option value="002">002 - Caja POS Rápida</option>
+                    <option value="003">003 - Caja Auxiliar</option>
+                  </select>
+                </div>
               </div>
 
               {/* Selector de empresa (solo SUPERADMIN y solo para roles no-SUPERADMIN) */}

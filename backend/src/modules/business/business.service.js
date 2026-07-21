@@ -12,7 +12,7 @@ class BusinessService {
   }
 
   async createUser(data, currentUser) {
-    const { email, password, role, name } = data;
+    const { email, password, role, name, establishmentCode, emissionPointCode } = data;
     if (!email || !password) throw new AppError('Email y contraseña requeridos', 400);
     if (password.length < 6) throw new AppError('La contraseña debe tener al menos 6 caracteres', 400);
 
@@ -47,10 +47,20 @@ class BusinessService {
       role: finalRole,
       businessId: currentUser.businessId,
       name: name || undefined,
+      establishmentCode: establishmentCode || '001',
+      emissionPointCode: emissionPointCode || '001',
       isActive: true
     });
 
-    return { id: newUser.id, email: newUser.email, role: newUser.role, name: newUser.name, isActive: true };
+    return {
+      id: newUser.id,
+      email: newUser.email,
+      role: newUser.role,
+      name: newUser.name,
+      establishmentCode: newUser.establishmentCode,
+      emissionPointCode: newUser.emissionPointCode,
+      isActive: true
+    };
   }
 
   async deleteUser(userId, targetId, currentUserId, businessId) {

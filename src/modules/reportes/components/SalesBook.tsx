@@ -17,6 +17,7 @@ export default function SalesBook({ documents, business, onNotify }: SalesBookPr
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
   const [filterType, setFilterType] = useState<'ALL' | '01' | '04'>('ALL');
+  const [selectedEstablishment, setSelectedEstablishment] = useState<string>('ALL');
 
   const salesEntries = useMemo((): SalesBookEntry[] => {
     if (!Array.isArray(documents)) return [];
@@ -29,6 +30,7 @@ export default function SalesBook({ documents, business, onNotify }: SalesBookPr
       const docDate = new Date(doc.issueDate);
       if (startDate && docDate < new Date(startDate)) continue;
       if (endDate && docDate > new Date(endDate)) continue;
+      if (selectedEstablishment !== 'ALL' && doc.establishmentCode !== selectedEstablishment && !doc.number.startsWith(selectedEstablishment)) continue;
       
       let subtotal0 = 0;
       let subtotal12 = 0;
@@ -121,7 +123,7 @@ export default function SalesBook({ documents, business, onNotify }: SalesBookPr
           </button>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
           <div className="space-y-2">
             <label htmlFor={`${fieldId}-startDate`} className="text-xs font-bold text-slate-600 dark:text-slate-400 uppercase">Fecha Inicio</label>
             <input
@@ -143,6 +145,20 @@ export default function SalesBook({ documents, business, onNotify }: SalesBookPr
             />
           </div>
           <div className="space-y-2">
+            <label htmlFor={`${fieldId}-establishment`} className="text-xs font-bold text-slate-600 dark:text-slate-400 uppercase">Sucursal / Local</label>
+            <select
+              id={`${fieldId}-establishment`}
+              value={selectedEstablishment}
+              onChange={e => setSelectedEstablishment(e.target.value)}
+              className="w-full p-3 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-xl font-bold text-sm text-slate-800 dark:text-slate-200"
+            >
+              <option value="ALL">Todas las Sucursales</option>
+              <option value="001">001 - Matriz Principal</option>
+              <option value="002">002 - Sucursal Norte</option>
+              <option value="003">003 - Sucursal Sur</option>
+            </select>
+          </div>
+          <div className="space-y-2">
             <label htmlFor={`${fieldId}-filterType`} className="text-xs font-bold text-slate-600 dark:text-slate-400 uppercase">Tipo</label>
             <select
               id={`${fieldId}-filterType`}
@@ -150,7 +166,7 @@ export default function SalesBook({ documents, business, onNotify }: SalesBookPr
               onChange={e => setFilterType(e.target.value as any)}
               className="w-full p-3 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-xl font-bold text-sm text-slate-800 dark:text-slate-200"
             >
-              <option value="ALL">Todos</option>
+              <option value="ALL">Todos los Comprobantes</option>
               <option value="01">Facturas</option>
               <option value="04">Notas de Crédito</option>
             </select>

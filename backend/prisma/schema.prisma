@@ -87,6 +87,8 @@ model User {
   password   String
   role       String    @default("VENDEDOR") // SUPERADMIN, ADMIN, VENDEDOR, CONTADOR
   name       String?
+  establishmentCode String?   @default("001")
+  emissionPointCode String?   @default("001")
   isActive   Boolean   @default(true)
   
    // SAAS: El usuario pertenece a una empresa
