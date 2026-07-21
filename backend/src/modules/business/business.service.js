@@ -184,7 +184,7 @@ class BusinessService {
   }
 
   async deleteClient(id, businessId) {
-    const prisma = require('../../prisma/client');
+    const prisma = require('../../../prisma/client');
     const client = await prisma.client.findFirst({ where: { id, businessId } });
     if (!client) {
       throw new AppError('Cliente no encontrado', 404);
@@ -240,7 +240,7 @@ class BusinessService {
   }
 
   async deleteProduct(id, businessId) {
-    const prisma = require('../../prisma/client');
+    const prisma = require('../../../prisma/client');
     const product = await prisma.product.findFirst({ where: { id, businessId } });
     if (!product) {
       throw new AppError('Producto no encontrado', 404);
