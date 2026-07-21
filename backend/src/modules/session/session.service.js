@@ -129,7 +129,7 @@ class SessionService {
 
   async revokeOtherSessions(userId, currentSessionId) {
     const prisma = require('../../../prisma/client');
-    const result = await prisma.userSession.updateMany({
+    const result = await prisma.session.updateMany({
       where: {
         userId: userId,
         status: 'ACTIVE',
