@@ -39,4 +39,21 @@ function resolveMaskedSettings(provided, stored) {
   return out;
 }
 
-module.exports = { CREDENTIAL_MASK, MASKED_FIELDS, maskSettings, resolveMaskedSettings };
+/**
+ * Deja un objeto Business listo para enviarlo al cliente: quita el certificado y
+ * su clave, y enmascara las credenciales de notificaciones.
+ *
+ * `features` se conserva a propósito: el frontend todavía lee features.signatureP12
+ * para el flujo de firma actual (mientras no se complete el cutover al certificado
+ * cifrado en el servidor).
+ */
+function sanitizeBusinessForClient(business) {
+  if (!business) return business;
+  const { electronicSignature, sriPassword, ...safe } = business;
+  if (safe.notificationSettings) {
+    safe.notificationSettings = maskSettings(safe.notificationSettings);
+  }
+  return safe;
+}
+
+module.exports = { CREDENTIAL_MASK, MASKED_FIELDS, maskSettings, resolveMaskedSettings, sanitizeBusinessForClient };

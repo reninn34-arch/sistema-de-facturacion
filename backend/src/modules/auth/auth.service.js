@@ -4,6 +4,7 @@ const crypto = require('crypto');
 const { AppError } = require('../../middleware/error.handler');
 const { validatePayment, validateAmount } = require('../../services/paypal.service');
 const { getEffectiveModulePermissions } = require('../../utils/roleModules');
+const { sanitizeBusinessForClient } = require('../../utils/maskedCredentials');
 
 const JWT_SECRET = process.env.JWT_SECRET || (process.env.NODE_ENV === 'production' ? (() => { throw new Error('JWT_SECRET must be set in production'); })() : 'secret_key_change_me');
 const MAX_LOGIN_ATTEMPTS = 5;
@@ -65,6 +66,9 @@ class AuthService {
     const { password: _, ...userWithoutPass } = user;
     const userWithDemoFlag = {
       ...userWithoutPass,
+      // El usuario recibe su empresa SIN el certificado ni las credenciales SMTP:
+      // antes cualquier empleado (VENDEDOR/CONTADOR) las obtenía al iniciar sesión.
+      business: sanitizeBusinessForClient(userWithoutPass.business),
       isDemo: user.business?.isDemo || false,
       businessType: user.business?.businessType || 'GENERAL'
     };
@@ -105,7 +109,12 @@ class AuthService {
     const user = await this.repo.findUserById(userId);
     if (!user) throw new AppError('Usuario no encontrado', 404);
     const { password: _, ...userWithoutPass } = user;
-    return { ...userWithoutPass, isDemo: user.business?.isDemo || false, businessType: user.business?.businessType || 'GENERAL' };
+    return {
+      ...userWithoutPass,
+      business: sanitizeBusinessForClient(userWithoutPass.business),
+      isDemo: user.business?.isDemo || false,
+      businessType: user.business?.businessType || 'GENERAL'
+    };
   }
 
   async register(data) {

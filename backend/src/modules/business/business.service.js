@@ -1,6 +1,6 @@
 const bcrypt = require('bcryptjs');
 const { AppError } = require('../../middleware/error.handler');
-const { maskSettings, resolveMaskedSettings } = require('../../utils/maskedCredentials');
+const { resolveMaskedSettings, sanitizeBusinessForClient } = require('../../utils/maskedCredentials');
 
 class BusinessService {
   constructor(repo) {
@@ -112,7 +112,7 @@ class BusinessService {
   async getBusinessProfile(user) {
     if (user.role === 'SUPERADMIN' && !user.businessId) {
       const superAdminBusiness = await this.repo.findFirstBusinessByRuc('9999999999999');
-      if (superAdminBusiness) return superAdminBusiness;
+      if (superAdminBusiness) return sanitizeBusinessForClient(superAdminBusiness);
       return {
         id: 0, name: 'PANEL DE ADMINISTRACIÓN', ruc: '9999999999999',
         email: user.email, address: 'Nube - Servidor Central',
@@ -123,12 +123,8 @@ class BusinessService {
     const business = await this.repo.findBusinessById(user.businessId);
     if (!business) throw new AppError('Empresa no encontrada', 404);
 
-    // Clonar y enmascarar credenciales sensibles (máscara compartida en utils).
-    const sanitizedBusiness = { ...business };
-    if (sanitizedBusiness.notificationSettings) {
-      sanitizedBusiness.notificationSettings = maskSettings(sanitizedBusiness.notificationSettings);
-    }
-    return sanitizedBusiness;
+    // Quita certificado/clave de firma y enmascara credenciales SMTP.
+    return sanitizeBusinessForClient(business);
   }
 
   async updateBusinessProfile(businessId, data) {

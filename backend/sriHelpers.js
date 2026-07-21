@@ -108,7 +108,16 @@ async function retryWithBackoff(fn, maxRetries = 5, initialDelay = 1000) {
 
 // ============================================
 // SISTEMA DE BACKUP DE XMLs AUTORIZADOS
+//
+// Copia SECUNDARIA en disco. El registro fiscal principal es la base de datos:
+// el XML autorizado se guarda en Document.authorizedXml.
+//
+// En serverless (Vercel) el filesystem es de solo lectura y efímero, así que
+// esta copia no está disponible. Antes se intentaba escribir igualmente: fallaba,
+// el try/catch se lo tragaba y getBackupInfo reportaba "0 respaldos", dando una
+// falsa sensación de tener copias. Ahora se omite de forma explícita.
 // ============================================
+const isServerless = !!(process.env.VERCEL || process.env.NOW_BUILDER);
 const BACKUP_DIR = path.join(__dirname, 'backups');
 
 function ensureBackupDirectory() {
@@ -119,6 +128,10 @@ function ensureBackupDirectory() {
 }
 
 function saveAuthorizedXml(claveAcceso, xmlAutorizado, numeroAutorizacion) {
+  if (isServerless) {
+    logger.debug(`Backup en disco omitido (entorno serverless). El XML autorizado queda en la base de datos. Clave: ${claveAcceso}`);
+    return null;
+  }
   try {
     ensureBackupDirectory();
     
@@ -163,10 +176,24 @@ function saveAuthorizedXml(claveAcceso, xmlAutorizado, numeroAutorizacion) {
 }
 
 function getBackupInfo() {
+  // No reportar "0 respaldos" en serverless: ahí el backup en disco no aplica y
+  // ese cero se leería como "el sistema funciona pero no hay copias".
+  if (isServerless) {
+    return {
+      available: false,
+      reason: 'El respaldo en disco no está disponible en entorno serverless (filesystem de solo lectura y efímero). Los XML autorizados se conservan en la base de datos (Document.authorizedXml).',
+      totalFiles: 0,
+      totalSizeMB: '0.00',
+      backupPath: null,
+      years: {}
+    };
+  }
+
   try {
     ensureBackupDirectory();
-    
+
     const stats = {
+      available: true,
       totalFiles: 0,
       totalSize: 0,
       backupPath: BACKUP_DIR,
