@@ -8,6 +8,7 @@ Resumen breve de lo corregido y lo que falta revisar. Actualizado: 2026-07-21.
 
 | Área | Qué estaba mal / Cómo se solucionó |
 |---|---|
+| **Integridad Referencial (Clientes y Productos)** | Se implementó el control de prevención de borrado ("Verificar antes de borrar") en `business.service.js`. Si un cliente tiene comprobantes emitidos o un producto está incluido en facturas registradas, el backend bloquea la eliminación notificando al usuario en la UI en lugar de causar errores de clave foránea. |
 | **Exportación a Excel / CSV (Reportes)** | Se creó `excelService.ts` con codificación UTF-8 BOM (`\uFEFF`) para que Microsoft Excel abra archivos con tildes y eñes sin distorsión. Integrado en **Libro de Ventas**, **Kardex** y **Anexo Transaccional (ATS)** con subtotales por período. |
 | **Revocación Masiva de Sesiones** | Se implementó el endpoint atómico `POST /api/business/sessions/revoke-others` para invalidar todas las sesiones activas en otros dispositivos en un solo llamado. Se añadió fallback de token `adminToken || token` en `SessionsPage.tsx`. |
 | **Soporte PWA & POS Offline** | Se creó `public/manifest.json` y el Service Worker `public/sw.js` registrado en `index.html` para la instalación de Azul POS como PWA y la carga en caché offline de la interfaz de venta rápida. |
