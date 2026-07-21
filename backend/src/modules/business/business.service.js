@@ -184,6 +184,20 @@ class BusinessService {
   }
 
   async deleteClient(id, businessId) {
+    const prisma = require('../../prisma/client');
+    const client = await prisma.client.findFirst({ where: { id, businessId } });
+    if (!client) {
+      throw new AppError('Cliente no encontrado', 404);
+    }
+    const docCount = await prisma.document.count({
+      where: {
+        businessId,
+        entityRuc: client.identification
+      }
+    });
+    if (docCount > 0) {
+      throw new AppError(`No se puede eliminar el cliente "${client.name}" porque tiene ${docCount} comprobantes tributarios asociados.`, 400);
+    }
     return this.repo.deleteClient(id, businessId);
   }
 
@@ -226,6 +240,17 @@ class BusinessService {
   }
 
   async deleteProduct(id, businessId) {
+    const prisma = require('../../prisma/client');
+    const product = await prisma.product.findFirst({ where: { id, businessId } });
+    if (!product) {
+      throw new AppError('Producto no encontrado', 404);
+    }
+    const itemCount = await prisma.documentItem.count({
+      where: { productId: id }
+    });
+    if (itemCount > 0) {
+      throw new AppError(`No se puede eliminar el producto "${product.description}" porque se encuentra incluido en ${itemCount} facturas/comprobantes.`, 400);
+    }
     return this.repo.deleteProduct(id, businessId);
   }
 

@@ -1,4 +1,4 @@
-﻿import React, { useState, useMemo, useId } from 'react';
+import React, { useState, useMemo, useId } from 'react';
 import { Client } from '../../../types/types';
 import { validateEcuadorianId, getEntityAvatarColor } from '../../../utils/validation';
 import CsvImportModal from '../../../components/ui/CsvImportModal';
@@ -186,16 +186,18 @@ const ClientManager: React.FC<ClientManagerProps> = ({ clients, setClients, onNo
 
       // 2. MODO LIVE
       try {
+        const token = localStorage.getItem('token') || localStorage.getItem('adminToken');
         const response = await fetch(`${API_URL}/api/clients/${id}`, {
           method: 'DELETE',
-          headers: { 'Authorization': `Bearer ${localStorage.getItem('adminToken')}` }
+          headers: { 'Authorization': `Bearer ${token}` }
         });
-        if (!response.ok) throw new Error('Error al eliminar');
+        const data = await response.json();
+        if (!response.ok) throw new Error(data.message || data.error || 'Error al eliminar cliente');
 
         setClients(safeClients.filter(c => c.id !== id));
-        onNotify("Entidad eliminada de la base de datos");
-      } catch (error) {
-        onNotify("Error al eliminar del servidor", "error");
+        onNotify("Entidad eliminada de la base de datos", "success");
+      } catch (error: any) {
+        onNotify(error.message || "Error al eliminar del servidor", "error");
       }
     }
   }; // <--- AQUÍ TERMINA LA FUNCIÓN handleDelete

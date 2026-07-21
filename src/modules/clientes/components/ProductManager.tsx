@@ -194,14 +194,15 @@ const ProductManager: React.FC<ProductManagerProps> = ({ products, setProducts, 
       }
 
       try {
-        const token = localStorage.getItem('adminToken');
+        const token = localStorage.getItem('token') || localStorage.getItem('adminToken');
         const response = await fetch(`${API_URL}/api/products/${id}`, { method: 'DELETE', headers: { 'Authorization': `Bearer ${token}` } });
-        if (!response.ok) throw new Error('Error eliminando');
+        const data = await response.json();
+        if (!response.ok) throw new Error(data.message || data.error || 'Error eliminando producto');
         
         setProducts(products.filter(p => p.id !== id));
-        onNotify("Producto eliminado");
-      } catch (error) {
-        onNotify("Error al eliminar del servidor", "error");
+        onNotify("Producto eliminado", "success");
+      } catch (error: any) {
+        onNotify(error.message || "Error al eliminar del servidor", "error");
       }
     }
   };
