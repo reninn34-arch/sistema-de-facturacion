@@ -593,13 +593,16 @@ export const authorizeWithSRI = async (
 
     let xmlFirmado = xml;
 
-    // PASO 2: Firmar XML digitalmente (si se proporcionó certificado)
-    if (signatureOptions && signatureOptions.p12File && signatureOptions.password) {
+    // PASO 2: Firmar XML digitalmente (vía archivo local o certificado guardado en servidor por businessId)
+    const hasP12 = signatureOptions && signatureOptions.p12File && signatureOptions.password;
+    const hasBusinessId = signatureOptions && (signatureOptions as any).businessId;
+
+    if (hasP12 || hasBusinessId) {
       onStepChange('🔐 Firmando XML con certificado digital...');
 
       try {
-        // Convertir File a base64
-        const p12Base64 = await fileToBase64(signatureOptions.p12File);
+        // Convertir File a base64 solo si se adjuntó un archivo en el cliente
+        const p12Base64 = signatureOptions?.p12File ? await fileToBase64(signatureOptions.p12File) : undefined;
 
         const signResponse = await fetch(`${BACKEND_URL}/api/sri/sign-xml`, {
           method: 'POST',
@@ -610,7 +613,8 @@ export const authorizeWithSRI = async (
           body: JSON.stringify({
             xml: xml,
             p12Base64: p12Base64,
-            password: signatureOptions.password,
+            password: signatureOptions?.password,
+            businessId: (signatureOptions as any)?.businessId,
             // Necesario para que el backend bloquee certificados vencidos en producción.
             isProduction: isProduction,
           }),

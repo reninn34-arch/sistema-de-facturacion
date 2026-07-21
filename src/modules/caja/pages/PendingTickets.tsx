@@ -167,11 +167,12 @@ const PendingTickets: React.FC<PendingTicketsProps> = ({
 
     const xml = buildInvoiceXml(doc, businessInfo, items);
 
-    const signatureOptions = signatureFile && signaturePassword ? {
+    const signatureOptions = {
       p12File: signatureFile,
       password: signaturePassword,
-      claveAcceso: accessKey
-    } : null;
+      claveAcceso: accessKey,
+      businessId: businessInfo.id
+    };
 
     const log = (msg: string) => setProcessLog(prev => [...prev, { id: `${Date.now()}-${Math.random()}`, text: `[${ticket.number || String(ticket.sequential).slice(-6)}] ${msg}` }]);
     const isDemo = (businessInfo as any).isDemo || false;
@@ -266,11 +267,12 @@ const PendingTickets: React.FC<PendingTicketsProps> = ({
 
       const xml = buildInvoiceXml(doc, businessInfo, invoiceItems);
 
-      const signatureOptions = signatureFile && signaturePassword ? {
+      const signatureOptions = {
         p12File: signatureFile,
         password: signaturePassword,
-        claveAcceso: accessKey
-      } : null;
+        claveAcceso: accessKey,
+        businessId: businessInfo.id
+      };
 
       const log = (msg: string) => setProcessLog(prev => [...prev, { id: `${Date.now()}-${Math.random()}`, text: `[LOTE] ${msg}` }]);
       const isDemo = (businessInfo as any).isDemo || false;

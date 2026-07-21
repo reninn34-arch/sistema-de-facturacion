@@ -153,11 +153,16 @@ const CreditNoteForm: React.FC<Props> = ({
       const xml = buildCreditNoteXml(tempDoc, businessInfo, validItems, reason, customReason);
       setGeneratedXml(xml);
 
-      // Autorizar con SRI
+      // Autorizar con SRI (soporta certificado local o cifrado en servidor por businessId)
+      const effectiveSignatureOptions = {
+        ...(signatureOptions || {}),
+        businessId: businessInfo.id
+      };
+
       const result = await authorizeWithSRI(
         xml,
         businessInfo.isProduction,
-        signatureOptions,
+        effectiveSignatureOptions as any,
         (step) => {
           setAuthSteps(prev => [...prev, { id: crypto.randomUUID(), text: step }]);
         },

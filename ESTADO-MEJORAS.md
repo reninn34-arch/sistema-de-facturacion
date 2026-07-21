@@ -8,6 +8,7 @@ Resumen breve de lo corregido y lo que falta revisar. Actualizado: 2026-07-20.
 
 | Área | Qué estaba mal / Cómo se solucionó |
 |---|---|
+| **Firma .p12 Cifrada (Fase B Cutover)** | El frontend exigía seleccionar el archivo `.p12` local en cada emisión. Se completó el cutover pasando `businessId` a `/api/sri/sign-xml` en `sriService.ts`, `InvoiceForm`, `CreditNoteForm` y `PendingTickets`. El backend ahora descifra y firma en memoria usando la firma guardada del negocio (`electronicSignature` y `sriPassword`). |
 | **Portal de Clientes / RIDE & XML** | Los botones de "Descargar PDF" y "Descargar XML" en el portal de clientes no tenían eventos `onClick`. La consulta `findDocumentsByEntityRuc` omitía las relaciones `items` y `business`. Se integró `<RideViewer />`, descarga nativa de XML y carga de relaciones necesarias. |
 | **Persistencia SMTP y Seguridad** | `notificationSettings` se reseteaba en frontend al recargar. Se añadió sincronización en `AppContext`. Se enmascararon contraseñas de SMTP (`••••••••••••••••`) en API para evitar exponer la clave en UI y se ajustó el backend para evitar sobreescribir la clave real al guardar con la máscara. |
 | **Esquema de Documentos (Propinas / Reembolsos)** | El guardado de proformas/facturas fallaba con `500 (Internal Server Error)` al enviar `tip`, `isReimbursement` o `reimbursements` no soportados por Prisma. Se añadieron las 3 columnas al modelo `Document` en `schema.prisma`, se creó la migración SQL física y se aplicó mapeo explícito en `business.service.js`. |
@@ -35,7 +36,7 @@ Resumen breve de lo corregido y lo que falta revisar. Actualizado: 2026-07-20.
 
 ### Bloqueado por recursos externos
 - **Emisión de prueba real contra el SRI**: requiere un certificado `.p12` de una **CA acreditada** (el de prueba actual es auto-firmado y el SRI lo rechaza). Es lo único que valida el flujo completo de punta a punta.
-- **Firma `.p12` – Fase B**: el frontend todavía envía el certificado en cada firma. Falta el "cutover" para que firme por `businessId` usando el certificado cifrado en el servidor (la infraestructura ya está hecha).
+- **Firma `.p12` – Fase B**: ✅ Cutover completado. El frontend envía `businessId` al backend en `sign-xml`, permitiendo al servidor descifrar la firma `.p12` y contraseña desde la base de datos para firmar el XML sin requerir adjuntar el archivo local en cada emisión.
 
 ### Módulos del Sistema
 - **Reportes**: ✅ Módulo completo revisado (ATS, Form104, Libro de Ventas, Kardex, Rentabilidad).

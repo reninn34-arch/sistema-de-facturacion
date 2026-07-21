@@ -917,12 +917,13 @@ const InvoiceForm: React.FC<InvoiceFormProps> = ({ clients, setClients, isDemoMo
 
     const xml = buildInvoiceXml(doc, businessInfo, items);
 
-    // Preparar opciones de firma si está disponible
-    const signatureOptions = signatureFile && signaturePassword ? {
+    // Preparar opciones de firma (soporta archivo local o firma cifrada en servidor por businessId)
+    const signatureOptions = {
       p12File: signatureFile,
       password: signaturePassword,
-      claveAcceso: accessKey
-    } : null;
+      claveAcceso: accessKey,
+      businessId: businessInfo.id
+    };
 
     const result = await authorizeWithSRI(xml, businessInfo.isProduction, signatureOptions, log, (businessInfo as any).isDemo || false);
 
