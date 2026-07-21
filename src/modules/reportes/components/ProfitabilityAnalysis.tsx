@@ -90,17 +90,17 @@ export default function ProfitabilityAnalysis({ products, documents, onNotify }:
   const exportToCSV = () => {
     const totalMargin = totals.revenue > 0 ? (totals.profit / totals.revenue) * 100 : 0;
 
-    exportToExcelCSV(
+    exportToExcelCSV<ProductProfitability>(
       `rentabilidad_${startDate || 'inicio'}_${endDate || 'fin'}.csv`,
       `Análisis de Rentabilidad por Producto`,
       [
-        { header: 'Código Producto', accessor: item => item.productCode },
-        { header: 'Nombre Producto', accessor: item => item.productName },
-        { header: 'Unidades Vendidas', accessor: item => item.unitsSold },
-        { header: 'Ingresos Totales', accessor: item => item.totalRevenue.toFixed(2) },
-        { header: 'Costos Estimados', accessor: item => item.totalCost.toFixed(2) },
-        { header: 'Utilidad Bruta', accessor: item => item.grossProfit.toFixed(2) },
-        { header: 'Margen de Ganancia (%)', accessor: item => `${item.profitMargin.toFixed(2)}%` }
+        { header: 'Código Producto', accessor: (item: ProductProfitability) => item.productCode },
+        { header: 'Nombre Producto', accessor: (item: ProductProfitability) => item.productName },
+        { header: 'Unidades Vendidas', accessor: (item: ProductProfitability) => item.unitsSold },
+        { header: 'Ingresos Totales', accessor: (item: ProductProfitability) => item.totalRevenue.toFixed(2) },
+        { header: 'Costos Estimados', accessor: (item: ProductProfitability) => item.totalCost.toFixed(2) },
+        { header: 'Utilidad Bruta', accessor: (item: ProductProfitability) => item.grossProfit.toFixed(2) },
+        { header: 'Margen de Ganancia (%)', accessor: (item: ProductProfitability) => `${item.profitMargin.toFixed(2)}%` }
       ],
       profitabilityData,
       [
