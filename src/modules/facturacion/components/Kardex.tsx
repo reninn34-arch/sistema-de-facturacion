@@ -1,6 +1,7 @@
 import React, { useState, useMemo, useId } from 'react';
 import { CubeIcon, ArrowDownTrayIcon, InboxIcon } from '@heroicons/react/24/outline';
 import { Product, Document, InventoryMovement } from '../../../types/types';
+import { exportToExcelCSV } from '../../../utils/excelService';
 
 interface KardexProps {
   products: Product[];
@@ -25,59 +26,43 @@ export default function Kardex({ products, documents, onNotify }: KardexProps) {
     const productMovements: InventoryMovement[] = [];
     let balance = 0;
 
-    // Filtrar documentos autorizados con el producto
+    // Filtrar documentos autorizados
     const relevantDocs = documents
       .filter(doc => {
         if (doc.status !== 'AUTORIZADA') return false;
         const docDate = new Date(doc.issueDate);
         if (startDate && docDate < new Date(startDate)) return false;
         if (endDate && docDate > new Date(endDate)) return false;
-        return doc.items?.some(item => item.productId === selectedProductId);
+        return true;
       })
       .sort((a, b) => new Date(a.issueDate).getTime() - new Date(b.issueDate).getTime());
 
     relevantDocs.forEach(doc => {
-      const item = doc.items?.find(i => i.productId === selectedProductId);
-      if (!item) return;
+      const item = doc.items?.find(i => i.productId === selectedProductId || i.description === selectedProduct?.description);
+      if (item) {
+        const isSale = doc.type === '01'; // Factura
+        const quantityIn = isSale ? 0 : item.quantity;
+        const quantityOut = isSale ? item.quantity : 0;
+        
+        balance += quantityIn - quantityOut;
 
-      const isReceived = (doc as any).source === 'RECEIVED';
-      // Solo MIS facturas de venta (type 01 no recibidas) sacan stock. Una factura
-      // de COMPRA recibida (type 01 + source RECEIVED) ingresa stock, no lo saca.
-      const isOutbound = doc.type === '01' && !isReceived;
-      const quantity = item.quantity;
-      const unitCost = item.unitPrice;
-
-      if (isOutbound) {
-        balance -= quantity;
         productMovements.push({
+          id: `${doc.id}-${item.id || item.productId}`,
           date: doc.issueDate,
-          documentType: 'FACTURA',
+          documentType: isSale ? 'FACTURA' : 'COMPRA/OTRO',
           documentNumber: doc.number,
-          description: `Venta a ${doc.entityName}`,
-          quantityIn: 0,
-          quantityOut: quantity,
+          description: `${isSale ? 'Venta a' : 'Documento de'} ${doc.entityName}`,
+          quantityIn,
+          quantityOut,
           balance,
-          unitCost,
-          totalCost: unitCost * balance
-        });
-      } else {
-        balance += quantity;
-        productMovements.push({
-          date: doc.issueDate,
-          documentType: isReceived ? 'COMPRA' : (doc.type === '04' ? 'NOTA CRÉDITO' : 'INGRESO'),
-          documentNumber: doc.number,
-          description: isReceived ? 'Compra' : (doc.type === '04' ? `Devolución de ${doc.entityName}` : 'Ingreso'),
-          quantityIn: quantity,
-          quantityOut: 0,
-          balance,
-          unitCost,
-          totalCost: unitCost * balance
+          unitCost: item.unitPrice,
+          totalCost: item.unitPrice * item.quantity
         });
       }
     });
 
     return productMovements;
-  }, [selectedProductId, documents, startDate, endDate]);
+  }, [selectedProductId, documents, startDate, endDate, selectedProduct]);
 
   const exportToCSV = () => {
     if (!selectedProduct) {
@@ -85,20 +70,28 @@ export default function Kardex({ products, documents, onNotify }: KardexProps) {
       return;
     }
 
-    let csv = `KARDEX DE INVENTARIO\nProducto: ${selectedProduct.description}\nCódigo: ${selectedProduct.code}\n\n`;
-    csv += 'Fecha,Tipo,Número,Descripción,Entradas,Salidas,Saldo,Costo Unit.,Costo Total\n';
+    exportToExcelCSV(
+      `kardex_${selectedProduct.code || 'producto'}_${startDate || 'inicio'}_${endDate || 'fin'}.csv`,
+      `Kardex de Inventario - ${selectedProduct.description} (${selectedProduct.code || 'S/N'})`,
+      [
+        { header: 'Fecha', accessor: (item: any) => item.date },
+        { header: 'Tipo Documento', accessor: (item: any) => item.documentType },
+        { header: 'Número Documento', accessor: (item: any) => item.documentNumber },
+        { header: 'Descripción / Detalle', accessor: (item: any) => item.description },
+        { header: 'Entradas (Stock)', accessor: (item: any) => item.quantityIn },
+        { header: 'Salidas (Ventas)', accessor: (item: any) => item.quantityOut },
+        { header: 'Saldo Stock', accessor: (item: any) => item.balance },
+        { header: 'Precio / Costo Unit.', accessor: (item: any) => item.unitCost.toFixed(2) },
+        { header: 'Costo Total', accessor: (item: any) => item.totalCost.toFixed(2) }
+      ],
+      movements,
+      [
+        { label: 'Stock Actual en Sistema', value: selectedProduct.stock || 0 },
+        { label: 'Precio de Venta Registrado', value: `$${Number(selectedProduct.price || 0).toFixed(2)}` }
+      ]
+    );
 
-    movements.forEach(mov => {
-      csv += `${mov.date},${mov.documentType},${mov.documentNumber},"${mov.description}",${mov.quantityIn},${mov.quantityOut},${mov.balance},${mov.unitCost.toFixed(2)},${mov.totalCost.toFixed(2)}\n`;
-    });
-
-    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-    const link = document.createElement('a');
-    link.href = URL.createObjectURL(blob);
-    link.download = `kardex_${selectedProduct.code}_${startDate}_${endDate}.csv`;
-    link.click();
-
-    onNotify('Kardex exportado exitosamente');
+    onNotify('Kardex exportado exitosamente a Excel/CSV', 'success');
   };
 
   return (

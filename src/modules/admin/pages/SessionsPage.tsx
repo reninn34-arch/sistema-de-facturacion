@@ -60,7 +60,7 @@ const SessionsPage: React.FC<SessionsPageProps> = ({ currentUser, onNotify }) =>
   const loadSessions = async () => {
     setLoading(true);
     try {
-      const token = localStorage.getItem('adminToken');
+      const token = localStorage.getItem('adminToken') || localStorage.getItem('token');
       const response = await fetch(`${API_URL}/api/business/sessions`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
@@ -102,7 +102,7 @@ const SessionsPage: React.FC<SessionsPageProps> = ({ currentUser, onNotify }) =>
     setSessions(prev => prev.map(s => s.id === sessionId ? { ...s, status: 'REVOKED' } : s));
 
     try {
-      const token = localStorage.getItem('adminToken');
+      const token = localStorage.getItem('adminToken') || localStorage.getItem('token');
       const response = await fetch(`${API_URL}/api/business/sessions/${sessionId}/revoke`, {
         method: 'PUT',
         headers: { 'Authorization': `Bearer ${token}` }
@@ -137,24 +137,23 @@ const SessionsPage: React.FC<SessionsPageProps> = ({ currentUser, onNotify }) =>
   };
 
   const executeRevokeAll = async () => {
-    const otherSessions = sessions.filter(s => s.status === 'ACTIVE' && s.id !== currentSessionId);
-    const token = localStorage.getItem('adminToken');
-    const results = await Promise.all(
-      otherSessions.map(async (s) => {
-        try {
-          const response = await fetch(`${API_URL}/api/business/sessions/${s.id}/revoke`, {
-            method: 'PUT',
-            headers: { 'Authorization': `Bearer ${token}` }
-          });
-          return response.ok;
-        } catch (e) {
-          return false;
-        }
-      })
-    );
-    const revoked = results.filter(Boolean).length;
-    onNotify(`${revoked} sesiones cerradas`, 'success');
-    loadSessions();
+    try {
+      const token = localStorage.getItem('adminToken') || localStorage.getItem('token');
+      const response = await fetch(`${API_URL}/api/business/sessions/revoke-others`, {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      const data = await response.json();
+      if (response.ok && data.success) {
+        onNotify(data.message || 'Demás sesiones revocadas exitosamente', 'success');
+        localStorage.setItem('sessionRevoked', Date.now().toString());
+        loadSessions();
+      } else {
+        throw new Error(data.error || data.message || 'Error al revocar demás sesiones');
+      }
+    } catch (err: any) {
+      onNotify(err.message || 'Error al revocar demás sesiones', 'error');
+    }
   };
 
   const handleRevokeAll = () => {

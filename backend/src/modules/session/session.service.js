@@ -126,6 +126,26 @@ class SessionService {
 
     return { success: true, message };
   }
+
+  async revokeOtherSessions(userId, currentSessionId) {
+    const prisma = require('../../../prisma/client');
+    const result = await prisma.userSession.updateMany({
+      where: {
+        userId: userId,
+        status: 'ACTIVE',
+        id: currentSessionId ? { not: currentSessionId } : undefined
+      },
+      data: {
+        status: 'REVOKED'
+      }
+    });
+
+    return {
+      success: true,
+      count: result.count,
+      message: `Se revocaron ${result.count} sesiones en otros dispositivos`
+    };
+  }
 }
 
 module.exports = SessionService;

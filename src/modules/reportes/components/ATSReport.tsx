@@ -2,6 +2,7 @@ import React, { useState, useId } from 'react';
 import { ChartBarIcon, InformationCircleIcon, ArrowDownTrayIcon } from '@heroicons/react/24/outline';
 import { Document, BusinessInfo, ATSPurchase, ATSSale } from '../../../types/types';
 import { generateATSXML } from '../../../services/atsService';
+import { exportToExcelCSV } from '../../../utils/excelService';
 
 interface ATSReportProps {
   documents: Document[];
@@ -126,6 +127,58 @@ export default function ATSReport({ documents, business, onNotify }: ATSReportPr
     onNotify('ATS generado exitosamente');
   };
 
+  const exportATSExcel = () => {
+    if (!month || !year) {
+      onNotify('Selecciona mes y año', 'warning');
+      return;
+    }
+
+    const period = `${year}${month}`;
+    const periodDocs = (Array.isArray(documents) ? documents : []).filter(doc => {
+      if (doc.status !== 'AUTORIZADA') return false;
+      const docDate = new Date(doc.issueDate);
+      return docDate.getFullYear().toString() === year &&
+        (docDate.getMonth() + 1).toString().padStart(2, '0') === month;
+    });
+
+    const exportData = periodDocs.map(doc => {
+      const { subtotal0, subtotal12 } = sumDocBases(doc);
+      const iva = round2(subtotal12 * (business.taxRate / 100));
+      return {
+        date: doc.issueDate,
+        type: doc.type === '01' ? 'VENTA' : 'COMPRA',
+        number: doc.number,
+        accessKey: doc.accessKey || 'N/A',
+        clientRuc: doc.entityRuc || '9999999999999',
+        clientName: doc.entityName,
+        subtotal0,
+        subtotal12,
+        iva,
+        total: doc.total
+      };
+    });
+
+    exportToExcelCSV(
+      `ATS_${business.ruc}_${period}.csv`,
+      `Resumen Anexo Transaccional (ATS) - ${business.name} (${period})`,
+      [
+        { header: 'Fecha Emisión', accessor: item => item.date },
+        { header: 'Tipo Operación', accessor: item => item.type },
+        { header: 'Número Comprobante', accessor: item => item.number },
+        { header: 'Clave de Acceso', accessor: item => item.accessKey },
+        { header: 'RUC/ID Entidad', accessor: item => item.clientRuc },
+        { header: 'Razón Social / Nombre', accessor: item => item.clientName },
+        { header: 'Subtotal 0%', accessor: item => item.subtotal0.toFixed(2) },
+        { header: 'Subtotal Gravado', accessor: item => item.subtotal12.toFixed(2) },
+        { header: 'IVA', accessor: item => item.iva.toFixed(2) },
+        { header: 'Total', accessor: item => item.total.toFixed(2) }
+      ],
+      exportData
+    );
+
+    onNotify('Resumen ATS exportado a Excel/CSV exitosamente', 'success');
+  };
+
   return (
     <div className="max-w-4xl mx-auto space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
       <div className="bg-white dark:bg-slate-800 p-8 rounded-[2.5rem] border border-slate-100 dark:border-slate-700/50 shadow-sm">
@@ -133,7 +186,7 @@ export default function ATSReport({ documents, business, onNotify }: ATSReportPr
           <ChartBarIcon className="w-10 h-10 text-slate-600 dark:text-slate-300" />
           <div>
             <h2 className="text-2xl font-black text-slate-800 dark:text-white tracking-tight">Anexo Transaccional Simplificado</h2>
-            <p className="text-sm text-slate-500 dark:text-slate-400 font-bold">Genera el archivo XML para el SRI</p>
+            <p className="text-sm text-slate-500 dark:text-slate-400 font-bold">Genera el archivo XML para el SRI y reportes en Excel</p>
           </div>
         </div>
 
@@ -186,12 +239,20 @@ export default function ATSReport({ documents, business, onNotify }: ATSReportPr
             </ul>
           </div>
 
-          <button type="button"
-            onClick={generateATS}
-            className="w-full py-4 bg-sky-500 hover:bg-sky-600 text-white rounded-2xl font-black uppercase text-sm tracking-wide shadow-lg shadow-sky-500/20"
-          >
-            <ArrowDownTrayIcon className="w-4 h-4 inline" /> Generar ATS (XML)
-          </button>
+          <div className="flex gap-4">
+            <button type="button"
+              onClick={generateATS}
+              className="flex-1 py-4 bg-sky-500 hover:bg-sky-600 text-white rounded-2xl font-black uppercase text-sm tracking-wide shadow-lg shadow-sky-500/20 cursor-pointer"
+            >
+              <ArrowDownTrayIcon className="w-4 h-4 inline" /> Generar ATS (XML)
+            </button>
+            <button type="button"
+              onClick={exportATSExcel}
+              className="flex-1 py-4 bg-emerald-600 hover:bg-emerald-700 text-white rounded-2xl font-black uppercase text-sm tracking-wide shadow-lg shadow-emerald-600/20 cursor-pointer"
+            >
+              <ArrowDownTrayIcon className="w-4 h-4 inline" /> Exportar a Excel
+            </button>
+          </div>
         </div>
 
         <div className="mt-8 pt-6 border-t border-slate-200 dark:border-slate-700">

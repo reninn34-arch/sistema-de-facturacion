@@ -1,6 +1,7 @@
 import React, { useState, useMemo, useId } from 'react';
 import { Document, BusinessInfo, SalesBookEntry } from '../../../types/types';
 import { BookOpenIcon, ArrowDownTrayIcon, EnvelopeIcon } from '@heroicons/react/24/outline';
+import { exportToExcelCSV } from '../../../utils/excelService';
 
 interface SalesBookProps {
   documents: Document[];
@@ -73,21 +74,31 @@ export default function SalesBook({ documents, business, onNotify }: SalesBookPr
   }, [salesEntries]);
 
   const exportToCSV = () => {
-    let csv = 'Fecha,Tipo Documento,Número,Autorización,RUC Cliente,Cliente,Base 0%,Base 12%,IVA,Total\n';
+    exportToExcelCSV(
+      `libro_ventas_${startDate || 'todos'}_${endDate || 'todos'}.csv`,
+      `Libro de Ventas - ${business?.name || 'Empresa'}`,
+      [
+        { header: 'Fecha', accessor: item => item.date },
+        { header: 'Tipo Documento', accessor: item => item.documentType },
+        { header: 'Número', accessor: item => item.documentNumber },
+        { header: 'Clave / Autorización', accessor: item => item.authorizationNumber },
+        { header: 'Identificación Cliente', accessor: item => item.clientRuc },
+        { header: 'Nombre Cliente', accessor: item => item.clientName },
+        { header: 'Subtotal 0%', accessor: item => item.subtotal0.toFixed(2) },
+        { header: 'Subtotal 12%/15%', accessor: item => item.subtotal12.toFixed(2) },
+        { header: 'IVA', accessor: item => item.iva.toFixed(2) },
+        { header: 'Total', accessor: item => item.total.toFixed(2) }
+      ],
+      salesEntries,
+      [
+        { label: 'Total Base 0%', value: `$${totals.subtotal0.toFixed(2)}` },
+        { label: 'Total Base 12%/15%', value: `$${totals.subtotal12.toFixed(2)}` },
+        { label: 'Total IVA', value: `$${totals.iva.toFixed(2)}` },
+        { label: 'Gran Total Ventas', value: `$${totals.total.toFixed(2)}` }
+      ]
+    );
     
-    salesEntries.forEach(entry => {
-      csv += `${entry.date},${entry.documentType},${entry.documentNumber},${entry.authorizationNumber},${entry.clientRuc},"${entry.clientName}",${entry.subtotal0.toFixed(2)},${entry.subtotal12.toFixed(2)},${entry.iva.toFixed(2)},${entry.total.toFixed(2)}\n`;
-    });
-
-    csv += `\nTOTALES,,,,,,$${totals.subtotal0.toFixed(2)},$${totals.subtotal12.toFixed(2)},$${totals.iva.toFixed(2)},$${totals.total.toFixed(2)}`;
-
-    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-    const link = document.createElement('a');
-    link.href = URL.createObjectURL(blob);
-    link.download = `libro_ventas_${startDate}_${endDate}.csv`;
-    link.click();
-    
-    onNotify('Libro de ventas exportado exitosamente');
+    onNotify('Libro de ventas exportado exitosamente a Excel/CSV', 'success');
   };
 
   return (

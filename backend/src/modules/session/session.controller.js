@@ -18,5 +18,10 @@ module.exports = {
     const { id } = req.params;
     const result = await service.revokeSession(id, req.user.id, req.user.role, req.user.businessId);
     res.json(result);
+  }),
+
+  revokeOtherSessions: catchAsync(async (req, res) => {
+    const result = await service.revokeOtherSessions(req.user.id, req.user.sessionId);
+    res.json(result);
   })
 };
