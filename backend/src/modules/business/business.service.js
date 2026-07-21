@@ -251,6 +251,52 @@ class BusinessService {
     return this.repo.updateProduct(id, { ...cleanData, businessId });
   }
 
+  async transferProductStock(productId, fromBranch, toBranch, quantity, businessId) {
+    const prisma = require('../../../prisma/client');
+    const product = await prisma.product.findFirst({ where: { id: productId, businessId } });
+    if (!product) throw new AppError('Producto no encontrado', 404);
+
+    const qty = Number(quantity);
+    if (!qty || qty <= 0) throw new AppError('La cantidad a trasladar debe ser mayor a 0', 400);
+    if (fromBranch === toBranch) throw new AppError('Las sucursales de origen y destino no pueden ser iguales', 400);
+
+    const currentBranchStock = (product.branchStock && typeof product.branchStock === 'object')
+      ? { ...product.branchStock }
+      : { '001': product.stock };
+
+    const fromStock = Number(currentBranchStock[fromBranch] || 0);
+    if (fromStock < qty) {
+      throw new AppError(`Stock insuficiente en sucursal ${fromBranch}. Disponible: ${fromStock}`, 400);
+    }
+
+    currentBranchStock[fromBranch] = fromStock - qty;
+    currentBranchStock[toBranch] = Number(currentBranchStock[toBranch] || 0) + qty;
+
+    const totalStock = Object.values(currentBranchStock).reduce((acc, val) => acc + (Number(val) || 0), 0);
+
+    const updated = await prisma.product.update({
+      where: { id: productId },
+      data: {
+        branchStock: currentBranchStock,
+        stock: totalStock
+      }
+    });
+
+    try {
+      await prisma.inventoryMovement.create({
+        data: {
+          productId,
+          type: 'TRANSFERENCIA',
+          quantity: qty,
+          reason: `Traslado de sucursal ${fromBranch} a sucursal ${toBranch}`,
+          reference: `TR-${fromBranch}-${toBranch}`
+        }
+      }).catch(() => {});
+    } catch (e) {}
+
+    return updated;
+  }
+
   async deleteProduct(id, businessId) {
     const prisma = require('../../../prisma/client');
     const product = await prisma.product.findFirst({ where: { id, businessId } });

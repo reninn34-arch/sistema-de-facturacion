@@ -112,14 +112,43 @@ const Dashboard: React.FC<DashboardProps> = ({ documents, products, setActiveTab
   };
 
   const [selectedEstablishment, setSelectedEstablishment] = useState<string>('ALL');
+  const [selectedSeller, setSelectedSeller] = useState<string>('ALL');
 
   const safeDocuments = Array.isArray(documents) ? documents : [];
   const safeProducts = Array.isArray(products) ? products : [];
 
+  const sellersList = React.useMemo(() => {
+    const map = new Map<string, string>();
+    safeDocuments.forEach((d: any) => {
+      if (d.user?.email) {
+        map.set(d.user.email, d.user.name || d.user.email);
+      }
+    });
+    return Array.from(map.entries()).map(([email, name]) => ({ email, name }));
+  }, [safeDocuments]);
+
   const filteredDocuments = React.useMemo(() => {
-    if (selectedEstablishment === 'ALL') return safeDocuments;
-    return safeDocuments.filter((d: any) => d.establishmentCode === selectedEstablishment || d.number?.startsWith(selectedEstablishment));
-  }, [safeDocuments, selectedEstablishment]);
+    return safeDocuments.filter((d: any) => {
+      const matchEstab = selectedEstablishment === 'ALL' || d.establishmentCode === selectedEstablishment || d.number?.startsWith(selectedEstablishment);
+      const matchSeller = selectedSeller === 'ALL' || d.user?.email === selectedSeller || d.user?.name === selectedSeller;
+      return matchEstab && matchSeller;
+    });
+  }, [safeDocuments, selectedEstablishment, selectedSeller]);
+
+  const sellersRanking = React.useMemo(() => {
+    const map = new Map<string, { name: string; email: string; totalSales: number; invoiceCount: number }>();
+    safeDocuments.forEach((doc: any) => {
+      if (doc.type === DocumentType.INVOICE && (doc.status === SriStatus.AUTHORIZED || doc.status === 'AUTORIZADO')) {
+        const sellerKey = doc.user?.email || doc.user?.name || 'Vendedor Principal';
+        const name = doc.user?.name || doc.user?.email || 'Vendedor Principal';
+        const current = map.get(sellerKey) || { name, email: doc.user?.email || '', totalSales: 0, invoiceCount: 0 };
+        current.totalSales += (doc.total || 0);
+        current.invoiceCount += 1;
+        map.set(sellerKey, current);
+      }
+    });
+    return Array.from(map.values()).sort((a, b) => b.totalSales - a.totalSales);
+  }, [safeDocuments]);
 
   const totalSales = filteredDocuments
     .filter((d: any) => d.type === DocumentType.INVOICE && (d.status === SriStatus.AUTHORIZED || d.status === 'AUTORIZADO'))
@@ -535,6 +564,16 @@ const Dashboard: React.FC<DashboardProps> = ({ documents, products, setActiveTab
               <option value="002">002 - Sucursal Norte</option>
               <option value="003">003 - Sucursal Sur</option>
             </select>
+            <select
+              value={selectedSeller}
+              onChange={e => setSelectedSeller(e.target.value)}
+              className="p-2 bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-bold text-slate-800 dark:text-white outline-none"
+            >
+              <option value="ALL">👤 Todos los Vendedores</option>
+              {sellersList.map(s => (
+                <option key={s.email} value={s.email}>{s.name}</option>
+              ))}
+            </select>
             <button type="button" onClick={() => setActiveTab('reports')} className="text-xs font-bold text-sky-500 hover:text-sky-600 flex items-center gap-1">
               Ver Reportes <ArrowRightIcon className="w-3 h-3" />
             </button>
@@ -617,6 +656,36 @@ const Dashboard: React.FC<DashboardProps> = ({ documents, products, setActiveTab
           </div>
         </div>
       </Card>
+
+      {/* Ranking & Desempeño por Vendedor */}
+      {sellersRanking.length > 0 && (
+        <Card padding="none" className="bg-white dark:bg-slate-900 border-none shadow-sm p-6 space-y-4">
+          <div className="flex items-center justify-between">
+            <h3 className="font-bold text-slate-800 dark:text-white text-sm uppercase tracking-wide flex items-center gap-2">
+              <TrophyIcon className="w-5 h-5 text-amber-500" /> Desempeño y Ventas por Vendedor
+            </h3>
+            <span className="text-xs font-bold text-slate-400">{sellersRanking.length} vendedores activos</span>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+            {sellersRanking.map((seller, index) => (
+              <div key={seller.email || index} className="p-4 bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-slate-100 dark:border-slate-700/50 flex items-center gap-3">
+                <div className={`w-10 h-10 rounded-xl flex items-center justify-center font-black text-sm text-white ${index === 0 ? 'bg-amber-500 shadow-md shadow-amber-500/30' : index === 1 ? 'bg-slate-400' : 'bg-slate-600'}`}>
+                  #{index + 1}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="font-bold text-sm text-slate-800 dark:text-white truncate">{seller.name}</p>
+                  <p className="text-[10px] text-slate-400 font-medium truncate">{seller.invoiceCount} ventas realizadas</p>
+                </div>
+                <div className="text-right">
+                  <p className="font-black text-sm text-emerald-600 dark:text-emerald-400">${seller.totalSales.toFixed(2)}</p>
+                  <p className="text-[9px] font-bold text-slate-400 uppercase">Total</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </Card>
+      )}
 
       {(() => {
         const topClientsDashboard = (() => {

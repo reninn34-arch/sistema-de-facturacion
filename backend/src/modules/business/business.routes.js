@@ -93,6 +93,7 @@ router.post('/api/clients/:id/reset-password', verifyToken, businessController.r
 router.get('/api/products', verifyToken, businessController.getProducts);
 router.post('/api/products', verifyToken, businessController.createProduct);
 router.post('/api/products/bulk', verifyToken, businessController.bulkCreateProducts);
+router.post('/api/products/transfer-stock', verifyToken, businessController.transferProductStock);
 router.put('/api/products/:id', verifyToken, businessController.updateProduct);
 router.delete('/api/products/:id', verifyToken, businessController.deleteProduct);
 

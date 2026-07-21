@@ -35,9 +35,9 @@ const sumDocBases = (doc: Document) => {
 };
 
 export default function ATSReport({ documents, business, onNotify }: ATSReportProps) {
-  const fieldId = useId();
   const [month, setMonth] = useState('');
   const [year, setYear] = useState(() => new Date().getFullYear().toString());
+  const [selectedEstablishment, setSelectedEstablishment] = useState('ALL');
 
   const generateATS = () => {
     if (!month || !year) {
@@ -47,12 +47,18 @@ export default function ATSReport({ documents, business, onNotify }: ATSReportPr
 
     const period = `${month}${year}`;
     
-    // Filtrar documentos del período
+    // Filtrar documentos del período y sucursal
     const filteredDocs = (Array.isArray(documents) ? documents : []).filter(doc => {
       const docDate = new Date(doc.issueDate);
       const docMonth = (docDate.getMonth() + 1).toString().padStart(2, '0');
       const docYear = docDate.getFullYear().toString();
-      return docMonth === month && docYear === year && doc.status === 'AUTORIZADA';
+      const matchPeriod = docMonth === month && docYear === year && doc.status === 'AUTORIZADA';
+      if (!matchPeriod) return false;
+      if (selectedEstablishment !== 'ALL') {
+        const estab = doc.establishmentCode || '001';
+        if (estab !== selectedEstablishment) return false;
+      }
+      return true;
     });
 
     // Generar ventas del ATS
@@ -191,11 +197,25 @@ export default function ATSReport({ documents, business, onNotify }: ATSReportPr
         </div>
 
         <div className="space-y-6">
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div className="space-y-2">
-              <label htmlFor={`${fieldId}-month`} className="text-xs font-bold text-slate-600 dark:text-slate-400 uppercase">Mes</label>
+              <label htmlFor="ats-estab" className="text-xs font-bold text-slate-600 dark:text-slate-400 uppercase">Establecimiento / Sucursal</label>
               <select
-                id={`${fieldId}-month`}
+                id="ats-estab"
+                value={selectedEstablishment}
+                onChange={e => setSelectedEstablishment(e.target.value)}
+                className="w-full p-4 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-xl font-bold text-sm text-slate-800 dark:text-slate-200"
+              >
+                <option value="ALL">Consolidado Total (Todas)</option>
+                <option value="001">001 - Matriz Principal</option>
+                <option value="002">002 - Sucursal Norte</option>
+                <option value="003">003 - Sucursal Sur</option>
+              </select>
+            </div>
+            <div className="space-y-2">
+              <label htmlFor="ats-month" className="text-xs font-bold text-slate-600 dark:text-slate-400 uppercase">Mes</label>
+              <select
+                id="ats-month"
                 value={month}
                 onChange={e => setMonth(e.target.value)}
                 className="w-full p-4 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-xl font-bold text-sm text-slate-800 dark:text-slate-200"
@@ -216,9 +236,9 @@ export default function ATSReport({ documents, business, onNotify }: ATSReportPr
               </select>
             </div>
             <div className="space-y-2">
-              <label htmlFor={`${fieldId}-year`} className="text-xs font-bold text-slate-600 dark:text-slate-400 uppercase">Año</label>
+              <label htmlFor="ats-year" className="text-xs font-bold text-slate-600 dark:text-slate-400 uppercase">Año</label>
               <input
-                id={`${fieldId}-year`}
+                id="ats-year"
                 type="number"
                 value={year}
                 onChange={e => setYear(e.target.value)}

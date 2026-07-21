@@ -12,6 +12,7 @@ export default function Form104({ documents, business, onNotify }: Form104Props)
   const fieldId = useId();
   const [month, setMonth] = useState('');
   const [year, setYear] = useState(() => new Date().getFullYear().toString());
+  const [selectedEstablishment, setSelectedEstablishment] = useState('ALL');
 
   const form104Data = useMemo((): Form104Data => {
     if (!month || !year) {
@@ -30,7 +31,13 @@ export default function Form104({ documents, business, onNotify }: Form104Props)
       const docDate = new Date(doc.issueDate);
       const docMonth = (docDate.getMonth() + 1).toString().padStart(2, '0');
       const docYear = docDate.getFullYear().toString();
-      return docMonth === month && docYear === year && doc.status === 'AUTORIZADA' && doc.type === '01';
+      const matchPeriod = docMonth === month && docYear === year && doc.status === 'AUTORIZADA' && doc.type === '01';
+      if (!matchPeriod) return false;
+      if (selectedEstablishment !== 'ALL') {
+        const estab = doc.establishmentCode || '001';
+        if (estab !== selectedEstablishment) return false;
+      }
+      return true;
     });
 
     const salesDocs = filteredDocs.filter(d => (d as any).source !== 'RECEIVED');
@@ -112,7 +119,21 @@ IVA a Pagar / Crédito Tributario: $${form104Data.ivaToPayOrCredit.toFixed(2)}
           </div>
         </div>
 
-        <div className="grid grid-cols-2 gap-4 mb-6">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
+          <div className="space-y-2">
+            <label htmlFor={`${fieldId}-estab`} className="text-xs font-bold text-slate-600 dark:text-slate-400 uppercase">Establecimiento / Sucursal</label>
+            <select
+              id={`${fieldId}-estab`}
+              value={selectedEstablishment}
+              onChange={e => setSelectedEstablishment(e.target.value)}
+              className="w-full p-4 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-xl font-bold text-sm text-slate-800 dark:text-slate-200"
+            >
+              <option value="ALL">Consolidado Total (Todas)</option>
+              <option value="001">001 - Matriz Principal</option>
+              <option value="002">002 - Sucursal Norte</option>
+              <option value="003">003 - Sucursal Sur</option>
+            </select>
+          </div>
           <div className="space-y-2">
             <label htmlFor={`${fieldId}-month`} className="text-xs font-bold text-slate-600 dark:text-slate-400 uppercase">Mes</label>
             <select

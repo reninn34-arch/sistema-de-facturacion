@@ -18,6 +18,8 @@ export default function Kardex({ products, documents, onNotify }: KardexProps) {
   const safeProducts = Array.isArray(products) ? products : [];
   const safeDocuments = Array.isArray(documents) ? documents : [];
 
+  const [selectedEstablishment, setSelectedEstablishment] = useState('ALL');
+
   const selectedProduct = safeProducts.find(p => p.id === selectedProductId);
 
   const movements = useMemo((): InventoryMovement[] => {
@@ -33,6 +35,10 @@ export default function Kardex({ products, documents, onNotify }: KardexProps) {
         const docDate = new Date(doc.issueDate);
         if (startDate && docDate < new Date(startDate)) return false;
         if (endDate && docDate > new Date(endDate)) return false;
+        if (selectedEstablishment !== 'ALL') {
+          const estab = doc.establishmentCode || '001';
+          if (estab !== selectedEstablishment) return false;
+        }
         return true;
       })
       .sort((a, b) => new Date(a.issueDate).getTime() - new Date(b.issueDate).getTime());
@@ -114,7 +120,7 @@ export default function Kardex({ products, documents, onNotify }: KardexProps) {
           </button>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 mb-6">
           <div className="space-y-2">
             <label htmlFor={`${fieldId}-producto`} className="text-xs font-bold text-slate-600 dark:text-slate-400 uppercase">Producto</label>
             <select
@@ -138,6 +144,20 @@ export default function Kardex({ products, documents, onNotify }: KardexProps) {
                   </option>
                 ));
               })()}
+            </select>
+          </div>
+          <div className="space-y-2">
+            <label htmlFor={`${fieldId}-estab`} className="text-xs font-bold text-slate-600 dark:text-slate-400 uppercase">Sucursal</label>
+            <select
+              id={`${fieldId}-estab`}
+              value={selectedEstablishment}
+              onChange={e => setSelectedEstablishment(e.target.value)}
+              className="w-full p-3 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-xl font-bold text-sm text-slate-800 dark:text-white"
+            >
+              <option value="ALL">Todas las sucursales</option>
+              <option value="001">001 - Matriz Principal</option>
+              <option value="002">002 - Sucursal Norte</option>
+              <option value="003">003 - Sucursal Sur</option>
             </select>
           </div>
           <div className="space-y-2">

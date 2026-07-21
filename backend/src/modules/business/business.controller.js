@@ -108,6 +108,12 @@ const businessController = {
     res.json({ success: true });
   }),
 
+  transferProductStock: catchAsync(async (req, res) => {
+    const { productId, fromBranch, toBranch, quantity } = req.body;
+    const updated = await service.transferProductStock(productId, fromBranch, toBranch, quantity, req.user.businessId);
+    res.json({ success: true, product: updated });
+  }),
+
   getDocuments: catchAsync(async (req, res) => {
     let filtro = {};
     const { type } = req.query;

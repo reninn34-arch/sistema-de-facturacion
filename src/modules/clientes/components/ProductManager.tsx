@@ -2,8 +2,9 @@
 import React, { useState, useRef, useEffect, useId } from 'react';
 import { Product } from '../../../types/types';
 import { TAX_RATES, PRODUCT_CATEGORIES } from '../../../constants';
-import { CameraIcon, ArrowDownTrayIcon } from '@heroicons/react/24/outline';
+import { CameraIcon, ArrowDownTrayIcon, BuildingOfficeIcon } from '@heroicons/react/24/outline';
 import CsvImportModal from '../../../components/ui/CsvImportModal';
+import StockTransferModal from './StockTransferModal';
 
 type InventoryTab = 'all' | 'raw' | 'finished' | 'service';
 
@@ -65,6 +66,7 @@ const ProductManager: React.FC<ProductManagerProps> = ({ products, setProducts, 
   const [formData, setFormData] = useState<Partial<Product>>({ taxRate: 15, type: 'FISICO', category: 'Otros', unitOfMeasure: 'UNIDAD', isRawMaterial: false });
   const [loading, setLoading] = useState(false);
   const [showImportModal, setShowImportModal] = useState(false);
+  const [showTransferModal, setShowTransferModal] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleOpenModal = (product?: Product) => {
@@ -271,7 +273,11 @@ const ProductManager: React.FC<ProductManagerProps> = ({ products, setProducts, 
           <p className={`text-xs ${isDarkMode ? 'text-slate-500' : 'text-slate-400'} font-bold uppercase tracking-widest mt-1`}>Gestión de stock y tarifas multitarifa</p>
         </div>
         <div className="flex gap-3">
-          <button type="button" onClick={() => setShowImportModal(true)} className="bg-slate-100 text-slate-600 px-6 py-4 rounded-2xl font-black text-xs uppercase tracking-widest hover:scale-105 transition-all flex items-center gap-2">
+          <button type="button" onClick={() => setShowTransferModal(true)} className="bg-sky-50 dark:bg-sky-500/10 text-sky-600 dark:text-sky-400 px-6 py-4 rounded-2xl font-black text-xs uppercase tracking-widest hover:scale-105 transition-all flex items-center gap-2 border border-sky-200 dark:border-sky-500/20">
+            <BuildingOfficeIcon className="w-4 h-4" />
+            Trasladar Stock
+          </button>
+          <button type="button" onClick={() => setShowImportModal(true)} className="bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 px-6 py-4 rounded-2xl font-black text-xs uppercase tracking-widest hover:scale-105 transition-all flex items-center gap-2">
             <ArrowDownTrayIcon className="w-4 h-4" />
             Importar
           </button>
@@ -558,6 +564,18 @@ const ProductManager: React.FC<ProductManagerProps> = ({ products, setProducts, 
         entityType="productos"
         sampleData={productSampleData}
       />
+
+      {showTransferModal && (
+        <StockTransferModal
+          products={products}
+          onClose={() => setShowTransferModal(false)}
+          onSuccess={(updatedProduct) => {
+            setProducts(products.map(p => p.id === updatedProduct.id ? updatedProduct : p));
+          }}
+          onNotify={onNotify}
+          isDarkMode={isDarkMode}
+        />
+      )}
     </div>
   );
 };
