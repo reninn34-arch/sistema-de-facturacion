@@ -56,8 +56,21 @@ async function remove(businessId, id) {
     throw error;
   }
 
-  await prisma.emissionPoint.delete({ where: { id } });
-  return { success: true };
+async function deleteEstablishment(businessId, establishmentCode) {
+  if (establishmentCode === '001') {
+    const error = new Error('No se puede eliminar la Matriz Principal (001)');
+    error.statusCode = 400;
+    throw error;
+  }
+
+  const result = await prisma.emissionPoint.deleteMany({
+    where: {
+      businessId,
+      establishmentCode
+    }
+  });
+
+  return { success: true, count: result.count };
 }
 
-module.exports = { list, create, remove };
+module.exports = { list, create, remove, deleteEstablishment };

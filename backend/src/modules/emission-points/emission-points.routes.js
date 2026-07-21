@@ -13,6 +13,7 @@ router.use(verifyToken, requireCompanyContext);
 const onlyAdmin = checkRole(['ADMIN', 'SUPERADMIN']);
 router.get('/api/emission-points', controller.list);
 router.post('/api/emission-points', onlyAdmin, controller.create);
+router.delete('/api/emission-points/establishment/:code', onlyAdmin, controller.removeEstablishment);
 router.delete('/api/emission-points/:id', onlyAdmin, controller.remove);
 
 module.exports = router;

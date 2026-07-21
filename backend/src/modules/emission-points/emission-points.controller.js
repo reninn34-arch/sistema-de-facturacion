@@ -49,4 +49,18 @@ async function remove(req, res) {
   }
 }
 
-module.exports = { list, create, remove };
+async function removeEstablishment(req, res) {
+  try {
+    const businessId = req.user.businessId;
+    const result = await service.deleteEstablishment(businessId, req.params.code);
+    res.json(result);
+  } catch (error) {
+    if (error.statusCode) {
+      return res.status(error.statusCode).json({ message: error.message });
+    }
+    console.error('[EmissionPoints] Error:', error.message);
+    res.status(500).json({ message: 'Error al eliminar sucursal' });
+  }
+}
+
+module.exports = { list, create, remove, removeEstablishment };

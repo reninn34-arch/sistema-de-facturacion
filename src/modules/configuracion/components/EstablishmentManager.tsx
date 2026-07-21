@@ -135,20 +135,19 @@ export default function EstablishmentManager({ businessInfo, onNotify }: Establi
 
   const handleDeleteEstablishment = async (estId: string) => {
     const target = establishments.find(e => e.id === estId);
-    if (target?.isMain || target?.code === '001') {
-      onNotify('No se puede eliminar la Matriz Principal', 'warning');
+    if (!target) return;
+    if (target.isMain || target.code === '001') {
+      onNotify('No se puede eliminar la Matriz Principal (001)', 'warning');
       return;
     }
 
     try {
-      // Eliminar todos los puntos de la sucursal
-      for (const pts of target?.emissionPoints || []) {
-        await client.delete(`/api/emission-points/${pts.id}`).catch(() => {});
-      }
-      onNotify(`Sucursal ${target?.code} eliminada correctamente`, 'info');
+      await client.delete(`/api/emission-points/establishment/${target.code}`);
+      onNotify(`Sucursal ${target.code} eliminada correctamente`, 'info');
       fetchEmissionPoints();
-    } catch (e: any) {
-      onNotify('Error eliminando sucursal', 'error');
+    } catch (err: any) {
+      const msg = err?.response?.data?.message || err.message || 'Error eliminando sucursal';
+      onNotify(msg, 'error');
     }
   };
 
