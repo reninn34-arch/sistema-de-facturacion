@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect, useId } from 'react';
+import React, { useState, useEffect, useId } from 'react';
 import { ArrowPathIcon, MagnifyingGlassIcon, InboxIcon, DocumentTextIcon, ArrowUpTrayIcon, CheckIcon, XMarkIcon, BuildingOffice2Icon, CheckCircleIcon, NoSymbolIcon, InformationCircleIcon } from '@heroicons/react/24/outline';
 
 const API_URL = import.meta.env.VITE_BACKEND_URL || '';
@@ -22,6 +22,7 @@ interface ActivationRequest {
   paymentProofUrl?: string;
   paymentProofName?: string;
   referenceNumber?: string;
+  documents?: { cedula?: string; rucDoc?: string } | string;
   adminNotes?: string;
   processedBy?: string;
   processedAt?: string;
@@ -457,6 +458,62 @@ const ActivationRequests: React.FC<ActivationRequestsProps> = ({ onNotify }) => 
               </div>
             )}
 
+            {(() => {
+              let docsObj: { cedula?: string; rucDoc?: string } = {};
+              try {
+                if (typeof selectedRequest.documents === 'string') {
+                  docsObj = JSON.parse(selectedRequest.documents || '{}');
+                } else if (selectedRequest.documents) {
+                  docsObj = selectedRequest.documents as any;
+                }
+              } catch { docsObj = {}; }
+
+              if (!docsObj.cedula && !docsObj.rucDoc) return null;
+
+              return (
+                <div className="space-y-3 p-4 bg-slate-50 dark:bg-slate-800/60 rounded-xl border border-slate-200 dark:border-slate-700">
+                  <h4 className="text-sm font-bold text-slate-700 dark:text-slate-300 flex items-center gap-2">
+                    <DocumentTextIcon className="w-[18px] h-[18px] text-sky-500" />
+                    Documentos de Identidad (KYC)
+                  </h4>
+                  <div className="grid grid-cols-2 gap-3">
+                    {docsObj.cedula && (
+                      <div className="flex flex-col gap-1">
+                        <span className="text-xs font-bold text-slate-500">Cédula / Pasaporte</span>
+                        <div
+                          className="relative aspect-video rounded-lg overflow-hidden bg-slate-100 dark:bg-slate-800 border border-slate-300 dark:border-slate-600 cursor-zoom-in flex items-center justify-center p-1 hover:border-sky-500 transition-colors"
+                          onClick={() => setPaymentProofImage(docsObj.cedula || null)}
+                          title="Clic para ampliar Cédula"
+                        >
+                          {docsObj.cedula.startsWith('data:image') || docsObj.cedula.startsWith('http') ? (
+                            <img src={docsObj.cedula} alt="Cédula" className="w-full h-full object-cover" />
+                          ) : (
+                            <span className="text-[11px] text-sky-600 dark:text-sky-400 font-bold underline text-center">Ver Cédula (PDF)</span>
+                          )}
+                        </div>
+                      </div>
+                    )}
+                    {docsObj.rucDoc && (
+                      <div className="flex flex-col gap-1">
+                        <span className="text-xs font-bold text-slate-500">RUC / Certificado</span>
+                        <div
+                          className="relative aspect-video rounded-lg overflow-hidden bg-slate-100 dark:bg-slate-800 border border-slate-300 dark:border-slate-600 cursor-zoom-in flex items-center justify-center p-1 hover:border-sky-500 transition-colors"
+                          onClick={() => setPaymentProofImage(docsObj.rucDoc || null)}
+                          title="Clic para ampliar RUC"
+                        >
+                          {docsObj.rucDoc.startsWith('data:image') || docsObj.rucDoc.startsWith('http') ? (
+                            <img src={docsObj.rucDoc} alt="RUC" className="w-full h-full object-cover" />
+                          ) : (
+                            <span className="text-[11px] text-sky-600 dark:text-sky-400 font-bold underline text-center">Ver RUC (PDF)</span>
+                          )}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              );
+            })()}
+
             <div className="p-4 bg-slate-50 dark:bg-slate-800 rounded-xl">
               <div className="flex items-center justify-between mb-2">
                 <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">Plan Solicitado</span>
@@ -642,13 +699,17 @@ const ActivationRequests: React.FC<ActivationRequestsProps> = ({ onNotify }) => 
               </button>
             </div>
             
-            {/* Body - Imagen */}
+            {/* Body - Imagen o PDF */}
             <div className="p-4 overflow-auto max-h-[calc(90vh-120px)] flex items-center justify-center bg-slate-100 dark:bg-slate-800">
-              <img 
-                src={paymentProofImage} 
-                alt="Comprobante de pago" 
-                className="max-w-full max-h-[70vh] object-contain rounded-lg shadow-lg"
-              />
+              {paymentProofImage && (paymentProofImage.startsWith('data:application/pdf') || paymentProofImage.endsWith('.pdf')) ? (
+                <iframe src={paymentProofImage} title="Documento PDF Adjunto" className="w-full h-[70vh] rounded-lg border-0" />
+              ) : (
+                <img 
+                  src={paymentProofImage || ''} 
+                  alt="Documento adjunto" 
+                  className="max-w-full max-h-[70vh] object-contain rounded-lg shadow-lg"
+                />
+              )}
             </div>
             
             {/* Footer */}
