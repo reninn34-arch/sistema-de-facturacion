@@ -37,7 +37,12 @@ const adminController = {
   }),
 
   deleteBusiness: catchAsync(async (req, res) => {
-    const result = await service.deleteBusiness(req.params.id);
+    const result = await service.deleteBusiness(req.params.id, {
+      confirmName: req.body?.confirmName,
+      password: req.body?.password,
+      // La identidad sale del token verificado, nunca del body.
+      actingUserId: req.user.id
+    });
     res.json(result);
   }),
 

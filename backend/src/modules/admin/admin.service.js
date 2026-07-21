@@ -265,11 +265,27 @@ class AdminService {
   }
 
   // 5. Eliminar Empresa
-  async deleteBusiness(id) {
+  async deleteBusiness(id, { confirmName, password, actingUserId } = {}) {
     const business = await this.repo.findBusinessById(String(id));
 
     if (!business) throw new AppError('Empresa no encontrada', 404);
     if (business.ruc === '9999999999999') throw new AppError('No se puede eliminar la Empresa SaaS Global.', 403);
+
+    // Confirmación explícita: escribir el nombre exacto evita el borrado por un
+    // clic en la fila equivocada (la causa más común de eliminaciones indebidas).
+    if ((confirmName || '').trim() !== business.name.trim()) {
+      throw new AppError(`Confirmación incorrecta: escribe el nombre exacto de la empresa ("${business.name}") para eliminarla.`, 400);
+    }
+
+    // Re-autenticación con la contraseña PROPIA del superadmin (step-up auth):
+    // deja atribución de quién confirmó y protege si alguien toma una sesión abierta.
+    // Se usa la contraseña de cada usuario, no un secreto compartido (no se puede
+    // atribuir ni revocar por persona).
+    if (!password) throw new AppError('Debes confirmar tu contraseña para eliminar una empresa.', 400);
+    const actingUser = await this.repo.findUserById(String(actingUserId));
+    if (!actingUser) throw new AppError('No se pudo verificar tu identidad.', 401);
+    const passwordOk = await bcrypt.compare(password, actingUser.password);
+    if (!passwordOk) throw new AppError('Contraseña incorrecta.', 401);
 
     // Los comprobantes electrónicos son registros fiscales con retención legal
     // (7 años en Ecuador) y el borrado es en cascada e irreversible. Si la empresa

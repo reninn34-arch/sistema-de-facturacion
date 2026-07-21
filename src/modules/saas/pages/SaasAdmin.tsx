@@ -111,6 +111,10 @@ const SaasAdmin: React.FC<SaasAdminProps> = ({ onNotify }) => {
   const [showUserModal, setShowUserModal] = useState(false);
   const [showBusinessModal, setShowBusinessModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
+  // Confirmación de borrado: escribir el nombre exacto + la contraseña propia.
+  const [deleteConfirmName, setDeleteConfirmName] = useState('');
+  const [deletePassword, setDeletePassword] = useState('');
+  const [deleting, setDeleting] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showUserDeleteModal, setShowUserDeleteModal] = useState(false);
   const [userToDelete, setUserToDelete] = useState<User | null>(null);
@@ -618,27 +622,41 @@ const SaasAdmin: React.FC<SaasAdminProps> = ({ onNotify }) => {
     } catch (error) { onNotify('Error de conexión', 'error'); }
   };
 
+  const closeDeleteModal = () => {
+    setShowDeleteModal(false);
+    setDeleteConfirmName('');
+    setDeletePassword('');
+  };
+
   const handleDeleteBusiness = async () => {
     if (!selectedBusiness) return;
-    
+
+    setDeleting(true);
     try {
       const token = localStorage.getItem('adminToken');
       const response = await fetch(`${API_URL}/api/admin/businesses/${selectedBusiness.id}`, {
         method: 'DELETE',
-        headers: { 'Authorization': `Bearer ${token}` }
+        headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+        credentials: 'include',
+        // El backend revalida ambos: el nombre exacto y la contraseña del superadmin.
+        body: JSON.stringify({ confirmName: deleteConfirmName, password: deletePassword })
       });
 
+      const data = await response.json().catch(() => ({}));
       if (response.ok) {
         onNotify('Empresa eliminada correctamente', 'success');
         setSelectedBusiness(null);
-        setShowDeleteModal(false);
+        closeDeleteModal();
         loadData();
       } else {
-        const data = await response.json();
+        // Mensajes accionables del backend: nombre incorrecto, contraseña
+        // incorrecta o empresa con documentos fiscales (409).
         onNotify(data.message || 'Error al eliminar', 'error');
       }
     } catch (error) {
       onNotify('Error de conexión', 'error');
+    } finally {
+      setDeleting(false);
     }
   };
 
@@ -1947,11 +1965,54 @@ const SaasAdmin: React.FC<SaasAdminProps> = ({ onNotify }) => {
               <div className="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-3">
                 <TrashIcon className="w-6 h-6 text-red-600" />
               </div>
-              <h3 className="text-lg font-bold text-[#0d121b] dark:text-white mb-2">¿Eliminar?</h3>
-              <p className="text-xs text-[#4c669a] dark:text-slate-400 mb-4">¿Eliminar <strong>{selectedBusiness.name}</strong>?</p>
+              <h3 className="text-lg font-bold text-[#0d121b] dark:text-white mb-2">Eliminar empresa</h3>
+              <p className="text-xs text-[#4c669a] dark:text-slate-400 mb-1">
+                Esta acción es <strong>irreversible</strong> y borra los datos de <strong>{selectedBusiness.name}</strong>.
+              </p>
+              <p className="text-xs text-[#4c669a] dark:text-slate-400 mb-4">
+                Si solo quieres retirarle el acceso, <strong>desactívala</strong> en lugar de eliminarla.
+              </p>
+
+              <div className="text-left space-y-3 mb-4">
+                <div>
+                  <label htmlFor="delete-confirm-name" className="block text-[11px] font-bold text-[#4c669a] dark:text-slate-400 mb-1">
+                    Escribe <span className="font-mono text-red-600">{selectedBusiness.name}</span> para confirmar
+                  </label>
+                  <input
+                    id="delete-confirm-name"
+                    type="text"
+                    value={deleteConfirmName}
+                    onChange={e => setDeleteConfirmName(e.target.value)}
+                    autoComplete="off"
+                    className="w-full p-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-sm"
+                  />
+                </div>
+                <div>
+                  <label htmlFor="delete-password" className="block text-[11px] font-bold text-[#4c669a] dark:text-slate-400 mb-1">
+                    Tu contraseña
+                  </label>
+                  <input
+                    id="delete-password"
+                    type="password"
+                    value={deletePassword}
+                    onChange={e => setDeletePassword(e.target.value)}
+                    autoComplete="current-password"
+                    placeholder="••••••••"
+                    className="w-full p-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-sm"
+                  />
+                </div>
+              </div>
+
               <div className="flex gap-2">
-                <button type="button" aria-label="Acción" onClick={() => setShowDeleteModal(false)} className="flex-1 py-2.5 rounded-lg text-sm font-medium text-[#4c669a] hover:bg-slate-100 dark:hover:bg-slate-800">Cancelar</button>
-                <button type="button" onClick={handleDeleteBusiness} className="flex-1 py-2.5 bg-red-600 text-white rounded-lg text-sm font-medium hover:bg-red-700">Eliminar</button>
+                <button type="button" aria-label="Cancelar" onClick={closeDeleteModal} className="flex-1 py-2.5 rounded-lg text-sm font-medium text-[#4c669a] hover:bg-slate-100 dark:hover:bg-slate-800">Cancelar</button>
+                <button
+                  type="button"
+                  onClick={handleDeleteBusiness}
+                  disabled={deleting || deleteConfirmName.trim() !== selectedBusiness.name.trim() || !deletePassword}
+                  className="flex-1 py-2.5 bg-red-600 text-white rounded-lg text-sm font-medium hover:bg-red-700 disabled:opacity-40 disabled:cursor-not-allowed"
+                >
+                  {deleting ? 'Eliminando...' : 'Eliminar'}
+                </button>
               </div>
             </div>
           </div>
