@@ -130,7 +130,7 @@ const PurchaseManager: React.FC<PurchaseManagerProps> = ({ clients, businessInfo
 
     setLoading(true);
     try {
-      const token = localStorage.getItem('adminToken');
+      const token = localStorage.getItem('adminToken') || localStorage.getItem('token');
       const response = await fetch(`${API_URL}/api/documents`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },

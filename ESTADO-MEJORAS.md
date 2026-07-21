@@ -35,10 +35,14 @@ Resumen breve de lo corregido y lo que falta revisar. Actualizado: 2026-07-20.
 - **Emisión de prueba real contra el SRI**: requiere un certificado `.p12` de una **CA acreditada** (el de prueba actual es auto-firmado y el SRI lo rechaza). Es lo único que valida el flujo completo de punta a punta.
 - **Firma `.p12` – Fase B**: el frontend todavía envía el certificado en cada firma. Falta el "cutover" para que firme por `businessId` usando el certificado cifrado en el servidor (la infraestructura ya está hecha).
 
-### Módulos aún sin revisar
-- **Reportes**: ✅ módulo completo revisado (ATS, Form104, Libro de Ventas, Kardex, Rentabilidad).
-- **Producción / recetas**, **caja / quicksale**, **puntos y referidos**.
-- **Blog** y **settings / landing page**.
+### Módulos del Sistema
+- **Reportes**: ✅ Módulo completo revisado (ATS, Form104, Libro de Ventas, Kardex, Rentabilidad).
+- **Producción / recetas**: ✅ Módulo completo revisado (control de insumos, movimientos atómicos de stock y cálculo de costos por lote).
+- **Caja / quicksale**: ✅ Módulo completo revisado (cálculo dinámico de IVA según `taxRate` del ítem y migración a API central con `client`).
+- **Puntos y referidos**: ✅ Módulo completo revisado (resiliencia de autenticación y permisos de Superadmin).
+- **Blog & Capacitaciones**: ✅ Módulo completo revisado (gestión CRUD y fallback de tokens de sesión).
+- **Settings / Landing Page**: ✅ Módulo completo revisado (edición dinámica de contenidos y carga de logo institucional).
+- **Compras**: ✅ Módulo completo revisado (registro de comprobantes recibidos, filtrado de proveedores y cálculo de impuestos).
 
 ### Conocidos, decididos a propósito
 - **SMS y WhatsApp**: son WIP, no hay endpoints en el backend; sus botones de prueba solo simulan.
