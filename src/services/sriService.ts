@@ -623,11 +623,18 @@ export const authorizeWithSRI = async (
         const signData = await signResponse.json();
 
         if (!signResponse.ok) {
-          throw new Error(signData.error || 'Error firmando XML');
+          // Sin certificado configurado: en PRUEBAS se sigue sin firma (como antes
+          // del cutover, cuando el paso de firma simplemente se omitía). En
+          // PRODUCCIÓN nunca: un comprobante sin firmar no es válido para el SRI.
+          if (signData.code === 'NO_CERTIFICATE' && !isProduction) {
+            onStepChange('ℹ️ Sin certificado configurado - modo pruebas, XML sin firma digital');
+          } else {
+            throw new Error(signData.error || 'Error firmando XML');
+          }
+        } else {
+          xmlFirmado = signData.signedXml;
+          onStepChange('✅ XML firmado correctamente');
         }
-
-        xmlFirmado = signData.signedXml;
-        onStepChange('✅ XML firmado correctamente');
       } catch (error: any) {
         onStepChange(`⚠️ Error en firma: ${error.message}`);
         throw error;

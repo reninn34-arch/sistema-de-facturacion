@@ -78,10 +78,17 @@ router.post('/api/sri/sign-xml', authenticate, async (req, res) => {
       }
     }
 
-    if (!xml || !p12Base64 || !password) {
+    if (!xml) {
+      return res.status(400).json({ success: false, error: 'Falta el parámetro requerido: xml' });
+    }
+
+    if (!p12Base64 || !password) {
+      // Código distinguible: el cliente necesita diferenciar "no hay certificado"
+      // (en pruebas se puede emitir sin firma) de un error real de firma.
       return res.status(400).json({
         success: false,
-        error: 'Faltan parámetros requeridos: xml y el certificado (.p12 en la petición o firma guardada del negocio)'
+        code: 'NO_CERTIFICATE',
+        error: 'No hay certificado disponible: adjunta un .p12 o configura la firma electrónica de la empresa.'
       });
     }
 
