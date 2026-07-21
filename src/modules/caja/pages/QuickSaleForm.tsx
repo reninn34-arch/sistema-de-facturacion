@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef, useId } from 'react';
 import { Product, InvoiceItem, BusinessInfo } from '../../../types/types';
 import { MagnifyingGlassIcon, TicketIcon, XMarkIcon, MinusIcon, PlusIcon, BanknotesIcon, CreditCardIcon, ArrowPathIcon } from '@heroicons/react/24/outline';
 import { client } from '../../../api/client';
+import CashClosingModal from '../components/CashClosingModal';
 
 const API_URL = import.meta.env.VITE_BACKEND_URL || '';
 
@@ -387,25 +388,36 @@ const QuickSaleForm: React.FC<QuickSaleFormProps> = ({ products, clients = [], s
     );
   }
 
+  const [showCashClosing, setShowCashClosing] = useState(false);
+  const [createdTickets, setCreatedTickets] = useState<any[]>([]);
+
   // Vista principal del POS
   return (
     <div className="max-w-6xl mx-auto space-y-6 animate-in fade-in slide-in-from-bottom-6 duration-700 pb-20">
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between flex-wrap gap-4">
         <div>
           <h2 className="text-3xl font-black text-slate-800 dark:text-white uppercase tracking-tighter flex items-center gap-3">
             <TicketIcon className="w-8 h-8 text-sky-500" />
             Caja / Ticket
           </h2>
-          <p className="text-sm text-slate-400 font-bold mt-1">Venta rápida sin emisión inmediata al SRI</p>
+          <p className="text-sm text-slate-400 font-bold mt-1">Venta rápida sin emisión inmediata al SRI y arqueo de turno</p>
         </div>
-        {cart.length > 0 && (
+        <div className="flex items-center gap-3">
           <button type="button"
-            onClick={newTicket}
-            className="px-6 py-3 rounded-2xl font-black text-xs uppercase bg-red-50 dark:bg-red-500/10 text-red-600 border border-red-200 dark:border-red-500/20 hover:bg-red-100 transition-colors"
+            onClick={() => setShowCashClosing(true)}
+            className="px-6 py-3 rounded-2xl font-black text-xs uppercase bg-emerald-600 hover:bg-emerald-500 text-white transition-colors shadow-lg shadow-emerald-600/20 flex items-center gap-2"
           >
-            Cancelar venta
+            <BanknotesIcon className="w-4 h-4" /> Arqueo de Caja
           </button>
-        )}
+          {cart.length > 0 && (
+            <button type="button"
+              onClick={newTicket}
+              className="px-6 py-3 rounded-2xl font-black text-xs uppercase bg-red-50 dark:bg-red-500/10 text-red-600 border border-red-200 dark:border-red-500/20 hover:bg-red-100 transition-colors"
+            >
+              Cancelar venta
+            </button>
+          )}
+        </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
@@ -804,6 +816,15 @@ const QuickSaleForm: React.FC<QuickSaleFormProps> = ({ products, clients = [], s
           </div>
         </div>
       )}
+
+      {/* Modal de Arqueo y Cierre de Caja */}
+      <CashClosingModal
+        isOpen={showCashClosing}
+        onClose={() => setShowCashClosing(false)}
+        businessInfo={businessInfo}
+        tickets={createdTickets}
+        onNotify={onNotify}
+      />
     </div>
   );
 };

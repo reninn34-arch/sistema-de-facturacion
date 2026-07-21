@@ -28,6 +28,8 @@ const ATSReport = React.lazy(() => import('./modules/reportes/components/ATSRepo
 const Form104 = React.lazy(() => import('./modules/reportes/components/Form104'));
 const Kardex = React.lazy(() => import('./modules/facturacion/components/Kardex'));
 const ProfitabilityAnalysis = React.lazy(() => import('./modules/reportes/components/ProfitabilityAnalysis'));
+const RecurringInvoices = React.lazy(() => import('./modules/facturacion/components/RecurringInvoices'));
+const EstablishmentManager = React.lazy(() => import('./modules/configuracion/components/EstablishmentManager'));
 const NotificationSettingsComponent = React.lazy(() => import('./modules/configuracion/components/NotificationSettings'));
 const AIAssistant = React.lazy(() => import('./modules/saas/components/AIAssistant'));
 const ClientManager = React.lazy(() => import('./modules/clientes/components/ClientManager'));
@@ -220,6 +222,8 @@ const AppShell: React.FC = () => {
       case 'form-104': return <Form104 documents={documents} business={businessInfo} onNotify={showNotify} />;
       case 'kardex': return <Kardex products={products} documents={documents} onNotify={showNotify} />;
       case 'profitability': return <ProfitabilityAnalysis products={products} documents={documents} onNotify={showNotify} />;
+      case 'recurring-invoices': return <RecurringInvoices businessInfo={effectiveBusinessInfo} clients={clients} onNotify={showNotify} />;
+      case 'establishments': return <EstablishmentManager businessInfo={effectiveBusinessInfo} onNotify={showNotify} />;
       case 'notifications': return <NotificationSettingsComponent settings={notificationSettings} onSave={handleSaveNotificationSettings} onNotify={showNotify} />;
       case 'reports': return <Reports documents={documents} businessInfo={businessInfo} onConvertProforma={() => { setActiveTab('invoices'); showNotify('Cree una nueva factura con los datos de la proforma', 'success'); }} setActiveTab={setActiveTab} initialFilter={reportsFilter} onFilterChange={setReportsFilter} onReemitDocument={(doc) => { ctx.setPreloadRejectedDoc(doc); setReportsFilter('ALL'); setActiveTab('invoices'); }} />;
       case 'purchases': return (

@@ -109,6 +109,7 @@ const menuItemModuleMap: Record<string, string> = {
   'remittances': 'remittances', 'settlements': 'settlements',
   'reports': 'reports', 'sales-book': 'reports', 'ats': 'reports', 'form-104': 'reports',
   'kardex': 'reports', 'profitability': 'reports', 'quicksale': 'caja', 'pending-sri': 'caja',
+  'recurring-invoices': 'emision', 'establishments': 'configuracion',
   'clients': 'clients', 'products': 'products', 'recipes': 'production', 'production': 'production',
   'config': 'config', 'integrations': 'integrations', 'ai-assistant': 'ai-assistant', 'audit': 'audit',
   'purchases': 'reports', 'security-points': 'reports',
@@ -187,6 +188,7 @@ const allGroups: MenuGroup[] = [
     roles: ['ADMIN', 'VENDEDOR', 'CONTADOR'],
     items: [
       { id: 'invoices', label: 'Facturas', roles: ['ADMIN', 'VENDEDOR', 'CONTADOR'] },
+      { id: 'recurring-invoices', label: 'Facturación Recurrente', roles: ['ADMIN', 'VENDEDOR', 'CONTADOR'] },
       { id: 'credit-notes', label: 'Notas de Crédito', roles: ['ADMIN', 'VENDEDOR', 'CONTADOR'] },
       { id: 'retentions', label: 'Retenciones', roles: ['ADMIN', 'CONTADOR'] },
       { id: 'remittances', label: 'Guías de Remisión', roles: ['ADMIN', 'VENDEDOR', 'CONTADOR'] },
@@ -241,6 +243,7 @@ const allGroups: MenuGroup[] = [
     roles: ['ADMIN', 'VENDEDOR', 'CONTADOR', 'SUPERADMIN'],
     items: [
       { id: 'config', label: 'Perfil de Empresa', roles: ['ADMIN', 'SUPERADMIN', 'VENDEDOR', 'CONTADOR'] },
+      { id: 'establishments', label: 'Sucursales / Cajas', roles: ['ADMIN', 'SUPERADMIN'] },
       { id: 'pago-interno', label: 'Suscripción', roles: ['ADMIN'] },
       { id: 'company-users', label: 'Panel de Gestión', roles: ['ADMIN'] },
       { id: 'sessions', label: 'Seguridad / Dispositivos', roles: ['ADMIN', 'VENDEDOR', 'CONTADOR', 'SUPERADMIN'] },
