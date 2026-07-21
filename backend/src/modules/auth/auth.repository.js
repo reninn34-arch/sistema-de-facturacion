@@ -95,8 +95,24 @@ class AuthRepository {
   async findDocumentsByEntityRuc(ruc, filter) {
     return prisma.document.findMany({
       where: { entityRuc: ruc, ...filter },
-      include: { 
-        business: true,
+      include: {
+        // Solo los campos del emisor que el portal del cliente necesita para
+        // mostrar el documento y renderizar el RIDE. NUNCA `business: true`: el
+        // modelo incluye electronicSignature (certificado .p12), sriPassword y
+        // notificationSettings (credenciales SMTP en claro), que se filtrarían
+        // a cualquier cliente que entre al portal.
+        business: {
+          select: {
+            id: true,
+            name: true,
+            ruc: true,
+            address: true,
+            logo: true,
+            regime: true,
+            isAccountingObliged: true,
+            isProduction: true
+          }
+        },
         items: true
       },
       orderBy: { issueDate: 'desc' }
