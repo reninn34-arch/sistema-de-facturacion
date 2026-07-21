@@ -72,8 +72,61 @@ const NotificationSettingsComponent: React.FC<NotificationSettingsProps> = ({ se
     }
   };
 
-  const testSMS = () => onNotify('SMS de prueba simulado (Integración SMS en desarrollo)', 'info');
-  const testWhatsApp = () => onNotify('WhatsApp de prueba simulado (Integración WhatsApp en desarrollo)', 'info');
+  const testSMS = async () => {
+    if (!localSettings.twilioPhoneNumber && !(localSettings as any).nexmoApiKey) {
+      onNotify('Ingresa primero el número de teléfono o credenciales de SMS', 'warning');
+      return;
+    }
+    onNotify('Enviando SMS de prueba...', 'info');
+    try {
+      const res = await fetch('/api/notifications/send-sms', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({
+          to: localSettings.twilioPhoneNumber || '+593999999999',
+          message: 'SMS de prueba de Azul Facturación Electrónica.',
+          settings: localSettings,
+        }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (res.ok && data.success) {
+        onNotify(`SMS enviado exitosamente (${data.provider || 'sms'}).`, 'success');
+      } else {
+        onNotify(`No se pudo enviar SMS: ${data.error || 'revisa las credenciales'}`, 'warning');
+      }
+    } catch {
+      onNotify('Error de conexión al enviar SMS de prueba', 'warning');
+    }
+  };
+
+  const testWhatsApp = async () => {
+    if (!localSettings.whatsappNumber) {
+      onNotify('Ingresa primero el número de WhatsApp', 'warning');
+      return;
+    }
+    onNotify('Enviando WhatsApp de prueba...', 'info');
+    try {
+      const res = await fetch('/api/notifications/send-whatsapp', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({
+          to: localSettings.whatsappNumber,
+          message: 'Mensaje de prueba por WhatsApp de Azul Facturación Electrónica.',
+          settings: localSettings,
+        }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (res.ok && data.success) {
+        onNotify(`WhatsApp enviado exitosamente (${data.provider || 'whatsapp'}).`, 'success');
+      } else {
+        onNotify(`No se pudo enviar WhatsApp: ${data.error || 'revisa la configuración de Twilio'}`, 'warning');
+      }
+    } catch {
+      onNotify('Error de conexión al enviar WhatsApp de prueba', 'warning');
+    }
+  };
 
   return (
     <div className="max-w-6xl mx-auto space-y-6 pb-20">

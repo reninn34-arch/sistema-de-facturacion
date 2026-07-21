@@ -13,6 +13,7 @@ Resumen breve de lo corregido y lo que falta revisar. Actualizado: 2026-07-20.
 | **Esquema de Documentos (Propinas / Reembolsos)** | El guardado de proformas/facturas fallaba con `500 (Internal Server Error)` al enviar `tip`, `isReimbursement` o `reimbursements` no soportados por Prisma. Se añadieron las 3 columnas al modelo `Document` en `schema.prisma`, se creó la migración SQL física y se aplicó mapeo explícito en `business.service.js`. |
 | **UX / Tema Oscuro-Claro** | El selector de tema era un botón flotante y exclusivo para rol `SUPERADMIN`. Se trasladó al Header principal junto a las notificaciones y se habilitó globalmente para todos los usuarios. |
 | **Script de Deploy (Vercel)** | `vercel-build` fallaba en Vercel cuando la base de datos de producción fue inicializada mediante `db push` (sin tabla `_prisma_migrations`). Se añadió manejo de excepciones en `scripts/migrate-deploy.js` con fallback automático. |
+| **Notificaciones / SMS & WhatsApp** | No existían endpoints en el backend. Se implementaron los controladores `/api/notifications/send-sms` (vía Twilio / Vonage-Nexmo) y `/api/notifications/send-whatsapp` (vía Twilio WhatsApp API) con soporte de credenciales de la empresa y resolución de enmascaramiento. Se conectaron los botones de prueba en `NotificationSettings.tsx`. |
 | **Notificaciones / Email** | La rama SMTP no enviaba emails; el botón "Enviar prueba" era un stub; el endpoint exigía `X-API-Key` en prod (401 en todos los envíos); la UI no mostraba campos del proveedor; credenciales enmascaradas rompían envío real. Sin `try/catch` → requests colgadas. |
 | **Logger** | No imprimía el mensaje (interpolaciones `${...}` borradas): solo salía `✅ [INFO]` vacío y los `.log` sin texto. |
 | **Autenticación / Sesión** | El logout solo limpiaba `localStorage`: la **cookie HttpOnly seguía viva** → el cliente del portal no quedaba deslogueado. El registro tampoco cerraba sesión en el servidor. |
@@ -45,7 +46,7 @@ Resumen breve de lo corregido y lo que falta revisar. Actualizado: 2026-07-20.
 - **Compras**: ✅ Módulo completo revisado (registro de comprobantes recibidos, filtrado de proveedores y cálculo de impuestos).
 
 ### Conocidos, decididos a propósito
-- **SMS y WhatsApp**: Funcionalidades WIP (en desarrollo). No existen gateways ni endpoints backend para SMS/WhatsApp en este momento. Los botones de prueba en `NotificationSettings.tsx` ahora muestran mensajes informativos explícitos de simulación/desarrollo sin inducir a error.
+- **SMS y WhatsApp**: ✅ Endpoints implementados en backend (`/api/notifications/send-sms` y `/api/notifications/send-whatsapp`) con soporte para proveedores Twilio y Vonage/Nexmo. Botones de prueba conectados en `NotificationSettings.tsx`.
 - **Rate limiting**: `express-rate-limit` no funciona en entornos serverless (cada invocación corre aislada en Vercel sin estado persistente). Requeriría Redis; se omitió por ahora. La protección de fuerza bruta en el login se mantiene mediante bloqueo por intentos fallidos a nivel de base de datos/usuario.
 - **KYC (Documentos de registro)**: La carga de cédula/RUC y comprobante de pago es obligatoria únicamente cuando el método de pago elegido es **TRANSFER** (transferencia bancaria para aprobación manual en `ActivationRequests`). Para compras inmediatas con PayPal o Tarjeta se omite para no friccionar el flujo de onboarding.
 

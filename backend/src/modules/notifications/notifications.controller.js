@@ -137,6 +137,102 @@ const notificationController = {
       logger.error(`❌ Error enviando email a ${to}`, error);
       return res.status(500).json({ success: false, error: error.message });
     }
+  },
+
+  sendSMS: async (req, res) => {
+    const { to, message } = req.body;
+    let settings = req.body.settings;
+
+    if (!to || !message || !settings) {
+      return res.status(400).json({
+        success: false,
+        error: 'Faltan parámetros requeridos: to, message, settings'
+      });
+    }
+
+    try {
+      if (req.user?.businessId) {
+        const business = await prisma.business.findUnique({
+          where: { id: req.user.businessId },
+          select: { notificationSettings: true }
+        });
+        settings = resolveMaskedSettings(settings, business?.notificationSettings);
+      }
+
+      logger.info(`📱 Enviando SMS a ${to}...`);
+
+      if (settings.smsProvider === 'twilio' && settings.twilioAccountSid && settings.twilioAuthToken) {
+        const twilio = require('twilio')(settings.twilioAccountSid, settings.twilioAuthToken);
+        const result = await twilio.messages.create({
+          body: message,
+          from: settings.twilioPhoneNumber,
+          to
+        });
+        return res.json({ success: true, message: 'SMS enviado exitosamente', sid: result.sid, provider: 'twilio' });
+      } else if (settings.smsProvider === 'nexmo' && settings.nexmoApiKey && settings.nexmoApiSecret) {
+        const { Vonage } = require('@vonage/server-sdk');
+        const vonage = new Vonage({ apiKey: settings.nexmoApiKey, apiSecret: settings.nexmoApiSecret });
+        const from = settings.nexmoSenderId || 'Ecuafact';
+        const resp = await vonage.sms.send({ to, from, text: message });
+        return res.json({ success: true, message: 'SMS enviado exitosamente', provider: 'nexmo', response: resp });
+      } else {
+        return res.status(400).json({
+          success: false,
+          error: 'No hay credenciales de SMS configuradas (Twilio o Vonage/Nexmo)'
+        });
+      }
+    } catch (error) {
+      logger.error(`❌ Error enviando SMS a ${to}`, error);
+      return res.status(500).json({ success: false, error: error.message });
+    }
+  },
+
+  sendWhatsApp: async (req, res) => {
+    const { to, message, mediaUrl } = req.body;
+    let settings = req.body.settings;
+
+    if (!to || !message || !settings) {
+      return res.status(400).json({
+        success: false,
+        error: 'Faltan parámetros requeridos: to, message, settings'
+      });
+    }
+
+    try {
+      if (req.user?.businessId) {
+        const business = await prisma.business.findUnique({
+          where: { id: req.user.businessId },
+          select: { notificationSettings: true }
+        });
+        settings = resolveMaskedSettings(settings, business?.notificationSettings);
+      }
+
+      logger.info(`💬 Enviando WhatsApp a ${to}...`);
+
+      if (settings.twilioAccountSid && settings.twilioAuthToken && settings.whatsappNumber) {
+        const twilio = require('twilio')(settings.twilioAccountSid, settings.twilioAuthToken);
+        const fromNumber = settings.whatsappNumber.startsWith('whatsapp:') ? settings.whatsappNumber : `whatsapp:${settings.whatsappNumber}`;
+        const toNumber = to.startsWith('whatsapp:') ? to : `whatsapp:${to}`;
+        const msgOptions = {
+          body: message,
+          from: fromNumber,
+          to: toNumber
+        };
+        if (mediaUrl) {
+          msgOptions.mediaUrl = [mediaUrl];
+        }
+        const result = await twilio.messages.create(msgOptions);
+        return res.json({ success: true, message: 'WhatsApp enviado exitosamente', sid: result.sid, provider: 'twilio' });
+      } else {
+        return res.status(400).json({
+          success: false,
+          error: 'No hay credenciales de WhatsApp/Twilio configuradas'
+        });
+      }
+    } catch (error) {
+      logger.error(`❌ Error enviando WhatsApp a ${to}`, error);
+      return res.status(500).json({ success: false, error: error.message });
+    }
   }
 };
 
