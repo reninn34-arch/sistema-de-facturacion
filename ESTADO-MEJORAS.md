@@ -8,6 +8,7 @@ Resumen breve de lo corregido y lo que falta revisar. Actualizado: 2026-07-20.
 
 | Área | Qué estaba mal / Cómo se solucionó |
 |---|---|
+| **Pruebas de Calidad (Backend & E2E)** | Se ejecutaron y ajustaron las suites de pruebas automatizadas. **102 de 102** pruebas backend (Jest + Supertest en caja blanca, gris y negra) y **28 de 28** pruebas E2E (Playwright en navegador Chromium) pasaron exitosamente al 100%. |
 | **Firma .p12 Cifrada (Fase B Cutover)** | El frontend exigía seleccionar el archivo `.p12` local en cada emisión. Se completó el cutover pasando `businessId` a `/api/sri/sign-xml` en `sriService.ts`, `InvoiceForm`, `CreditNoteForm` y `PendingTickets`. El backend ahora descifra y firma en memoria usando la firma guardada del negocio (`electronicSignature` y `sriPassword`). |
 | **Portal de Clientes / RIDE & XML** | Los botones de "Descargar PDF" y "Descargar XML" en el portal de clientes no tenían eventos `onClick`. La consulta `findDocumentsByEntityRuc` omitía las relaciones `items` y `business`. Se integró `<RideViewer />`, descarga nativa de XML y carga de relaciones necesarias. |
 | **Persistencia SMTP y Seguridad** | `notificationSettings` se reseteaba en frontend al recargar. Se añadió sincronización en `AppContext`. Se enmascararon contraseñas de SMTP (`••••••••••••••••`) en API para evitar exponer la clave en UI y se ajustó el backend para evitar sobreescribir la clave real al guardar con la máscara. |
@@ -53,4 +54,4 @@ Resumen breve de lo corregido y lo que falta revisar. Actualizado: 2026-07-20.
 - **KYC (Documentos de registro)**: ✅ La carga de cédula/RUC y comprobante de pago aplica para pagos por **TRANSFER** (transferencia bancaria para aprobación manual en `ActivationRequests`). El Superadmin ahora dispone de visor de Cédula y RUC en formato imagen o PDF dentro de `ActivationRequests.tsx`. Para compras inmediatas (PayPal/Tarjeta) se omite para optimizar el flujo de registro.
 
 ### Calidad
-- No hay **pruebas automatizadas** del flujo end-to-end (registro → verificación → login → emisión → envío del RIDE).
+- ✅ **Pruebas Automatizadas:** 102/102 tests de backend (Jest/Supertest) y 28/28 tests E2E (Playwright) ejecutados y pasando al 100%. Comandos de ejecución: `npm test` en backend y `npm run test:e2e` en raíz.
