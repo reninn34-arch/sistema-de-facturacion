@@ -116,6 +116,8 @@ class BusinessService {
     if (data.password !== undefined && data.password !== '') {
       updateData.password = await bcrypt.hash(data.password, 10);
     }
+    if (data.establishmentCode !== undefined) updateData.establishmentCode = data.establishmentCode;
+    if (data.emissionPointCode !== undefined) updateData.emissionPointCode = data.emissionPointCode;
     return this.repo.updateUser(targetId, updateData);
   }
 

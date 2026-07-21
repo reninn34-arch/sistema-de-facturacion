@@ -342,7 +342,9 @@ const UserManagement: React.FC<UserManagementProps> = ({ currentUser, onNotify }
         },
         body: JSON.stringify({
           name: editFormData.name,
-          role: editFormData.role
+          role: editFormData.role,
+          establishmentCode: editFormData.establishmentCode,
+          emissionPointCode: editFormData.emissionPointCode
         })
       });
 
@@ -367,7 +369,9 @@ const UserManagement: React.FC<UserManagementProps> = ({ currentUser, onNotify }
       email: user.email,
       name: user.name || '',
       role: user.role,
-      businessId: user.businessId || ''
+      businessId: user.businessId || '',
+      establishmentCode: user.establishmentCode || '001',
+      emissionPointCode: user.emissionPointCode || '001'
     });
     setShowEditModal(true);
   };
@@ -912,6 +916,35 @@ const UserManagement: React.FC<UserManagementProps> = ({ currentUser, onNotify }
                     <option key={role} value={role}>{roleLabels[role]?.label || role}</option>
                   ))}
                 </select>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <label htmlFor={`${fieldId}-edit-estab`} className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest">Sucursal / Establecimiento</label>
+                  <select
+                    id={`${fieldId}-edit-estab`}
+                    value={editFormData.establishmentCode}
+                    onChange={(e) => setEditFormData({ ...editFormData, establishmentCode: e.target.value })}
+                    className="w-full p-3 bg-slate-50 dark:bg-slate-800/50 dark:text-white rounded-xl text-sm font-medium border border-slate-200 dark:border-slate-700/50 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  >
+                    <option value="001">001 - Matriz Principal</option>
+                    <option value="002">002 - Sucursal Norte</option>
+                    <option value="003">003 - Sucursal Sur</option>
+                  </select>
+                </div>
+                <div className="space-y-2">
+                  <label htmlFor={`${fieldId}-edit-ptoEmi`} className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest">Punto Emisión / Caja</label>
+                  <select
+                    id={`${fieldId}-edit-ptoEmi`}
+                    value={editFormData.emissionPointCode}
+                    onChange={(e) => setEditFormData({ ...editFormData, emissionPointCode: e.target.value })}
+                    className="w-full p-3 bg-slate-50 dark:bg-slate-800/50 dark:text-white rounded-xl text-sm font-medium border border-slate-200 dark:border-slate-700/50 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  >
+                    <option value="001">001 - Caja 1</option>
+                    <option value="002">002 - Caja POS Rápida</option>
+                    <option value="003">003 - Caja Auxiliar</option>
+                  </select>
+                </div>
               </div>
 
               {/* Reasignar empresa es exclusivo del SUPERADMIN; un admin de empresa no lo ve */}
