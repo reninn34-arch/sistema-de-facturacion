@@ -271,10 +271,21 @@ class AdminService {
     if (!business) throw new AppError('Empresa no encontrada', 404);
     if (business.ruc === '9999999999999') throw new AppError('No se puede eliminar la Empresa SaaS Global.', 403);
 
+    // Los comprobantes electrónicos son registros fiscales con retención legal
+    // (7 años en Ecuador) y el borrado es en cascada e irreversible. Si la empresa
+    // ya emitió documentos, no se elimina: se debe desactivar (toggleBusinessStatus),
+    // que suspende la empresa y sus usuarios sin destruir nada y es reversible.
+    const documentCount = await this.repo.countDocumentsByBusiness(String(id));
+    if (documentCount > 0) {
+      throw new AppError(
+        `No se puede eliminar "${business.name}": tiene ${documentCount} documento(s) fiscal(es) que deben conservarse por ley. Desactívala en su lugar (queda sin acceso, pero se preserva el histórico y es reversible).`,
+        409
+      );
+    }
+
+    // Sin documentos emitidos (registro de prueba o abandonado): se puede eliminar.
     // Todas las relaciones a Business tienen onDelete: Cascade en el esquema, así
-    // que este único DELETE borra los datos asociados de forma atómica. Antes se
-    // hacían borrados manuales secuenciales: si uno fallaba a la mitad, la empresa
-    // quedaba parcialmente eliminada (clientes/productos borrados, empresa viva).
+    // que este único DELETE borra los datos asociados de forma atómica.
     await this.repo.deleteBusiness(String(id));
 
     return { success: true, message: 'Empresa y sus datos eliminados correctamente' };

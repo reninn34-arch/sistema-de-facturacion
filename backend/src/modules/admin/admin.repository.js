@@ -212,6 +212,11 @@ class AdminRepository {
     return client.document.findUnique({ where: { id } });
   }
 
+  countDocumentsByBusiness(businessId, tx = null) {
+    const client = tx || prisma;
+    return client.document.count({ where: { businessId } });
+  }
+
   createDocument(data, tx = null) {
     const client = tx || prisma;
     return client.document.create({ data });
