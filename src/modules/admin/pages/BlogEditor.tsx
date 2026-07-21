@@ -27,7 +27,7 @@ const BlogEditor: React.FC = () => {
   const [saving, setSaving] = useState(false);
   const fieldId = useId();
 
-  const token = localStorage.getItem('adminToken');
+  const token = localStorage.getItem('adminToken') || localStorage.getItem('token');
 
   useEffect(() => { loadPosts(); }, []);
 

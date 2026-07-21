@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef, useId } from 'react';
 import { Product, InvoiceItem, BusinessInfo } from '../../../types/types';
 import { MagnifyingGlassIcon, TicketIcon, XMarkIcon, MinusIcon, PlusIcon, BanknotesIcon, CreditCardIcon, ArrowPathIcon } from '@heroicons/react/24/outline';
+import { client } from '../../../api/client';
 
 const API_URL = import.meta.env.VITE_BACKEND_URL || '';
 
@@ -80,7 +81,7 @@ const QuickSaleForm: React.FC<QuickSaleFormProps> = ({ products, clients = [], s
   const subtotal12 = cart.reduce((sum, item) => item.taxRate > 0 ? sum + (item.quantity * item.unitPrice - item.discount) : sum, 0);
   const subtotal0 = cart.reduce((sum, item) => item.taxRate === 0 ? sum + (item.quantity * item.unitPrice - item.discount) : sum, 0);
   const subtotal = subtotal12 + subtotal0;
-  const iva = subtotal12 * 0.15;
+  const iva = cart.reduce((sum, item) => item.taxRate > 0 ? sum + (item.quantity * item.unitPrice - item.discount) * (item.taxRate / 100) : sum, 0);
   const total = subtotal + iva;
 
   // Agregar al carrito
@@ -176,26 +177,13 @@ const QuickSaleForm: React.FC<QuickSaleFormProps> = ({ products, clients = [], s
       };
 
       // Intentar guardar en backend
-      const token = localStorage.getItem('adminToken');
       try {
-        const res = await fetch(`${API_URL}/api/quicksales`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`
-          },
-          body: JSON.stringify(ticketData)
-        });
-        if (res.ok) {
-          const saved = await res.json();
-          setLastTicket(saved);
-          if (onTicketCreated) onTicketCreated(saved);
-        } else {
-          // Si falla backend, guardar local
-          setLastTicket({ ...ticketData, id: crypto.randomUUID() });
-          if (onTicketCreated) onTicketCreated({ ...ticketData, id: crypto.randomUUID() });
-        }
+        const res = await client.post('/api/quicksales', ticketData);
+        const saved = res.data;
+        setLastTicket(saved);
+        if (onTicketCreated) onTicketCreated(saved);
       } catch {
+        // Si falla backend, guardar local
         setLastTicket({ ...ticketData, id: crypto.randomUUID() });
         if (onTicketCreated) onTicketCreated({ ...ticketData, id: crypto.randomUUID() });
       }

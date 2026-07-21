@@ -342,7 +342,7 @@ const LandingPageEditor: React.FC = () => {
   const [savingLogo, setSavingLogo] = useState(false);
 
   useEffect(() => {
-    const token = localStorage.getItem('adminToken');
+    const token = localStorage.getItem('adminToken') || localStorage.getItem('token');
     fetch(`${API_URL}/api/landing-content`, {
       headers: token ? { Authorization: `Bearer ${token}` } : {},
     })
@@ -359,7 +359,7 @@ const LandingPageEditor: React.FC = () => {
 
   // Cargar logo de la landing
   useEffect(() => {
-    const token = localStorage.getItem('adminToken');
+    const token = localStorage.getItem('adminToken') || localStorage.getItem('token');
     fetch(`${API_URL}/api/admin/settings`, {
       headers: token ? { Authorization: `Bearer ${token}` } : {},
     })
@@ -374,7 +374,7 @@ const LandingPageEditor: React.FC = () => {
     setSaving(true);
     setError('');
     try {
-      const token = localStorage.getItem('adminToken');
+      const token = localStorage.getItem('adminToken') || localStorage.getItem('token');
       const res = await fetch(`${API_URL}/api/landing-content`, {
         method: 'PUT',
         headers: {

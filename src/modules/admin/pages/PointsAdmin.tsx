@@ -53,7 +53,7 @@ const PointsAdmin: React.FC = () => {
   const [notify, setNotify] = useState('');
   const fieldId = useId();
 
-  const token = localStorage.getItem('adminToken');
+  const token = localStorage.getItem('adminToken') || localStorage.getItem('token');
   const headers = { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` };
 
   const loadAll = async () => {
