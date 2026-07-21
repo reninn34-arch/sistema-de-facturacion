@@ -182,13 +182,17 @@ const QuickSaleForm: React.FC<QuickSaleFormProps> = ({ products, clients = [], s
         const saved = res.data;
         setLastTicket(saved);
         if (onTicketCreated) onTicketCreated(saved);
+        onNotify(`Ticket ${ticketNumber} generado - Total: $${total.toFixed(2)}`, 'success');
       } catch {
-        // Si falla backend, guardar local
-        setLastTicket({ ...ticketData, id: crypto.randomUUID() });
-        if (onTicketCreated) onTicketCreated({ ...ticketData, id: crypto.randomUUID() });
+        // Si falla backend o no hay red, guardar en cola offline para auto-sincronización
+        const offlineTicket = { ...ticketData, id: `offline-${Date.now()}`, offline: true };
+        const existingQueue = JSON.parse(localStorage.getItem('offlineTicketsQueue') || '[]');
+        localStorage.setItem('offlineTicketsQueue', JSON.stringify([...existingQueue, offlineTicket]));
+        setLastTicket(offlineTicket);
+        if (onTicketCreated) onTicketCreated(offlineTicket);
+        onNotify(`📴 Modo Offline: Ticket ${ticketNumber} guardado en caja para auto-sincronización`, 'warning');
       }
 
-      onNotify(`Ticket ${ticketNumber} generado - Total: $${total.toFixed(2)}`);
       setShowTicket(true);
 
     } catch (error) {
@@ -197,6 +201,42 @@ const QuickSaleForm: React.FC<QuickSaleFormProps> = ({ products, clients = [], s
       setIsSubmitting(false);
     }
   };
+
+  // Sincronización automática de tickets offline al recuperar conectividad
+  useEffect(() => {
+    const syncOfflineQueue = async () => {
+      const queue = JSON.parse(localStorage.getItem('offlineTicketsQueue') || '[]');
+      if (queue.length === 0) return;
+
+      let syncedCount = 0;
+      const remainingQueue = [];
+
+      for (const ticket of queue) {
+        try {
+          const { id, offline, ...cleanTicket } = ticket;
+          await client.post('/api/quicksales', cleanTicket);
+          syncedCount++;
+        } catch (e) {
+          remainingQueue.push(ticket);
+        }
+      }
+
+      localStorage.setItem('offlineTicketsQueue', JSON.stringify(remainingQueue));
+      if (syncedCount > 0) {
+        onNotify(`🌐 Conexión restaurada: Se sincronizaron ${syncedCount} tickets guardados en offline`, 'success');
+      }
+    };
+
+    window.addEventListener('online', syncOfflineQueue);
+    // Intentar sync inicial si hay red
+    if (navigator.onLine) {
+      syncOfflineQueue();
+    }
+
+    return () => {
+      window.removeEventListener('online', syncOfflineQueue);
+    };
+  }, []);
 
   // Nuevo ticket (limpiar carrito)
   const newTicket = () => {

@@ -1,6 +1,7 @@
 import React, { useState, useMemo, useId } from 'react';
 import { ChartBarIcon, ArrowDownTrayIcon, LightBulbIcon } from '@heroicons/react/24/outline';
 import { Product, Document, ProductProfitability } from '../../../types/types';
+import { exportToExcelCSV } from '../../../utils/excelService';
 
 interface ProfitabilityAnalysisProps {
   products: Product[];
@@ -48,15 +49,17 @@ export default function ProfitabilityAnalysis({ products, documents, onNotify }:
           existing.profitMargin = existing.totalRevenue > 0 ? (existing.grossProfit / existing.totalRevenue) * 100 : 0;
         } else {
           const grossProfit = revenue - cost;
+          const profitMargin = revenue > 0 ? (grossProfit / revenue) * 100 : 0;
+
           productMap.set(item.productId, {
             productId: item.productId,
-            productCode: product.code,
+            productCode: product.code || 'N/A',
             productName: item.description,
             unitsSold: item.quantity,
             totalRevenue: revenue,
             totalCost: cost,
             grossProfit,
-            profitMargin: revenue > 0 ? (grossProfit / revenue) * 100 : 0
+            profitMargin
           });
         }
       });
@@ -66,16 +69,14 @@ export default function ProfitabilityAnalysis({ products, documents, onNotify }:
 
     // Ordenar según criterio
     data.sort((a, b) => {
-      switch (sortBy) {
-        case 'revenue': return b.totalRevenue - a.totalRevenue;
-        case 'profit': return b.grossProfit - a.grossProfit;
-        case 'margin': return b.profitMargin - a.profitMargin;
-        default: return 0;
-      }
+      if (sortBy === 'revenue') return b.totalRevenue - a.totalRevenue;
+      if (sortBy === 'profit') return b.grossProfit - a.grossProfit;
+      if (sortBy === 'margin') return b.profitMargin - a.profitMargin;
+      return 0;
     });
 
     return data;
-  }, [products, documents, startDate, endDate, sortBy]);
+  }, [safeProducts, safeDocuments, startDate, endDate, sortBy]);
 
   const totals = useMemo(() => {
     return profitabilityData.reduce((acc, item) => ({
@@ -87,23 +88,30 @@ export default function ProfitabilityAnalysis({ products, documents, onNotify }:
   }, [profitabilityData]);
 
   const exportToCSV = () => {
-    let csv = 'Código,Producto,Unidades Vendidas,Ingresos,Costos,Utilidad Bruta,Margen %\n';
-    
-    profitabilityData.forEach(item => {
-      csv += `${item.productCode},"${item.productName}",${item.unitsSold},${item.totalRevenue.toFixed(2)},${item.totalCost.toFixed(2)},${item.grossProfit.toFixed(2)},${item.profitMargin.toFixed(2)}\n`;
-    });
-
     const totalMargin = totals.revenue > 0 ? (totals.profit / totals.revenue) * 100 : 0;
-    csv += `\nTOTALES,,${totals.unitsSold},${totals.revenue.toFixed(2)},${totals.cost.toFixed(2)},${totals.profit.toFixed(2)},${totalMargin.toFixed(2)}`;
-    csv += `\n\nNota: el costo es una estimación (60% del precio de venta); no refleja costos reales de compra.`;
 
-    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-    const link = document.createElement('a');
-    link.href = URL.createObjectURL(blob);
-    link.download = `rentabilidad_${startDate}_${endDate}.csv`;
-    link.click();
+    exportToExcelCSV(
+      `rentabilidad_${startDate || 'inicio'}_${endDate || 'fin'}.csv`,
+      `Análisis de Rentabilidad por Producto`,
+      [
+        { header: 'Código Producto', accessor: item => item.productCode },
+        { header: 'Nombre Producto', accessor: item => item.productName },
+        { header: 'Unidades Vendidas', accessor: item => item.unitsSold },
+        { header: 'Ingresos Totales', accessor: item => item.totalRevenue.toFixed(2) },
+        { header: 'Costos Estimados', accessor: item => item.totalCost.toFixed(2) },
+        { header: 'Utilidad Bruta', accessor: item => item.grossProfit.toFixed(2) },
+        { header: 'Margen de Ganancia (%)', accessor: item => `${item.profitMargin.toFixed(2)}%` }
+      ],
+      profitabilityData,
+      [
+        { label: 'Unidades Totales Vendidas', value: totals.unitsSold },
+        { label: 'Ingresos Totales acumulados', value: `$${totals.revenue.toFixed(2)}` },
+        { label: 'Utilidad Bruta Total', value: `$${totals.profit.toFixed(2)}` },
+        { label: 'Margen Promedio Total', value: `${totalMargin.toFixed(2)}%` }
+      ]
+    );
 
-    onNotify('Análisis exportado exitosamente');
+    onNotify('Análisis de rentabilidad exportado exitosamente a Excel/CSV', 'success');
   };
 
   return (
