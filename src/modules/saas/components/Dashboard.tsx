@@ -111,10 +111,17 @@ const Dashboard: React.FC<DashboardProps> = ({ documents, products, setActiveTab
     return labels[plan || ''] || plan || 'Básico';
   };
 
+  const [selectedEstablishment, setSelectedEstablishment] = useState<string>('ALL');
+
   const safeDocuments = Array.isArray(documents) ? documents : [];
   const safeProducts = Array.isArray(products) ? products : [];
 
-  const totalSales = safeDocuments
+  const filteredDocuments = React.useMemo(() => {
+    if (selectedEstablishment === 'ALL') return safeDocuments;
+    return safeDocuments.filter((d: any) => d.establishmentCode === selectedEstablishment || d.number?.startsWith(selectedEstablishment));
+  }, [safeDocuments, selectedEstablishment]);
+
+  const totalSales = filteredDocuments
     .filter((d: any) => d.type === DocumentType.INVOICE && (d.status === SriStatus.AUTHORIZED || d.status === 'AUTORIZADO'))
     .reduce((acc: number, d: any) => acc + (d.total || 0), 0);
 
@@ -512,14 +519,26 @@ const Dashboard: React.FC<DashboardProps> = ({ documents, products, setActiveTab
 
       {/* ROW 2: Documents Summary (Shopify Analytics Style) */}
       <Card padding="none" className="bg-white dark:bg-slate-900 border-none shadow-sm overflow-hidden">
-        <div className="p-6 border-b border-slate-100 dark:border-slate-800/50 flex justify-between items-center bg-slate-50/50 dark:bg-slate-800/20">
+        <div className="p-6 border-b border-slate-100 dark:border-slate-800/50 flex justify-between items-center bg-slate-50/50 dark:bg-slate-800/20 flex-wrap gap-3">
           <h3 className="font-bold text-slate-800 dark:text-white text-sm uppercase tracking-wide flex items-center gap-2">
             <ArrowTrendingUpIcon className="w-5 h-5 text-sky-500" />
             Rendimiento del Mes
           </h3>
-          <button type="button" onClick={() => setActiveTab('reports')} className="text-xs font-bold text-sky-500 hover:text-sky-600 flex items-center gap-1">
-            Ver Reportes <ArrowRightIcon className="w-3 h-3" />
-          </button>
+          <div className="flex items-center gap-3">
+            <select
+              value={selectedEstablishment}
+              onChange={e => setSelectedEstablishment(e.target.value)}
+              className="p-2 bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-bold text-slate-800 dark:text-white outline-none"
+            >
+              <option value="ALL">🏢 Todas las Sucursales</option>
+              <option value="001">001 - Matriz Principal</option>
+              <option value="002">002 - Sucursal Norte</option>
+              <option value="003">003 - Sucursal Sur</option>
+            </select>
+            <button type="button" onClick={() => setActiveTab('reports')} className="text-xs font-bold text-sky-500 hover:text-sky-600 flex items-center gap-1">
+              Ver Reportes <ArrowRightIcon className="w-3 h-3" />
+            </button>
+          </div>
         </div>
          <div className="grid grid-cols-1 md:grid-cols-4 divide-y md:divide-y-0 md:divide-x divide-slate-100 dark:divide-slate-800/50">
           <div role="button" tabIndex={0} className="p-6 md:p-8 flex flex-col justify-center transition-colors hover:bg-slate-50/50 dark:hover:bg-slate-800/30 cursor-pointer" onClick={() => setActiveTab('reports')} onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setActiveTab('reports'); } }}>

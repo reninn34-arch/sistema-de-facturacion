@@ -14,6 +14,7 @@ export default function ProfitabilityAnalysis({ products, documents, onNotify }:
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
   const [sortBy, setSortBy] = useState<'revenue' | 'profit' | 'margin'>('profit');
+  const [selectedEstablishment, setSelectedEstablishment] = useState<string>('ALL');
 
   const safeProducts = Array.isArray(products) ? products : [];
   const safeDocuments = Array.isArray(documents) ? documents : [];
@@ -27,6 +28,7 @@ export default function ProfitabilityAnalysis({ products, documents, onNotify }:
       const docDate = new Date(doc.issueDate);
       if (startDate && docDate < new Date(startDate)) return false;
       if (endDate && docDate > new Date(endDate)) return false;
+      if (selectedEstablishment !== 'ALL' && doc.establishmentCode !== selectedEstablishment && !doc.number?.startsWith(selectedEstablishment)) return false;
       return true;
     });
 
@@ -134,7 +136,7 @@ export default function ProfitabilityAnalysis({ products, documents, onNotify }:
           </button>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
           <div className="space-y-2">
             <label htmlFor={`${fieldId}-startDate`} className="text-xs font-bold text-slate-600 dark:text-slate-400 uppercase">Fecha Inicio</label>
             <input
@@ -156,6 +158,20 @@ export default function ProfitabilityAnalysis({ products, documents, onNotify }:
             />
           </div>
           <div className="space-y-2">
+            <label htmlFor={`${fieldId}-establishment`} className="text-xs font-bold text-slate-600 dark:text-slate-400 uppercase">Sucursal / Local</label>
+            <select
+              id={`${fieldId}-establishment`}
+              value={selectedEstablishment}
+              onChange={e => setSelectedEstablishment(e.target.value)}
+              className="w-full p-3 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-xl font-bold text-sm text-slate-800 dark:text-slate-200"
+            >
+              <option value="ALL">Todas las Sucursales</option>
+              <option value="001">001 - Matriz Principal</option>
+              <option value="002">002 - Sucursal Norte</option>
+              <option value="003">003 - Sucursal Sur</option>
+            </select>
+          </div>
+          <div className="space-y-2">
             <label htmlFor={`${fieldId}-sortBy`} className="text-xs font-bold text-slate-600 dark:text-slate-400 uppercase">Ordenar Por</label>
             <select
               id={`${fieldId}-sortBy`}
@@ -163,9 +179,9 @@ export default function ProfitabilityAnalysis({ products, documents, onNotify }:
               onChange={e => setSortBy(e.target.value as any)}
               className="w-full p-3 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-xl font-bold text-sm text-slate-800 dark:text-slate-200"
             >
-              <option value="profit">Utilidad Bruta</option>
-              <option value="revenue">Ingresos</option>
-              <option value="margin">Margen %</option>
+              <option value="profit">Utilidad Bruta ($)</option>
+              <option value="revenue">Ingresos Totales ($)</option>
+              <option value="margin">Margen de Ganancia (%)</option>
             </select>
           </div>
         </div>
