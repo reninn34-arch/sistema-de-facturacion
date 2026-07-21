@@ -403,6 +403,10 @@ model SubscriptionPlan {
   hasPrioritySupport  Boolean  @default(false)
   hasAudit            Boolean  @default(false)
   hasModuleControl    Boolean  @default(false)  // Permite que el ADMIN de empresa gestione módulos por usuario
+  hasEstablishments   Boolean  @default(false)  // Habilita sucursales múltiples (001, 002)
+  hasRecurringInvoices Boolean @default(false)  // Habilita facturación recurrente
+  hasProduction       Boolean  @default(false)  // Habilita recetas y producción
+  hasAts              Boolean  @default(false)  // Habilita ATS XML y Formulario 104
   maxEmissionPoints   Int      @default(1)   // Puntos de emision maximos
   isActive            Boolean  @default(true)
   displayOrder        Int      @default(0)

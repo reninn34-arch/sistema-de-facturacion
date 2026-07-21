@@ -18,6 +18,10 @@ interface SubscriptionPlan {
   hasPrioritySupport: boolean;
   hasAudit: boolean;
   hasModuleControl: boolean;
+  hasEstablishments?: boolean;
+  hasRecurringInvoices?: boolean;
+  hasProduction?: boolean;
+  hasAts?: boolean;
   isActive: boolean;
   ctaType?: 'NORMAL' | 'WHATSAPP';
   ctaWhatsapp?: { number: string; message: string; buttonLabel: string; priceLabel: string };

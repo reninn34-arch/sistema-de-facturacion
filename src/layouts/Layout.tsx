@@ -322,6 +322,13 @@ const Layout: React.FC<LayoutProps> = ({
   const isSuperAdmin = currentUser?.role === 'SUPERADMIN';
   const isAdmin = currentUser?.role === 'ADMIN';
 
+  // Matriz de características permitidas según el plan de suscripción de la empresa
+  const currentPlanCode = (emp?.plan || 'FREE').toUpperCase();
+  const planHasEstablishments = ['ENTERPRISE', 'UNLIMITED', 'PRO'].includes(currentPlanCode);
+  const planHasRecurringInvoices = ['PRO', 'ENTERPRISE', 'UNLIMITED', 'GASTRONOMICO'].includes(currentPlanCode);
+  const planHasProduction = ['GASTRONOMICO', 'ENTERPRISE', 'UNLIMITED'].includes(currentPlanCode);
+  const planHasAts = ['PRO', 'ENTERPRISE', 'UNLIMITED'].includes(currentPlanCode);
+
   // Filtrar ítems por role, tipo de negocio, suscripción, módulos, plan
   const filterItem = (item: MenuItem): boolean => {
     if (!item.roles.includes(currentUser?.role)) return false;
@@ -332,10 +339,13 @@ const Layout: React.FC<LayoutProps> = ({
     if (item.id === 'pago-interno' && !isAdmin) return false;
     if (item.id === 'products' && !isAdmin) return false;
 
-    // Módulos por rol: los empleados (no ADMIN/SUPERADMIN) solo ven los módulos
-    // de su rol. El backend envía en modulePermissions el default del rol +
-    // ajustes por usuario. Si viene vacío (sesión previa a este cambio), no se
-    // filtra para no ocultar todo hasta el próximo login.
+    // Restricciones dinámicas por plan de suscripción
+    if (item.id === 'establishments' && !planHasEstablishments && !isSuperAdmin) return false;
+    if (item.id === 'recurring-invoices' && !planHasRecurringInvoices && !isSuperAdmin) return false;
+    if ((item.id === 'ats' || item.id === 'form-104') && !planHasAts && !isSuperAdmin) return false;
+    if ((item.id === 'recipes' || item.id === 'production') && !planHasProduction && !isSuperAdmin) return false;
+
+    // Módulos por rol: los empleados (no ADMIN/SUPERADMIN) solo ven los módulos de su rol
     if (currentUser?.role !== 'ADMIN' && currentUser?.role !== 'SUPERADMIN' && modulePermissions.length > 0) {
       const moduleCode = menuItemModuleMap[item.id];
       if (moduleCode) {
