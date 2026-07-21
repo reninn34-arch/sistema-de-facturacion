@@ -9,5 +9,6 @@ const verifyToken = require('../../middleware/jwt.middleware');
 router.post('/send-email', verifyToken, notificationController.sendEmail);
 router.post('/send-sms', verifyToken, notificationController.sendSMS);
 router.post('/send-whatsapp', verifyToken, notificationController.sendWhatsApp);
+router.post('/notify-authorized-document', verifyToken, notificationController.notifyAuthorizedDocument);
 
 module.exports = router;

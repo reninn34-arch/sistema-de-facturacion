@@ -233,6 +233,63 @@ const notificationController = {
       logger.error(`❌ Error enviando WhatsApp a ${to}`, error);
       return res.status(500).json({ success: false, error: error.message });
     }
+  },
+
+  notifyAuthorizedDocument: async (req, res) => {
+    const { documentId, recipientEmail, recipientPhone, documentNumber, total, accessKey } = req.body;
+    const businessId = req.user?.businessId;
+
+    if (!businessId || !documentId) {
+      return res.status(400).json({ success: false, error: 'Faltan parámetros requeridos: businessId y documentId' });
+    }
+
+    // Responder inmediatamente al frontend sin esperar a las redes externas
+    res.json({ success: true, message: 'Procesamiento de notificaciones iniciado en segundo plano' });
+
+    // Despacho asíncrono en background
+    setImmediate(async () => {
+      try {
+        const business = await prisma.business.findUnique({
+          where: { id: businessId },
+          select: { name: true, notificationSettings: true }
+        });
+        const settings = business?.notificationSettings || {};
+
+        // 1. WhatsApp en segundo plano
+        if (settings.whatsappEnabled && recipientPhone && settings.twilioAccountSid && settings.twilioAuthToken && settings.whatsappNumber) {
+          try {
+            const twilio = require('twilio')(settings.twilioAccountSid, settings.twilioAuthToken);
+            const fromNumber = settings.whatsappNumber.startsWith('whatsapp:') ? settings.whatsappNumber : `whatsapp:${settings.whatsappNumber}`;
+            const toNumber = recipientPhone.startsWith('whatsapp:') ? recipientPhone : `whatsapp:${recipientPhone}`;
+            await twilio.messages.create({
+              body: `📄 Su Factura Electrónica N° ${documentNumber} por $${Number(total || 0).toFixed(2)} de ${business?.name || 'la empresa'} ha sido AUTORIZADA por el SRI. Clave: ${accessKey}`,
+              from: fromNumber,
+              to: toNumber
+            });
+            logger.info(`✅ WhatsApp background enviado a ${recipientPhone}`);
+          } catch (e) {
+            logger.error(`⚠️ Error en WhatsApp background: ${e.message}`);
+          }
+        }
+
+        // 2. SMS en segundo plano
+        if (settings.smsEnabled && recipientPhone && settings.twilioAccountSid && settings.twilioAuthToken && settings.twilioPhoneNumber) {
+          try {
+            const twilio = require('twilio')(settings.twilioAccountSid, settings.twilioAuthToken);
+            await twilio.messages.create({
+              body: `Factura ${documentNumber} ($${Number(total || 0).toFixed(2)}) autorizada por SRI. Clave: ${accessKey}`,
+              from: settings.twilioPhoneNumber,
+              to: recipientPhone
+            });
+            logger.info(`✅ SMS background enviado a ${recipientPhone}`);
+          } catch (e) {
+            logger.error(`⚠️ Error en SMS background: ${e.message}`);
+          }
+        }
+      } catch (err) {
+        logger.error(`❌ Error en notifyAuthorizedDocument background:`, err.message);
+      }
+    });
   }
 };
 

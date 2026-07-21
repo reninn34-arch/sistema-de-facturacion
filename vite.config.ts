@@ -28,6 +28,32 @@ export default defineConfig(({ mode }) => {
         alias: {
           '@': path.resolve(__dirname, '.'),
         }
+      },
+      build: {
+        chunkSizeWarningLimit: 1000,
+        rollupOptions: {
+          output: {
+            manualChunks(id) {
+              if (id.includes('node_modules')) {
+                if (id.includes('node-forge') || id.includes('crypto')) {
+                  return 'vendor-crypto';
+                }
+                if (id.includes('jspdf') || id.includes('html2canvas')) {
+                  return 'vendor-pdf';
+                }
+                if (id.includes('recharts')) {
+                  return 'vendor-charts';
+                }
+                if (id.includes('heroicons')) {
+                  return 'vendor-icons';
+                }
+                if (id.includes('react') || id.includes('react-dom') || id.includes('react-router-dom')) {
+                  return 'vendor-react';
+                }
+              }
+            }
+          }
+        }
       }
     };
 });

@@ -600,4 +600,66 @@ router.get('/api/business/sri/status', async (req, res) => {
   res.json({ success: true, status: 'ONLINE', message: 'Servicio SRI de pruebas simulación disponible' });
 });
 
+// ============================================
+// ENDPOINT: Reintentar comprobantes PENDING / No autorizados
+// ============================================
+router.post('/api/sri/retry-pending', authenticate, async (req, res) => {
+  try {
+    const businessId = req.user.businessId;
+    if (!businessId) {
+      return res.status(400).json({ success: false, error: 'Contexto de empresa no encontrado' });
+    }
+
+    const pendingDocs = await prisma.document.findMany({
+      where: {
+        businessId: businessId,
+        status: 'PENDING',
+        accessKey: { not: null }
+      },
+      take: 20
+    });
+
+    if (pendingDocs.length === 0) {
+      return res.json({ success: true, count: 0, message: 'No hay comprobantes pendientes por reintentar', updatedDocuments: [] });
+    }
+
+    const updatedDocuments = [];
+    for (const doc of pendingDocs) {
+      if (!doc.accessKey) continue;
+      try {
+        const endpoint = req.body.isProduction ? SRI_ENDPOINTS.PROD.AUTORIZACION : SRI_ENDPOINTS.TEST.AUTORIZACION;
+        const soapXml = buildAutorizacionSoapRequest(doc.accessKey);
+        const soapRes = await callSoapService(endpoint, soapXml, 'autorizacionComprobante');
+
+        if (soapRes.success) {
+          const parsed = parseAutorizacionResponse(soapRes.data);
+          if (parsed.success && parsed.estado === 'AUTORIZADO') {
+            const updated = await prisma.document.update({
+              where: { id: doc.id },
+              data: {
+                status: 'AUTHORIZED',
+                accessKey: parsed.data.numeroAutorizacion || doc.accessKey,
+                authorizedXml: parsed.data.comprobante || doc.authorizedXml
+              }
+            });
+            updatedDocuments.push(updated);
+          }
+        }
+      } catch (err) {
+        logger.error(`❌ Error en reintento SRI de doc ${doc.id}:`, err.message);
+      }
+    }
+
+    res.json({
+      success: true,
+      count: updatedDocuments.length,
+      message: `Se reintentaron y actualizaron ${updatedDocuments.length} comprobantes a AUTORIZADO`,
+      updatedDocuments
+    });
+  } catch (error) {
+    logger.error('❌ Error en /api/sri/retry-pending:', error);
+    res.status(500).json({ success: false, error: `Error reintentando pendientes: ${error.message}` });
+  }
+});
+
 module.exports = router;
