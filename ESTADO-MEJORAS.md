@@ -1,6 +1,6 @@
 # Estado de mejoras y pendientes
 
-Resumen breve de lo corregido y lo que falta revisar. Actualizado: 2026-07-20.
+Resumen breve de lo corregido y lo que falta revisar. Actualizado: 2026-07-21.
 
 ---
 
@@ -8,6 +8,12 @@ Resumen breve de lo corregido y lo que falta revisar. Actualizado: 2026-07-20.
 
 | Área | Qué estaba mal / Cómo se solucionó |
 |---|---|
+| **Exportación a Excel / CSV (Reportes)** | Se creó `excelService.ts` con codificación UTF-8 BOM (`\uFEFF`) para que Microsoft Excel abra archivos con tildes y eñes sin distorsión. Integrado en **Libro de Ventas**, **Kardex** y **Anexo Transaccional (ATS)** con subtotales por período. |
+| **Revocación Masiva de Sesiones** | Se implementó el endpoint atómico `POST /api/business/sessions/revoke-others` para invalidar todas las sesiones activas en otros dispositivos en un solo llamado. Se añadió fallback de token `adminToken || token` en `SessionsPage.tsx`. |
+| **Soporte PWA & POS Offline** | Se creó `public/manifest.json` y el Service Worker `public/sw.js` registrado en `index.html` para la instalación de Azul POS como PWA y la carga en caché offline de la interfaz de venta rápida. |
+| **Optimización Bundle React** | Se aplicó code-splitting con `React.lazy()` en el enrutador y `manualChunks` en Vite (`vendor-pdf`, `vendor-crypto`, `vendor-react`, `vendor-icons`), reduciendo el paquete inicial de **1.38 MB a 155 kB** (**~89% de reducción**). |
+| **Reintentos SRI & Notificaciones Asíncronas** | Se añadió `/api/sri/retry-pending` para reconsultar comprobantes en `PENDING` ante el WSDL del SRI, y `/api/notifications/notify-authorized-document` para desacoplar el envío en segundo plano de Email, SMS y WhatsApp sin congelar la UI. |
+| **Modo Pruebas Sin Firma (.p12)** | Se clasificó la ausencia de certificado con el código `NO_CERTIFICATE` en backend. En ambiente de pruebas (`!isProduction`), `sriService.ts` permite continuar sin firma, previniendo bloqueos en emisiones de prueba sin certificado cargado. |
 | **Pruebas de Calidad (Backend & E2E)** | Se ejecutaron y ajustaron las suites de pruebas automatizadas. **102 de 102** pruebas backend (Jest + Supertest en caja blanca, gris y negra) y **28 de 28** pruebas E2E (Playwright en navegador Chromium) pasaron exitosamente al 100%. |
 | **Firma .p12 Cifrada (Fase B Cutover)** | El frontend exigía seleccionar el archivo `.p12` local en cada emisión. Se completó el cutover pasando `businessId` a `/api/sri/sign-xml` en `sriService.ts`, `InvoiceForm`, `CreditNoteForm` y `PendingTickets`. El backend ahora descifra y firma en memoria usando la firma guardada del negocio (`electronicSignature` y `sriPassword`). |
 | **Portal de Clientes / RIDE & XML** | Los botones de "Descargar PDF" y "Descargar XML" en el portal de clientes no tenían eventos `onClick`. La consulta `findDocumentsByEntityRuc` omitía las relaciones `items` y `business`. Se integró `<RideViewer />`, descarga nativa de XML y carga de relaciones necesarias. |
