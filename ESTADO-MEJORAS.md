@@ -51,8 +51,8 @@ Resumen breve de lo corregido y lo que falta revisar. Actualizado: 2026-07-21.
 ## ⏳ Pendiente / no inspeccionado
 
 ### ⚠️ Riesgos Críticos y Pendientes de Regla de Negocio
-- **1) Fallback `db push --accept-data-loss` en Deploy (Riesgo Alto):** En `scripts/migrate-deploy.js`, el fallback en despliegue automático utiliza `execSync('npx prisma db push --accept-data-loss')`. Es el **riesgo más grande que queda**: si en el futuro se elimina o renombra una columna en `schema.prisma`, `db push` borrará columnas y datos en la base de datos de producción automáticamente y sin pedir confirmación. Se debe establecer un baseline oficial (`prisma migrate resolve`) cuando se estabilice el esquema.
-- **2) Criterio "Verificar antes de borrar" en Clientes y Productos:** La validación de integridad referencial que impida borrar un cliente o un producto si ya tiene facturas o documentos asociados (`Document`) queda **pendiente a propósito**, debido a que el sistema continúa en fase de pruebas activas.
+- **1) Protección contra Pérdida de Datos en Deploy:** ✅ Resuelto. Se eliminó la bandera `--accept-data-loss` en `backend/scripts/migrate-deploy.js`. Si `npx prisma migrate deploy` requiere intervención manual, `npx prisma db push` ejecuta de forma segura adicionando tablas y columnas nuevas sin riesgo de eliminar datos o borrar columnas existentes en producción.
+- **2) Integridad Referencial ("Verificar antes de borrar"):** ✅ Resuelto. Implementado en `business.service.js` bloqueando la eliminación de clientes o productos con comprobantes emitidos.
 
 ### Bloqueado por recursos externos
 - **Emisión de prueba real contra el SRI**: requiere un certificado `.p12` de una **CA acreditada** (el de prueba actual es auto-firmado y el SRI lo rechaza). Es lo único que valida el flujo completo de punta a punta.

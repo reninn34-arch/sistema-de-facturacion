@@ -41,9 +41,9 @@ try {
   execSync('npx prisma migrate deploy', { stdio: 'inherit', env: process.env });
   console.log('[migrate] Migraciones aplicadas.');
 } catch (error) {
-  console.warn('[migrate] prisma migrate deploy falló. Intentando npx prisma db push como alternativa...');
+  console.warn('[migrate] prisma migrate deploy falló. Intentando npx prisma db push como alternativa segura (sin destrucción de datos)...');
   try {
-    execSync('npx prisma db push --accept-data-loss', { stdio: 'inherit', env: process.env });
+    execSync('npx prisma db push', { stdio: 'inherit', env: process.env });
     console.log('[migrate] Base de datos sincronizada correctamente con db push.');
   } catch (pushError) {
     console.error('[migrate] Error crítico aplicando migraciones y db push:', pushError.message);
