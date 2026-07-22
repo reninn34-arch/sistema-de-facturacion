@@ -2,6 +2,7 @@ import React, { useState, useMemo, useId } from 'react';
 import { Client } from '../../../types/types';
 import { validateEcuadorianId, getEntityAvatarColor } from '../../../utils/validation';
 import CsvImportModal from '../../../components/ui/CsvImportModal';
+import { client } from '../../../api/client';
 import {
   IdentificationIcon,
   ShoppingCartIcon,
@@ -108,12 +109,6 @@ const ClientManager: React.FC<ClientManagerProps> = ({ clients, setClients, onNo
     // 2. LÓGICA MODO LIVE (Backend)
     setLoading(true);
     try {
-      const token = localStorage.getItem('adminToken');
-      const headers = {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`
-      };
-
       const payload = {
         ...formData,
         email: formData.email || '',
@@ -124,41 +119,21 @@ const ClientManager: React.FC<ClientManagerProps> = ({ clients, setClients, onNo
 
       if (editingClient) {
         // ACTUALIZAR (PUT)
-        const response = await fetch(`${API_URL}/api/clients/${editingClient.id}`, {
-          method: 'PUT',
-          headers,
-          body: JSON.stringify(payload)
-        });
-
-        if (!response.ok) {
-          const err = await response.json().catch(() => ({}));
-          throw new Error(err.message || err.error || 'Error al actualizar cliente');
-        }
-
-        const updatedClient = await response.json();
+        const res = await client.put(`/api/clients/${editingClient.id}`, payload);
+        const updatedClient = res.data;
         setClients(safeClients.map(c => c.id === editingClient.id ? updatedClient : c));
         onNotify("Entidad actualizada correctamente en base de datos");
       } else {
         // CREAR (POST)
-        const response = await fetch(`${API_URL}/api/clients`, {
-          method: 'POST',
-          headers,
-          body: JSON.stringify(payload)
-        });
-
-        if (!response.ok) {
-          const err = await response.json().catch(() => ({}));
-          throw new Error(err.message || err.error || 'Error al crear cliente');
-        }
-
-        const newClient = await response.json();
+        const res = await client.post('/api/clients', payload);
+        const newClient = res.data;
         setClients([newClient, ...clients]);
         onNotify("Entidad guardada exitosamente");
       }
       setShowModal(false);
     } catch (error: any) {
-      console.error(error);
-      onNotify(error.message || "Error de conexión con el servidor", "error");
+      const msg = error?.response?.data?.message || error.message || "Error de conexión con el servidor";
+      onNotify(msg, "error");
     } finally {
       setLoading(false);
     }
@@ -186,21 +161,15 @@ const ClientManager: React.FC<ClientManagerProps> = ({ clients, setClients, onNo
 
       // 2. MODO LIVE
       try {
-        const token = localStorage.getItem('token') || localStorage.getItem('adminToken');
-        const response = await fetch(`${API_URL}/api/clients/${id}`, {
-          method: 'DELETE',
-          headers: { 'Authorization': `Bearer ${token}` }
-        });
-        const data = await response.json();
-        if (!response.ok) throw new Error(data.message || data.error || 'Error al eliminar cliente');
-
+        await client.delete(`/api/clients/${id}`);
         setClients(safeClients.filter(c => c.id !== id));
         onNotify("Entidad eliminada de la base de datos", "success");
       } catch (error: any) {
-        onNotify(error.message || "Error al eliminar del servidor", "error");
+        const msg = error?.response?.data?.message || error.message || "Error al eliminar del servidor";
+        onNotify(msg, "error");
       }
     }
-  }; // <--- AQUÍ TERMINA LA FUNCIÓN handleDelete
+  };
 
   const handleResetPassword = async () => {
     if (!resetPasswordClient || !newPassword) {
@@ -219,27 +188,14 @@ const ClientManager: React.FC<ClientManagerProps> = ({ clients, setClients, onNo
 
     // MODO LIVE
     try {
-      const response = await fetch(`${API_URL}/api/clients/${resetPasswordClient.id}/reset-password`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('adminToken')}`
-        },
-        body: JSON.stringify({ newPassword })
-      });
-
-      if (!response.ok) {
-        const err = await response.json().catch(() => ({}));
-        throw new Error(err.message || 'Error al resetear contraseña');
-      }
-
+      await client.post(`/api/clients/${resetPasswordClient.id}/reset-password`, { newPassword });
       onNotify("Contraseña restablecida correctamente");
       setShowResetModal(false);
       setNewPassword('');
       setResetPasswordClient(null);
     } catch (error: any) {
-      console.error(error);
-      onNotify(error.message || "Error de conexión con el servidor", "error");
+      const msg = error?.response?.data?.message || error.message || "Error de conexión con el servidor";
+      onNotify(msg, "error");
     }
   };
 

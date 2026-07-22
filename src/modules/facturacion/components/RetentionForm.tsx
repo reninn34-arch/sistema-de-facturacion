@@ -59,11 +59,11 @@ export default function RetentionForm({ business, clients, onSubmit }: Retention
     const newTaxes = [...taxes];
     newTaxes[index] = { ...newTaxes[index], [field]: value };
 
-    // Calcular valor retenido automáticamente
+    // Calcular valor retenido automáticamente (redondeo exacto al centavo SRI)
     if (field === 'baseImponible' || field === 'percentage') {
-      const base = field === 'baseImponible' ? parseFloat(value) : newTaxes[index].baseImponible;
-      const percent = field === 'percentage' ? parseFloat(value) : newTaxes[index].percentage;
-      newTaxes[index].taxValue = (base * percent) / 100;
+      const base = field === 'baseImponible' ? (parseFloat(value) || 0) : newTaxes[index].baseImponible;
+      const percent = field === 'percentage' ? (parseFloat(value) || 0) : newTaxes[index].percentage;
+      newTaxes[index].taxValue = Math.round(((base * percent) / 100 + Number.EPSILON) * 100) / 100;
     }
 
     // Actualizar porcentaje según código
@@ -73,7 +73,7 @@ export default function RetentionForm({ business, clients, onSubmit }: Retention
       const selected = percentages.find(p => p.code === value);
       if (selected) {
         newTaxes[index].percentage = selected.percentage;
-        newTaxes[index].taxValue = (newTaxes[index].baseImponible * selected.percentage) / 100;
+        newTaxes[index].taxValue = Math.round(((newTaxes[index].baseImponible * selected.percentage) / 100 + Number.EPSILON) * 100) / 100;
       }
     }
 
@@ -85,7 +85,8 @@ export default function RetentionForm({ business, clients, onSubmit }: Retention
   };
 
   const calculateTotalRetained = () => {
-    return taxes.reduce((sum, tax) => sum + tax.taxValue, 0);
+    const sum = taxes.reduce((acc, tax) => acc + (tax.taxValue || 0), 0);
+    return Math.round((sum + Number.EPSILON) * 100) / 100;
   };
 
   const handleSubmit = (e: React.FormEvent) => {
