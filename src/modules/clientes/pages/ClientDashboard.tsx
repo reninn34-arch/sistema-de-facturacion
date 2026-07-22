@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo, useId } from 'react';
 import { Document } from '../../../types/types';
-import { DocumentTextIcon, ArrowRightOnRectangleIcon, CheckCircleIcon, CreditCardIcon, ClockIcon, DocumentIcon, CodeBracketIcon, LockClosedIcon, QuestionMarkCircleIcon } from '@heroicons/react/24/outline';
+import { DocumentTextIcon, ArrowRightOnRectangleIcon, CheckCircleIcon, CreditCardIcon, ClockIcon, DocumentIcon, CodeBracketIcon, LockClosedIcon, QuestionMarkCircleIcon, SunIcon, MoonIcon } from '@heroicons/react/24/outline';
 import RideViewer from '../../facturacion/components/RideViewer';
 
 const API_URL = import.meta.env.VITE_BACKEND_URL || '';
@@ -12,6 +12,30 @@ const ClientDashboard = () => {
   const [loading, setLoading] = useState(true);
   const [user, setUser] = useState<any>(null);
   const [userType, setUserType] = useState<'BUSINESS' | 'CLIENT' | null>(null);
+
+  const [isDarkMode, setIsDarkMode] = useState(() => {
+    const userStr = localStorage.getItem('clientUser');
+    const client = userStr ? JSON.parse(userStr) : null;
+    const key = client?.id || client?.identification || 'client';
+    const saved = localStorage.getItem(`app_theme_${key}`) || localStorage.getItem('app_theme_global');
+    if (saved !== null) return saved === 'dark';
+    return document.documentElement.classList.contains('dark');
+  });
+
+  useEffect(() => {
+    document.documentElement.classList.toggle('dark', isDarkMode);
+  }, [isDarkMode]);
+
+  const toggleDarkMode = () => {
+    const next = !isDarkMode;
+    setIsDarkMode(next);
+    document.documentElement.classList.toggle('dark', next);
+    const userStr = localStorage.getItem('clientUser');
+    const client = userStr ? JSON.parse(userStr) : null;
+    const key = client?.id || client?.identification || 'client';
+    localStorage.setItem(`app_theme_${key}`, next ? 'dark' : 'light');
+    localStorage.setItem('app_theme_global', next ? 'dark' : 'light');
+  };
   
   // Password change state
   const [newPassword, setNewPassword] = useState('');
@@ -203,8 +227,17 @@ const ClientDashboard = () => {
                 )}
               </div>
             </div>
-            <div className="flex items-center gap-4">
-              <div className="flex items-center gap-3 pl-4 border-l border-[#cfd7e7] dark:border-slate-700">
+            <div className="flex items-center gap-3 sm:gap-4">
+              <button
+                type="button"
+                onClick={toggleDarkMode}
+                className="p-2 rounded-xl text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-amber-500 dark:hover:text-amber-400 transition-all min-w-[40px] min-h-[40px] flex items-center justify-center border border-slate-200 dark:border-slate-700"
+                title={isDarkMode ? 'Cambiar a Modo Claro' : 'Cambiar a Modo Oscuro'}
+                aria-label="Alternar tema claro/oscuro"
+              >
+                {isDarkMode ? <SunIcon className="w-5 h-5 text-amber-500" /> : <MoonIcon className="w-5 h-5 text-slate-600 dark:text-slate-300" />}
+              </button>
+              <div className="flex items-center gap-3 pl-3 sm:pl-4 border-l border-[#cfd7e7] dark:border-slate-700">
                 <div className="text-right hidden sm:block">
                   <p className="text-sm font-bold text-[#0d121b] dark:text-white leading-none">
                     {user?.type === 'BUSINESS' ? user?.name : (user?.name || 'Cliente')}

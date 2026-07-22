@@ -157,27 +157,29 @@ const SubscriptionPage: React.FC = () => {
   }, []);
 
   const [isDarkMode, setIsDarkMode] = useState(() => {
-    const saved = localStorage.getItem('subscriptionPageDarkMode');
-    if (saved !== null) return JSON.parse(saved);
-    return false;
+    const userStr = localStorage.getItem('adminUser') || localStorage.getItem('clientUser');
+    const user = userStr ? JSON.parse(userStr) : null;
+    const key = user?.id || user?.email || 'guest';
+    const saved = localStorage.getItem(`app_theme_${key}`) || localStorage.getItem('subscriptionPageDarkMode') || localStorage.getItem('app_theme_global');
+    if (saved !== null) return saved === 'dark' || saved === true || saved === 'true';
+    return document.documentElement.classList.contains('dark');
   });
 
   useEffect(() => {
-    localStorage.setItem('subscriptionPageDarkMode', JSON.stringify(isDarkMode));
-    if (isDarkMode) {
-      document.documentElement.classList.add('dark');
-    } else {
-      document.documentElement.classList.remove('dark');
-    }
+    document.documentElement.classList.toggle('dark', isDarkMode);
   }, [isDarkMode]);
 
-  // Al salir de esta página, no dejar el modo oscuro "pegado" en las
-  // páginas públicas (landing, ayuda, etc.) que solo tienen tema claro.
-  useEffect(() => {
-    return () => { document.documentElement.classList.remove('dark'); };
-  }, []);
-
-  const toggleDarkMode = () => setIsDarkMode(!isDarkMode);
+  const toggleDarkMode = () => {
+    const next = !isDarkMode;
+    setIsDarkMode(next);
+    document.documentElement.classList.toggle('dark', next);
+    const userStr = localStorage.getItem('adminUser') || localStorage.getItem('clientUser');
+    const user = userStr ? JSON.parse(userStr) : null;
+    const key = user?.id || user?.email || 'guest';
+    localStorage.setItem(`app_theme_${key}`, next ? 'dark' : 'light');
+    localStorage.setItem('app_theme_global', next ? 'dark' : 'light');
+    localStorage.setItem('subscriptionPageDarkMode', JSON.stringify(next));
+  };
 
   const reloadPlans = async () => {
     try {
@@ -413,7 +415,16 @@ const SubscriptionPage: React.FC = () => {
             <a className="text-slate-600 text-sm font-semibold hover:text-[#0EA5E9] transition-colors" href="#">Características</a>
             <a className="text-slate-600 text-sm font-semibold hover:text-[#0EA5E9] transition-colors" href="#">Soporte</a>
           </nav>
-          <div className="flex gap-2">
+          <div className="flex gap-2 items-center">
+            <button
+              type="button"
+              onClick={toggleDarkMode}
+              className="p-2 rounded-xl text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-amber-500 dark:hover:text-amber-400 transition-all min-w-[40px] min-h-[40px] flex items-center justify-center border border-slate-200 dark:border-slate-700"
+              title={isDarkMode ? 'Cambiar a Modo Claro' : 'Cambiar a Modo Oscuro'}
+              aria-label="Alternar tema claro/oscuro"
+            >
+              {isDarkMode ? <SunIcon className="w-5 h-5 text-amber-500" /> : <MoonIcon className="w-5 h-5 text-slate-600 dark:text-slate-300" />}
+            </button>
             <button type="button" onClick={() => window.location.href = '/'} className="flex cursor-pointer items-center justify-center rounded-xl h-9 sm:h-10 px-3 sm:px-4 sm:min-w-[100px] bg-[#0EA5E9] text-white text-xs sm:text-sm font-bold tracking-tight hover:bg-[#0369A1] transition-all shadow-md shadow-[#0EA5E9]/20">
               Inicio
             </button>

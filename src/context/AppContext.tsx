@@ -175,10 +175,23 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     }
   }, [currentUser, activeTab, showNotify]);
 
-  const isDarkMode = businessInfo.features?.isDarkMode ?? false;
   useEffect(() => {
-    document.documentElement.classList.toggle('dark', isDarkMode);
-  }, [isDarkMode]);
+    const userKey = currentUser?.id || currentUser?.email || 'guest';
+    const userTheme = localStorage.getItem(`app_theme_${userKey}`) || localStorage.getItem('app_theme_global');
+    if (userTheme !== null) {
+      const isDark = userTheme === 'dark';
+      document.documentElement.classList.toggle('dark', isDark);
+      if (businessInfo.features?.isDarkMode !== isDark) {
+        setBusinessInfo(prev => ({
+          ...prev,
+          features: { ...(prev.features || {}), isDarkMode: isDark }
+        }));
+      }
+    } else {
+      const isDark = businessInfo.features?.isDarkMode ?? false;
+      document.documentElement.classList.toggle('dark', isDark);
+    }
+  }, [currentUser, businessInfo.features?.isDarkMode]);
 
   const currentPlanCode = businessInfo.plan;
   useEffect(() => {
@@ -526,6 +539,11 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     };
 
     setBusinessInfo(prev => ({ ...prev, features: updatedFeatures }));
+    document.documentElement.classList.toggle('dark', newIsDark);
+
+    const userKey = currentUser?.id || currentUser?.email || 'guest';
+    localStorage.setItem(`app_theme_${userKey}`, newIsDark ? 'dark' : 'light');
+    localStorage.setItem('app_theme_global', newIsDark ? 'dark' : 'light');
 
     showNotify(newIsDark ? "Modo oscuro activado 🌙" : "Modo claro activado ☀️");
 
@@ -542,7 +560,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     } catch (error) {
       console.error("Error guardando preferencia de tema", error);
     }
-  }, [businessInfo.features, showNotify]);
+  }, [businessInfo.features, currentUser, showNotify]);
 
   const toggleDemoMode = useCallback(async () => {
     const currentIsDemo = businessInfo.isDemo || false;
