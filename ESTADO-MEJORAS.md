@@ -18,6 +18,7 @@ Resumen estructurado por módulos de las funcionalidades implementadas, correcci
 8. [✉️ Notificaciones Asíncronas (Email, SMS, WhatsApp)](#8-notificaciones-asíncronas-email-sms-whatsapp)
 9. [⚡ Infraestructura, Deploy & Rendimiento Frontend](#9-infraestructura-deploy--rendimiento-frontend)
 10. [✅ Pruebas de Calidad & Cobertura](#10-pruebas-de-calidad--cobertura)
+11. [⏳ Pendientes & Aspectos de Operación Externa](#11-pendientes--aspectos-de-operación-externa)
 
 ---
 
@@ -125,3 +126,13 @@ Resumen estructurado por módulos de las funcionalidades implementadas, correcci
 - **Pruebas E2E Frontend (Playwright):** **28 de 28** pruebas en navegador Chromium pasando al 100% (`npm run test:e2e`).
 - **Construcción de Producción (Vite):** **0 errores de compilación** (`✓ built in 6.02s`).
 - **Despliegue Activo en Vercel:** [https://clone-system.vercel.app](https://clone-system.vercel.app).
+
+---
+
+## 11. ⏳ Pendientes & Aspectos de Operación Externa
+
+### 🌐 Bloqueado por Recursos Externos
+- **Emisión Real contra WSDL del SRI:** La emisión de comprobantes reales en ambiente de pruebas o producción del SRI requiere la carga de un certificado digital `.p12` emitido por una Autoridad de Certificación acreditada en Ecuador (Security Data, Banco Central, FirmaEC, Consejo de la Judicatura, E-Sign). Los certificados autofirmados de prueba son rechazados por los servidores WSDL del SRI con la regla *"Firma inválida o no autorizada"*.
+
+### ⚙️ Consideraciones de Entorno Serverless & Rate Limiting
+- **Rate Limiting Distribuido (Vercel Serverless):** En entornos serverless como Vercel, cada petición HTTP puede ejecutarse en contenedores independientes sin estado persistente. Para habilitar un límite de peticiones global (`express-rate-limit`) se requiere integrar una base de datos distribuida en memoria (Redis / Upstash). La seguridad anti-fuerza bruta en inicios de sesión se mantiene asegurada mediante el bloqueo por contador de intentos fallidos registrado en la base de datos por usuario.
