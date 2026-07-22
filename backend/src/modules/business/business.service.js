@@ -527,6 +527,8 @@ class BusinessService {
         }
       }
 
+      const estab = data.establishmentCode || '001';
+
       // Inventory: invoice (VENTA)
       if (itemsList.length > 0 && docType === '01') {
         await Promise.all(itemsList.map(async (item) => {
@@ -534,8 +536,14 @@ class BusinessService {
             const product = await this.repo.findProductById(tx, item.productId);
             if (product && product.businessId === businessId) {
               const previousStock = product.stock;
-              const newStock = previousStock - item.quantity;
-              await this.repo.updateProductStock(tx, item.productId, { stock: newStock });
+              let branchMap = (product.branchStock && typeof product.branchStock === 'object')
+                ? { ...product.branchStock }
+                : { '001': previousStock };
+              const currentInBranch = Number(branchMap[estab]) || (estab === '001' ? previousStock : 0);
+              branchMap[estab] = Math.max(0, currentInBranch - item.quantity);
+              const newStock = Object.values(branchMap).reduce((s, v) => s + (Number(v) || 0), 0);
+
+              await this.repo.updateProductStock(tx, item.productId, { stock: newStock, branchStock: branchMap });
               await this.repo.createInventoryMovement(tx, {
                 productId: item.productId, documentId: doc.id, type: 'VENTA',
                 quantity: -item.quantity, previousStock, newStock
@@ -552,8 +560,14 @@ class BusinessService {
             const product = await this.repo.findProductById(tx, item.productId);
             if (product && product.businessId === businessId) {
               const previousStock = product.stock;
-              const newStock = previousStock + item.quantity;
-              await this.repo.updateProductStock(tx, item.productId, { stock: newStock });
+              let branchMap = (product.branchStock && typeof product.branchStock === 'object')
+                ? { ...product.branchStock }
+                : { '001': previousStock };
+              const currentInBranch = Number(branchMap[estab]) || (estab === '001' ? previousStock : 0);
+              branchMap[estab] = currentInBranch + item.quantity;
+              const newStock = Object.values(branchMap).reduce((s, v) => s + (Number(v) || 0), 0);
+
+              await this.repo.updateProductStock(tx, item.productId, { stock: newStock, branchStock: branchMap });
               await this.repo.createInventoryMovement(tx, {
                 productId: item.productId, documentId: doc.id, type: 'DEVOLUCION',
                 quantity: item.quantity, previousStock, newStock
@@ -566,12 +580,18 @@ class BusinessService {
       // Inventory: purchase (COMPRA)
       if (itemsList.length > 0 && docType === '03') {
         await Promise.all(itemsList.map(async (item) => {
-          if (item.type === 'FISICO') {
+          if (item.type === 'FISICO' && item.productId) {
             const product = await this.repo.findProductById(tx, item.productId);
             if (product && product.businessId === businessId) {
               const previousStock = product.stock;
-              const newStock = previousStock + item.quantity;
-              await this.repo.updateProductStock(tx, item.productId, { stock: newStock });
+              let branchMap = (product.branchStock && typeof product.branchStock === 'object')
+                ? { ...product.branchStock }
+                : { '001': previousStock };
+              const currentInBranch = Number(branchMap[estab]) || (estab === '001' ? previousStock : 0);
+              branchMap[estab] = currentInBranch + item.quantity;
+              const newStock = Object.values(branchMap).reduce((s, v) => s + (Number(v) || 0), 0);
+
+              await this.repo.updateProductStock(tx, item.productId, { stock: newStock, branchStock: branchMap });
               await this.repo.createInventoryMovement(tx, {
                 productId: item.productId, documentId: doc.id, type: 'COMPRA',
                 quantity: item.quantity, previousStock, newStock

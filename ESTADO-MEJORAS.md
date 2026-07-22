@@ -8,6 +8,7 @@ Resumen breve de lo corregido y lo que falta revisar. Actualizado: 2026-07-21.
 
 | Área | Qué estaba mal / Cómo se solucionó |
 |---|---|
+| **Sincronización Multisucursal en Ventas, Devoluciones y Compras** | Se actualizó `business.service.js` para que al emitir Facturas (`01`), Notas de Crédito por devolución (`04`) o Compras (`03`), la afectación de stock impacte atómicamente la sucursal emisora (`Product.branchStock[estab]`) y sincronice el stock global del producto. |
 | **Integridad Referencial (Clientes y Productos)** | Se implementó el control de prevención de borrado ("Verificar antes de borrar") en `business.service.js`. Si un cliente tiene comprobantes emitidos o un producto está incluido en facturas registradas, el backend bloquea la eliminación notificando al usuario en la UI en lugar de causar errores de clave foránea. |
 | **Traslado de Inventario entre Sucursales** | Se creó `StockTransferModal.tsx` y la API atómica `POST /api/products/transfer-stock`. Modifica en memoria/BD la disponibilidad de `Product.branchStock` por local, recalcula el stock global y añade el evento de transferencia al Kardex. Se integró el botón "Trasladar Stock" en `ProductManager.tsx`. |
 | **Filtros por Sucursal en Kardex, ATS XML y Formulario 104** | Se añadieron selectores de establecimiento/sucursal (`001`, `002`...) en `Kardex.tsx`, `ATSReport.tsx` y `Form104.tsx`. Permite a contadores y administradores desglosar la información tributaria y movimientos de inventario por local específico o en consolidado total. |
