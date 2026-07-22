@@ -84,7 +84,7 @@ export default function RecipeManager({ products, onNotify }: RecipeManagerProps
         ...updated[idx], 
         productId: value,
         unitOfMeasure: product?.unitOfMeasure || updated[idx].unitOfMeasure,
-        estimatedCost: product ? (product.price || 0) : updated[idx].estimatedCost
+        estimatedCost: product ? (product.costPrice ?? product.price ?? 0) : updated[idx].estimatedCost
       };
     } else {
       updated[idx] = { ...updated[idx], [field]: value };

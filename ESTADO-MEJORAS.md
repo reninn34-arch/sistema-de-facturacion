@@ -46,6 +46,7 @@ Resumen estructurado por módulos de las funcionalidades implementadas, correcci
 | **Asignación de Puntos de Emisión** | Campos `establishmentCode` y `emissionPointCode` agregados a la entidad `User` y en `UserManagement.tsx` para restringir la emisión de cajeros a su local y caja asignados. |
 | **Módulo de Establecimientos (`EstablishmentManager.tsx`)** | CRUD para registrar locales comerciales y cajas autorizadas por el SRI. |
 | **Integridad Referencial en Borrado** | Verificación pre-eliminación en `business.service.js` que impide borrar clientes o productos que contengan comprobantes registrados en la base de datos. |
+| **Costo Real en Recetas de Producción** | Agregado `costPrice` a la interfaz `Product` y actualizado `RecipeManager.tsx` para derivar el costo de insumos desde `costPrice ?? price`, calculando el costo real de materia prima por lote. |
 
 ---
 

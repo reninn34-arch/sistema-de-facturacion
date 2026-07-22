@@ -93,6 +93,7 @@ export interface Product {
   type: 'FISICO' | 'SERVICIO';
   unitOfMeasure?: string;
   isRawMaterial?: boolean;
+  costPrice?: number;
   // Campos para SUSCRIPCIONES
   isSubscription?: boolean;
   subscriptionPeriod?: 'mensual' | 'bimestral' | 'trimestral' | 'semestral' | 'anual';
