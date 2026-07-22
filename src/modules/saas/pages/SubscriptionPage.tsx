@@ -401,9 +401,9 @@ const SubscriptionPage: React.FC = () => {
   };
 
   return (
-    <div className="bg-[#F8F9FC] text-slate-900 min-h-screen flex flex-col" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+    <div className="bg-[#F8F9FC] dark:bg-[#0f172a] text-slate-900 dark:text-slate-100 min-h-screen flex flex-col transition-colors duration-200" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
       {/* Header */}
-      <header className="flex items-center justify-between gap-2 whitespace-nowrap border-b border-solid border-slate-200 bg-white px-4 sm:px-6 py-3 sm:py-4 lg:px-40 sticky top-0 z-50 shadow-sm">
+      <header className="flex items-center justify-between gap-2 whitespace-nowrap border-b border-solid border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 px-4 sm:px-6 py-3 sm:py-4 lg:px-40 sticky top-0 z-50 shadow-sm">
         <button type="button" aria-label="Ver planes" className="flex items-center gap-3 cursor-pointer min-w-0 bg-transparent border-0 p-0" onClick={() => setStep('plans')}>
           {landingLogo && (
             <img src={landingLogo} className="h-9 sm:h-12 w-auto max-w-[130px] sm:max-w-[220px] object-contain object-left" alt="Logo" />
@@ -411,9 +411,9 @@ const SubscriptionPage: React.FC = () => {
         </button>
         <div className="flex flex-1 justify-end gap-3 lg:gap-8 items-center">
           <nav className="hidden md:flex items-center gap-8">
-            <a className="text-slate-600 text-sm font-semibold hover:text-[#0EA5E9] transition-colors" href="#" onClick={() => setStep('plans')}>Planes</a>
-            <a className="text-slate-600 text-sm font-semibold hover:text-[#0EA5E9] transition-colors" href="#">Características</a>
-            <a className="text-slate-600 text-sm font-semibold hover:text-[#0EA5E9] transition-colors" href="#">Soporte</a>
+            <a className="text-slate-600 dark:text-slate-300 text-sm font-semibold hover:text-[#0EA5E9] transition-colors" href="#" onClick={() => setStep('plans')}>Planes</a>
+            <a className="text-slate-600 dark:text-slate-300 text-sm font-semibold hover:text-[#0EA5E9] transition-colors" href="#">Características</a>
+            <a className="text-slate-600 dark:text-slate-300 text-sm font-semibold hover:text-[#0EA5E9] transition-colors" href="#">Soporte</a>
           </nav>
           <div className="flex gap-2 items-center">
             <button
@@ -428,7 +428,7 @@ const SubscriptionPage: React.FC = () => {
             <button type="button" onClick={() => window.location.href = '/'} className="flex cursor-pointer items-center justify-center rounded-xl h-9 sm:h-10 px-3 sm:px-4 sm:min-w-[100px] bg-[#0EA5E9] text-white text-xs sm:text-sm font-bold tracking-tight hover:bg-[#0369A1] transition-all shadow-md shadow-[#0EA5E9]/20">
               Inicio
             </button>
-            <button type="button" onClick={() => window.location.href = '/login'} className="flex cursor-pointer items-center justify-center rounded-xl h-9 sm:h-10 px-3 sm:px-4 border border-slate-200 text-slate-700 text-xs sm:text-sm font-bold hover:bg-slate-50 transition-all">
+            <button type="button" onClick={() => window.location.href = '/login'} className="flex cursor-pointer items-center justify-center rounded-xl h-9 sm:h-10 px-3 sm:px-4 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 text-xs sm:text-sm font-bold hover:bg-slate-50 dark:hover:bg-slate-800 transition-all">
               Iniciar Sesión
             </button>
           </div>
@@ -441,10 +441,10 @@ const SubscriptionPage: React.FC = () => {
           {step === 'plans' ? (
             <>
               <div className="flex flex-col gap-4 text-center max-w-2xl mx-auto">
-                <h1 className="text-slate-900 text-3xl sm:text-4xl lg:text-5xl font-extrabold leading-tight tracking-tight">
+                <h1 className="text-slate-900 dark:text-white text-3xl sm:text-4xl lg:text-5xl font-extrabold leading-tight tracking-tight">
                   Elige el plan ideal para tu negocio
                 </h1>
-                <p className="text-slate-500 text-base sm:text-lg font-medium">
+                <p className="text-slate-500 dark:text-slate-400 text-base sm:text-lg font-medium">
                   Optimiza tu facturación electrónica con la plataforma líder en cumplimiento del SRI. Sin complicaciones, 100% digital.
                 </p>
               </div>
@@ -453,7 +453,7 @@ const SubscriptionPage: React.FC = () => {
               {loadingPlans ? (
                 <div className="flex justify-center py-12 gap-4 items-center">
                   <div className="animate-spin text-3xl">&#9203;</div>
-                  <p className="text-slate-500 font-medium">Cargando planes...</p>
+                  <p className="text-slate-500 dark:text-slate-400 font-medium">Cargando planes...</p>
                 </div>
               ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 lg:gap-8 w-full">
@@ -464,8 +464,8 @@ const SubscriptionPage: React.FC = () => {
                       <div
                         className={`flex flex-col gap-6 rounded-2xl border h-full ${
                           isPopular
-                            ? 'border-[#0EA5E9] bg-white p-6 md:p-8 shadow-2xl shadow-[#0EA5E9]/10 transform md:scale-105 z-10 ring-1 ring-[#0EA5E9]/20'
-                            : 'border border-slate-200 bg-white p-6 md:p-8 shadow-sm hover:shadow-lg transition-shadow'
+                            ? 'border-[#0EA5E9] bg-white dark:bg-slate-900 p-6 md:p-8 shadow-2xl shadow-[#0EA5E9]/10 transform md:scale-105 z-10 ring-1 ring-[#0EA5E9]/20'
+                            : 'border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-6 md:p-8 shadow-sm hover:shadow-lg transition-shadow'
                         } ${!plan.isActive ? 'opacity-50' : ''}`}
                       >
                         {isPopular && (
@@ -474,11 +474,11 @@ const SubscriptionPage: React.FC = () => {
                           </div>
                         )}
                         <div className="flex flex-col gap-2">
-                          <h3 className={`${isPopular ? 'text-[#0EA5E9]' : 'text-slate-500'} text-sm font-extrabold uppercase tracking-widest`}>
+                          <h3 className={`${isPopular ? 'text-[#0EA5E9]' : 'text-slate-500 dark:text-slate-400'} text-sm font-extrabold uppercase tracking-widest`}>
                             {plan.name}
                           </h3>
                           <div className="flex items-baseline gap-1 flex-wrap">
-                            <span className={`font-extrabold tracking-tighter ${plan.ctaType === 'WHATSAPP' ? 'text-amber-500 text-2xl sm:text-3xl' : 'text-slate-900 text-4xl md:text-5xl'}`}>
+                            <span className={`font-extrabold tracking-tighter ${plan.ctaType === 'WHATSAPP' ? 'text-amber-500 text-2xl sm:text-3xl' : 'text-slate-900 dark:text-white text-4xl md:text-5xl'}`}>
                               {plan.ctaType === 'WHATSAPP'
                                 ? (plan.ctaWhatsapp?.priceLabel || 'Precio a medida')
                                 : (plan.priceWithTax !== undefined ? plan.priceWithTax : plan.price) === 0 ? 'Gratis' : `$${(plan.priceWithTax !== undefined ? plan.priceWithTax : plan.price).toFixed(2)}`}
@@ -489,14 +489,14 @@ const SubscriptionPage: React.FC = () => {
                               </span>
                             )}
                           </div>
-                          <p className={`text-sm mt-2 leading-relaxed font-medium ${isPopular ? 'text-[#0EA5E9]/80' : 'text-slate-500'}`}>
+                          <p className={`text-sm mt-2 leading-relaxed font-medium ${isPopular ? 'text-[#0EA5E9]/80' : 'text-slate-500 dark:text-slate-400'}`}>
                             {plan.description}
                           </p>
                         </div>
-                        <hr className="border-slate-100" />
+                        <hr className="border-slate-100 dark:border-slate-800" />
                         <div className="flex flex-col gap-4 min-h-[180px]">
                           {plan.features.slice(0, 5).map((feat) => (
-                            <div key={feat} className="flex items-center gap-3 text-slate-700 text-sm font-medium">
+                            <div key={feat} className="flex items-center gap-3 text-slate-700 dark:text-slate-300 text-sm font-medium">
                               <CheckCircleIcon className="w-5 h-5 text-[#10B981] flex-shrink-0" />
                               {feat}
                             </div>
@@ -521,7 +521,7 @@ const SubscriptionPage: React.FC = () => {
                             className={`w-full flex items-center justify-center rounded-xl h-12 font-bold transition-all ${
                               isPopular
                                 ? 'bg-[#0EA5E9] text-white hover:bg-[#0369A1] shadow-lg shadow-[#0EA5E9]/25 hover:-translate-y-0.5'
-                                : 'bg-[#F8F9FC] text-slate-700 hover:bg-slate-100'
+                                : 'bg-[#F8F9FC] dark:bg-slate-800 text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700'
                             } ${!plan.isActive ? 'opacity-50 cursor-not-allowed' : ''}`}
                           >
                             {plan.isActive ? (isPopular ? 'Obtener Oferta' : 'Suscribirse Ahora') : 'No disponible'}
@@ -535,11 +535,11 @@ const SubscriptionPage: React.FC = () => {
               )}
 
               {/* Trust badges */}
-              <div className="mt-8 flex flex-col gap-8 bg-white rounded-2xl p-8 lg:p-12 border border-slate-200 shadow-sm">
+              <div className="mt-8 flex flex-col gap-8 bg-white dark:bg-slate-900 rounded-2xl p-8 lg:p-12 border border-slate-200 dark:border-slate-800 shadow-sm">
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                   <div>
-                    <h2 className="text-slate-900 text-2xl font-extrabold tracking-tight">Métodos de Pago Seguros</h2>
-                    <p className="text-slate-500 text-sm mt-1 font-medium">Transacciones encriptadas con seguridad SSL de nivel bancario.</p>
+                    <h2 className="text-slate-900 dark:text-white text-2xl font-extrabold tracking-tight">Métodos de Pago Seguros</h2>
+                    <p className="text-slate-500 dark:text-slate-400 text-sm mt-1 font-medium">Transacciones encriptadas con seguridad SSL de nivel bancario.</p>
                   </div>
                   <div className="flex gap-2">
                     <LockClosedIcon className="w-6 h-6 text-slate-400" />
@@ -550,10 +550,10 @@ const SubscriptionPage: React.FC = () => {
                 <div className="flex justify-center items-center gap-6 mt-4 opacity-60 flex-wrap">
                   <span className="text-xs font-bold text-slate-400 uppercase tracking-widest">Aceptamos:</span>
                   <div className="flex gap-4 items-center grayscale">
-                    <span className="text-sm font-extrabold text-slate-600">PayPal</span>
-                    <span className="text-sm font-extrabold text-slate-600">Visa</span>
-                    <span className="text-sm font-extrabold text-slate-600">Mastercard</span>
-                    <span className="text-sm font-extrabold text-slate-600">Transferencia</span>
+                    <span className="text-sm font-extrabold text-slate-600 dark:text-slate-300">PayPal</span>
+                    <span className="text-sm font-extrabold text-slate-600 dark:text-slate-300">Visa</span>
+                    <span className="text-sm font-extrabold text-slate-600 dark:text-slate-300">Mastercard</span>
+                    <span className="text-sm font-extrabold text-slate-600 dark:text-slate-300">Transferencia</span>
                   </div>
                 </div>
               </div>
@@ -561,10 +561,10 @@ const SubscriptionPage: React.FC = () => {
           ) : step === 'businessType' ? (
             <div className="flex flex-col gap-6">
               <div className="flex flex-col gap-4 text-center max-w-2xl mx-auto">
-                <h1 className="text-slate-900 text-4xl lg:text-5xl font-extrabold leading-tight tracking-tight">
+                <h1 className="text-slate-900 dark:text-white text-4xl lg:text-5xl font-extrabold leading-tight tracking-tight">
                   Qué tipo de negocio tienes?
                 </h1>
-                <p className="text-slate-500 text-lg font-medium">
+                <p className="text-slate-500 dark:text-slate-400 text-lg font-medium">
                   Activaremos solo los módulos que tu negocio necesita. Si tienes panadería o restaurante, tendrás control de recetas y producción.
                 </p>
               </div>
@@ -578,17 +578,17 @@ const SubscriptionPage: React.FC = () => {
                     <button type="button"
                       key={key}
                       onClick={() => handleBusinessTypeSelect(key)}
-                      className={`group relative bg-white rounded-3xl p-6 border-2 transition-all duration-300 text-center hover:-translate-y-1 cursor-pointer ${
+                      className={`group relative bg-white dark:bg-slate-900 rounded-3xl p-6 border-2 transition-all duration-300 text-center hover:-translate-y-1 cursor-pointer ${
                         isSelected
                           ? 'border-[#0EA5E9] shadow-2xl shadow-[#0EA5E9]/10'
-                          : 'border-slate-200 hover:border-[#0EA5E9]/50 hover:shadow-xl'
+                          : 'border-slate-200 dark:border-slate-800 hover:border-[#0EA5E9]/50 hover:shadow-xl'
                       }`}
                     >
                       <div className={`w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-5 transition-colors duration-300 ${isSelected ? activeBg : bg} group-hover:${activeBg}`}>
                         <Icon className={`w-8 h-8 ${color} transition-colors duration-300`} />
                       </div>
-                      <h3 className="text-lg font-extrabold text-slate-800 group-hover:text-[#0EA5E9] transition-colors">{value.label}</h3>
-                      <p className="text-sm text-slate-500 mt-2 leading-relaxed font-medium">{value.description}</p>
+                      <h3 className="text-lg font-extrabold text-slate-800 dark:text-white group-hover:text-[#0EA5E9] transition-colors">{value.label}</h3>
+                      <p className="text-sm text-slate-500 dark:text-slate-400 mt-2 leading-relaxed font-medium">{value.description}</p>
                     </button>
                   );
                 })}
@@ -597,7 +597,7 @@ const SubscriptionPage: React.FC = () => {
               <div className="text-center mt-4">
                 <button type="button"
                   onClick={() => setStep('plans')}
-                  className="text-sm text-slate-500 hover:text-[#0EA5E9] inline-flex items-center gap-1 font-semibold"
+                  className="text-sm text-slate-500 dark:text-slate-400 hover:text-[#0EA5E9] inline-flex items-center gap-1 font-semibold"
                 >
                   <ArrowLeftIcon className="w-4 h-4" /> Volver a planes
                 </button>
@@ -605,41 +605,41 @@ const SubscriptionPage: React.FC = () => {
             </div>
           ) : (
             <div className="flex flex-col lg:flex-row gap-8">
-              <div className="flex-1 bg-white rounded-2xl p-8 border border-slate-200 shadow-sm">
+              <div className="flex-1 bg-white dark:bg-slate-900 rounded-2xl p-8 border border-slate-200 dark:border-slate-800 shadow-sm">
                 <div className="mb-6">
-                  <button type="button" onClick={() => setStep('businessType')} className="text-sm text-slate-500 hover:text-[#0EA5E9] mb-4 flex items-center gap-1 font-semibold">
+                  <button type="button" onClick={() => setStep('businessType')} className="text-sm text-slate-500 dark:text-slate-400 hover:text-[#0EA5E9] mb-4 flex items-center gap-1 font-semibold">
                     <ArrowLeftIcon className="w-4 h-4" /> Volver a tipo de negocio
                   </button>
-                  <h2 className="text-2xl font-extrabold text-slate-900">Crea tu cuenta de Empresa</h2>
-                  <p className="text-slate-500 text-sm font-medium">Ingresa los datos para tu facturación electrónica.</p>
+                  <h2 className="text-2xl font-extrabold text-slate-900 dark:text-white">Crea tu cuenta de Empresa</h2>
+                  <p className="text-slate-500 dark:text-slate-400 text-sm font-medium">Ingresa los datos para tu facturación electrónica.</p>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
                   <div className="col-span-2">
-                    <label htmlFor={`${fieldId}-businessName`} className="block text-sm font-bold text-slate-700 mb-1">Razón Social / Nombre</label>
-                    <input id={`${fieldId}-businessName`} name="businessName" value={formData.businessName} onChange={handleInputChange} className="w-full rounded-xl border-slate-300 bg-slate-50 p-3 text-sm focus:ring-2 focus:ring-[#0EA5E9] focus:border-[#0EA5E9] font-medium" placeholder="Ej. Mi Empresa S.A." />
+                    <label htmlFor={`${fieldId}-businessName`} className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-1">Razón Social / Nombre</label>
+                    <input id={`${fieldId}-businessName`} name="businessName" value={formData.businessName} onChange={handleInputChange} className="w-full rounded-xl border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white p-3 text-sm focus:ring-2 focus:ring-[#0EA5E9] focus:border-[#0EA5E9] font-medium" placeholder="Ej. Mi Empresa S.A." />
                   </div>
                   <div>
-                    <label htmlFor={`${fieldId}-ruc`} className="block text-sm font-bold text-slate-700 mb-1">RUC</label>
+                    <label htmlFor={`${fieldId}-ruc`} className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-1">RUC</label>
                     <input id={`${fieldId}-ruc`} name="ruc" value={formData.ruc} onChange={handleInputChange}
-                      className={`w-full rounded-xl border bg-slate-50 p-3 text-sm focus:ring-2 focus:ring-[#0EA5E9] font-medium ${formData.ruc && !isValidRuc(formData.ruc) ? 'border-red-500 focus:border-red-500' : 'border-slate-300'}`}
+                      className={`w-full rounded-xl border bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white p-3 text-sm focus:ring-2 focus:ring-[#0EA5E9] font-medium ${formData.ruc && !isValidRuc(formData.ruc) ? 'border-red-500 focus:border-red-500' : 'border-slate-300 dark:border-slate-700'}`}
                       placeholder="179..." maxLength={13}
                     />
                   </div>
                   <div>
-                    <label htmlFor={`${fieldId}-phone`} className="block text-sm font-bold text-slate-700 mb-1">Teléfono</label>
-                    <input id={`${fieldId}-phone`} name="phone" value={formData.phone} onChange={handleInputChange} className="w-full rounded-xl border-slate-300 bg-slate-50 p-3 text-sm focus:ring-2 focus:ring-[#0EA5E9] focus:border-[#0EA5E9] font-medium" placeholder="099..." />
+                    <label htmlFor={`${fieldId}-phone`} className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-1">Teléfono</label>
+                    <input id={`${fieldId}-phone`} name="phone" value={formData.phone} onChange={handleInputChange} className="w-full rounded-xl border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white p-3 text-sm focus:ring-2 focus:ring-[#0EA5E9] focus:border-[#0EA5E9] font-medium" placeholder="099..." />
                   </div>
                   <div className="col-span-2">
-                    <label htmlFor={`${fieldId}-address`} className="block text-sm font-bold text-slate-700 mb-1">Dirección</label>
-                    <input id={`${fieldId}-address`} name="address" value={formData.address} onChange={handleInputChange} className="w-full rounded-xl border-slate-300 bg-slate-50 p-3 text-sm focus:ring-2 focus:ring-[#0EA5E9] focus:border-[#0EA5E9] font-medium" placeholder="Dirección completa" />
+                    <label htmlFor={`${fieldId}-address`} className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-1">Dirección</label>
+                    <input id={`${fieldId}-address`} name="address" value={formData.address} onChange={handleInputChange} className="w-full rounded-xl border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white p-3 text-sm focus:ring-2 focus:ring-[#0EA5E9] focus:border-[#0EA5E9] font-medium" placeholder="Dirección completa" />
                   </div>
                   <div className="col-span-2">
-                    <label htmlFor={`${fieldId}-email`} className="block text-sm font-bold text-slate-700 mb-1">Correo Electrónico</label>
-                    <input id={`${fieldId}-email`} name="email" type="email" value={formData.email} onChange={handleInputChange} className="w-full rounded-xl border-slate-300 bg-slate-50 p-3 text-sm focus:ring-2 focus:ring-[#0EA5E9] focus:border-[#0EA5E9] font-medium" placeholder="tu.nombre@email.com" />
+                    <label htmlFor={`${fieldId}-email`} className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-1">Correo Electrónico</label>
+                    <input id={`${fieldId}-email`} name="email" type="email" value={formData.email} onChange={handleInputChange} className="w-full rounded-xl border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white p-3 text-sm focus:ring-2 focus:ring-[#0EA5E9] focus:border-[#0EA5E9] font-medium" placeholder="tu.nombre@email.com" />
                   </div>
                   <div className="col-span-2">
-                    <label htmlFor={`${fieldId}-password`} className="block text-sm font-bold text-slate-700 mb-1">Contraseña</label>
+                    <label htmlFor={`${fieldId}-password`} className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-1">Contraseña</label>
                     <div className="relative">
                       <input
                         id={`${fieldId}-password`}
@@ -647,7 +647,7 @@ const SubscriptionPage: React.FC = () => {
                         type={showPassword ? "text" : "password"}
                         value={formData.password}
                         onChange={handleInputChange}
-                        className={`w-full rounded-xl border bg-slate-50 p-3 text-sm focus:ring-2 focus:ring-[#0EA5E9] pr-10 font-medium ${formData.password && !isValidPassword(formData.password) ? 'border-red-500 focus:border-red-500' : 'border-slate-300'}`}
+                        className={`w-full rounded-xl border bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white p-3 text-sm focus:ring-2 focus:ring-[#0EA5E9] pr-10 font-medium ${formData.password && !isValidPassword(formData.password) ? 'border-red-500 focus:border-red-500' : 'border-slate-300 dark:border-slate-700'}`}
                         placeholder="********"
                       />
                       <button
@@ -891,11 +891,11 @@ const SubscriptionPage: React.FC = () => {
 
               {/* Order Summary */}
               <div className="lg:w-80">
-                <div className="bg-[#F8F9FC] rounded-2xl p-6 border border-slate-200 sticky top-24">
-                  <h3 className="font-extrabold text-slate-900 mb-4">Resumen del Pedido</h3>
+                <div className="bg-[#F8F9FC] dark:bg-slate-900 rounded-2xl p-6 border border-slate-200 dark:border-slate-800 sticky top-24 shadow-sm">
+                  <h3 className="font-extrabold text-slate-900 dark:text-white mb-4">Resumen del Pedido</h3>
                   <div className="flex justify-between mb-2 text-sm">
-                    <span className="text-slate-500 font-medium">Plan Seleccionado</span>
-                    <span className="font-semibold text-slate-900">
+                    <span className="text-slate-500 dark:text-slate-400 font-medium">Plan Seleccionado</span>
+                    <span className="font-semibold text-slate-900 dark:text-white">
                       {(() => {
                         const cp = plans.find(p => p.code === selectedPlan);
                         return cp ? `${cp.name} (${cp.period})` : 'Plan desconocido';
@@ -903,12 +903,12 @@ const SubscriptionPage: React.FC = () => {
                     </span>
                   </div>
                   <div className="flex justify-between mb-2 text-sm">
-                    <span className="text-slate-500 font-medium">Tipo de Negocio</span>
-                    <span className="font-semibold text-slate-900">{BUSINESS_TYPES[selectedBusinessType]?.label || 'General'}</span>
+                    <span className="text-slate-500 dark:text-slate-400 font-medium">Tipo de Negocio</span>
+                    <span className="font-semibold text-slate-900 dark:text-white">{BUSINESS_TYPES[selectedBusinessType]?.label || 'General'}</span>
                   </div>
                   <div className="flex justify-between mb-2 text-sm">
-                    <span className="text-slate-500 font-medium">Subtotal</span>
-                    <span className="font-semibold text-slate-900">
+                    <span className="text-slate-500 dark:text-slate-400 font-medium">Subtotal</span>
+                    <span className="font-semibold text-slate-900 dark:text-white">
                       ${(() => {
                         const cp = plans.find(p => p.code === selectedPlan);
                         return cp ? cp.price.toFixed(2) : '0.00';
@@ -916,8 +916,8 @@ const SubscriptionPage: React.FC = () => {
                     </span>
                   </div>
                   <div className="flex justify-between mb-4 text-sm">
-                    <span className="text-slate-500 font-medium">IVA 15%</span>
-                    <span className="font-semibold text-slate-900">
+                    <span className="text-slate-500 dark:text-slate-400 font-medium">IVA 15%</span>
+                    <span className="font-semibold text-slate-900 dark:text-white">
                       ${(() => {
                         const cp = plans.find(p => p.code === selectedPlan);
                         if (!cp) return '0.00';
@@ -925,8 +925,8 @@ const SubscriptionPage: React.FC = () => {
                       })()}
                     </span>
                   </div>
-                  <hr className="border-slate-200 mb-4" />
-                  <div className="flex justify-between text-lg font-extrabold text-slate-900">
+                  <hr className="border-slate-200 dark:border-slate-800 mb-4" />
+                  <div className="flex justify-between text-lg font-extrabold text-slate-900 dark:text-white">
                     <span>Total</span>
                     <span>
                       ${(() => {
@@ -935,7 +935,7 @@ const SubscriptionPage: React.FC = () => {
                       })()}
                     </span>
                   </div>
-                  <div className="mt-4 text-xs text-slate-400 text-center font-medium">
+                  <div className="mt-4 text-xs text-slate-400 dark:text-slate-500 text-center font-medium">
                     Al suscribirte aceptas nuestros términos y condiciones de servicio.
                   </div>
                 </div>
