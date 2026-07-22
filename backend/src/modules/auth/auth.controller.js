@@ -43,7 +43,13 @@ const authController = {
   }),
 
   logout: catchAsync(async (req, res) => {
-    clearAuthCookies(res);
+    res.clearCookie('adminToken', AUTH_COOKIE_OPTS);
+    res.clearCookie('refreshToken', AUTH_COOKIE_OPTS);
+    res.json({ success: true });
+  }),
+
+  clientLogout: catchAsync(async (req, res) => {
+    res.clearCookie('clientToken', AUTH_COOKIE_OPTS);
     res.json({ success: true });
   }),
 

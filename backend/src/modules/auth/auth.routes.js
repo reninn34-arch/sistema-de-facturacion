@@ -13,6 +13,7 @@ router.post('/api/change-password', verifyToken, authController.changeUserPasswo
 router.post('/api/forgot-password', authController.forgotPassword);
 router.post('/api/reset-password', authController.resetPassword);
 router.post('/api/auth/client/login', authController.clientLogin);
+router.post('/api/auth/client/logout', authController.clientLogout);
 router.post('/api/auth/client/forgot-password', authController.clientForgotPassword);
 router.post('/api/auth/client/reset-password', authController.clientResetPassword);
 router.post('/api/auth/client/change-password', verifyToken, authController.changeClientPassword);
