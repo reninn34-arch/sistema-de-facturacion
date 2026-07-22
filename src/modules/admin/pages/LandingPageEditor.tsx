@@ -1328,6 +1328,46 @@ const LandingPageEditor: React.FC = () => {
         </div>
       </CollapsibleSection>
 
+      {/* Información de Contacto y Soporte Técnico */}
+      <CollapsibleSection title="Información de Contacto y Soporte Técnico" sectionKey="contact">
+        <div className="space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-xs font-bold text-slate-700 mb-1">Teléfono / WhatsApp de Soporte</label>
+              <input
+                type="text"
+                value={content.contact.phone}
+                onChange={(e) => updateField('contact', 'phone', e.target.value)}
+                placeholder="Ej. +593 99 999 9999"
+                className="w-full border border-slate-300 rounded-xl p-3 text-sm font-medium focus:ring-2 focus:ring-sky-500"
+              />
+              <p className="text-[11px] text-slate-400 mt-1">Este número se usará para el botón directo de WhatsApp de Soporte Técnico.</p>
+            </div>
+            <div>
+              <label className="block text-xs font-bold text-slate-700 mb-1">Correo Electrónico de Soporte</label>
+              <input
+                type="text"
+                value={content.contact.email}
+                onChange={(e) => updateField('contact', 'email', e.target.value)}
+                placeholder="Ej. soporte@azulpro.com"
+                className="w-full border border-slate-300 rounded-xl p-3 text-sm font-medium focus:ring-2 focus:ring-sky-500"
+              />
+              <p className="text-[11px] text-slate-400 mt-1">Correo donde llegarán las solicitudes y tickets de ayuda.</p>
+            </div>
+          </div>
+          <div>
+            <label className="block text-xs font-bold text-slate-700 mb-1">Horario de Atención</label>
+            <input
+              type="text"
+              value={content.contact.hours}
+              onChange={(e) => updateField('contact', 'hours', e.target.value)}
+              placeholder="Ej. Lun - Vie: 08:00 - 18:00"
+              className="w-full border border-slate-300 rounded-xl p-3 text-sm font-medium focus:ring-2 focus:ring-sky-500"
+            />
+          </div>
+        </div>
+      </CollapsibleSection>
+
       {/* Bottom save button */}
       <div className="flex justify-end pt-2">
         {renderSaveButton()}
