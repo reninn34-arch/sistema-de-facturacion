@@ -479,7 +479,7 @@ const ClientDashboard = () => {
                 <div className="flex items-start gap-3">
                   <QuestionMarkCircleIcon className="w-6 h-6 text-[#0ea5e9]" />
                   <div>
-                    <h4 className="text-sm font-bold text-[#0d121b] dark:text-white mb-1">Â¿Necesitas ayuda?</h4>
+                    <h4 className="text-sm font-bold text-[#0d121b] dark:text-white mb-1">¿Necesitas ayuda?</h4>
                     <p className="text-xs text-[#4c669a] dark:text-slate-400 leading-relaxed mb-3">
                       Si tienes problemas para visualizar tus facturas, contacta a nuestro soporte técnico.
                     </p>
