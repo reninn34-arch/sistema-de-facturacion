@@ -1,5 +1,5 @@
 import React, { useState, useId } from 'react';
-import { EnvelopeIcon, LockClosedIcon, EyeIcon, EyeSlashIcon, ShieldCheckIcon, ExclamationCircleIcon, DocumentTextIcon } from '@heroicons/react/24/outline';
+import { EnvelopeIcon, LockClosedIcon, EyeIcon, EyeSlashIcon, ShieldCheckIcon, ExclamationCircleIcon, DocumentTextIcon, XMarkIcon, CheckCircleIcon, PhoneIcon } from '@heroicons/react/24/outline';
 
 const ClientLogin = () => {
   const fieldId = useId();
@@ -8,6 +8,16 @@ const ClientLogin = () => {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+
+  // Recovery modal state
+  const [showResetModal, setShowResetModal] = useState(false);
+  const [resetRuc, setResetRuc] = useState('');
+  const [resetMessage, setResetMessage] = useState('');
+  const [devResetLink, setDevResetLink] = useState('');
+  const [resetLoading, setResetLoading] = useState(false);
+
+  // Support modal state
+  const [showSupportModal, setShowSupportModal] = useState(false);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -42,6 +52,32 @@ const ClientLogin = () => {
     }
   };
 
+  const handleClientForgotPassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setResetMessage('');
+    setDevResetLink('');
+    setResetLoading(true);
+    try {
+      const API_URL = import.meta.env.VITE_BACKEND_URL || '';
+      const res = await fetch(`${API_URL}/api/auth/client/forgot-password`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ identification: resetRuc })
+      });
+      const data = await res.json();
+      if (data.success) {
+        setResetMessage(data.message || 'Solicitud de recuperación procesada correctamente.');
+        if (data.devResetLink) setDevResetLink(data.devResetLink);
+      } else {
+        setResetMessage(data.message || 'No se encontró un registro con esa Cédula/RUC.');
+      }
+    } catch (err) {
+      setResetMessage('Error de conexión con el servidor.');
+    } finally {
+      setResetLoading(false);
+    }
+  };
+
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-br from-sky-50 to-slate-100 dark:from-slate-900 dark:to-slate-800 transition-colors duration-300">
       <header className="flex items-center justify-between border-b border-sky-100 dark:border-slate-700 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md px-10 py-3 sticky top-0 z-50">
@@ -51,9 +87,10 @@ const ClientLogin = () => {
           </div>
           <h2 className="text-slate-900 dark:text-white text-lg font-bold tracking-tight">Portal de Facturación</h2>
         </div>
-        <div className="flex gap-8">
+        <div className="flex gap-8 items-center">
           <a className="text-slate-500 dark:text-slate-400 text-sm font-medium hover:text-sky-500 dark:hover:text-sky-400 transition-colors" href="/">Inicio</a>
-          <a className="text-slate-500 dark:text-slate-400 text-sm font-medium hover:text-sky-500 dark:hover:text-sky-400 transition-colors" href="#">Ayuda</a>
+          <a className="text-slate-500 dark:text-slate-400 text-sm font-medium hover:text-sky-500 dark:hover:text-sky-400 transition-colors" href="/ayuda">Ayuda</a>
+          <button type="button" onClick={() => setShowSupportModal(true)} className="text-sky-500 dark:text-sky-400 text-sm font-bold hover:underline">Soporte Técnico</button>
         </div>
       </header>
 
@@ -95,7 +132,7 @@ const ClientLogin = () => {
               <div className="flex flex-col gap-2">
                 <div className="flex justify-between items-center">
                   <label htmlFor={`${fieldId}-password`} className="text-slate-700 dark:text-slate-200 text-sm font-semibold">Contraseña</label>
-                  <a href="/portal/reset-password" className="text-sky-500 dark:text-sky-400 text-xs font-bold hover:underline">Olvidaste tu contraseña?</a>
+                  <button type="button" onClick={() => setShowResetModal(true)} className="text-sky-500 dark:text-sky-400 text-xs font-bold hover:underline">Olvidaste tu contraseña?</button>
                 </div>
                 <div className="flex w-full items-stretch rounded-lg group">
                   <div className="text-slate-400 flex border border-r-0 border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-700 items-center justify-center px-3 rounded-l-lg">
@@ -135,7 +172,7 @@ const ClientLogin = () => {
             <div className="mt-8 pt-6 border-t border-slate-200 dark:border-slate-700 flex flex-col items-center gap-4">
               <p className="text-slate-500 dark:text-slate-400 text-sm">
                 ¿Problemas para ingresar?
-                <a className="text-sky-500 dark:text-sky-400 font-bold hover:underline ml-1" href="#">Contactar Soporte</a>
+                <button type="button" onClick={() => setShowSupportModal(true)} className="text-sky-500 dark:text-sky-400 font-bold hover:underline ml-1">Contactar Soporte</button>
               </p>
               <div className="flex items-center gap-2 text-slate-400 dark:text-slate-500 px-3 py-1 bg-slate-50 dark:bg-slate-700/50 rounded-full border border-slate-200 dark:border-slate-600">
                 <ShieldCheckIcon className="w-4 h-4" />

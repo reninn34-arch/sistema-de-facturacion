@@ -81,13 +81,14 @@ interface ForgotPasswordViewProps {
     resetEmail: string;
     onResetEmailChange: (value: string) => void;
     resetMessage: string;
+    devResetLink?: string;
     loading: boolean;
     onSubmit: (e: React.FormEvent) => void;
     onBack: () => void;
 }
 
 const ForgotPasswordView: React.FC<ForgotPasswordViewProps> = ({
-    landingLogo, resetEmail, onResetEmailChange, resetMessage, loading, onSubmit, onBack
+    landingLogo, resetEmail, onResetEmailChange, resetMessage, devResetLink, loading, onSubmit, onBack
 }) => {
     const fieldId = useId();
     const isError = resetMessage.startsWith('Error');
@@ -112,17 +113,27 @@ const ForgotPasswordView: React.FC<ForgotPasswordViewProps> = ({
                         </div>
 
                         {resetMessage && (
-                            <div className={`mb-4 p-3 rounded-xl text-xs font-semibold flex items-center gap-2 ${
+                            <div className={`mb-4 p-3 rounded-xl text-xs font-semibold flex flex-col gap-2 ${
                                 isError
                                     ? 'bg-red-50 text-red-700 border border-red-200'
                                     : 'bg-emerald-50 text-emerald-700 border border-emerald-200'
                             }`}>
-                                {isError ? (
-                                    <ExclamationCircleIcon className="w-4 h-4 flex-shrink-0" />
-                                ) : (
-                                    <CheckCircleIcon className="w-4 h-4 flex-shrink-0" />
+                                <div className="flex items-center gap-2">
+                                    {isError ? (
+                                        <ExclamationCircleIcon className="w-4 h-4 flex-shrink-0" />
+                                    ) : (
+                                        <CheckCircleIcon className="w-4 h-4 flex-shrink-0" />
+                                    )}
+                                    <span>{resetMessage}</span>
+                                </div>
+                                {devResetLink && (
+                                    <div className="mt-2 pt-2 border-t border-emerald-200 text-center">
+                                        <p className="text-[10px] font-black uppercase tracking-wider text-emerald-800 mb-1.5">Enlace de recuperación generado:</p>
+                                        <a href={devResetLink} className="inline-flex items-center justify-center gap-1.5 bg-[#0EA5E9] text-white px-4 py-2 rounded-xl text-xs font-bold hover:bg-[#0369A1] transition-all shadow-sm">
+                                            Restablecer contraseña ahora →
+                                        </a>
+                                    </div>
                                 )}
-                                {resetMessage}
                             </div>
                         )}
 
@@ -179,6 +190,7 @@ const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
     const [view, setView] = useState<'login' | 'forgot'>('login');
     const [resetEmail, setResetEmail] = useState('');
     const [resetMessage, setResetMessage] = useState('');
+    const [devResetLink, setDevResetLink] = useState('');
     const [landingLogo, setLandingLogo] = useState<string | null | false>(null);
 
     useEffect(() => {
@@ -199,6 +211,7 @@ const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
     const handleForgotPassword = async (e: React.FormEvent) => {
         e.preventDefault();
         setResetMessage('');
+        setDevResetLink('');
         setLoading(true);
         try {
             const response = await fetch(`${API_URL}/api/forgot-password`, {
@@ -208,7 +221,8 @@ const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
             });
             const data = await response.json();
             if (data.success) {
-                setResetMessage('Enlace enviado. Revise su correo.');
+                setResetMessage(data.message || 'Enlace enviado. Revise su correo.');
+                if (data.devResetLink) setDevResetLink(data.devResetLink);
             } else {
                 setResetMessage(data.message || 'Error al solicitar recuperación.');
             }
@@ -290,6 +304,7 @@ const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
                 resetEmail={resetEmail}
                 onResetEmailChange={setResetEmail}
                 resetMessage={resetMessage}
+                devResetLink={devResetLink}
                 loading={loading}
                 onSubmit={handleForgotPassword}
                 onBack={() => setView('login')}

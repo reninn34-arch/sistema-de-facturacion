@@ -79,8 +79,14 @@ const authController = {
     const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
     const resetLink = `${frontendUrl}/reset-password?token=${result.resetToken}`;
     const emailContent = emailService.buildPasswordResetEmail(resetLink, result.name);
-    await emailService.sendEmail({ to: result.email, ...emailContent });
-    res.json({ success: true, message: 'Si el correo existe, recibirás un enlace de recuperación.' });
+    const emailRes = await emailService.sendEmail({ to: result.email, ...emailContent });
+    
+    const payload = { success: true, message: 'Si el correo existe, recibirás un enlace de recuperación.' };
+    if (emailRes?.mock || process.env.NODE_ENV !== 'production' || !process.env.SMTP_HOST) {
+      payload.devResetLink = resetLink;
+      console.log(`[PASSWORD RESET LINK]: ${resetLink}`);
+    }
+    res.json(payload);
   }),
 
   resetPassword: catchAsync(async (req, res) => {
@@ -109,8 +115,14 @@ const authController = {
     const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
     const resetLink = `${frontendUrl}/portal/reset-password?token=${result.resetToken}&id=${result.ruc}`;
     const emailContent = emailService.buildPasswordResetEmail(resetLink, result.name);
-    await emailService.sendEmail({ to: result.email, ...emailContent });
-    res.json({ success: true, message: 'Si los datos son correctos, recibirás un enlace en tu correo.' });
+    const emailRes = await emailService.sendEmail({ to: result.email, ...emailContent });
+
+    const payload = { success: true, message: 'Si los datos son correctos, recibirás un enlace en tu correo.' };
+    if (emailRes?.mock || process.env.NODE_ENV !== 'production' || !process.env.SMTP_HOST) {
+      payload.devResetLink = resetLink;
+      console.log(`[CLIENT RESET LINK]: ${resetLink}`);
+    }
+    res.json(payload);
   }),
 
   clientResetPassword: catchAsync(async (req, res) => {

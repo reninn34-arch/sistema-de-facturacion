@@ -483,7 +483,17 @@ const ClientDashboard = () => {
                     <p className="text-xs text-[#4c669a] dark:text-slate-400 leading-relaxed mb-3">
                       Si tienes problemas para visualizar tus facturas, contacta a nuestro soporte técnico.
                     </p>
-                    <button type="button" className="text-xs font-bold text-[#0ea5e9] underline">Contactar Soporte</button>
+                    <div className="flex flex-wrap gap-2.5 mt-2">
+                      <a href="https://wa.me/593999999999?text=Hola%2C%20necesito%20soporte%20t%C3%A9cnico%20en%20el%20portal%20de%20facturaci%C3%B3n" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#25D366] text-white text-xs font-bold hover:bg-[#1ebe5d] transition-all shadow-sm">
+                        💬 Soporte por WhatsApp
+                      </a>
+                      <a href="mailto:info@azulpro.com?subject=Soporte%20Tecnico%20Portal%20Clientes" className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#0ea5e9] text-white text-xs font-bold hover:bg-sky-600 transition-all shadow-sm">
+                        ✉️ Correo Electrónico
+                      </a>
+                      <a href="/ayuda" target="_blank" className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-200 dark:bg-slate-700 text-slate-800 dark:text-slate-200 text-xs font-bold hover:bg-slate-300 dark:hover:bg-slate-600 transition-all">
+                        ❓ Preguntas Frecuentes
+                      </a>
+                    </div>
                   </div>
                 </div>
               </div>
