@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useId } from 'react';
 import { TrophyIcon, CogIcon, GiftIcon, ArrowPathIcon, ChartBarIcon, ExclamationTriangleIcon, PlusIcon, TrashIcon, PencilIcon, XMarkIcon, CheckCircleIcon } from '@heroicons/react/24/outline';
+import { client } from '../../../api/client';
 
 interface PointsConfig {
   enabled: boolean;
@@ -53,22 +54,19 @@ const PointsAdmin: React.FC = () => {
   const [notify, setNotify] = useState('');
   const fieldId = useId();
 
-  const token = localStorage.getItem('adminToken') || localStorage.getItem('token');
-  const headers = { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` };
-
   const loadAll = async () => {
     setLoading(true);
     try {
       const [cfgRes, bizRes, refRes, przRes] = await Promise.all([
-        fetch(`${API_URL}/api/admin/points-config`, { headers }),
-        fetch(`${API_URL}/api/admin/points`, { headers }),
-        fetch(`${API_URL}/api/admin/referrals/all`, { headers }),
-        fetch(`${API_URL}/api/admin/prizes`, { headers }),
+        client.get('/api/admin/points-config').catch(() => ({ data: null })),
+        client.get('/api/admin/points').catch(() => ({ data: [] })),
+        client.get('/api/admin/referrals/all').catch(() => ({ data: [] })),
+        client.get('/api/admin/prizes').catch(() => ({ data: [] })),
       ]);
-      if (cfgRes.ok) setConfig(await cfgRes.json());
-      if (bizRes.ok) setBusinesses(await bizRes.json());
-      if (refRes.ok) setReferrals(await refRes.json());
-      if (przRes.ok) setPrizes(await przRes.json());
+      if (cfgRes.data) setConfig(cfgRes.data);
+      if (Array.isArray(bizRes.data)) setBusinesses(bizRes.data);
+      if (Array.isArray(refRes.data)) setReferrals(refRes.data);
+      if (Array.isArray(przRes.data)) setPrizes(przRes.data);
     } catch (e) { console.error(e); }
     finally { setLoading(false); }
   };
@@ -78,20 +76,13 @@ const PointsAdmin: React.FC = () => {
   const saveConfig = async () => {
     setSaving(true);
     try {
-      const res = await fetch(`${API_URL}/api/admin/points-config`, {
-        method: 'PUT', headers, body: JSON.stringify(config)
-      });
-      const data = await res.json().catch(() => ({}));
-      if (res.ok) {
-        setNotify('Configuracion guardada');
-        setTimeout(() => setNotify(''), 3000);
-        loadAll();
-      } else {
-        setNotify('Error: ' + (data.message || 'No se pudo guardar'));
-        setTimeout(() => setNotify(''), 4000);
-      }
+      await client.put('/api/admin/points-config', config);
+      setNotify('Configuracion guardada');
+      setTimeout(() => setNotify(''), 3000);
+      loadAll();
     } catch (e: any) {
-      setNotify('Error de conexion: ' + (e.message || 'Revisa el servidor'));
+      const msg = e.response?.data?.message || e.message || 'No se pudo guardar';
+      setNotify('Error: ' + msg);
       setTimeout(() => setNotify(''), 4000);
     }
     finally { setSaving(false); }
@@ -100,46 +91,33 @@ const PointsAdmin: React.FC = () => {
   const adjustBusinessPoints = async () => {
     if (!adjustBusiness) return;
     try {
-      const res = await fetch(`${API_URL}/api/admin/points/${adjustBusiness.id}`, {
-        method: 'PUT', headers, body: JSON.stringify({ amount: adjustBusiness.amount, reason: adjustBusiness.reason })
-      });
-      const data = await res.json().catch(() => ({}));
-      if (res.ok) {
-        setNotify(`Puntos ajustados: ${adjustBusiness.amount > 0 ? '+' : ''}${adjustBusiness.amount}`);
-        setTimeout(() => setNotify(''), 3000);
-        setAdjustBusiness(null);
-        loadAll();
-      } else {
-        setNotify('Error: ' + (data.message || 'No se pudo ajustar'));
-        setTimeout(() => setNotify(''), 4000);
-      }
+      await client.put(`/api/admin/points/${adjustBusiness.id}`, { amount: adjustBusiness.amount, reason: adjustBusiness.reason });
+      setNotify(`Puntos ajustados: ${adjustBusiness.amount > 0 ? '+' : ''}${adjustBusiness.amount}`);
+      setTimeout(() => setNotify(''), 3000);
+      setAdjustBusiness(null);
+      loadAll();
     } catch (e: any) {
-      setNotify('Error de conexion: ' + (e.message || 'Revisa el servidor'));
+      const msg = e.response?.data?.message || e.message || 'No se pudo ajustar';
+      setNotify('Error: ' + msg);
       setTimeout(() => setNotify(''), 4000);
     }
   };
 
   const savePrize = async () => {
     try {
-      const url = editingPrize
-        ? `${API_URL}/api/admin/prizes/${editingPrize.id}`
-        : `${API_URL}/api/admin/prizes`;
-      const res = await fetch(url, {
-        method: editingPrize ? 'PUT' : 'POST', headers, body: JSON.stringify(prizeForm)
-      });
-      const data = await res.json().catch(() => ({}));
-      if (res.ok) {
-        setNotify(editingPrize ? 'Premio actualizado' : 'Premio creado');
-        setTimeout(() => setNotify(''), 3000);
-        setEditingPrize(null);
-        setPrizeForm({ name: '', description: '', points: 100, icon: '🎁' });
-        loadAll();
+      if (editingPrize) {
+        await client.put(`/api/admin/prizes/${editingPrize.id}`, prizeForm);
       } else {
-        setNotify('Error: ' + (data.message || 'No se pudo guardar premio'));
-        setTimeout(() => setNotify(''), 4000);
+        await client.post('/api/admin/prizes', prizeForm);
       }
+      setNotify(editingPrize ? 'Premio actualizado' : 'Premio creado');
+      setTimeout(() => setNotify(''), 3000);
+      setEditingPrize(null);
+      setPrizeForm({ name: '', description: '', points: 100, icon: '🎁' });
+      loadAll();
     } catch (e: any) {
-      setNotify('Error de conexion: ' + (e.message || 'Revisa el servidor'));
+      const msg = e.response?.data?.message || e.message || 'No se pudo guardar premio';
+      setNotify('Error: ' + msg);
       setTimeout(() => setNotify(''), 4000);
     }
   };
@@ -147,7 +125,7 @@ const PointsAdmin: React.FC = () => {
   const deletePrize = async (id: string) => {
     if (!confirm('Eliminar este premio?')) return;
     try {
-      await fetch(`${API_URL}/api/admin/prizes/${id}`, { method: 'DELETE', headers });
+      await client.delete(`/api/admin/prizes/${id}`);
       loadAll();
     } catch (e) { console.error(e); }
   };

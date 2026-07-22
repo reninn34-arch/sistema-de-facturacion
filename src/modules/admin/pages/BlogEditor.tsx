@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useId } from 'react';
 import { PlusIcon, PencilIcon, TrashIcon, EyeIcon, CheckCircleIcon, ExclamationTriangleIcon } from '@heroicons/react/24/outline';
+import { client } from '../../../api/client';
 
 interface BlogPost {
   id: string;
@@ -27,15 +28,13 @@ const BlogEditor: React.FC = () => {
   const [saving, setSaving] = useState(false);
   const fieldId = useId();
 
-  const token = localStorage.getItem('adminToken') || localStorage.getItem('token');
-
   useEffect(() => { loadPosts(); }, []);
 
   const loadPosts = async () => {
     setLoading(true);
     try {
-      const res = await fetch(`${API_URL}/api/admin/blog`, { headers: { 'Authorization': `Bearer ${token}` } });
-      setPosts(await res.json());
+      const res = await client.get('/api/admin/blog');
+      setPosts(res.data || []);
     } catch (e) { console.error(e); }
     finally { setLoading(false); }
   };
@@ -44,18 +43,16 @@ const BlogEditor: React.FC = () => {
     if (!form.title || !form.content) { setNotify('Titulo y contenido requeridos'); return; }
     setSaving(true);
     try {
-      const url = editing ? `${API_URL}/api/admin/blog/${editing.id}` : `${API_URL}/api/admin/blog`;
-      const method = editing ? 'PUT' : 'POST';
-      const res = await fetch(url, {
-        method, headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
-        body: JSON.stringify({ ...form, tags: form.tags.split(',').map(t => t.trim()).filter(Boolean) })
-      });
-      if (res.ok) {
-        setNotify(editing ? 'Post actualizado' : 'Post creado');
-        setEditing(null);
-        resetForm();
-        loadPosts();
+      const payload = { ...form, tags: form.tags.split(',').map(t => t.trim()).filter(Boolean) };
+      if (editing) {
+        await client.put(`/api/admin/blog/${editing.id}`, payload);
+      } else {
+        await client.post('/api/admin/blog', payload);
       }
+      setNotify(editing ? 'Post actualizado' : 'Post creado');
+      setEditing(null);
+      resetForm();
+      loadPosts();
     } catch (e) { console.error(e); }
     finally { setSaving(false); setTimeout(() => setNotify(''), 3000); }
   };
@@ -73,8 +70,10 @@ const BlogEditor: React.FC = () => {
 
   const remove = async (id: string) => {
     if (!confirm('Eliminar este post?')) return;
-    await fetch(`${API_URL}/api/admin/blog/${id}`, { method: 'DELETE', headers: { 'Authorization': `Bearer ${token}` } });
-    loadPosts();
+    try {
+      await client.delete(`/api/admin/blog/${id}`);
+      loadPosts();
+    } catch (e) { console.error(e); }
   };
 
   const resetForm = () => setForm({ title: '', content: '', excerpt: '', coverImage: '', category: 'tutoriales', tags: '', videoUrl: '', published: false });
